@@ -1,0 +1,106 @@
+name: Briefing — Deploy to Cloudflare Pages
+
+on:
+  push:
+    branches: [ "main" ]
+    paths:
+      - "briefing/**"
+      - ".github/workflows/briefing_deploy.yml"
+      - "mkdocs.yml"
+      - "package.json"
+      - "package-lock.json"
+  pull_request:
+    branches: [ "main" ]
+    paths:
+      - "briefing/**"
+      - ".github/workflows/briefing_deploy.yml"
+      - "mkdocs.yml"
+      - "package.json"
+      - "package-lock.json"
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    env:
+      CF_ACCOUNT_ID: ${{ secrets.CF_ACCOUNT_ID }}
+      CF_API_TOKEN: ${{ secrets.CF_API_TOKEN }}
+      PROJECT_NAME: runart-briefing
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Detect build system
+        id: detect
+        run: |
+          set -e
+          if [ -f "mkdocs.yml" ]; then
+            echo "type=mkdocs" >> $GITHUB_OUTPUT
+          elif [ -f "package.json" ]; then
+            echo "type=npm" >> $GITHUB_OUTPUT
+          else
+            echo "type=static" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Setup Python (for MkDocs)
+        if: steps.detect.outputs.type == 'mkdocs'
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.x"
+
+      - name: Install MkDocs dependencies
+        if: steps.detect.outputs.type == 'mkdocs'
+        run: |
+          pip install --upgrade pip
+          pip install mkdocs mkdocs-material
+
+      - name: Build MkDocs site
+        if: steps.detect.outputs.type == 'mkdocs'
+        working-directory: .
+        run: |
+          mkdocs build --clean --site-dir briefing/site
+
+      - name: Setup Node (for npm builds)
+        if: steps.detect.outputs.type == 'npm'
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      - name: Install npm deps
+        if: steps.detect.outputs.type == 'npm'
+        working-directory: .
+        run: |
+          npm ci || npm install
+
+      - name: Run npm build
+        if: steps.detect.outputs.type == 'npm'
+        working-directory: .
+        run: |
+          npm run build
+
+      - name: Resolve output directory
+        id: outdir
+        run: |
+          set -e
+          if [ "${{ steps.detect.outputs.type }}" = "mkdocs" ] && [ -d "briefing/site" ]; then
+            echo "dir=briefing/site" >> $GITHUB_OUTPUT
+          elif [ "${{ steps.detect.outputs.type }}" = "npm" ] && [ -d "briefing/dist" ]; then
+            echo "dir=briefing/dist" >> $GITHUB_OUTPUT
+          elif [ "${{ steps.detect.outputs.type }}" = "npm" ] && [ -d "briefing/build" ]; then
+            echo "dir=briefing/build" >> $GITHUB_OUTPUT
+          elif [ -d "briefing" ]; then
+            echo "dir=briefing" >> $GITHUB_OUTPUT
+          else
+            echo "No se encontró carpeta de salida." >&2
+            exit 1
+          fi
+          echo "Output dir = ${{ steps.outdir.outputs.dir }}"
+
+      - name: Deploy to Cloudflare Pages (Preview on PR / Prod on main)
+        uses: cloudflare/pages-action@v1
+        with:
+          apiToken: ${{ env.CF_API_TOKEN }}
+          accountId: ${{ env.CF_ACCOUNT_ID }}
+          projectName: ${{ env.PROJECT_NAME }}
+          directory: ${{ steps.outdir.outputs.dir }}
+          gitHubToken: ${{ secrets.GITHUB_TOKEN }}
