@@ -1,0 +1,45 @@
+site_name: RUN Art Foundry — Briefing Privado
+site_url: https://example.pages.dev/
+site_description: Micrositio privado para documentación, auditorías y toma de decisiones con el cliente.
+repo_name: runart-briefing
+theme:
+  name: material
+  language: es
+  features:
+    - navigation.sections
+    - navigation.expand
+    - content.code.copy
+    - content.action.edit
+    - search.suggest
+  palette:
+    scheme: default
+    primary: indigo
+    accent: light blue
+  custom_dir: overrides
+extra:
+  generator: false
+  social: []
+  # Paleta placeholder, ajustable más adelante vía CSS si se requiere.
+nav:
+  - Inicio: index.md
+  - Plan & Roadmap: plan/index.md
+  - Fases: fases/index.md
+  - Auditoría: auditoria/index.md
+  - Proceso: proceso/index.md
+  - Decisiones:
+      - Índice de decisiones: decisiones/index.md
+      - Contenido sitio viejo (brief): decisiones/contenido-sitio-viejo.md
+  - Galería: galeria/index.md
+  - Inbox (Decisiones): inbox/index.md
+  - Acerca: acerca/index.md
+plugins:
+  - search
+markdown_extensions:
+  - admonition
+  - footnotes
+  - toc:
+      permalink: true
+extra_css:
+  - overrides/extra.css
+extra_javascript: []
+# Evitar indexación por robots: robots.txt + meta en overrides/main.html

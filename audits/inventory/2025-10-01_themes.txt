@@ -1,0 +1,4 @@
+generatepress | GeneratePress | 3.5.1
+generatepress_child | GeneratePress Child | 0.1
+twentytwentyfive | Twenty Twenty-Five | 1.2
+twentytwentyfour | Twenty Twenty-Four | 1.3

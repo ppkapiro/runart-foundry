@@ -1,0 +1,63 @@
+# Sensibles / entorno
+.env
+.env.*
+secrets/
+credentials/
+*.key
+*.pem
+
+# Artefactos temporales
+*.log
+*.pid
+tmp/
+sandbox/
+.cache/
+dist/
+build/
+out/
+node_modules/
+__pycache__/
+*.pyc
+*.tmp
+*.bak
+
+# Builds generados
+briefing/site/
+**/site/
+
+# Mirror: Excluir payload completo (solo plantillas en Git)
+mirror/raw/**
+mirror/**/*.zip
+mirror/**/*.sql
+mirror/**/*.gz
+mirror/**/wp-content/**
+mirror/**/cache/**
+mirror/**/backup*/
+mirror/**/wp-config.php
+
+# Auditorías: Excluir logs
+audits/_logs/
+audits/**/*.log
+audits/**/*.pid
+
+# Briefing: Excluir logs
+briefing/_logs/
+briefing/**/*.log
+
+# Python virtual environments
+.venv/
+venv/
+env/
+ENV/
+
+# SO / Editor
+.DS_Store
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Lighthouse/Axe: Excluir reportes JSON grandes (opcional)
+audits/lighthouse/*.json
+audits/axe/*.json

@@ -1,0 +1,6 @@
+1001M	.
+760M	./mirror
+237M	./.tools
+4.3M	./audits
+8.0K	./docs
+4.0K	./source

@@ -1,0 +1,6 @@
+=== docs/ (nivel 1) ===
+8.0K	docs
+
+=== Estructura de docs/ ===
+docs
+

@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+
+{% block site_nav %}
+  <a class="skip-link" href="#contenido-principal">Saltar al contenido</a>
+  {{ super() }}
+{% endblock %}
+
+{% block content %}
+<main id="contenido-principal" role="main" tabindex="-1">
+  {{ super() }}
+</main>
+{% endblock %}
+
+{% block extrahead %}
+  {{ super() }}
+  <meta name="robots" content="noindex, nofollow" />
+{% endblock %}

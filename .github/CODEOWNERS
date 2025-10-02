@@ -1,0 +1,37 @@
+# CODEOWNERS - Define code ownership per module
+# PRs touching these paths require approval from respective owners
+# 
+# Documentation: https://docs.github.com/en/repositories/managing-your-repositorys-settings-and-features/customizing-your-repository/about-code-owners
+
+# Default owners for everything in the repo
+* @ppkapiro
+
+# Briefing module (Cloudflare Pages micrositio)
+/briefing/ @ppkapiro
+/briefing/_reports/ @ppkapiro
+/briefing/.github/workflows/ @ppkapiro
+
+# Audits module (Site audits, reports, SEO)
+/audits/ @ppkapiro
+/audits/reports/ @ppkapiro
+/audits/scripts/ @ppkapiro
+
+# Mirror module (Site snapshots)
+/mirror/ @ppkapiro
+
+# Documentation
+/docs/ @ppkapiro
+/docs/proyecto_estructura_y_gobernanza.md @ppkapiro
+
+# Scripts and CI/CD
+/scripts/ @ppkapiro
+/.github/ @ppkapiro
+/.github/workflows/ @ppkapiro
+
+# Source code (themes, plugins)
+/source/ @ppkapiro
+
+# Root configuration files
+/.gitignore @ppkapiro
+/.gitattributes @ppkapiro
+/README.md @ppkapiro

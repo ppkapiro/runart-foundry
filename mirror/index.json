@@ -1,0 +1,42 @@
+{
+  "version": 1,
+  "snapshots": [
+    {
+      "id": "2025-10-01",
+      "captured_at": "2025-10-01T14:00:00Z",
+      "method": "sftp + wget",
+      "size_bytes": 796917760,
+      "components": {
+        "database": {
+          "file": "db_dump.sql",
+          "size_bytes": 0,
+          "checksum_sha256": "",
+          "notes": "Vacío en captura inicial"
+        },
+        "static_site": {
+          "path": "site_static/",
+          "size_bytes": 977920,
+          "checksum_sha256": "",
+          "notes": "HTML estático con wget --mirror"
+        },
+        "wp_content": {
+          "path": "wp-content/",
+          "size_bytes": 795939840,
+          "checksum_sha256": "",
+          "notes": "Plugins, themes, uploads (759 MB)"
+        }
+      },
+      "external_location": {
+        "provider": "",
+        "url": "",
+        "access_instructions": "Local en mirror/raw/2025-10-01/ (gitignored)"
+      },
+      "notes": "Snapshot inicial del sitio del cliente. Datos locales, no subidos a Git."
+    }
+  ],
+  "metadata": {
+    "last_updated": "2025-10-02T00:00:00Z",
+    "maintainer": "@ppkapiro",
+    "storage_policy": "Payloads gitignored, metadatos en Git, datos pesados en storage externo"
+  }
+}

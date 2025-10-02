@@ -1,0 +1,18 @@
+=== audits/ (nivel 1) ===
+2.8M	audits
+2.6M	audits/_structure
+32K	audits/inventory
+12K	audits/seo
+4.0K	audits/security
+4.0K	audits/lighthouse
+4.0K	audits/axe
+
+=== Estructura de audits/ ===
+audits
+audits/security
+audits/_structure
+audits/inventory
+audits/lighthouse
+audits/axe
+audits/seo
+

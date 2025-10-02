@@ -1,0 +1,9 @@
+add-to-any | AddToAny Share Buttons
+gp-premium | GP Premium
+justified-gallery | Justified Gallery
+portfolio-post-type | Portfolio Post Type
+siteorigin-panels | SiteOrigin Installer
+so-widgets-bundle | SiteOrigin Installer
+wordpress-seo | Yoast SEO
+wp-fastest-cache | WP Fastest Cache
+wp-optimize | WP-Optimize - Clean, Compress, Cache
