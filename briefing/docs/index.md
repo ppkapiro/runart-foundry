@@ -1,6 +1,6 @@
 # RUN Art Foundry — Briefing Privado
 
-**Estado del proyecto:** Fase 3 completada  
+**Estado del proyecto:** Fase 3 completada — Deploy automático activado 🚀  
 **Cliente principal:** Uldis López  
 **Última actualización:** 2025-10-02
 
