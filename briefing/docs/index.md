@@ -1,8 +1,9 @@
 # RUN Art Foundry — Briefing Privado
 
-**Estado del proyecto:** Fase 3 completada  
+**Estado del proyecto:** Fase 3 completada — CI/CD operacional ✅  
 **Cliente principal:** Uldis López  
-**Última actualización:** 2025-10-02
+**Última actualización:** 2025-10-02  
+**Deploy**: [Smoke Test](_smoke.md)
 
 ## Accesos rápidos
 - [Plan & Roadmap](plan/index.md)
