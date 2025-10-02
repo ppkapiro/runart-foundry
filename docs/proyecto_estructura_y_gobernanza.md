@@ -700,3 +700,31 @@ audits/axe/*.json
 Estructura mínima confirmada, guardarraíles implementados, plantillas MIRROR creadas.
 Repositorio listo para el primer commit y PR inicial.
 
+---
+
+## Bootstrap Git — Release Note
+
+**Fecha**: 2025-10-02T15:30:00-03:00  
+**PR Bootstrap**: #1 (merged)  
+**Commits clave**:
+- Base commit: `6c45ac7` (first commit)
+- Bootstrap commit: `ea2e72b` (chore(bootstrap): estructura monorepo + guardarraíles + política MIRROR)
+- Merge commit: `bfaf210` (Merge pull request #1)
+
+**Estado**:
+- ✅ PR #1 mergeado exitosamente
+- ✅ 86 archivos añadidos (+65,562 líneas)
+- ✅ CI/CD workflow "Structure & Governance Guard" ejecutado y pasado
+- ✅ Guardarraíles implementados y funcionando
+- ✅ Política MIRROR aplicada (sin payload en Git)
+- ⚠️  Branch protection no disponible (requiere GitHub Pro para repos privados)
+
+**Limpieza post-bootstrap**:
+- PR #2: Limpieza de warnings (scripts movidos a `scripts/`)
+- Resultado: 0 warnings, 0 errors en validación
+
+**Próximos pasos**:
+1. Configurar secrets de Cloudflare (CF_ACCOUNT_ID, CF_API_TOKEN)
+2. Merge PR #2 (limpieza de warnings)
+3. Documentar proceso de deployment de briefing a Cloudflare Pages
+
