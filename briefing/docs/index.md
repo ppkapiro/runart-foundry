@@ -2,6 +2,7 @@
 
 **Estado del proyecto:** Fase 3 completada  
 **Cliente principal:** Uldis López  
+**Última actualización:** 2025-10-02
 
 ## Accesos rápidos
 - [Plan & Roadmap](plan/index.md)
