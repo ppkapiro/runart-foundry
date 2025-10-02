@@ -19,3 +19,5 @@
 
 > Retrigger deploy: 2025-10-02T16:26:20-04:00
 
+
+> Workflow explícito activado: 2025-10-02T17:08:26-04:00
