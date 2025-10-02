@@ -15,3 +15,7 @@
 - [Acerca](acerca/index.md)
 
 > Este micrositio privado centraliza planes, auditorías y decisiones clave de RUN Art Foundry.
+
+
+> Retrigger deploy: 2025-10-02T16:26:20-04:00
+
