@@ -1,0 +1,60 @@
+#!/usr/bin/env bash
+# prepare-commit-msg hook - Sugiere prefijo de módulo si falta
+# Instalar: git config core.hooksPath .githooks
+
+COMMIT_MSG_FILE=$1
+COMMIT_SOURCE=$2
+
+# Solo sugerir en commits manuales (no en merge, squash, etc.)
+if [ -n "$COMMIT_SOURCE" ]; then
+    exit 0
+fi
+
+# Leer mensaje actual
+COMMIT_MSG=$(cat "$COMMIT_MSG_FILE")
+
+# Si ya tiene prefijo de módulo, no hacer nada
+if echo "$COMMIT_MSG" | grep -qE "^(briefing|audits|mirror|docs|scripts|ci|chore):"; then
+    exit 0
+fi
+
+# Detectar módulo principal basado en archivos staged
+STAGED_FILES=$(git diff --cached --name-only)
+
+MODULES=""
+if echo "$STAGED_FILES" | grep -q "^briefing/"; then
+    MODULES="${MODULES}briefing, "
+fi
+if echo "$STAGED_FILES" | grep -q "^audits/"; then
+    MODULES="${MODULES}audits, "
+fi
+if echo "$STAGED_FILES" | grep -q "^mirror/"; then
+    MODULES="${MODULES}mirror, "
+fi
+if echo "$STAGED_FILES" | grep -q "^docs/"; then
+    MODULES="${MODULES}docs, "
+fi
+if echo "$STAGED_FILES" | grep -q "^scripts/"; then
+    MODULES="${MODULES}scripts, "
+fi
+if echo "$STAGED_FILES" | grep -q "^.github/"; then
+    MODULES="${MODULES}ci, "
+fi
+
+# Si detectamos módulos, sugerir en comentario
+if [ -n "$MODULES" ]; then
+    MODULES=${MODULES%, }  # Quitar última coma
+    
+    cat > "$COMMIT_MSG_FILE" << EOF
+$COMMIT_MSG
+
+# Módulo(s) detectado(s): $MODULES
+# Considera usar prefijo: <módulo>: <descripción>
+# Ejemplos:
+#   briefing: Añadir endpoint /api/export
+#   audits: Generar reporte 2025-10-02
+#   docs: Actualizar gobernanza
+EOF
+fi
+
+exit 0

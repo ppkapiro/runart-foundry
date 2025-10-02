@@ -1,0 +1,21 @@
+#!/usr/bin/env bash
+# pre-commit hook - Valida estructura antes de commit
+# Instalar: git config core.hooksPath .githooks
+
+echo "🔍 Running pre-commit structure validation..."
+echo ""
+
+# Ejecutar validador en modo staged
+scripts/validate_structure.sh --staged-only
+EXIT_CODE=$?
+
+if [ $EXIT_CODE -ne 0 ]; then
+    echo ""
+    echo "❌ Pre-commit validation failed!"
+    echo "   Fix errors above or use 'git commit --no-verify' to bypass (not recommended)"
+    exit 1
+fi
+
+echo ""
+echo "✅ Pre-commit validation passed!"
+exit 0

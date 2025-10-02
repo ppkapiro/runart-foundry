@@ -1,0 +1,41 @@
+name: Structure & Governance Guard
+
+on:
+  pull_request:
+    branches: [ "main" ]
+  push:
+    branches: [ "main" ]
+
+jobs:
+  validate-structure:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0  # Necesario para comparar con main
+      
+      - name: Set up Git
+        run: |
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+          git config --global user.name "github-actions[bot]"
+      
+      - name: Validate repository structure
+        run: |
+          chmod +x scripts/validate_structure.sh
+          
+          if [ "${{ github.event_name }}" == "pull_request" ]; then
+            echo "🔍 Validating PR changes against main..."
+            scripts/validate_structure.sh --pr-mode
+          else
+            echo "🔍 Validating push to main..."
+            scripts/validate_structure.sh --commit-mode
+          fi
+      
+      - name: Report validation results
+        if: failure()
+        run: |
+          echo "❌ Structure validation failed!"
+          echo "📖 Review governance rules: docs/proyecto_estructura_y_gobernanza.md"
+          exit 1

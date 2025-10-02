@@ -1,0 +1,9 @@
+{
+  "dependencies": {
+    "@axe-core/cli": "^4.10.2",
+    "htmlhint": "^1.7.1",
+    "http-server": "^14.1.1",
+    "lighthouse": "^12.8.2",
+    "puppeteer": "^24.23.0"
+  }
+}

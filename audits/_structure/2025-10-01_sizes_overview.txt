@@ -1,0 +1,24 @@
+=== TAMAÑOS (nivel 1) ===
+996M	.
+760M	./mirror
+237M	./.tools
+136K	./audits
+8.0K	./docs
+4.0K	./source
+
+=== TAMAÑOS (nivel 2) ===
+996M	.
+760M	./mirror/raw
+760M	./mirror
+237M	./.tools/node_modules
+237M	./.tools
+136K	./audits
+32K	./audits/inventory
+12K	./audits/seo
+8.0K	./docs
+8.0K	./audits/_structure
+4.0K	./source
+4.0K	./mirror/normalized
+4.0K	./audits/security
+4.0K	./audits/lighthouse
+4.0K	./audits/axe

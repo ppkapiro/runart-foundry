@@ -1,0 +1,13 @@
+=== mirror/ (nivel 1) ===
+760M	mirror/raw
+760M	mirror
+4.0K	mirror/normalized
+
+=== Estructura de mirror/ ===
+mirror
+mirror/raw
+mirror/raw/2025-10-01
+mirror/raw/2025-10-01/site_static
+mirror/raw/2025-10-01/wp-content
+mirror/normalized
+
