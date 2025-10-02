@@ -18,6 +18,11 @@ on:
       - "package.json"
       - "package-lock.json"
 
+permissions:
+  contents: read
+  deployments: write
+  pull-requests: write
+
 jobs:
   build-and-deploy:
     runs-on: ubuntu-latest
