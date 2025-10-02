@@ -32,6 +32,7 @@ nav:
   - Galería: galeria/index.md
   - Inbox (Decisiones): inbox/index.md
   - Acerca: acerca/index.md
+  - Smoke Test: _smoke.md
 plugins:
   - search
 markdown_extensions:

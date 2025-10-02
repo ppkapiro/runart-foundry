@@ -1,5 +1,7 @@
 # RUN Art Foundry — Proyecto Local
 
+[![Deploy: Briefing](https://github.com/ppkapiro/runart-foundry/actions/workflows/briefing_deploy.yml/badge.svg)](https://github.com/ppkapiro/runart-foundry/actions/workflows/briefing_deploy.yml)
+
 Este directorio contiene TODO el trabajo local de investigación y automatización del sitio web de RUN Art Foundry.
 
 ## Estructura del Proyecto (Monorepo)
