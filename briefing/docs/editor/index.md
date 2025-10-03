@@ -8,7 +8,9 @@ Este módulo permite capturar fichas de proyecto sin escribir YAML manualmente. 
 
 > ℹ️ Al enviar, la ficha queda marcada como **Pending** hasta que el equipo la apruebe en la bandeja. Los clientes externos solo verán fichas aceptadas.
 >
-> 🔒 El editor añade automáticamente el token secreto configurado en `RUN_EDITOR_TOKEN`, un campo honeypot `website` y una pista de origen (`origin_hint`). No elimines estas protecciones: son necesarias para la moderación y los smoke tests de ARQ-3.
+> � El formulario solo carga con una sesión válida de Cloudflare Access; sin ella el backend devuelve 302.
+>
+> �🔒 El editor añade automáticamente el token secreto configurado en `RUN_EDITOR_TOKEN`, un campo honeypot `website` y una pista de origen (`origin_hint`). No elimines estas protecciones: son necesarias para la moderación y los smoke tests de ARQ-3.
 >
 > ♿️ Accesibilidad: los mensajes de confirmación se anuncian en un contenedor con `role="status"` y `aria-live="polite"`, y los errores usan `aria-live="assertive"` para lectores de pantalla.
 

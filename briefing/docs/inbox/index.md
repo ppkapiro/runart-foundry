@@ -2,6 +2,13 @@
 
 Las entradas más recientes aparecen primero. Los envíos realizados desde el editor muestran la insignia “editor_v1”. Solo el equipo autenticado puede moderar usando los controles de esta bandeja.
 
+## Estados y moderación
+- **Pending**: valor por defecto tras enviar desde el editor o API. Permanece oculto para clientes.
+- **Accepted**: visible en dashboards e interfaces de cliente una vez aprobada desde esta bandeja.
+- **Rejected**: descartado definitivamente; se mantiene para trazabilidad interna.
+
+Los botones **Aceptar** y **Rechazar** se muestran únicamente a miembros con rol de equipo (sesión Cloudflare Access válida). El panel dibuja insignias de origen (`editor_v1`) y cambia el estilo del badge según el estado.
+
 > Para moderar necesitas una sesión válida por Cloudflare Access y enviar el token secreto (`X-Runart-Token`).
 
 <p class="interno editor-link"><a href="/editor/" class="md-button md-button--primary">Ir al Editor de Fichas</a></p>

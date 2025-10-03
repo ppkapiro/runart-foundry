@@ -4,7 +4,8 @@
 - [x] **Fase 0 – Diagnóstico** (cerrada)
 - [x] **Fase 1 – Pilotos y estructura base** (cerrada)
  - [x] **Fase 2 – Automatización y control** (cerrada) — ver [Corte de Control — Fase 2](./reports/corte_control_fase2.md)
-- [ ] **Fase ARQ – Sistema briefing interno** (en curso)
+- [x] **Fase ARQ – Sistema briefing interno** (cerrada)
+- [x] **ARQ+ v1 – Navegación y exportaciones** (cerrada)
 
 📎 Referencia: [Arquitectura del Briefing](docs/briefing_arquitectura.md)
 
@@ -54,6 +55,27 @@ Micrositio privado (MkDocs Material) para documentar plan, fases, auditoría, pr
 - Python 3.11+ y `pip install mkdocs mkdocs-material`.
 - Cloudflare Pages (build de MkDocs), Cloudflare Access y KV (namespace `DECISIONES`).
 - Pages Functions para los endpoints de API (sin necesidad de workers.dev).
+
+## Resumen de la etapa actual (cerrada)
+- **ARQ-0 — Baseline**: Estructura MkDocs, despliegue en Cloudflare Pages y acceso privado con Access.
+- **ARQ-1 — Roles y navegación**: Segmentación por rol en `mkdocs.yml` y overrides.
+- **ARQ-2 — Editor guiado**: Captura de fichas con validación previa y POST seguro al inbox.
+- **ARQ-3 — Seguridad y moderación**: Token, honeypot y flujo pending/accept/reject respaldado por smoke tests.
+- **ARQ-4 — Dashboards cliente**: KPIs resumidos (accepted/pending/rejected, ventana 7d y latencia).
+- **ARQ-5 — Exportaciones MF**: Descarga JSONL/CSV filtrada por fechas con sesión Access.
+- **ARQ-6 — QA continuo**: Scripts de smoke (`qa_arq6.sh`) y validaciones de estructura.
+- **ARQ+ v1 — Navegación limpia + ZIP**: Enlaces internos neutralizados y export ZIP (JSONL+CSV) empaquetado.
+
+## Cómo navegar
+- [Arquitectura](docs/briefing_arquitectura.md)
+- [Corte Fase ARQ](docs/reports/corte_arq.md)
+- [Mapa de interfaces (ARQ)](docs/arq/mapa_interfaces.md)
+- [Dashboards KPIs (cliente)](docs/dashboards/cliente.md)
+- [Herramientas → Editor](docs/editor/index.md)
+- [Herramientas → Inbox](docs/inbox/index.md)
+- [Herramientas → Exportaciones](docs/exports/index.md)
+
+> Las rutas de herramientas y APIs requieren sesión válida en Cloudflare Access.
 
 ## Estado del deployment
 
@@ -170,12 +192,6 @@ RUN_TOKEN=dev-token \
 bash briefing/scripts/smoke_exports.sh
 ```
 
-#### Toggle enlaces internos
-- Ejecutar `python scripts/neutralize_external_links.py` (desde `briefing/`) mantiene los enlaces internos fuera de `docs/` neutralizados y genera un snapshot en `_tmp/link_toggle_snapshot.json`.
-- Para revisar el impacto sin tocar archivos, añade `--dry-run`.
-- Cuando los recursos se trasladen a una ubicación pública, invoca `ENABLE_PUBLISH=1 python scripts/neutralize_external_links.py` (o `python scripts/neutralize_external_links.py --mode publish`) para restaurar los hipervínculos originales usando el snapshot.
-- El snapshot es el “toggle” entre estados: consérvalo en Git hasta completar la publicación; al volver a neutralizar se generará uno nuevo automáticamente.
-
 ### Corte ARQ (MF)
 - **Cobertura**: ARQ-0 → ARQ-5 completados (baseline, roles, editor, seguridad/moderación, dashboard cliente y exportaciones).
 - **Reporte**: Ver [`reports/corte_arq.md`](./reports/corte_arq.md) para resumen, QA y pendientes.
@@ -183,11 +199,27 @@ bash briefing/scripts/smoke_exports.sh
 - **Warnings conocidos**: Navegación incluye rutas fuera de `docs/`; MkDocs emite avisos tolerados hasta reubicar reportes/PDFs en fases siguientes.
 - **Próxima fase sugerida**: Endurecimiento adicional y limpieza de navegación (rate limiting, filtros KPIs, export ZIP/PDF, reorden de reportes).
 
-### Build & QA (ARQ-2)
-1. Preparar entorno: `make venv`
-2. Compilar sitio: `make build`
-3. Servir en local: `make serve`
-4. Validar una ficha: `python scripts/validate_projects.py /ruta/al/archivo.yaml`
+## Build & QA
+```bash
+cd briefing
+make venv           # prepara entorno virtual y dependencias
+make build          # compila MkDocs (warnings tolerados inventariados)
+make serve          # opcional: vista previa local
+
+# QA funcional
+bash scripts/qa_arq6.sh                # smoke Access + APIs ARQ-3
+PAGES_URL=... RUN_TOKEN=... \
+   bash scripts/smoke_exports.sh        # verifica /api/export_zip (requiere Access)
+
+# Validación de fichas (opcional)
+python scripts/validate_projects.py docs/projects/<slug>.yaml
+```
+
+## Enlaces internos no publicados
+- `python scripts/neutralize_external_links.py`: neutraliza enlaces a `audits/`, `scripts/` y otros recursos fuera de `docs/`, generando un snapshot en `_tmp/link_toggle_snapshot.json`.
+- `python scripts/neutralize_external_links.py --dry-run`: vista previa sin escribir cambios.
+- `ENABLE_PUBLISH=1 python scripts/neutralize_external_links.py` (o `--mode publish`): restaura los hipervínculos originales usando el snapshot cuando los recursos se publiquen.
+- Conserva el snapshot en Git hasta completar la publicación; al volver a neutralizar, se reemplaza automáticamente.
 
 ## Archivos creados
 ```
@@ -213,11 +245,8 @@ briefing/
    └─ decisiones.js
 ```
 
-## Próximos pasos
-1. Ejecutar los comandos de instalación y servir en local (ver arriba).
-2. Revisar y personalizar el contenido de cada página `.md`.
-3. Actualizar las URLs de los endpoints del Worker en los archivos de formularios.
-4. Configurar Cloudflare Pages, Access y KV según la documentación.
+## Próxima etapa
+Consulta [`NEXT_PHASE.md`](../NEXT_PHASE.md) para el alcance inmediato: roles diferenciados, mejoras de CSS/UI y endurecimiento opcional.
 
 ## Cierre de etapa (ARQ+ v1)
 - Auditoría y build final ejecutados.

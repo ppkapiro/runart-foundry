@@ -81,6 +81,10 @@ flowchart LR
 * **Hito B (6–8 semanas)**: ARQ-03/04 (validación avanzada + dashboard).
 * **Hito C (8–10 semanas)**: ARQ-05/07 (exportaciones + trazabilidad).
 
+## Ver también
+- [Corte Fase ARQ](reports/corte_arq.md)
+- [Mapa de interfaces (ARQ)](arq/mapa_interfaces.md)
+
 ## 10. Anexos
 
 * Esquema YAML de proyectos (`docs/projects/schema.yaml`).
