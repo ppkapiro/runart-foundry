@@ -156,6 +156,13 @@ Micrositio privado (MkDocs Material) para documentar plan, fases, auditoría, pr
 - **Requisitos**: Sesión activa mediante Cloudflare Access para que `/api/inbox` devuelva datos; se ejecuta totalmente en el navegador.
 - **Limitaciones MF**: Sin ZIP ni PDF, ni descarga de medios; preparado para evolucionar a v1.1 con empaquetado adicional.
 
+### Corte ARQ (MF)
+- **Cobertura**: ARQ-0 → ARQ-5 completados (baseline, roles, editor, seguridad/moderación, dashboard cliente y exportaciones).
+- **Reporte**: Ver [`_reports/corte_arq.md`](./_reports/corte_arq.md) para resumen, QA y pendientes.
+- **Mapa de interfaces (ARQ)**: ver `Reportes → Mapa de interfaces (ARQ)`.
+- **Warnings conocidos**: Navegación incluye rutas fuera de `docs/`; MkDocs emite avisos tolerados hasta reubicar reportes/PDFs en fases siguientes.
+- **Próxima fase sugerida**: Endurecimiento adicional y limpieza de navegación (rate limiting, filtros KPIs, export ZIP/PDF, reorden de reportes).
+
 ### Build & QA (ARQ-2)
 1. Preparar entorno: `make venv`
 2. Compilar sitio: `make build`

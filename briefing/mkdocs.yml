@@ -42,6 +42,8 @@ nav:
         - "Master Plan (Estrategia)": "briefing/_reports/2025-10-02_master_plan.md"
         - "Arquitectura": "briefing_arquitectura.md"
         - "Corte de Control — Fase 2": "briefing/_reports/corte_control_fase2.md"
+    - "Corte Fase ARQ": "_reports/corte_arq.md"
+    - "Mapa de interfaces (ARQ)": "arq/mapa_interfaces.md"
   - Reportes (interno):
     - "Bitácora del briefing": "briefing/_reports/README.md"
     - "Auditoría inventario (2025-10-02)": "briefing/_reports/2025-10-02_repo_inventory.md"

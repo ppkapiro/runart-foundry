@@ -24,12 +24,12 @@
 - [ ] ARQ-4 · Dashboard KPIs (modo cliente)
 - [x] ARQ-5 · Exportaciones (MF) — JSONL/CSV por rango (accepted)
 - [ ] ARQ-5 · Export ZIP por lote
-- [ ] ARQ-6 · Corte ARQ publicado
+- [x] ARQ-6 · QA & Corte ARQ (MF) publicado
 
 > Notas ARQ recientes:
 > - ARQ-2 QA v1.1 completado (build ok; editor/inbox listos).
 > - ARQ-3 MF: token + honeypot + pending/accept/reject con UI mínima.
-> - ARQ-5 MF: exporta accepted como JSONL/CSV en rango; v1 sin ZIP/PDF, listo para evoluciones.
+> - ARQ-6 MF: Corte ARQ documentado (`_reports/corte_arq.md`), navegación con "Corte Fase ARQ" y "Mapa de interfaces" publicada, QA `qa_arq6.sh` listo y advertencias de navegación aceptadas hasta refactor.
 
 ## Pilotos (0–30 días)
 - [ ] Mons. Román (2015) — YAML válido + 2 imágenes optimizadas
