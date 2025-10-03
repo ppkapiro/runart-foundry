@@ -1,3 +1,30 @@
+# Estado del Proyecto — Octubre 2025
+
+## Estado del proyecto
+- [x] **Fase 0 – Diagnóstico** (cerrada)
+- [x] **Fase 1 – Pilotos y estructura base** (cerrada)
+- [x] **Fase 2 – Automatización y control** (cerrada) — ver [Corte de Control — Fase 2](./_reports/corte_control_fase2.md)
+- [ ] **Fase ARQ – Sistema briefing interno** (en curso)
+
+📎 Referencia: [Arquitectura del Briefing](docs/briefing_arquitectura.md)
+
+### Acciones pendientes (tras corte Fase 2)
+- Sustituir imágenes dummy por optimizadas en las fichas piloto e intermedias.  
+- Corregir/validar enlaces externos con alerta.  
+- Confirmar PDFs v0/v1 publicados (ES/EN).  
+- Reejecutar corte de control tras las correcciones.  
+
+### Roadmap inmediato
+- **Fase 3 – Escalamiento de fichas y contenidos**  
+   Ampliar de 10 a 20–30 proyectos documentados, con bio extendida, narrativa corporativa definitiva y testimonios reales.  
+
+- **Fase 4 – Traducción bilingüe**  
+   Traducir fichas y press-kit al inglés con consistencia en PDFs y navegación.  
+
+*(Ver [Master Plan](./_reports/2025-10-02_master_plan.md) para roadmap completo hasta Fase 8.)*
+
+---
+
 # RUN Art Foundry — Micrositio Briefing (submódulo)
 
 ## Qué es
@@ -68,6 +95,18 @@ Micrositio privado (MkDocs Material) para documentar plan, fases, auditoría, pr
    .venv/bin/mkdocs build
    npx wrangler pages deploy site --project-name runart-briefing
    ```
+
+## Operativa
+
+### Promover fichas del inbox → YAML
+1. Abrir **Actions → Promote Inbox → YAML** y lanzar `Run workflow`.
+2. Verificar o ajustar el parámetro `source_url` (por defecto: `/api/inbox`).
+3. Tras la ejecución se generan automáticamente:
+   - `docs/projects/<slug>.yaml` (ficha preliminar en español).
+   - `docs/projects/en/<slug>.yaml` (stub en inglés).
+   - `assets/<year>/<slug>/.gitkeep` (carpeta para medios futuros).
+4. El menú del briefing añade la sección **“Nuevas fichas (ES)”** con los slugs generados.
+5. Consultar `briefing/_reports/fase1_fichas.md` y `briefing/_logs/briefing_run.log` para el registro de la promoción.
 
 ## Archivos creados
 ```

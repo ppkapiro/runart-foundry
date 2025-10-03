@@ -29,9 +29,52 @@ nav:
   - Decisiones:
       - Índice de decisiones: decisiones/index.md
       - Contenido sitio viejo (brief): decisiones/contenido-sitio-viejo.md
+      - "Ficha de Proyecto (formulario)": "docs/decisiones/ficha-proyecto.md"
   - Galería: galeria/index.md
-  - Inbox (Decisiones): inbox/index.md
+  - Inbox (Decisiones):
+      - "Bandeja general": "inbox/index.md"
+      - "Fichas recibidas": "docs/inbox/fichas.md"
   - Acerca: acerca/index.md
+  - Reportes:
+    - "Master Plan (Estrategia)": "briefing/_reports/2025-10-02_master_plan.md"
+    - "Corte de Control — Fase 2": "briefing/_reports/corte_control_fase2.md"
+    - "Arquitectura": "briefing_arquitectura.md"
+  - Documentación:
+    - "ADR-0001 — Briefing como panel interno": "briefing/_reports/adr/ADR-0001_briefing_como_panel_interno.md"
+    - "Plan — Sistema Briefing (ARQ)": "briefing/_reports/plan_fase_arq.md"
+    - "Fase 1 — Control de Fichas": "briefing/_reports/fase1_fichas.md"
+    - "Plantilla Ficha Técnica (YAML)": "docs/projects/_template.yaml"
+    - "Esquema de fichas (YAML)": "docs/projects/schema.yaml"
+  - Press-kit:
+    - "Press-kit v0 (ES)": "briefing/_reports/presskit_v0.md"
+    - "Press-kit PDF (ES)": "presskit/presskit_v0_ES.pdf"
+    - "Press-kit PDF (EN)": "presskit/presskit_v0_EN.pdf"
+    - "Press-kit v1 (ES)": "presskit/presskit_v1_ES.pdf"
+    - "Press-kit v1 (EN)": "presskit/presskit_v1_EN.pdf"
+  - Proyectos piloto (ES):
+    - "Mons. Román (2015)": "docs/projects/mons-roman-2015.yaml"
+    - "Raider (2018)": "docs/projects/raider-2018.yaml"
+    - "Colaboración internacional (2018)": "docs/projects/colaboracion-internacional-01.yaml"
+  - Pilot projects (EN):
+    - "Monsignor Agustín Román (2015)": "docs/projects/en/mons-roman-2015.yaml"
+    - "Raider (2018)": "docs/projects/en/raider-2018.yaml"
+    - "International collaboration (2018)": "docs/projects/en/colaboracion-internacional-01.yaml"
+  - Proyectos intermedios (ES):
+    - "Carole A. Feuerman (2019)": "docs/projects/carole-feuerman-2019.yaml"
+    - "Roberto Fabelo (2016)": "docs/projects/roberto-fabelo-2016.yaml"
+    - "Pedro Pablo Oliva (2017)": "docs/projects/pedro-pablo-oliva-2017.yaml"
+    - "Williams Carmona (2019)": "docs/projects/williams-carmona-2019.yaml"
+    - "The-Merger (2020)": "docs/projects/the-merger-2020.yaml"
+    - "Lawrence Holofcener (2015)": "docs/projects/lawrence-holofcener-2015.yaml"
+    - "Proyecto Messi (2024)": "docs/projects/proyecto-messi-2024.yaml"
+  - Intermediate projects (EN):
+    - "Carole A. Feuerman (2019)": "docs/projects/en/carole-feuerman-2019.yaml"
+    - "Roberto Fabelo (2016)": "docs/projects/en/roberto-fabelo-2016.yaml"
+    - "Pedro Pablo Oliva (2017)": "docs/projects/en/pedro-pablo-oliva-2017.yaml"
+    - "Williams Carmona (2019)": "docs/projects/en/williams-carmona-2019.yaml"
+    - "The-Merger (2020)": "docs/projects/en/the-merger-2020.yaml"
+    - "Lawrence Holofcener (2015)": "docs/projects/en/lawrence-holofcener-2015.yaml"
+    - "Messi Project (2024)": "docs/projects/en/proyecto-messi-2024.yaml"
   - Smoke Test: _smoke.md
 plugins:
   - search
