@@ -23,6 +23,7 @@
 - [x] ARQ-3 · Seguridad de formularios (token/captcha)
 - [ ] ARQ-4 · Dashboard KPIs (modo cliente)
 - [x] ARQ-5 · Exportaciones (MF) — JSONL/CSV por rango (accepted)
+  - Nota: v1 sin ZIP/PDF; preparado para v1.1 si se requiere.
 - [ ] ARQ-5 · Export ZIP por lote
 - [x] ARQ-6 · QA & Corte ARQ (MF) publicado
 

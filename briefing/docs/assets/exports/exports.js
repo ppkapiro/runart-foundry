@@ -2,66 +2,83 @@
   const form = document.getElementById('exp-form');
   const btnJsonl = document.getElementById('btn-jsonl');
   const btnCsv = document.getElementById('btn-csv');
-  const btnZip = document.getElementById('btn-zip');
   const statusEl = document.getElementById('exp-status');
 
-  function setStatus(message) {
-    if (statusEl) {
-      statusEl.textContent = message;
+  if (!form || !btnJsonl || !btnCsv || !statusEl) {
+    return;
+  }
+
+  const setStatus = (message) => {
+    statusEl.textContent = message;
+  };
+
+  const parseRange = () => {
+    const fromValue = form.from?.value?.trim();
+    const toValue = form.to?.value?.trim();
+
+    if (!fromValue || !toValue) {
+      return { error: 'Selecciona un rango válido.' };
     }
-  }
 
-  function getDateValue(name) {
-    const input = form?.elements?.namedItem(name);
-    if (!input || !(input instanceof HTMLInputElement)) return null;
-    return input.value ? new Date(`${input.value}T00:00:00Z`) : null;
-  }
+    const from = new Date(`${fromValue}T00:00:00.000Z`);
+    const to = new Date(`${toValue}T23:59:59.999Z`);
 
-  function isValidRange(from, to) {
-    return from instanceof Date && to instanceof Date && !Number.isNaN(from) && !Number.isNaN(to) && from <= to;
-  }
+    if (Number.isNaN(from.getTime()) || Number.isNaN(to.getTime())) {
+      return { error: 'Fechas inválidas. Usa el formato YYYY-MM-DD.' };
+    }
 
-  function sanitiseString(value) {
-    if (value === undefined || value === null) return '';
-    return String(value).trim();
-  }
+    if (from > to) {
+      return { error: 'La fecha "Desde" no puede ser mayor que "Hasta".' };
+    }
 
-  function toCsvRow(values) {
-    return values
-      .map((value) => {
-        const cell = sanitiseString(value);
-        if (cell.includes('"')) {
-          return `"${cell.replace(/"/g, '""')}"`;
-        }
-        if (cell.includes(',') || cell.includes(';') || cell.includes('\n')) {
-          return `"${cell}"`;
-        }
-        return cell;
-      })
-      .join(',');
-  }
+    return { from, to, fromValue, toValue };
+  };
 
-  function buildCsv(items) {
+  const normaliseItems = (payload) => {
+    if (!payload) return [];
+    if (Array.isArray(payload)) return payload;
+    if (Array.isArray(payload.items)) return payload.items;
+    if (Array.isArray(payload.data)) return payload.data;
+    return [];
+  };
+
+  const recordFromItem = (item) => ({
+    id: item?.decision_id || item?.id || '',
+    tipo: item?.tipo || item?.payload?.tipo || '',
+    createdAt: item?.meta?.createdAt || item?.ts || '',
+    artista: item?.payload?.artista || item?.payload?.artistaNombre || '',
+    titulo: item?.payload?.titulo || '',
+    anio: item?.payload?.anio || '',
+    token_origen: item?.token_origen || item?._kvKey || ''
+  });
+
+  const withinRange = (value, range) => {
+    if (!value) return false;
+    const date = new Date(value);
+    if (Number.isNaN(date.getTime())) return false;
+    return date >= range.from && date <= range.to;
+  };
+
+  const toJsonl = (records) => records.map((rec) => JSON.stringify(rec)).join('\n');
+
+  const csvEscape = (value) => {
+    const str = value == null ? '' : String(value);
+    if (/["];|\n/.test(str)) {
+      return `"${str.replace(/"/g, '""')}"`;
+    }
+    return str;
+  };
+
+  const toCsv = (records) => {
     const header = ['id', 'tipo', 'createdAt', 'artista', 'titulo', 'anio', 'token_origen'];
-    const rows = items.map((item) =>
-      toCsvRow([
-        item.decision_id,
-        item.tipo,
-        item.meta?.createdAt,
-        item.payload?.artista || item.payload?.artistaNombre,
-        item.payload?.titulo,
-        item.payload?.anio,
-        item.token_origen
-      ])
-    );
-    return [header.join(','), ...rows].join('\n');
-  }
+    const lines = [header.join(';')];
+    for (const record of records) {
+      lines.push(header.map((key) => csvEscape(record[key])).join(';'));
+    }
+    return lines.join('\n');
+  };
 
-  function buildJsonl(items) {
-    return items.map((item) => JSON.stringify(item)).join('\n');
-  }
-
-  function downloadBlob(content, filename, type) {
+  const download = (content, type, filename) => {
     const blob = new Blob([content], { type });
     const url = URL.createObjectURL(blob);
     const link = document.createElement('a');
@@ -71,112 +88,77 @@
     link.click();
     document.body.removeChild(link);
     URL.revokeObjectURL(url);
-  }
+  };
 
-  function filterItems(items, from, to) {
-    const fromTime = from.getTime();
-    const toTime = to.getTime() + 24 * 60 * 60 * 1000 - 1; // inclusive end of day
-    return items.filter((item) => {
-      if (item?.moderation?.status !== 'accepted') return false;
-      const createdAt = item?.meta?.createdAt ? new Date(item.meta.createdAt) : null;
-      if (!createdAt || Number.isNaN(createdAt.getTime())) return false;
-      const time = createdAt.getTime();
-      return time >= fromTime && time <= toTime;
-    });
-  }
+  const fetchInbox = async () => {
+    try {
+      const res = await fetch('/api/inbox', { credentials: 'include', redirect: 'manual' });
 
-  async function handleExport(format) {
-    if (!form) return;
+      if (res.status === 401 || res.status === 403 || res.status === 302 || res.type === 'opaqueredirect') {
+        setStatus('Requiere sesión Cloudflare Access.');
+        return null;
+      }
 
-    const from = getDateValue('from');
-    const to = getDateValue('to');
+      if (!res.ok) {
+        setStatus(`Error ${res.status}: no se pudo obtener el inbox.`);
+        return null;
+      }
 
-    if (!isValidRange(from, to)) {
-      setStatus('Selecciona un rango válido (desde ≤ hasta).');
+      const contentType = res.headers.get('Content-Type') || '';
+      if (!contentType.includes('application/json')) {
+        setStatus('Respuesta inesperada: se esperaba JSON.');
+        return null;
+      }
+
+      return res.json();
+    } catch (error) {
+      console.error('Error al consultar /api/inbox', error);
+      setStatus('Error de red al consultar /api/inbox.');
+      return null;
+    }
+  };
+
+  const handleExport = async (format) => {
+    const range = parseRange();
+    if (range?.error) {
+      setStatus(range.error);
       return;
     }
 
-    setStatus('Cargando fichas aceptadas…');
+    setStatus('Cargando…');
 
-    try {
-      if (format === 'zip') {
-        const response = await fetch('/api/export_zip', {
-          method: 'POST',
-          credentials: 'include',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ from: form.from.value, to: form.to.value })
-        });
+    const payload = await fetchInbox();
+    if (!payload) return;
 
-        if (!response.ok) {
-          setStatus('No se pudo generar el ZIP. Verifica tu sesión o el rango.');
-          return;
-        }
+    const items = normaliseItems(payload);
+    const accepted = items.filter((item) => item?.moderation?.status === 'accepted');
+    const within = accepted.filter((item) => withinRange(item?.meta?.createdAt || item?.ts, range));
+    const records = within.map(recordFromItem);
 
-        const blob = await response.blob();
-        downloadBlob(blob, `export_accepted_${form.from.value}_to_${form.to.value}.zip`, 'application/zip');
-        setStatus('ZIP generado.');
-        return;
-      }
-
-      const response = await fetch('/api/inbox', {
-        method: 'GET',
-        credentials: 'include'
-      });
-
-      if (!response.ok) {
-        setStatus('Requiere sesión Cloudflare Access o hubo un error.');
-        return;
-      }
-
-      const contentType = response.headers.get('Content-Type') || '';
-      if (!contentType.includes('application/json')) {
-        setStatus('Requiere sesión Cloudflare Access.');
-        return;
-      }
-
-      const data = await response.json();
-      if (!Array.isArray(data)) {
-        setStatus('Respuesta inesperada del servidor.');
-        return;
-      }
-
-      const filtered = filterItems(data, from, to);
-      if (!filtered.length) {
-        setStatus('Sin fichas accepted en ese rango.');
-        return;
-      }
-
-      const fromStr = form.from.value;
-      const toStr = form.to.value;
-
-      if (format === 'jsonl') {
-        downloadBlob(buildJsonl(filtered), `export_accepted_${fromStr}_to_${toStr}.jsonl`, 'application/jsonl');
-      } else {
-        downloadBlob(buildCsv(filtered), `export_accepted_${fromStr}_to_${toStr}.csv`, 'text/csv');
-      }
-
-      setStatus(`Exportación lista: ${filtered.length} registros.`);
-    } catch (error) {
-      console.error('Error exportando', error);
-      setStatus('Error al exportar. Intenta nuevamente.');
+    if (records.length === 0) {
+      setStatus('Sin datos en el rango seleccionado.');
+      return;
     }
-  }
 
-  function init() {
-    setStatus('Listo para exportar.');
-    if (btnJsonl) {
-      btnJsonl.addEventListener('click', () => handleExport('jsonl'));
+    const filenameBase = `export_accepted_${range.fromValue}_to_${range.toValue}`;
+
+    if (format === 'jsonl') {
+      download(toJsonl(records), 'application/jsonl', `${filenameBase}.jsonl`);
+    } else {
+      download(toCsv(records), 'text/csv', `${filenameBase}.csv`);
     }
-    if (btnCsv) {
-      btnCsv.addEventListener('click', () => handleExport('csv'));
-    }
-    if (btnZip) {
-      btnZip.addEventListener('click', () => handleExport('zip'));
-    }
-  }
+
+    setStatus(`Exportación lista: ${records.length} registros.`);
+  };
+
+  const init = () => {
+    setStatus('Listo para exportar');
+    btnJsonl.addEventListener('click', () => handleExport('jsonl'));
+    btnCsv.addEventListener('click', () => handleExport('csv'));
+  };
 
   if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', init);
+    document.addEventListener('DOMContentLoaded', init, { once: true });
   } else {
     init();
   }

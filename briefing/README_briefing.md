@@ -173,15 +173,14 @@ Micrositio privado (MkDocs Material) para documentar plan, fases, auditoría, pr
 - **Limitaciones MF**: Indicadores básicos y sparkline SVG simple de 14 días; sin filtros ni visualizaciones avanzadas.
 
 ### ARQ-5 · Exportaciones (MF)
-- **Qué exporta**: Fichas aceptadas filtradas por rango de fechas, disponibles en formatos JSONL (una ficha por línea), CSV resumido y ZIP (ambos archivos empaquetados).
+- **Qué exporta**: Fichas accepted filtradas por rango de fechas, en formatos JSONL (una ficha por línea) y CSV resumido.
 - **Dónde acceder**: Navegación → `Herramientas → Exportaciones (MF)` (visible solo para equipo).
-- **Requisitos**: Sesión activa mediante Cloudflare Access para que `/api/inbox` y `/api/export_zip` devuelvan datos; se ejecuta totalmente en el navegador.
-- **Limitaciones MF**: Sin PDF ni descarga de medios; ZIP v1.1 empaqueta únicamente JSONL y CSV.
+- **Requisitos**: Sesión activa mediante Cloudflare Access; el módulo consulta `/api/inbox` directamente desde el navegador.
+- **Limitaciones MF**: Sin ZIP ni PDF, sin empaquetado de medios; queda preparado para extenderse en la v1.1 si se requiere.
 
-### ARQ+ v1 — ZIP + limpieza de warnings
-- Nuevo botón **“Descargar ZIP (JSONL+CSV)”** en Exportaciones; invoca `/api/export_zip` (POST) y entrega un paquete `export_accepted_<from>_to_<to>.zip`.
+### ARQ+ v1 — limpieza de warnings (preparado para ZIP)
 - MkDocs deja de emitir warnings por rutas fuera de `docs/` — los enlaces internos hacia `audits/`, `scripts/` y `assets/` se neutralizaron temporalmente con la marca *“recurso interno no publicado”*.
-- Cuando los recursos externos se publiquen oficialmente, basta revertir la neutralización para restaurar los hipervínculos.
+- Cuando los recursos externos se publiquen oficialmente (o cuando se integre el ZIP v1.1), bastará revertir la neutralización para restaurar los hipervínculos.
 
 #### QA Export (smoke)
 Para validar rápidamente que el endpoint `/api/export_zip` responde (requiere sesión Access en navegador para la verificación visual):
