@@ -102,6 +102,13 @@ El archivo [`.github/CODEOWNERS`](.github/CODEOWNERS) asigna **revisores por mó
 - **[README Briefing](briefing/README_briefing.md)**: Documentación del micrositio Cloudflare Pages
 - **[README Audits](audits/README.md)**: Documentación de auditorías
 
+## Gestión de imágenes para fichas
+
+- Cada proyecto usa `assets/{año}/{slug}/` con al menos dos imágenes optimizadas (`img_01`, `img_02`, etc.).
+- Formatos recomendados: `.webp` o `.jpg` ≤300 KB para compatibilidad con la web actual.
+- Mantener el archivo `.gitkeep` hasta reemplazarlo por media definitiva; eliminarlo al subir las imágenes finales.
+- Respaldar el original pesado en `assets/_incoming/` si requiere reprocesamiento antes de optimizar.
+
 ## Convención de Commits
 
 Usa prefijo de módulo en tus commits:

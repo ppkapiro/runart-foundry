@@ -128,6 +128,22 @@ Micrositio privado (MkDocs Material) para documentar plan, fases, auditoría, pr
 4. Cada envío añade `token_origen: editor_v1` y un comentario interno para trazabilidad.
 5. Antes de promover, ejecutar `python scripts/validate_projects.py` desde `briefing/` para confirmar que la ficha cumple el esquema.
 
+### ARQ-3 · Seguridad y Moderación — Operativa
+- **Flujo**: `Editor (token + honeypot + origin-hint) → KV (estado pending) → Moderar (accept/reject) → Visibilidad cliente (solo accepted)`.
+- **Variables en Cloudflare Pages**:
+   - `EDITOR_TOKEN` (Secret): Token compartido entre editor, inbox y CLI (`RUN_TOKEN`).
+   - `MOD_REQUIRED` (Variable): `1` para exigir revisión manual (default), `0` para aceptar automáticamente.
+   - `ORIGIN_ALLOWED` (Variable): Prefijo permitido para `Origin/Referer` (ej. `https://runart-briefing.pages.dev`).
+- **Smoke tests**: Ejecutar `briefing/scripts/smoke_arq3.sh` tras escudos de Access.
+   ```bash
+   PAGES_URL=https://runart-briefing.pages.dev \
+   RUN_TOKEN=dev-token \
+   ACCESS_JWT="$(cat /path/to/cf_access.jwt)" \
+   bash briefing/scripts/smoke_arq3.sh
+   ```
+- **Resultados**: Muestra códigos HTTP esperados ✅ / tolerados ⚠️ / errores ❌.
+- **Notas**: Si el entorno usa Cloudflare Access, pasa el JWT vía `ACCESS_JWT` o reutiliza cookies (`ACCESS_COOKIE_FILE`).
+
 ### Build & QA (ARQ-2)
 1. Preparar entorno: `make venv`
 2. Compilar sitio: `make build`

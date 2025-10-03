@@ -24,6 +24,23 @@ Reportes y documentación del micrositio **RUN Art Foundry Briefing** desplegado
 
 ---
 
+## 🧾 Repo Inventory & Governance
+
+### [2025-10-02_repo_inventory.md](./2025-10-02_repo_inventory.md)
+**Fuente única de verdad para la Fase 0**
+- Pesos por módulo (mirror, tooling, audits, briefing)
+- Top archivos/directorios pesados + extensiones dominantes
+- Estado de MkDocs, Cloudflare Pages, GitHub Workflows
+- Inventario WordPress (plugins, themes, imágenes >500 KB) + TODOs críticos
+- JSON para dashboards: [`audits/reports/2025-10-02_repo_inventory.json`](../../audits/reports/2025-10-02_repo_inventory.json)
+
+- [Cierre Fase 0 — 2025-10-02](./2025-10-02_cierre_fase0.md)
+- [Plan Fase 1 — Fichas Técnicas (2025-10-02)](./2025-10-02_plan_fase1_fichas.md)
+- [Master Plan — RUN Art Foundry (2025-10-02)](./2025-10-02_master_plan.md)
+- [Control de Avance — Fase 1](./fase1_fichas.md)
+
+---
+
 ## 🚀 Deployment
 
 ### URLs Activas:

@@ -161,10 +161,10 @@ blockquote {
 }
 
 /* Visibilidad por rol */
-nav .interno {
-  display: none;
+.interno {
+  display: none !important;
 }
 
-html.briefing-role-equipo nav .interno {
-  display: block;
+html.briefing-role-equipo .interno {
+  display: revert !important;
 }

@@ -6,6 +6,10 @@ Este módulo permite capturar fichas de proyecto sin escribir YAML manualmente. 
 - **Envío a inbox**: crea una entrada en `/api/decisiones` lista para revisión.
 - **Siguiente paso**: tras la moderación, el flujo `Promote Inbox → YAML` generará la ficha definitiva.
 
+> ℹ️ Al enviar, la ficha queda marcada como **Pending** hasta que el equipo la apruebe en la bandeja. Los clientes externos solo verán fichas aceptadas.
+>
+> 🔒 El editor añade automáticamente el token secreto configurado en `RUN_EDITOR_TOKEN`, un campo honeypot `website` y una pista de origen (`origin_hint`). No elimines estas protecciones: son necesarias para la moderación y los smoke tests de ARQ-3.
+
 ## Cómo completar los campos
 
 - **Slug**: debe coincidir con la convención `aaaa-nombre-artista` en minúsculas.
@@ -13,6 +17,7 @@ Este módulo permite capturar fichas de proyecto sin escribir YAML manualmente. 
 - **Dimensiones**: ingresa números y selecciona la unidad. El editor convertirá los valores a centímetros.
 - **Listas (imágenes, video, enlaces)**: escribe una línea por elemento usando el formato `<valor> | <detalle>`, por ejemplo `https://cdn/runart.jpg | Detalle frontal`.
 - **Token de origen**: el envío incluye automáticamente `token_origen: "editor_v1"` para trazabilidad.
+- **Protección anti-bots**: existe un campo oculto `website` (honeypot). Si ves un error sobre "Solicitud rechazada", asegúrate de no completarlo ni autocompletarlo.
 
 ## Cómo validar
 
