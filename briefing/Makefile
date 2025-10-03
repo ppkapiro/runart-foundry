@@ -4,9 +4,11 @@ venv:
 		.venv/bin/pip install -r requirements.txt
 
 build:
+	.venv/bin/python scripts/mark_internal.py
 	.venv/bin/mkdocs build
 
 serve:
+	.venv/bin/python scripts/mark_internal.py
 	.venv/bin/mkdocs serve
 
 clean:

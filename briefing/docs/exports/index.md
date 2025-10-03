@@ -1,4 +1,11 @@
-# Exportaciones (MF)
+---
+title: Exportaciones (MF)
+access:
+  - admin
+  - equipo
+---
+
+# Exportaciones (MF) {.interno}
 
 Descarga fichas **aceptadas** como **JSONL** o **CSV** en un rango de fechas.
 

@@ -1,38 +1,5 @@
 (function () {
-  const form = document.getElementById('exp-form');
-  const btnJsonl = document.getElementById('btn-jsonl');
-  const btnCsv = document.getElementById('btn-csv');
-  const statusEl = document.getElementById('exp-status');
-
-  if (!form || !btnJsonl || !btnCsv || !statusEl) {
-    return;
-  }
-
-  const setStatus = (message) => {
-    statusEl.textContent = message;
-  };
-
-  const parseRange = () => {
-    const fromValue = form.from?.value?.trim();
-    const toValue = form.to?.value?.trim();
-
-    if (!fromValue || !toValue) {
-      return { error: 'Selecciona un rango válido.' };
-    }
-
-    const from = new Date(`${fromValue}T00:00:00.000Z`);
-    const to = new Date(`${toValue}T23:59:59.999Z`);
-
-    if (Number.isNaN(from.getTime()) || Number.isNaN(to.getTime())) {
-      return { error: 'Fechas inválidas. Usa el formato YYYY-MM-DD.' };
-    }
-
-    if (from > to) {
-      return { error: 'La fecha "Desde" no puede ser mayor que "Hasta".' };
-    }
-
-    return { from, to, fromValue, toValue };
-  };
+  const session = { role: 'visitante', email: '' };
 
   const normaliseItems = (payload) => {
     if (!payload) return [];
@@ -59,6 +26,23 @@
     return date >= range.from && date <= range.to;
   };
 
+  const filterByRole = (items, range, currentSession = session) => {
+    const accepted = items.filter((item) => (item?.moderation?.status || '').toLowerCase() === 'accepted');
+    const ranged = accepted.filter((item) => withinRange(item?.meta?.createdAt || item?.ts, range));
+
+    const role = (currentSession?.role || 'visitante').toLowerCase();
+    const email = (currentSession?.email || '').toLowerCase();
+
+    if (role === 'cliente') {
+      return ranged.filter((item) => {
+        const owner = (item?.meta?.userEmail || item?.meta?.email || '').toLowerCase();
+        return owner && email && owner === email;
+      });
+    }
+
+    return ranged;
+  };
+
   const toJsonl = (records) => records.map((rec) => JSON.stringify(rec)).join('\n');
 
   const csvEscape = (value) => {
@@ -76,6 +60,61 @@
       lines.push(header.map((key) => csvEscape(record[key])).join(';'));
     }
     return lines.join('\n');
+  };
+
+  const helpers = { normaliseItems, recordFromItem, withinRange, filterByRole };
+  if (typeof globalThis !== 'undefined') {
+    globalThis.RunartExports = helpers;
+  }
+
+  if (typeof document === 'undefined') {
+    return;
+  }
+
+  const form = document.getElementById('exp-form');
+  const btnJsonl = document.getElementById('btn-jsonl');
+  const btnCsv = document.getElementById('btn-csv');
+  const statusEl = document.getElementById('exp-status');
+
+  if (!form || !btnJsonl || !btnCsv || !statusEl) {
+    return;
+  }
+
+  const allowedRoles = new Set(['admin', 'equipo']);
+  const formElements = Array.from(form.querySelectorAll('input, button, select'));
+
+  const setStatus = (message) => {
+    statusEl.textContent = message;
+  };
+
+  const setFormEnabled = (enabled) => {
+    formElements.forEach((el) => {
+      el.disabled = !enabled;
+    });
+    btnJsonl.disabled = !enabled;
+    btnCsv.disabled = !enabled;
+  };
+
+  const parseRange = () => {
+    const fromValue = form.from?.value?.trim();
+    const toValue = form.to?.value?.trim();
+
+    if (!fromValue || !toValue) {
+      return { error: 'Selecciona un rango válido.' };
+    }
+
+    const from = new Date(`${fromValue}T00:00:00.000Z`);
+    const to = new Date(`${toValue}T23:59:59.999Z`);
+
+    if (Number.isNaN(from.getTime()) || Number.isNaN(to.getTime())) {
+      return { error: 'Fechas inválidas. Usa el formato YYYY-MM-DD.' };
+    }
+
+    if (from > to) {
+      return { error: 'La fecha "Desde" no puede ser mayor que "Hasta".' };
+    }
+
+    return { from, to, fromValue, toValue };
   };
 
   const download = (content, type, filename) => {
@@ -118,7 +157,46 @@
     }
   };
 
+  const fetchSession = async () => {
+    try {
+      const res = await fetch('/api/whoami', { credentials: 'include' });
+      if (!res.ok) throw new Error('whoami failed');
+      const data = await res.json();
+      session.role = (data?.role || 'visitante').toLowerCase();
+      session.email = (data?.email || '').toLowerCase();
+    } catch (error) {
+      console.warn('No se pudo resolver el rol del usuario', error);
+      session.role = 'visitante';
+      session.email = '';
+    }
+  };
+
+  const ensureAccess = () => {
+    const role = (session.role || 'visitante').toLowerCase();
+    if (!['admin', 'equipo', 'cliente'].includes(role)) {
+      setFormEnabled(false);
+      setStatus('Requiere sesión Cloudflare Access.');
+      return false;
+    }
+
+    if (!allowedRoles.has(role)) {
+      setFormEnabled(false);
+      setStatus('Exportaciones disponibles solo para el equipo interno.');
+      return false;
+    }
+
+    setFormEnabled(true);
+    setStatus('Listo para exportar');
+    return true;
+  };
+
   const handleExport = async (format) => {
+    const role = (session.role || 'visitante').toLowerCase();
+    if (!allowedRoles.has(role)) {
+      setStatus('Exportaciones restringidas al equipo.');
+      return;
+    }
+
     const range = parseRange();
     if (range?.error) {
       setStatus(range.error);
@@ -131,12 +209,14 @@
     if (!payload) return;
 
     const items = normaliseItems(payload);
-    const accepted = items.filter((item) => item?.moderation?.status === 'accepted');
-    const within = accepted.filter((item) => withinRange(item?.meta?.createdAt || item?.ts, range));
-    const records = within.map(recordFromItem);
+    const filtered = filterByRole(items, range, session);
+    const records = filtered.map(recordFromItem);
 
     if (records.length === 0) {
-      setStatus('Sin datos en el rango seleccionado.');
+      const msg = role === 'cliente'
+        ? 'Sin fichas propias en el rango seleccionado.'
+        : 'Sin datos en el rango seleccionado.';
+      setStatus(msg);
       return;
     }
 
@@ -151,15 +231,18 @@
     setStatus(`Exportación lista: ${records.length} registros.`);
   };
 
-  const init = () => {
-    setStatus('Listo para exportar');
+  const bootstrap = async () => {
+    setFormEnabled(false);
+    setStatus('Validando sesión…');
+    await fetchSession();
+    if (!ensureAccess()) return;
     btnJsonl.addEventListener('click', () => handleExport('jsonl'));
     btnCsv.addEventListener('click', () => handleExport('csv'));
   };
 
   if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', init, { once: true });
+    document.addEventListener('DOMContentLoaded', bootstrap, { once: true });
   } else {
-    init();
+    bootstrap();
   }
 })();

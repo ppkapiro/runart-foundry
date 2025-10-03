@@ -1,3 +1,5 @@
+import { guardRequest, ROLES } from '../_lib/guard';
+
 const JSON_HEADERS = { 'Content-Type': 'application/json' };
 
 const errorResponse = (status, message) =>
@@ -24,13 +26,15 @@ const parseDecision = (raw, name) => {
   }
 };
 
-export const onRequestGet = async ({ env, request }) => {
-  const userEmail = request.headers.get('Cf-Access-Authenticated-User-Email');
-  const isModerator = Boolean(userEmail);
+export const onRequestGet = async (context) => {
+  const { env, request } = context;
 
   if (!isOriginAllowed(request, env.ORIGIN_ALLOWED)) {
     return errorResponse(403, 'Origen no permitido.');
   }
+
+  const { email = '', role, error } = guardRequest(context, [ROLES.ADMIN, ROLES.EQUIPO, ROLES.CLIENTE]);
+  if (error) return error;
 
   try {
     const list = await env.DECISIONES.list({ prefix: 'decision:' });
@@ -47,15 +51,22 @@ export const onRequestGet = async ({ env, request }) => {
       return aTs < bTs ? 1 : -1;
     });
 
-    const filtered = isModerator
-      ? items
-      : items.filter((item) => item?.moderation?.status === 'accepted');
+    let filtered = items;
+    if (role !== ROLES.ADMIN && role !== ROLES.EQUIPO) {
+      const normalizedEmail = (email || '').toLowerCase();
+      filtered = filtered
+        .filter((item) => (item?.moderation?.status || '').toLowerCase() === 'accepted')
+        .filter((item) => {
+          const owner = (item?.meta?.userEmail || item?.meta?.email || '').toLowerCase();
+          return normalizedEmail && owner === normalizedEmail;
+        });
+    }
 
     return new Response(
       JSON.stringify({
         ok: true,
         total: filtered.length,
-        visibility: isModerator ? 'all' : 'accepted',
+        visibility: role === ROLES.ADMIN || role === ROLES.EQUIPO ? 'all' : 'own',
         items: filtered
       }),
       {

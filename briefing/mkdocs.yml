@@ -63,6 +63,8 @@ nav:
       - "ADR-0001 — Briefing como panel interno": reports/adr/ADR-0001_briefing_como_panel_interno.md
       - "Plan — Sistema Briefing (ARQ)": reports/plan_fase_arq.md
       - "Fase 1 — Control de Fichas": reports/fase1_fichas.md
+      - "Permisos finos por rol": accesos/permisos.md
+  - "Guía de estilos UI": ui/estilos.md
   - Proyectos:
       - "Índice de proyectos": projects/index.md
       - "Plantilla Ficha Técnica (YAML)": projects/_template.yaml

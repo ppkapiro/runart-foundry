@@ -40,11 +40,14 @@ mirror/**/wp-config.php
 audits/_logs/
 audits/**/*.log
 audits/**/*.pid
+audits/reports/*.json
 
 # Briefing: Excluir logs
 _logs/
 briefing/_logs/
 briefing/**/*.log
+briefing/_reports/
+briefing/_tmp/
 
 # Python virtual environments
 .venv/
