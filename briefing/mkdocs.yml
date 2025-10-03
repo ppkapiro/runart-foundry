@@ -47,6 +47,7 @@ nav:
     - "Auditoría inventario (2025-10-02)": "briefing/_reports/2025-10-02_repo_inventory.md"
   - Herramientas:
     - "Editor de Fichas (beta)": editor/index.md
+    - "Exportaciones (MF)": "exports/index.md"
   - Documentación:
     - "ADR-0001 — Briefing como panel interno": "briefing/_reports/adr/ADR-0001_briefing_como_panel_interno.md"
     - "Plan — Sistema Briefing (ARQ)": "briefing/_reports/plan_fase_arq.md"

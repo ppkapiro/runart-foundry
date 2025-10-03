@@ -150,6 +150,12 @@ Micrositio privado (MkDocs Material) para documentar plan, fases, auditoría, pr
 - **Requisitos**: Sesión válida mediante Cloudflare Access; sin ella, el panel indica que requiere autenticación y no carga datos.
 - **Limitaciones MF**: Indicadores básicos y sparkline SVG simple de 14 días; sin filtros ni visualizaciones avanzadas.
 
+### ARQ-5 · Exportaciones (MF)
+- **Qué exporta**: Fichas aceptadas filtradas por rango de fechas, disponibles en formatos JSONL (una ficha por línea) y CSV resumido.
+- **Dónde acceder**: Navegación → `Herramientas → Exportaciones (MF)` (visible solo para equipo).
+- **Requisitos**: Sesión activa mediante Cloudflare Access para que `/api/inbox` devuelva datos; se ejecuta totalmente en el navegador.
+- **Limitaciones MF**: Sin ZIP ni PDF, ni descarga de medios; preparado para evolucionar a v1.1 con empaquetado adicional.
+
 ### Build & QA (ARQ-2)
 1. Preparar entorno: `make venv`
 2. Compilar sitio: `make build`
