@@ -34,6 +34,8 @@ nav:
   - Inbox (Decisiones):
       - "Bandeja general": "inbox/index.md"
       - "Fichas recibidas": "docs/inbox/fichas.md"
+  - Dashboards:
+    - "KPIs (cliente)": "dashboards/cliente.md"
   - Acerca: acerca/index.md
   - Reportes:
     - Reportes (cliente):

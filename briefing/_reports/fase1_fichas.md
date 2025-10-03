@@ -17,13 +17,17 @@
 
 ### Fase ARQ — Sistema Briefing (Visualización)
 - [x] Plan publicado en _reports
-- [ ] ARQ-1 · Roles/visibilidad implementado
+- [x] ARQ-1 · Roles/visibilidad implementado
 - [x] ARQ-2 · Editor guiado (v1) operativo
 	- QA v1.1 ejecutado, build ok, validación de esquema local lista
 - [x] ARQ-3 · Seguridad de formularios (token/captcha)
 - [ ] ARQ-4 · Dashboard KPIs (modo cliente)
 - [ ] ARQ-5 · Export ZIP por lote
 - [ ] ARQ-6 · Corte ARQ publicado
+
+> Notas ARQ recientes:
+> - ARQ-2 QA v1.1 completado (build ok; editor/inbox listos).
+> - ARQ-3 MF: token + honeypot + pending/accept/reject con UI mínima.
 
 ## Pilotos (0–30 días)
 - [ ] Mons. Román (2015) — YAML válido + 2 imágenes optimizadas

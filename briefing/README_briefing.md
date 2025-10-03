@@ -144,6 +144,12 @@ Micrositio privado (MkDocs Material) para documentar plan, fases, auditoría, pr
 - **Resultados**: Muestra códigos HTTP esperados ✅ / tolerados ⚠️ / errores ❌.
 - **Notas**: Si el entorno usa Cloudflare Access, pasa el JWT vía `ACCESS_JWT` o reutiliza cookies (`ACCESS_COOKIE_FILE`).
 
+### ARQ-4 · Dashboard (MF)
+- **Qué muestra**: Totales por estado (Accepted, Pending, Rejected), nuevos envíos en los últimos 7 días y latencia media de moderación (horas, 1 decimal).
+- **Dónde verlo**: Navegación → `Dashboards → KPIs (cliente)`.
+- **Requisitos**: Sesión válida mediante Cloudflare Access; sin ella, el panel indica que requiere autenticación y no carga datos.
+- **Limitaciones MF**: Indicadores básicos y sparkline SVG simple de 14 días; sin filtros ni visualizaciones avanzadas.
+
 ### Build & QA (ARQ-2)
 1. Preparar entorno: `make venv`
 2. Compilar sitio: `make build`
