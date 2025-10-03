@@ -21,7 +21,7 @@ Diagrama funcional (cliente / equipo / APIs). Protegido por **Cloudflare Access*
 
   <rect x="760" y="80"  width="270" height="70" fill="none" stroke="#000"/>
   <text x="895" y="110" font-size="12" text-anchor="middle">Reporte de Corte ARQ</text>
-  <text x="895" y="128" font-size="11" text-anchor="middle">/_reports/corte_arq.md</text>
+  <text x="895" y="128" font-size="11" text-anchor="middle">/reports/corte_arq.md</text>
 
   <!-- Cajas equipo -->
   <rect x="70"  y="240" width="270" height="70" fill="none" stroke="#000"/>

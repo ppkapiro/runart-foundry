@@ -3,7 +3,7 @@
 ## Estado del proyecto
 - [x] **Fase 0 – Diagnóstico** (cerrada)
 - [x] **Fase 1 – Pilotos y estructura base** (cerrada)
-- [x] **Fase 2 – Automatización y control** (cerrada) — ver [Corte de Control — Fase 2](./_reports/corte_control_fase2.md)
+ - [x] **Fase 2 – Automatización y control** (cerrada) — ver [Corte de Control — Fase 2](./reports/corte_control_fase2.md)
 - [ ] **Fase ARQ – Sistema briefing interno** (en curso)
 
 📎 Referencia: [Arquitectura del Briefing](docs/briefing_arquitectura.md)
@@ -34,7 +34,7 @@
 - **Fase 4 – Traducción bilingüe**  
    Traducir fichas y press-kit al inglés con consistencia en PDFs y navegación.  
 
-*(Ver [Master Plan](./_reports/2025-10-02_master_plan.md) para roadmap completo hasta Fase 8.)*
+*(Ver [Master Plan](./reports/2025-10-02_master_plan.md) para roadmap completo hasta Fase 8.)*
 
 ---
 
@@ -119,7 +119,7 @@ Micrositio privado (MkDocs Material) para documentar plan, fases, auditoría, pr
    - `docs/projects/en/<slug>.yaml` (stub en inglés).
    - `assets/<year>/<slug>/.gitkeep` (carpeta para medios futuros).
 4. El menú del briefing añade la sección **“Nuevas fichas (ES)”** con los slugs generados.
-5. Consultar `briefing/_reports/fase1_fichas.md` y `briefing/_logs/briefing_run.log` para el registro de la promoción.
+5. Consultar `./reports/fase1_fichas.md` y `./_logs/briefing_run.log` para el registro de la promoción.
 
 ### Capturar fichas con el editor guiado
 1. Ir a **Herramientas → Editor** en la navegación interna (rol equipo).
@@ -151,14 +151,19 @@ Micrositio privado (MkDocs Material) para documentar plan, fases, auditoría, pr
 - **Limitaciones MF**: Indicadores básicos y sparkline SVG simple de 14 días; sin filtros ni visualizaciones avanzadas.
 
 ### ARQ-5 · Exportaciones (MF)
-- **Qué exporta**: Fichas aceptadas filtradas por rango de fechas, disponibles en formatos JSONL (una ficha por línea) y CSV resumido.
+- **Qué exporta**: Fichas aceptadas filtradas por rango de fechas, disponibles en formatos JSONL (una ficha por línea), CSV resumido y ZIP (ambos archivos empaquetados).
 - **Dónde acceder**: Navegación → `Herramientas → Exportaciones (MF)` (visible solo para equipo).
-- **Requisitos**: Sesión activa mediante Cloudflare Access para que `/api/inbox` devuelva datos; se ejecuta totalmente en el navegador.
-- **Limitaciones MF**: Sin ZIP ni PDF, ni descarga de medios; preparado para evolucionar a v1.1 con empaquetado adicional.
+- **Requisitos**: Sesión activa mediante Cloudflare Access para que `/api/inbox` y `/api/export_zip` devuelvan datos; se ejecuta totalmente en el navegador.
+- **Limitaciones MF**: Sin PDF ni descarga de medios; ZIP v1.1 empaqueta únicamente JSONL y CSV.
+
+### ARQ+ v1 — ZIP + limpieza de warnings
+- Nuevo botón **“Descargar ZIP (JSONL+CSV)”** en Exportaciones; invoca `/api/export_zip` (POST) y entrega un paquete `export_accepted_<from>_to_<to>.zip`.
+- MkDocs deja de emitir warnings por rutas fuera de `docs/` — los enlaces internos hacia `audits/`, `scripts/` y `assets/` se neutralizaron temporalmente con la marca *“recurso interno no publicado”*.
+- Cuando los recursos externos se publiquen oficialmente, basta revertir la neutralización para restaurar los hipervínculos.
 
 ### Corte ARQ (MF)
 - **Cobertura**: ARQ-0 → ARQ-5 completados (baseline, roles, editor, seguridad/moderación, dashboard cliente y exportaciones).
-- **Reporte**: Ver [`_reports/corte_arq.md`](./_reports/corte_arq.md) para resumen, QA y pendientes.
+- **Reporte**: Ver [`reports/corte_arq.md`](./reports/corte_arq.md) para resumen, QA y pendientes.
 - **Mapa de interfaces (ARQ)**: ver `Reportes → Mapa de interfaces (ARQ)`.
 - **Warnings conocidos**: Navegación incluye rutas fuera de `docs/`; MkDocs emite avisos tolerados hasta reubicar reportes/PDFs en fases siguientes.
 - **Próxima fase sugerida**: Endurecimiento adicional y limpieza de navegación (rate limiting, filtros KPIs, export ZIP/PDF, reorden de reportes).

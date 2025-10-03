@@ -27,65 +27,63 @@ nav:
   - Auditoría: auditoria/index.md
   - Proceso: proceso/index.md
   - Decisiones:
-      - Índice de decisiones: decisiones/index.md
-      - Contenido sitio viejo (brief): decisiones/contenido-sitio-viejo.md
-      - "Ficha de Proyecto (formulario)": "docs/decisiones/ficha-proyecto.md"
+    - Índice de decisiones: decisiones/index.md
+    - Contenido sitio viejo (brief): decisiones/contenido-sitio-viejo.md
+    - "Ficha de Proyecto (formulario)": decisiones/ficha-proyecto.md
   - Galería: galeria/index.md
   - Inbox (Decisiones):
-      - "Bandeja general": "inbox/index.md"
-      - "Fichas recibidas": "docs/inbox/fichas.md"
+    - "Bandeja general": inbox/index.md
+    - "Fichas recibidas": inbox/fichas.md
   - Dashboards:
     - "KPIs (cliente)": "dashboards/cliente.md"
   - Acerca: acerca/index.md
   - Reportes:
     - Reportes (cliente):
-        - "Master Plan (Estrategia)": "briefing/_reports/2025-10-02_master_plan.md"
+        - "Master Plan (Estrategia)": "reports/2025-10-02_master_plan.md"
         - "Arquitectura": "briefing_arquitectura.md"
-        - "Corte de Control — Fase 2": "briefing/_reports/corte_control_fase2.md"
-    - "Corte Fase ARQ": "_reports/corte_arq.md"
+        - "Corte de Control — Fase 2": "reports/corte_control_fase2.md"
+    - "Corte Fase ARQ": "reports/corte_arq.md"
     - "Mapa de interfaces (ARQ)": "arq/mapa_interfaces.md"
   - Reportes (interno):
-    - "Bitácora del briefing": "briefing/_reports/README.md"
-    - "Auditoría inventario (2025-10-02)": "briefing/_reports/2025-10-02_repo_inventory.md"
+    - "Bitácora del briefing": "reports/README.md"
+    - "Auditoría inventario (2025-10-02)": "reports/2025-10-02_repo_inventory.md"
   - Herramientas:
     - "Editor de Fichas (beta)": editor/index.md
     - "Exportaciones (MF)": "exports/index.md"
   - Documentación:
-    - "ADR-0001 — Briefing como panel interno": "briefing/_reports/adr/ADR-0001_briefing_como_panel_interno.md"
-    - "Plan — Sistema Briefing (ARQ)": "briefing/_reports/plan_fase_arq.md"
-    - "Fase 1 — Control de Fichas": "briefing/_reports/fase1_fichas.md"
-    - "Plantilla Ficha Técnica (YAML)": "docs/projects/_template.yaml"
-    - "Esquema de fichas (YAML)": "docs/projects/schema.yaml"
+    - "ADR-0001 — Briefing como panel interno": "reports/adr/ADR-0001_briefing_como_panel_interno.md"
+    - "Plan — Sistema Briefing (ARQ)": "reports/plan_fase_arq.md"
+    - "Fase 1 — Control de Fichas": "reports/fase1_fichas.md"
+  - "Plantilla Ficha Técnica (YAML)": "projects/_template.yaml"
+  - "Esquema de fichas (YAML)": "projects/schema.yaml"
   - Press-kit:
-    - "Press-kit v0 (ES)": "briefing/_reports/presskit_v0.md"
-    - "Press-kit PDF (ES)": "presskit/presskit_v0_ES.pdf"
-    - "Press-kit PDF (EN)": "presskit/presskit_v0_EN.pdf"
-    - "Press-kit v1 (ES)": "presskit/presskit_v1_ES.pdf"
-    - "Press-kit v1 (EN)": "presskit/presskit_v1_EN.pdf"
+    - "Press-kit v0 (ES)": "reports/presskit_v0.md"
+    - "Press-kit v1 (ES)": "reports/presskit_v1_ES.md"
+    - "Press-kit v1 (EN)": "reports/presskit_v1_EN.md"
   - Proyectos piloto (ES):
-    - "Mons. Román (2015)": "docs/projects/mons-roman-2015.yaml"
-    - "Raider (2018)": "docs/projects/raider-2018.yaml"
-    - "Colaboración internacional (2018)": "docs/projects/colaboracion-internacional-01.yaml"
+    - "Mons. Román (2015)": "projects/mons-roman-2015.yaml"
+    - "Raider (2018)": "projects/raider-2018.yaml"
+    - "Colaboración internacional (2018)": "projects/colaboracion-internacional-01.yaml"
   - Pilot projects (EN):
-    - "Monsignor Agustín Román (2015)": "docs/projects/en/mons-roman-2015.yaml"
-    - "Raider (2018)": "docs/projects/en/raider-2018.yaml"
-    - "International collaboration (2018)": "docs/projects/en/colaboracion-internacional-01.yaml"
+    - "Monsignor Agustín Román (2015)": "projects/en/mons-roman-2015.yaml"
+    - "Raider (2018)": "projects/en/raider-2018.yaml"
+    - "International collaboration (2018)": "projects/en/colaboracion-internacional-01.yaml"
   - Proyectos intermedios (ES):
-    - "Carole A. Feuerman (2019)": "docs/projects/carole-feuerman-2019.yaml"
-    - "Roberto Fabelo (2016)": "docs/projects/roberto-fabelo-2016.yaml"
-    - "Pedro Pablo Oliva (2017)": "docs/projects/pedro-pablo-oliva-2017.yaml"
-    - "Williams Carmona (2019)": "docs/projects/williams-carmona-2019.yaml"
-    - "The-Merger (2020)": "docs/projects/the-merger-2020.yaml"
-    - "Lawrence Holofcener (2015)": "docs/projects/lawrence-holofcener-2015.yaml"
-    - "Proyecto Messi (2024)": "docs/projects/proyecto-messi-2024.yaml"
+    - "Carole A. Feuerman (2019)": "projects/carole-feuerman-2019.yaml"
+    - "Roberto Fabelo (2016)": "projects/roberto-fabelo-2016.yaml"
+    - "Pedro Pablo Oliva (2017)": "projects/pedro-pablo-oliva-2017.yaml"
+    - "Williams Carmona (2019)": "projects/williams-carmona-2019.yaml"
+    - "The-Merger (2020)": "projects/the-merger-2020.yaml"
+    - "Lawrence Holofcener (2015)": "projects/lawrence-holofcener-2015.yaml"
+    - "Proyecto Messi (2024)": "projects/proyecto-messi-2024.yaml"
   - Intermediate projects (EN):
-    - "Carole A. Feuerman (2019)": "docs/projects/en/carole-feuerman-2019.yaml"
-    - "Roberto Fabelo (2016)": "docs/projects/en/roberto-fabelo-2016.yaml"
-    - "Pedro Pablo Oliva (2017)": "docs/projects/en/pedro-pablo-oliva-2017.yaml"
-    - "Williams Carmona (2019)": "docs/projects/en/williams-carmona-2019.yaml"
-    - "The-Merger (2020)": "docs/projects/en/the-merger-2020.yaml"
-    - "Lawrence Holofcener (2015)": "docs/projects/en/lawrence-holofcener-2015.yaml"
-    - "Messi Project (2024)": "docs/projects/en/proyecto-messi-2024.yaml"
+    - "Carole A. Feuerman (2019)": "projects/en/carole-feuerman-2019.yaml"
+    - "Roberto Fabelo (2016)": "projects/en/roberto-fabelo-2016.yaml"
+    - "Pedro Pablo Oliva (2017)": "projects/en/pedro-pablo-oliva-2017.yaml"
+    - "Williams Carmona (2019)": "projects/en/williams-carmona-2019.yaml"
+    - "The-Merger (2020)": "projects/en/the-merger-2020.yaml"
+    - "Lawrence Holofcener (2015)": "projects/en/lawrence-holofcener-2015.yaml"
+    - "Messi Project (2024)": "projects/en/proyecto-messi-2024.yaml"
   - Smoke Test: _smoke.md
 plugins:
   - search

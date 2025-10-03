@@ -24,7 +24,7 @@ Este proyecto implementa **validaciones automáticas** para mantener la organiza
 
 Cada **Pull Request** y **push a `main`** ejecuta el workflow [`structure-guard.yml`](.github/workflows/structure-guard.yml) que valida:
 
-- ✅ Archivos en ubicaciones permitidas (reportes en `briefing/_reports/` o `audits/reports/`, NO en raíz)
+- ✅ Archivos en ubicaciones permitidas (reportes en `briefing/docs/reports/` o `audits/reports/`, NO en raíz)
 - ✅ Tamaños de archivo (hard limit: ≥25 MB, warning: 10-25 MB)
 - ✅ Exclusión de builds (`briefing/site/`), node_modules, logs, credenciales
 - ✅ Exclusión de binarios pesados (`mirror/raw/*/wp-content/uploads/`)

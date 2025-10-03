@@ -12,7 +12,10 @@ Descarga fichas **aceptadas** como **JSONL** o **CSV** en un rango de fechas.
   </fieldset>
   <button id="btn-jsonl" type="button">Descargar JSONL</button>
   <button id="btn-csv" type="button">Descargar CSV</button>
+  <button id="btn-zip" type="button">Descargar ZIP (JSONL+CSV)</button>
 </form>
+
+<p>El ZIP contiene los mismos datos que JSONL y CSV.</p>
 
 <div id="exp-status" role="status" aria-live="polite"></div>
 

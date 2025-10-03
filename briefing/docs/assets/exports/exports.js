@@ -2,6 +2,7 @@
   const form = document.getElementById('exp-form');
   const btnJsonl = document.getElementById('btn-jsonl');
   const btnCsv = document.getElementById('btn-csv');
+  const btnZip = document.getElementById('btn-zip');
   const statusEl = document.getElementById('exp-status');
 
   function setStatus(message) {
@@ -98,6 +99,25 @@
     setStatus('Cargando fichas aceptadas…');
 
     try {
+      if (format === 'zip') {
+        const response = await fetch('/api/export_zip', {
+          method: 'POST',
+          credentials: 'include',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ from: form.from.value, to: form.to.value })
+        });
+
+        if (!response.ok) {
+          setStatus('No se pudo generar el ZIP. Verifica tu sesión o el rango.');
+          return;
+        }
+
+        const blob = await response.blob();
+        downloadBlob(blob, `export_accepted_${form.from.value}_to_${form.to.value}.zip`, 'application/zip');
+        setStatus('ZIP generado.');
+        return;
+      }
+
       const response = await fetch('/api/inbox', {
         method: 'GET',
         credentials: 'include'
@@ -149,6 +169,9 @@
     }
     if (btnCsv) {
       btnCsv.addEventListener('click', () => handleExport('csv'));
+    }
+    if (btnZip) {
+      btnZip.addEventListener('click', () => handleExport('zip'));
     }
   }
 
