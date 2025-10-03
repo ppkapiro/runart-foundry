@@ -24,19 +24,28 @@
       const internalLabels = [
         'Decisiones',
         'Inbox (Decisiones)',
-        'Reportes (interno)'
+        'Reportes (interno)',
+        'Herramientas'
       ];
       const internalHrefPatterns = [
         'decisiones/',
         'inbox/',
         'briefing/_reports/README',
-        'briefing/_reports/2025-10-02_repo_inventory'
+        'briefing/_reports/2025-10-02_repo_inventory',
+        'docs/editor/',
+        '^/editor/'
       ];
 
       document.querySelectorAll('.md-nav__link').forEach(function (link) {
         const text = (link.textContent || '').trim();
         const href = link.getAttribute('href') || '';
-        if (internalLabels.includes(text) || internalHrefPatterns.some(function (pattern) { return href.includes(pattern); })) {
+        const isInternal = internalLabels.includes(text) || internalHrefPatterns.some(function (pattern) {
+          if (pattern.startsWith('^')) {
+            return href.startsWith(pattern.slice(1));
+          }
+          return href.includes(pattern);
+        });
+        if (isInternal) {
           const item = link.closest('.md-nav__item');
           if (item) {
             item.classList.add('interno');

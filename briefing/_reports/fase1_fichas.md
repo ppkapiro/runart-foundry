@@ -5,18 +5,20 @@
 * [x] Documento de arquitectura publicado
 * [x] Verificar briefing_arquitectura.md en navegación
 * [x] Definir roles/visibilidad de menús (ARQ-01)
-* [ ] Prototipo de editor guiado YAML (ARQ-02)
+* [x] Prototipo de editor guiado YAML (ARQ-02)
 * [ ] Endurecer seguridad de formularios (ARQ-06)
 * [ ] Configurar próximo “corte ARQ” (validaciones y métricas del sistema)
 
 > ARQ-0 cerrado — baseline validado.
 
 > Nota ARQ-1: Implementación inicial con flags en `main.html` y `roles.js`.
+> Nota ARQ-2: Editor v1 genera YAML, envía JSON al inbox, marca `token_origen = editor_v1` y QA v1.1 ejecutado (build ok, validador local listo).
 
 ### Fase ARQ — Sistema Briefing (Visualización)
 - [x] Plan publicado en _reports
 - [ ] ARQ-1 · Roles/visibilidad implementado
-- [ ] ARQ-2 · Editor guiado (v1) operativo
+- [x] ARQ-2 · Editor guiado (v1) operativo
+	- QA v1.1 ejecutado, build ok, validación de esquema local lista
 - [ ] ARQ-3 · Seguridad de formularios (token/captcha)
 - [ ] ARQ-4 · Dashboard KPIs (modo cliente)
 - [ ] ARQ-5 · Export ZIP por lote

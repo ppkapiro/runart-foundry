@@ -41,6 +41,7 @@ audits/**/*.log
 audits/**/*.pid
 
 # Briefing: Excluir logs
+_logs/
 briefing/_logs/
 briefing/**/*.log
 

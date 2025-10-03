@@ -121,6 +121,19 @@ Micrositio privado (MkDocs Material) para documentar plan, fases, auditoría, pr
 4. El menú del briefing añade la sección **“Nuevas fichas (ES)”** con los slugs generados.
 5. Consultar `briefing/_reports/fase1_fichas.md` y `briefing/_logs/briefing_run.log` para el registro de la promoción.
 
+### Capturar fichas con el editor guiado
+1. Ir a **Herramientas → Editor** en la navegación interna (rol equipo).
+2. Completar los campos requeridos (slug, título, artista, año) y cargar listas con el formato `https://url | detalle`.
+3. Revisar la vista previa YAML y, si es correcto, copiarla o enviarla directo al inbox (`/api/decisiones`).
+4. Cada envío añade `token_origen: editor_v1` y un comentario interno para trazabilidad.
+5. Antes de promover, ejecutar `python scripts/validate_projects.py` desde `briefing/` para confirmar que la ficha cumple el esquema.
+
+### Build & QA (ARQ-2)
+1. Preparar entorno: `make venv`
+2. Compilar sitio: `make build`
+3. Servir en local: `make serve`
+4. Validar una ficha: `python scripts/validate_projects.py /ruta/al/archivo.yaml`
+
 ## Archivos creados
 ```
 briefing/
