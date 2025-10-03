@@ -24,6 +24,7 @@ __pycache__/
 # Builds generados
 briefing/site/
 **/site/
+site/
 
 # Mirror: Excluir payload completo (solo plantillas en Git)
 mirror/raw/**

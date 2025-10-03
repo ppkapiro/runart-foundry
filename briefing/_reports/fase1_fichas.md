@@ -86,6 +86,8 @@
 - [x] Navegación ES/EN actualizada para pilotos en MkDocs
 - [ ] Tablero OSINT (datos iniciales)
 
+Fase ARQ cerrada (MF). Corte publicado, mapa enlazado, QA re-ejecutado y tag de cierre.
+
 ## Press-kit v0
 - [ ] Generar PDF (manual)
 - [x] Documento base creado (`briefing/_reports/presskit_v0.md`)
