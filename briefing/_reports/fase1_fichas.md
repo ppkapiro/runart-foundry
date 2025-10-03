@@ -4,12 +4,14 @@
 
 * [x] Documento de arquitectura publicado
 * [x] Verificar briefing_arquitectura.md en navegación
-* [ ] Definir roles/visibilidad de menús (ARQ-01)
+* [x] Definir roles/visibilidad de menús (ARQ-01)
 * [ ] Prototipo de editor guiado YAML (ARQ-02)
 * [ ] Endurecer seguridad de formularios (ARQ-06)
 * [ ] Configurar próximo “corte ARQ” (validaciones y métricas del sistema)
 
 > ARQ-0 cerrado — baseline validado.
+
+> Nota ARQ-1: Implementación inicial con flags en `main.html` y `roles.js`.
 
 ### Fase ARQ — Sistema Briefing (Visualización)
 - [x] Plan publicado en _reports

@@ -36,9 +36,13 @@ nav:
       - "Fichas recibidas": "docs/inbox/fichas.md"
   - Acerca: acerca/index.md
   - Reportes:
-    - "Master Plan (Estrategia)": "briefing/_reports/2025-10-02_master_plan.md"
-    - "Corte de Control — Fase 2": "briefing/_reports/corte_control_fase2.md"
-    - "Arquitectura": "briefing_arquitectura.md"
+    - Reportes (cliente):
+        - "Master Plan (Estrategia)": "briefing/_reports/2025-10-02_master_plan.md"
+        - "Arquitectura": "briefing_arquitectura.md"
+        - "Corte de Control — Fase 2": "briefing/_reports/corte_control_fase2.md"
+  - Reportes (interno):
+    - "Bitácora del briefing": "briefing/_reports/README.md"
+    - "Auditoría inventario (2025-10-02)": "briefing/_reports/2025-10-02_repo_inventory.md"
   - Documentación:
     - "ADR-0001 — Briefing como panel interno": "briefing/_reports/adr/ADR-0001_briefing_como_panel_interno.md"
     - "Plan — Sistema Briefing (ARQ)": "briefing/_reports/plan_fase_arq.md"

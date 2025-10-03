@@ -15,3 +15,51 @@
   {{ super() }}
   <meta name="robots" content="noindex, nofollow" />
 {% endblock %}
+
+{% block scripts %}
+  {{ super() }}
+  <script src="{{ 'roles.js' | url }}" defer></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', function () {
+      const internalLabels = [
+        'Decisiones',
+        'Inbox (Decisiones)',
+        'Reportes (interno)'
+      ];
+      const internalHrefPatterns = [
+        'decisiones/',
+        'inbox/',
+        'briefing/_reports/README',
+        'briefing/_reports/2025-10-02_repo_inventory'
+      ];
+
+      document.querySelectorAll('.md-nav__link').forEach(function (link) {
+        const text = (link.textContent || '').trim();
+        const href = link.getAttribute('href') || '';
+        if (internalLabels.includes(text) || internalHrefPatterns.some(function (pattern) { return href.includes(pattern); })) {
+          const item = link.closest('.md-nav__item');
+          if (item) {
+            item.classList.add('interno');
+          }
+        }
+      });
+
+      const config = (window.BriefingRoleConfig || {});
+      const role = (config.role || 'equipo').toLowerCase();
+      const root = document.documentElement;
+      const allowedRoles = ['equipo', 'cliente', 'visitante'];
+      const normalizedRole = allowedRoles.includes(role) ? role : 'equipo';
+
+      root.classList.remove('briefing-role-equipo', 'briefing-role-cliente', 'briefing-role-visitante');
+      root.classList.add(`briefing-role-${normalizedRole}`);
+
+      document.querySelectorAll('nav .interno').forEach(function (item) {
+        if (normalizedRole === 'equipo') {
+          item.removeAttribute('hidden');
+        } else {
+          item.setAttribute('hidden', 'hidden');
+        }
+      });
+    });
+  </script>
+{% endblock %}

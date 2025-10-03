@@ -8,6 +8,19 @@
 
 📎 Referencia: [Arquitectura del Briefing](docs/briefing_arquitectura.md)
 
+### Visibilidad por rol
+
+| Sección / módulo | Equipo | Cliente | Visitante |
+| --- | :---: | :---: | :---: |
+| Reportes (cliente) | ✅ | ✅ | 🔒 |
+| Reportes (interno) | ✅ | 🔒 | 🔒 |
+| Decisiones e Inbox | ✅ | 🔒 | 🔒 |
+| Documentación técnica | ✅ | ✅ | 🔒 |
+| Press-kit | ✅ | ✅ | 🔒 |
+| Plan & Roadmap / Proceso | ✅ | ✅ | 🔒 |
+
+> Nota: La segmentación actual se controla con `overrides/roles.js` y las clases `interno` en la navegación de `mkdocs.yml`.
+
 ### Acciones pendientes (tras corte Fase 2)
 - Sustituir imágenes dummy por optimizadas en las fichas piloto e intermedias.  
 - Corregir/validar enlaces externos con alerta.  
