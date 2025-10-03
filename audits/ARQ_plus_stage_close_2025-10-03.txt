@@ -1,0 +1,56 @@
+FINAL STAGE AUDIT — 2025-10-03T16:16:38-04:00
+Remote(s):
+origin	git@github.com:ppkapiro/runart-foundry.git (fetch)
+origin	git@github.com:ppkapiro/runart-foundry.git (push)
+
+Branches:
+  chore/bootstrap-git          ea2e72b [origin/chore/bootstrap-git] chore(bootstrap): estructura monorepo + guardarraíles + política MIRROR
+  chore/briefing-deploy        d622034 [origin/chore/briefing-deploy] ci(briefing): workflow de deploy a Cloudflare Pages (mkdocs/npm autodetect)
+  chore/clean-warnings         e8aedfb [origin/chore/clean-warnings] docs: agrega release note de bootstrap
+  chore/release-note-and-badge af2f98a [origin/chore/release-note-and-badge] docs: release note, badge de deploy y smoke de producción
+* main                         d9bd6c4 [origin/main] feat(arq+): export ZIP (v1.1) y neutralización de warnings (recursos internos no publicados)
+  test/briefing-deploy         2785fb9 [origin/test/briefing-deploy] docs(briefing): trigger workflow preview PR #5
+
+Status:
+ M briefing/README_briefing.md
+ M briefing/scripts/neutralize_external_links.py
+?? .github/workflows/presskit_pdf.yml
+?? .github/workflows/promote_inbox.yml
+?? .github/workflows/promote_inbox_preview.yml
+?? .pre-commit-config.yaml
+?? .yamllint
+?? assets/
+?? audits/ARQ_plus_stage_close_2025-10-03.txt
+?? audits/reports/2025-10-02_repo_inventory.json
+?? briefing/_reports/2025-10-02_cierre_fase0.md
+?? briefing/_reports/2025-10-02_master_plan.md
+?? briefing/_reports/2025-10-02_plan_fase1_fichas.md
+?? briefing/_reports/2025-10-02_repo_inventory.md
+?? briefing/_reports/adr/
+?? briefing/_reports/briefing_arquitectura.md
+?? briefing/_reports/corte_control_fase2.md
+?? briefing/_reports/plan_fase_arq.md
+?? briefing/_reports/presskit_v0.md
+?? briefing/_reports/presskit_v1_EN.md
+?? briefing/_reports/presskit_v1_ES.md
+?? briefing/_tmp/
+?? briefing/docs/decisiones/ficha-proyecto.md
+?? briefing/docs/editor/editor.md
+?? briefing/docs/inbox/fichas.md
+?? briefing/docs/projects/
+?? briefing/docs/reports/2025-10-02_master_plan.md
+?? briefing/docs/reports/2025-10-02_plan_fase1_fichas.md
+?? briefing/docs/reports/ARQ_RELEASE_NOTES.md
+?? briefing/docs/reports/adr/
+?? briefing/docs/reports/cloudflare_access_audit.md
+?? briefing/docs/reports/cloudflare_access_plan.md
+?? briefing/docs/reports/corte_arq.md
+?? briefing/docs/reports/corte_control_fase2.md
+?? briefing/docs/reports/plan_fase_arq.md
+?? briefing/docs/reports/presskit_v0.md
+?? briefing/scripts/corte_control_fase2.py
+?? briefing/scripts/generate_preview_from_inbox.py
+?? briefing/scripts/promote_inbox_to_yaml.py
+?? briefing/scripts/qa_arq6.sh
+?? briefing/scripts/smoke_exports.sh
+?? docs/projects/

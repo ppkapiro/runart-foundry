@@ -200,6 +200,7 @@ ALLOWED_IN_ROOT=(
     "LICENSE.md"
     "CONTRIBUTING.md"
     "CHANGELOG.md"
+    "NEXT_PHASE.md"
 )
 
 for file in "${FILES[@]}"; do
@@ -226,7 +227,7 @@ for file in "${FILES[@]}"; do
     fi
     
     # Permitir archivos .md en carpetas de artefactos/estructura
-    if [[ "$file" =~ (_structure/|_artifacts/) ]]; then
+    if [[ "$file" =~ (_structure/|_artifacts/|_reports/) ]]; then
         continue
     fi
     

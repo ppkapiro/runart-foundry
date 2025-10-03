@@ -161,6 +161,21 @@ Micrositio privado (MkDocs Material) para documentar plan, fases, auditoría, pr
 - MkDocs deja de emitir warnings por rutas fuera de `docs/` — los enlaces internos hacia `audits/`, `scripts/` y `assets/` se neutralizaron temporalmente con la marca *“recurso interno no publicado”*.
 - Cuando los recursos externos se publiquen oficialmente, basta revertir la neutralización para restaurar los hipervínculos.
 
+#### QA Export (smoke)
+Para validar rápidamente que el endpoint `/api/export_zip` responde (requiere sesión Access en navegador para la verificación visual):
+
+```bash
+PAGES_URL=https://runart-briefing.pages.dev \
+RUN_TOKEN=dev-token \
+bash briefing/scripts/smoke_exports.sh
+```
+
+#### Toggle enlaces internos
+- Ejecutar `python scripts/neutralize_external_links.py` (desde `briefing/`) mantiene los enlaces internos fuera de `docs/` neutralizados y genera un snapshot en `_tmp/link_toggle_snapshot.json`.
+- Para revisar el impacto sin tocar archivos, añade `--dry-run`.
+- Cuando los recursos se trasladen a una ubicación pública, invoca `ENABLE_PUBLISH=1 python scripts/neutralize_external_links.py` (o `python scripts/neutralize_external_links.py --mode publish`) para restaurar los hipervínculos originales usando el snapshot.
+- El snapshot es el “toggle” entre estados: consérvalo en Git hasta completar la publicación; al volver a neutralizar se generará uno nuevo automáticamente.
+
 ### Corte ARQ (MF)
 - **Cobertura**: ARQ-0 → ARQ-5 completados (baseline, roles, editor, seguridad/moderación, dashboard cliente y exportaciones).
 - **Reporte**: Ver [`reports/corte_arq.md`](./reports/corte_arq.md) para resumen, QA y pendientes.
@@ -203,3 +218,8 @@ briefing/
 2. Revisar y personalizar el contenido de cada página `.md`.
 3. Actualizar las URLs de los endpoints del Worker en los archivos de formularios.
 4. Configurar Cloudflare Pages, Access y KV según la documentación.
+
+## Cierre de etapa (ARQ+ v1)
+- Auditoría y build final ejecutados.
+- Enlaces internos: toggle publish/neutralize documentado.
+- Siguiente etapa: ver `NEXT_PHASE.md` (roles y CSS/UI).
