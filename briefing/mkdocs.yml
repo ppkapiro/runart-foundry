@@ -20,6 +20,13 @@ extra:
   generator: false
   social: []
   # Paleta placeholder, ajustable más adelante vía CSS si se requiere.
+  nav_internal:
+    - title: "Editor de Fichas (beta)"
+      class: interno
+    - title: "Inbox"
+      class: interno
+    - title: "Exportaciones (MF)"
+      class: interno
 nav:
   - Inicio: index.md
   - Plan & Roadmap: plan/index.md

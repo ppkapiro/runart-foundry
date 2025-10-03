@@ -2,6 +2,9 @@
 
 Las entradas más recientes aparecen primero. Los envíos realizados desde el editor muestran la insignia “editor_v1”. Solo el equipo autenticado puede moderar usando los controles de esta bandeja.
 
+<!-- interno:start -->
+<div class="interno">
+
 ## Estados y moderación
 - **Pending**: valor por defecto tras enviar desde el editor o API. Permanece oculto para clientes.
 - **Accepted**: visible en dashboards e interfaces de cliente una vez aprobada desde esta bandeja.
@@ -479,3 +482,5 @@ Los botones **Aceptar** y **Rechazar** se muestran únicamente a miembros con ro
     color: #2563eb;
   }
 </style>
+</div>
+<!-- interno:end -->

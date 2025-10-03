@@ -2,6 +2,9 @@
 
 Este módulo permite capturar fichas de proyecto sin escribir YAML manualmente. Completa el formulario, genera una vista previa y envía la ficha al inbox para moderación.
 
+<!-- interno:start -->
+<div class="interno">
+
 - **Vista previa YAML**: valida la estructura antes de promoverla.
 - **Envío a inbox**: crea una entrada en `/api/decisiones` lista para revisión.
 - **Siguiente paso**: tras la moderación, el flujo `Promote Inbox → YAML` generará la ficha definitiva.
@@ -41,3 +44,6 @@ Este módulo permite capturar fichas de proyecto sin escribir YAML manualmente. 
 4. Moderación → Promoción a YAML → Commit.
 
 Consulta también la [bandeja de inbox](../inbox/index.md) para revisar envíos pendientes.
+
+</div>
+<!-- interno:end -->

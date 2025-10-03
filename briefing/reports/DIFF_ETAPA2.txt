@@ -1,0 +1,19 @@
+=== DIFF ETAPA 2 (resumen) ===
+
+---- briefing/functions/api/whoami.js
+
+---- briefing/functions/api/diag.js
+
+---- briefing/overrides/main.html
+
+---- briefing/overrides/extra.css
+
+---- briefing/mkdocs.yml
+
+---- briefing/docs/index.md
+
+---- briefing/docs/inbox/index.md
+
+---- briefing/docs/editor/index.md
+
+---- scripts/test_whoami.mjs

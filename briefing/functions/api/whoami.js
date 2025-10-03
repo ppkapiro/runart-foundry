@@ -1,50 +1,28 @@
-// Endpoint de diagnóstico para inspeccionar headers de Cloudflare Access
-export const onRequestGet = async ({ request }) => {
-  try {
-    const headers = {};
-    
-    // Extraer todos los headers relevantes
-    for (const [key, value] of request.headers.entries()) {
-      // Capturar headers de Access, CF y estándar
-      if (
-        key.toLowerCase().startsWith('cf-') ||
-        key.toLowerCase() === 'user-agent' ||
-        key.toLowerCase() === 'x-forwarded-for' ||
-        key.toLowerCase() === 'cookie'
-      ) {
-        headers[key] = value;
-      }
-    }
+export async function onRequestGet(context) {
+  const { request, env } = context;
+  const email = request.headers.get('Cf-Access-Authenticated-User-Email') || '';
+  const admins = (env.ACCESS_ADMINS || '')
+    .split(',')
+    .map((s) => s.trim().toLowerCase())
+    .filter(Boolean);
+  const equipoDomains = (env.ACCESS_EQUIPO_DOMAINS || '')
+    .split(',')
+    .map((s) => s.trim().toLowerCase())
+    .filter(Boolean);
 
-    // Información específica de Access
-    const accessInfo = {
-      authenticated: !!request.headers.get('Cf-Access-Authenticated-User-Email'),
-      email: request.headers.get('Cf-Access-Authenticated-User-Email') || null,
-      jwtPresent: !!request.headers.get('Cf-Access-Jwt-Assertion'),
-      country: request.headers.get('Cf-Ipcountry') || null,
-      connectingIP: request.headers.get('Cf-Connecting-Ip') || null,
-    };
-
-    return new Response(JSON.stringify({
-      timestamp: new Date().toISOString(),
-      access: accessInfo,
-      headers: headers,
-      url: request.url,
-      method: request.method,
-    }, null, 2), {
-      status: 200,
-      headers: {
-        'Content-Type': 'application/json',
-        'Cache-Control': 'no-store, no-cache, must-revalidate',
-      },
-    });
-  } catch (err) {
-    return new Response(JSON.stringify({
-      error: String(err),
-      timestamp: new Date().toISOString(),
-    }, null, 2), {
-      status: 500,
-      headers: { 'Content-Type': 'application/json' },
-    });
+  let role = 'visitante';
+  if (email) {
+    const e = email.toLowerCase();
+    const domain = e.includes('@') ? e.split('@').pop() : '';
+    if (admins.includes(e)) role = 'admin';
+    else if (equipoDomains.includes(domain)) role = 'equipo';
+    else role = 'cliente';
   }
-};
+
+  return new Response(
+    JSON.stringify({ email, role, ts: new Date().toISOString() }),
+    {
+      headers: { 'Content-Type': 'application/json' },
+    },
+  );
+}

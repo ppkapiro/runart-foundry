@@ -9,6 +9,7 @@ id = "6418ac6ace59487c97bda9c3a50ab10e"
 preview_id = "e68d7a05dce645478e25c397d4c34c08"
 
 [vars]
-# EDITOR_TOKEN se define como Secret en Cloudflare Pages. Para desarrollos locales usa dev-token.
 MOD_REQUIRED = "1"
 ORIGIN_ALLOWED = "https://runart-briefing.pages.dev"
+ACCESS_ADMINS = "tu@correo.com,otra@correo.com"
+ACCESS_EQUIPO_DOMAINS = "runart.com,studio.com"

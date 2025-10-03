@@ -77,11 +77,6 @@ body { color: var(--acc-text); line-height: 1.6; }
 a { text-decoration: underline; text-underline-offset: 2px; }
 a:hover, a:focus { text-decoration-thickness: 2px; }
 
-:focus-visible {
-  outline: 3px solid var(--acc-focus);
-  outline-offset: 2px;
-  border-radius: 4px;
-}
 
 /* Titulares bien contrastados */
 h1, h2, h3 { color: var(--acc-text); letter-spacing: 0.2px; }
@@ -155,16 +150,44 @@ blockquote {
 }
 .skip-link:focus { top: 8px; }
 
-/* Preferencias del usuario */
+/* === ETAPA 2: Visibilidad por rol + tokens + estados accesibles === */
+html.role-cliente .interno,
+html[data-viewas="cliente"] .interno { display: none !important; }
+
+/* Tokens básicos */
+:root {
+  --space-1: .25rem;
+  --space-2: .5rem;
+  --space-3: 1rem;
+  --space-4: 1.5rem;
+  --radius: .5rem;
+}
+
+/* Estados de interacción */
+.is-busy { opacity: .6; pointer-events: none; }
+
+/* Mensajes con contraste adecuado */
+.msg { margin-top: var(--space-2); padding: var(--space-2); border-radius: var(--radius); }
+.msg-ok   { border-left: 4px solid #2e7d32; background: #e8f5e9; color: #1b5e20; }
+.msg-warn { border-left: 4px solid #ed6c02; background: #fff3e0; color: #5d3b00; }
+.msg-err  { border-left: 4px solid #c62828; background: #ffebee; color: #7f0000; }
+
+/* Toggle flotante “Ver como” (si main.html lo monta) */
+.viewas-toggle {
+  position: fixed; right: 12px; bottom: 12px; z-index: 9999;
+  background: var(--md-default-bg-color, #fff);
+  border: 1px solid var(--md-default-fg-color--light, #ddd);
+  border-radius: 8px; padding: 6px 8px; font-size: 12px;
+  box-shadow: 0 1px 6px rgba(0,0,0,.08);
+}
+.viewas-toggle select { font-size: 12px; }
+
+/* Accesibilidad mínima: foco visible */
+:where(a, button, [role="button"], select, textarea, input):focus-visible {
+  outline: 2px solid #2962ff; outline-offset: 2px;
+}
+
+/* Respeto de preferencias de movimiento del usuario */
 @media (prefers-reduced-motion: reduce) {
-  * { animation: none !important; transition: none !important; }
-}
-
-/* Visibilidad por rol */
-.interno {
-  display: none !important;
-}
-
-html.briefing-role-equipo .interno {
-  display: revert !important;
+  * { animation-duration: .001ms !important; animation-iteration-count: 1 !important; transition-duration: .001ms !important; scroll-behavior: auto !important; }
 }
