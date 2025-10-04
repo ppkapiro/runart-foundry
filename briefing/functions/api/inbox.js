@@ -1,4 +1,4 @@
-import { guardRequest, ROLES } from '../_lib/guard';
+import { guardRequest, ROLES } from '../_lib/guard.js';
 
 const JSON_HEADERS = { 'Content-Type': 'application/json' };
 

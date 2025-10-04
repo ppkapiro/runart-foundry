@@ -56,6 +56,12 @@ Micrositio privado (MkDocs Material) para documentar plan, fases, auditoría, pr
 - Cloudflare Pages (build de MkDocs), Cloudflare Access y KV (namespace `DECISIONES`).
 - Pages Functions para los endpoints de API (sin necesidad de workers.dev).
 
+## Gates de CI (Etapa 6)
+- **Build MkDocs**: `make build`
+- **Logs tests**: `make test-logs` (usa `scripts/test_logs_strict.mjs` si no existe la versión básica)
+
+Consulta `docs/ops/ci.md` para los requisitos, flujo completo y troubleshooting.
+
 ## Resumen de la etapa actual (cerrada)
 - **ARQ-0 — Baseline**: Estructura MkDocs, despliegue en Cloudflare Pages y acceso privado con Access.
 - **ARQ-1 — Roles y navegación**: Segmentación por rol en `mkdocs.yml` y overrides.

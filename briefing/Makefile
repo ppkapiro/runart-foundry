@@ -13,3 +13,13 @@ serve:
 
 clean:
 	rm -rf site/
+
+test-logs:
+	@if [ -f scripts/test_logs.mjs ]; then \
+		node scripts/test_logs.mjs; \
+	else \
+		node scripts/test_logs_strict.mjs; \
+	fi
+
+test-logs-strict:
+	node scripts/test_logs_strict.mjs

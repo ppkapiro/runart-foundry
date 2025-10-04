@@ -30,7 +30,7 @@ const normalizeRole = (role) => {
     publico_equipo: 'equipo',
     publico_equipo_admin: 'equipo',
     publico_admin_equipo: 'equipo',
-    publico_admin_cliente: 'cliente'
+    publico_admin_cliente: 'cliente',
   };
   const normalized = normalize(role);
   return map[normalized] || normalized;
@@ -88,7 +88,7 @@ export const ROLES = Object.freeze({
   ADMIN: 'admin',
   EQUIPO: 'equipo',
   CLIENTE: 'cliente',
-  VISITANTE: 'visitante'
+  VISITANTE: 'visitante',
 });
 
 export function resolveRole(email, env = {}, options = {}) {
@@ -108,7 +108,7 @@ export function resolveRole(email, env = {}, options = {}) {
   if (domain && equipoDomains.includes(domain)) return ROLES.EQUIPO;
 
   const clientEmails = splitList(
-    env.ACCESS_CLIENT_EMAILS || env.ACCESS_CLIENTS || env.ACCESS_CLIENTES || env.ACCESS_CUSTOMERS
+    env.ACCESS_CLIENT_EMAILS || env.ACCESS_CLIENTS || env.ACCESS_CLIENTES || env.ACCESS_CUSTOMERS,
   );
   if (clientEmails.includes(normalizedEmail)) return ROLES.CLIENTE;
 
@@ -131,7 +131,8 @@ export const describeAccess = (allowedRoles = []) => {
   const allowedSet = expandAllowed(allowedRoles);
   if (!allowedSet.size) return 'public';
   if (allowedSet.has('visitante')) return 'public';
-  if (!allowedSet.has('cliente') && allowedSet.has('equipo') && allowedSet.has('admin')) return 'interno-equipo';
+  if (!allowedSet.has('cliente') && allowedSet.has('equipo') && allowedSet.has('admin'))
+    return 'interno-equipo';
   if (allowedSet.has('cliente')) return 'cliente';
   if (allowedSet.has('admin') && !allowedSet.has('equipo')) return 'solo-admin';
   return Array.from(allowedSet).join(',');
@@ -141,5 +142,3 @@ export function getRoleFromHeaders(request) {
   const header = request.headers.get('Cf-Access-Authenticated-User-Email') || '';
   return normalize(header);
 }
-
-```}

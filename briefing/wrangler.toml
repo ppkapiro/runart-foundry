@@ -8,6 +8,12 @@ binding = "DECISIONES"
 id = "6418ac6ace59487c97bda9c3a50ab10e"
 preview_id = "e68d7a05dce645478e25c397d4c34c08"
 
+# === Etapa 6: Auditoría y Logs ===
+[[kv_namespaces]]
+binding = "LOG_EVENTS"
+id = "KV_LOG_EVENTS_ID_TODO"
+preview_id = "KV_LOG_EVENTS_PREVIEW_TODO"
+
 [vars]
 MOD_REQUIRED = "1"
 ORIGIN_ALLOWED = "https://runart-briefing.pages.dev"
