@@ -51,6 +51,20 @@ Bitácora para coordinar la separación "Cliente vs Equipo" en la documentación
 3. Confirmación de que no existen referencias activas a `../briefing` ni rutas legacy antes del merge.
 4. Builds estrictas re-ejecutadas para asegurar ausencia de regresiones.
 
+### Inventario y diff de páginas (preview 2025-10-07)
+
+- Snapshot actualizado con `tools/list_site_pages.py` → archivo `apps/briefing/_reports/snapshots/site_preview_2025-10-07.tsv`.
+- Baseline inicializada (bootstrap 2025-10-07) en `apps/briefing/_reports/snapshots/site_baseline_briefing-cleanup-20251007.tsv` ante la ausencia de snapshot histórico del tag.
+- Diff ejecutado con `tools/diff_site_snapshots.py` → reporte `apps/briefing/_reports/diff_briefing-cleanup-20251007.md`.
+- Resultado: Added 0 · Removed 0 · Changed 0 · Unchanged 57 (primer corte idéntico al baseline creado).
+
+### Validación de endpoints (preview 2025-10-07)
+
+- Servidor local levantado con `wrangler pages dev site --port 8787` leyendo `.dev.vars` en `apps/briefing/` (RUNART_ENV, EDITOR_TOKEN, ACCESS_ROLE).
+- `curl http://127.0.0.1:8787/api/whoami` → `200 OK`, `env:"preview"`, `role:"visitante"`.
+- `curl http://127.0.0.1:8787/api/inbox` → `403 Forbidden`, cuerpo `{"ok":false,"error":"Acceso restringido","role":"visitante"}` (esperado sin token de equipo).
+- `curl -X POST http://127.0.0.1:8787/api/decisiones` (JSON mínimo, sin token) → `401 Unauthorized`, cuerpo `{"ok":false,"error":"Token inválido o ausente."}` confirmando protección de editor.
+
 ## Incidencias conocidas
 
 - Advertencias previas de MkDocs por enlaces a archivos `.js` (resuelto).

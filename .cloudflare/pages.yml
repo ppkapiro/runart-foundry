@@ -1,0 +1,27 @@
+name: briefing-apu
+build:
+  command: mkdocs build --clean --strict
+  directory: apps/briefing/site
+environment:
+  RUNART_ENV: preview
+  PYTHONPATH: "apps/briefing"
+  TZ: "America/New_York"
+
+routes:
+  - pattern: "/api/*"
+    zone: "runartfoundry.com"
+    service: "workers"
+  - pattern: "/*"
+    zone: "runartfoundry.com"
+    service: "pages"
+
+access:
+  enabled: true
+  allow_emails:
+    - uldis@runartfoundry.com
+    - team@runartfoundry.com
+  mode: preview
+
+update:
+  strategy: manual
+  tag_filter: "briefing-cleanup-*"
