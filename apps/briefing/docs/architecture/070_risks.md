@@ -1,0 +1,1 @@
+--8<-- "docs/architecture/070_risks.md"

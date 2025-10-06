@@ -1,0 +1,10 @@
+[
+  {
+    "path": "exports/index.md",
+    "access": [
+      "admin",
+      "equipo"
+    ],
+    "internal": true
+  }
+]

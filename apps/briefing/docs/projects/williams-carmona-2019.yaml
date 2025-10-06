@@ -1,0 +1,40 @@
+id: "williams-carmona-2019"
+title: "Williams Carmona — Bestiario escultórico"
+artist: "RUN Art Foundry (con Williams Carmona)"
+year: "2019"
+location: "Miami, FL, USA"
+materials:
+  - alloy: "Bronce"
+    finish: "Pátina marrón"
+dimensions:
+  height_cm: 140
+  width_cm: 65
+  depth_cm: 60
+edition:
+  type: "unique"
+  size: "Pieza única"
+process:
+  modeling: "Modelado con texturas orgánicas"
+  molding: "ceramic shell"
+  casting: "bronze"
+  patina: "Transiciones cálidas"
+  mounting: "Plinto metálico"
+credits:
+  foundry: "RUN Art Foundry (Miami)"
+  lead: "Yasmany Díaz"
+  collaborators:
+    - "Equipo de patinado RUN"
+media:
+  images:
+    - path: "assets/2019/williams-carmona-2019/img_01.jpg"
+      alt: "Imagen optimizada de prueba"
+    - path: "assets/2019/williams-carmona-2019/img_02.jpg"
+      alt: "Imagen optimizada de prueba"
+  video: []
+links:
+  - label: "Referencia prensa Williams Carmona"
+    url: "https://example.com/carmona"
+testimony:
+  author: "Williams Carmona Studio"
+  quote: "Placeholder: Resultado fiel al universo narrativo del artista."
+notes: "Stub; completar con datos definitivos."

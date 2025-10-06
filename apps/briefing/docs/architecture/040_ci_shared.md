@@ -1,0 +1,1 @@
+--8<-- "docs/architecture/040_ci_shared.md"

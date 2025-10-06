@@ -1,0 +1,112 @@
+id:
+  type: string
+  required: true
+  empty: false
+title:
+  type: string
+  required: true
+  empty: false
+artist:
+  type: string
+  required: true
+  empty: false
+year:
+  type: string
+  required: true
+  empty: false
+location:
+  type: string
+materials:
+  type: list
+  schema:
+    type: dict
+    schema:
+      alloy:
+        type: string
+      finish:
+        type: string
+dimensions:
+  type: dict
+  schema:
+    height_cm:
+      type: number
+    width_cm:
+      type: number
+    depth_cm:
+      type: number
+edition:
+  type: dict
+  schema:
+    type:
+      type: string
+    size:
+      type: string
+process:
+  type: dict
+  schema:
+    modeling:
+      type: string
+    molding:
+      type: string
+    casting:
+      type: string
+    patina:
+      type: string
+    mounting:
+      type: string
+credits:
+  type: dict
+  schema:
+    foundry:
+      type: string
+    lead:
+      type: string
+    collaborators:
+      type: list
+      schema:
+        type: string
+media:
+  type: dict
+  schema:
+    images:
+      type: list
+      schema:
+        type: dict
+        schema:
+          path:
+            type: string
+            required: true
+            empty: false
+          alt:
+            type: string
+    video:
+      type: list
+      schema:
+        type: dict
+        schema:
+          url:
+            type: string
+            required: true
+            empty: false
+          note:
+            type: string
+links:
+  type: list
+  schema:
+    type: dict
+    schema:
+      label:
+        type: string
+        required: true
+      url:
+        type: string
+        required: true
+testimony:
+  type: dict
+  schema:
+    author:
+      type: string
+    quote:
+      type: string
+notes:
+  type: string

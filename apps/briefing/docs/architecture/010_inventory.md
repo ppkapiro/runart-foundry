@@ -1,0 +1,1 @@
+--8<-- "docs/architecture/010_inventory.md"

@@ -1,0 +1,1 @@
+--8<-- "docs/architecture/050_make_targets.md"

@@ -1,0 +1,42 @@
+id: "raider-2018"
+title: "Raider (Ransom Everglades School)"
+artist: "RUN Art Foundry (for Ransom Everglades School)"
+year: "2018"
+location: "Coconut Grove, Miami, FL, USA"
+materials:
+  - alloy: "Bronze"
+    finish: "Black/graphic patina"
+dimensions:
+  height_cm: 180
+  width_cm: 90
+  depth_cm: 80
+edition:
+  type: "unique"
+  size: ""
+process:
+  modeling: "Morphological adjustments and mold prep"
+  molding: "ceramic shell"
+  casting: "bronze"
+  patina: "Exterior, high contrast"
+  mounting: "Campus architectural base"
+credits:
+  foundry: "RUN Art Foundry (Miami)"
+  lead: "Uldis López"
+  collaborators:
+    - "RUN foundry team"
+media:
+  images:
+    - path: "assets/2018/raider-2018/img_01.jpg"
+      alt: "Raider statue reinstalled on campus"
+    - path: "assets/2018/raider-2018/img_02.jpg"
+      alt: "Bronze finish detail"
+  video:
+    - url: "https://www.runartfoundry.com/video/"
+      note: "Related process footage (generic)"
+links:
+  - label: "Ransom Everglades — News item"
+    url: "https://www.ransomeverglades.org/news-detail?pk=946559"
+testimony:
+  author: "Ransom Everglades representatives"
+  quote: "The execution elevates the presence of the institutional mascot."
+notes: "Showcase project for educational environments."

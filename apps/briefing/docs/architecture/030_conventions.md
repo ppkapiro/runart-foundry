@@ -1,0 +1,1 @@
+--8<-- "docs/architecture/030_conventions.md"
