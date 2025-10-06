@@ -1,6 +1,8 @@
 # Sensibles / entorno
 .env
 .env.*
+.dev.vars
+**/.dev.vars
 secrets/
 credentials/
 *.key
