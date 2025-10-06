@@ -1,3 +1,4 @@
-mkdocs==1.6.1
-mkdocs-material==9.6.21
-pyyaml==6.0.3
+mkdocs
+mkdocs-material
+mkdocs-redirects
+mkdocs-minify-plugin
