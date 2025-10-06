@@ -1,0 +1,44 @@
+name: Guard - Require Cloudflare Pages Preview
+
+on:
+  pull_request:
+    branches: [ "main" ]
+
+permissions:
+  checks: read
+  pull-requests: read
+  contents: read
+
+jobs:
+  require-pages-preview:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Wait a bit for checks to register
+        run: sleep 12
+
+      - name: Verify Cloudflare Pages Preview check exists
+        uses: actions/github-script@v7
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            const owner = context.repo.owner;
+            const repo = context.repo.repo;
+            const pr = context.payload.pull_request.number;
+
+            const { data: prData } = await github.rest.pulls.get({ owner, repo, pull_number: pr });
+            const sha = prData.head.sha;
+
+            const checks = await github.rest.checks.listForRef({ owner, repo, ref: sha });
+            const names = checks.data.check_runs.map((c) => c.name.toLowerCase());
+
+            const hasPages = names.some((n) =>
+              n.includes('cloudflare pages') ||
+              n.includes('pages preview') ||
+              n.includes('deploy preview')
+            );
+
+            if (!hasPages) {
+              core.setFailed('No se detectó el check de Cloudflare Pages Preview en este PR. Verifica la integración del proyecto con GitHub y que Preview Deployments esté habilitado.');
+            } else {
+              core.info('Cloudflare Pages Preview detectado ✅');
+            }
