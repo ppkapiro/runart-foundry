@@ -85,6 +85,13 @@ Bitácora para coordinar la separación "Cliente vs Equipo" en la documentación
 	- Corrección: habilitar en `Settings → Actions → General` la casilla **Allow GitHub Actions to create and approve pull requests**, requisito necesario porque usamos el `GITHUB_TOKEN` por defecto.
 	- Ajustes aplicados: el workflow ahora captura ese 403 y deja un mensaje guiado en el log; el paso de etiquetado vuelve a listar el PR antes de añadir etiquetas para evitar fallos si el PR no existe todavía.
 	- Próximo paso: reintentar el push una vez activada la casilla (o tras confirmar permisos equivalentes) y registrar el resultado junto con la verificación del guardia de Pages Preview.
+- 2025-10-07 · **Reintento tras habilitar permisos (22:23Z)**:
+	- Permiso “Allow GitHub Actions to create and approve pull requests” habilitado en Settings → Actions → General.
+	- Re-run `Auto Open PR on Deploy Branches` (`run 18296082823`) reutilizó el [PR #16](https://github.com/ppkapiro/runart-foundry/pull/16) y confirmó etiquetas `deploy`, `pages`, `preview`.
+	- Commit vacío `ci: trigger guard after enabling workflow permissions` volvió a disparar los checks del PR.
+	- Guardia `Guard - Require Cloudflare Pages Preview` (`run 18296083909`) terminó ✅ con log “Cloudflare Pages Preview detectado ✅”.
+	- Check presente: **Cloudflare Pages** (actualmente en estado `failure`; revisión pendiente del build en Cloudflare, pero el guardia valida la existencia del preview).
+	- Evidencias CLI: `gh pr view 16 --json statusCheckRollup` y `gh run view 18296083909 --log` archivados en la sesión.
 
 ## Incidencias conocidas
 
