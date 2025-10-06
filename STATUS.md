@@ -16,7 +16,7 @@
 | `tools/*` | 🟡 | Scripts legacy en `scripts/`; migración a `tools/` en progreso (F2) junto al nuevo linter. |
 
 ## Últimos hitos
-
+- 2025-10-06 — Release automático registrado en CHANGELOG (ops).
 - Documentos de arquitectura `000`–`070` validados y enlazados en navegación MkDocs.
 - Sección “Arquitectura” visible en `briefing/` con contenido unificado vía snippets.
 - Plan de migración incremental (`060_migration_plan.md`) con fases F1–F5 y checklist por PR.
