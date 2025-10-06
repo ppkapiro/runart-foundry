@@ -30,13 +30,13 @@ extra:
 nav:
   - Inicio: index.md
   - Operación:
-      - Entornos: ops/environments.md
-      - "Tablero vivo": ops/status.md
-      - "Historial de cambios": ops/changelog.md
-      - "Registro de incidentes": ops/incidents.md
-  - Plan & Roadmap: plan/index.md
+      - Entornos: internal/briefing_system/ops/environments.md
+      - "Tablero vivo": internal/briefing_system/ops/status.md
+      - "Historial de cambios": internal/briefing_system/ops/changelog.md
+      - "Registro de incidentes": internal/briefing_system/ops/incidents.md
+  - Plan & Roadmap: client_projects/runart_foundry/plan/index.md
   - Fases: fases/index.md
-  - Auditoría: auditoria/index.md
+  - Auditoría: client_projects/runart_foundry/auditoria/index.md
   - Proceso: proceso/index.md
   - Decisiones:
       - Índice de decisiones: decisiones/index.md
@@ -51,38 +51,38 @@ nav:
   - Acerca: acerca/index.md
   - Reportes:
       - Reportes (cliente):
-          - "Master Plan (Estrategia)": reports/2025-10-02_master_plan.md
+          - "Master Plan (Estrategia)": client_projects/runart_foundry/reports/2025-10-02_master_plan.md
           - "Arquitectura": briefing_arquitectura.md
-          - "Corte de Control — Fase 2": reports/corte_control_fase2.md
-      - "Corte Fase ARQ": reports/corte_arq.md
+          - "Corte de Control — Fase 2": client_projects/runart_foundry/reports/corte_control_fase2.md
+          - "Notas de Release (ARQ)": client_projects/runart_foundry/reports/ARQ_RELEASE_NOTES.md
+      - "Corte Fase ARQ": client_projects/runart_foundry/reports/corte_arq.md
       - "Mapa de interfaces (ARQ)": arq/mapa_interfaces.md
-      - "Notas de Release (ARQ)": reports/ARQ_RELEASE_NOTES.md
   - Reportes (interno):
-      - "Bitácora del briefing": reports/README.md
-      - "Auditoría inventario (2025-10-02)": reports/2025-10-02_repo_inventory.md
+      - "Bitácora del briefing": client_projects/runart_foundry/reports/README.md
+      - "Auditoría inventario (2025-10-02)": client_projects/runart_foundry/reports/2025-10-02_repo_inventory.md
   - Herramientas:
       - "Editor de Fichas (beta)": editor/index.md
       - "Inbox": inbox/index.md
       - "Exportaciones (MF)": exports/index.md
   - Documentación:
-      - "ADR-0001 — Briefing como panel interno": reports/adr/ADR-0001_briefing_como_panel_interno.md
-      - "Plan — Sistema Briefing (ARQ)": reports/plan_fase_arq.md
-      - "Fase 1 — Control de Fichas": reports/fase1_fichas.md
+      - "ADR-0001 — Briefing como panel interno": client_projects/runart_foundry/reports/adr/ADR-0001_briefing_como_panel_interno.md
+      - "Plan — Sistema Briefing (ARQ)": client_projects/runart_foundry/reports/plan_fase_arq.md
+      - "Fase 1 — Control de Fichas": client_projects/runart_foundry/reports/fase1_fichas.md
       - "Permisos finos por rol": accesos/permisos.md
       - Operaciones:
-          - "CI & gates": ops/ci.md
-          - "Banderas de entorno": ops/environments.md
+          - "CI & gates": internal/briefing_system/ops/ci.md
+          - "Banderas de entorno": internal/briefing_system/ops/environments.md
   - Arquitectura:
-    - "Índice": architecture/_index.md
-    - "000 — Resumen ejecutivo": architecture/000_overview.md
-    - "010 — Inventario actual": architecture/010_inventory.md
-    - "020 — Estructura objetivo": architecture/020_target_structure.md
-    - "030 — Convenciones y estándares": architecture/030_conventions.md
-    - "040 — Workflows compartidos": architecture/040_ci_shared.md
-    - "050 — Targets Make": architecture/050_make_targets.md
-    - "060 — Plan de migración": architecture/060_migration_plan.md
-    - "065 — Switch Cloudflare Pages": architecture/065_switch_pages.md
-    - "070 — Registro de riesgos": architecture/070_risks.md
+    - "Índice": internal/briefing_system/architecture/_index.md
+    - "000 — Resumen ejecutivo": internal/briefing_system/architecture/000_overview.md
+    - "010 — Inventario actual": internal/briefing_system/architecture/010_inventory.md
+    - "020 — Estructura objetivo": internal/briefing_system/architecture/020_target_structure.md
+    - "030 — Convenciones y estándares": internal/briefing_system/architecture/030_conventions.md
+    - "040 — Workflows compartidos": internal/briefing_system/architecture/040_ci_shared.md
+    - "050 — Targets Make": internal/briefing_system/architecture/050_make_targets.md
+    - "060 — Plan de migración": internal/briefing_system/architecture/060_migration_plan.md
+    - "065 — Switch Cloudflare Pages": internal/briefing_system/architecture/065_switch_pages.md
+    - "070 — Registro de riesgos": internal/briefing_system/architecture/070_risks.md
   - "Guía de estilos UI": ui/estilos.md
   - Proyectos:
       - "Índice de proyectos": projects/index.md
@@ -113,9 +113,9 @@ nav:
           - "Lawrence Holofcener (2015)": projects/en/lawrence-holofcener-2015.yaml
           - "Messi Project (2024)": projects/en/proyecto-messi-2024.yaml
   - Press-kit:
-      - "Press-kit v0 (ES)": reports/presskit_v0.md
-      - "Press-kit v1 (ES)": reports/presskit_v1_ES.md
-      - "Press-kit v1 (EN)": reports/presskit_v1_EN.md
+      - "Press-kit v0 (ES)": client_projects/runart_foundry/reports/presskit_v0.md
+      - "Press-kit v1 (ES)": client_projects/runart_foundry/reports/presskit_v1_ES.md
+      - "Press-kit v1 (EN)": client_projects/runart_foundry/reports/presskit_v1_EN.md
   - Smoke Test: _smoke.md
 plugins:
   - search

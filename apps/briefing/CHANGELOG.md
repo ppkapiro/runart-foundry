@@ -1,6 +1,10 @@
 # Changelog — Briefing (Local)
 
 ## [Unreleased]
+
+*Pendiente de cambios.*
+
+## [2025-10-07]
 ### Added
 - Navegación dual Cliente / Equipo.
 - Simulador de roles local (`role-sim.js`).

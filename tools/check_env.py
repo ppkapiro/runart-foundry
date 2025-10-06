@@ -84,7 +84,11 @@ def config_checks(root: Path) -> Tuple[bool, List[str]]:
         "extra_javascript" in mkdocs_text and "assets/env-flag.js" in mkdocs_text
     )
     checks["mkdocs: nav includes Operación → Entornos"] = (
-        "Operación" in mkdocs_text and "Entornos: ops/environments.md" in mkdocs_text
+        "Operación" in mkdocs_text
+        and (
+            "Entornos: internal/briefing_system/ops/environments.md" in mkdocs_text
+            or "Entornos: ops/environments.md" in mkdocs_text
+        )
     )
 
     try:

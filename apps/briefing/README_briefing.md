@@ -3,7 +3,7 @@
 ## Estado del proyecto
 - [x] **Fase 0 – Diagnóstico** (cerrada)
 - [x] **Fase 1 – Pilotos y estructura base** (cerrada)
- - [x] **Fase 2 – Automatización y control** (cerrada) — ver [Corte de Control — Fase 2](./reports/corte_control_fase2.md)
+- [x] **Fase 2 – Automatización y control** (cerrada) — ver [Corte de Control — Fase 2](./docs/client_projects/runart_foundry/reports/corte_control_fase2.md)
 - [x] **Fase ARQ – Sistema briefing interno** (cerrada)
 - [x] **ARQ+ v1 – Navegación y exportaciones** (cerrada)
 
@@ -35,7 +35,7 @@
 - **Fase 4 – Traducción bilingüe**  
    Traducir fichas y press-kit al inglés con consistencia en PDFs y navegación.  
 
-*(Ver [Master Plan](./reports/2025-10-02_master_plan.md) para roadmap completo hasta Fase 8.)*
+*(Ver [Master Plan](./docs/client_projects/runart_foundry/reports/2025-10-02_master_plan.md) para roadmap completo hasta Fase 8.)*
 
 ---
 
@@ -45,10 +45,10 @@
 Micrositio privado (MkDocs Material) para documentar plan, fases, auditoría, proceso y captura de **Decisiones** (formulario → Cloudflare Worker + KV) con acceso restringido (Cloudflare Access).
 
 ## Estructura
-- Ubicación canónica: `apps/briefing/` (la carpeta `briefing/` delega como compatibilidad temporal).
-- Estado del switch: ✅ Lista para ejecutar — ver `docs/architecture/065_switch_pages.md` para checklist y evidencias requeridas.
+- Ubicación canónica: `apps/briefing/` (la capa `briefing/` fue archivada en `_archive/legacy_removed_20251007/`).
+- Estado del switch: ✅ Lista para ejecutar — ver `docs/internal/briefing_system/architecture/065_switch_pages.md` para checklist y evidencias requeridas.
 - `mkdocs.yml` configuración del micrositio.
-- `docs/` contenido en Markdown.
+- `docs/` contenido en Markdown (cliente en `client_projects/runart_foundry/` e interno en `internal/briefing_system/`).
 - `overrides/` meta `noindex` y ajustes del tema.
 - `functions/api/` Pages Functions (decisiones.js, inbox.js) con binding `DECISIONES`.
 - `wrangler.toml` configuración de Pages con bindings KV.
@@ -62,7 +62,7 @@ Micrositio privado (MkDocs Material) para documentar plan, fases, auditoría, pr
 - **Build MkDocs**: `make build`
 - **Logs tests**: `make test-logs` (usa `scripts/test_logs_strict.mjs` si no existe la versión básica)
 
-Consulta `docs/ops/ci.md` para los requisitos, flujo completo y troubleshooting.
+Consulta `docs/internal/briefing_system/ops/ci.md` para los requisitos, flujo completo y troubleshooting.
 
 ## Resumen de la etapa actual (cerrada)
 - **ARQ-0 — Baseline**: Estructura MkDocs, despliegue en Cloudflare Pages y acceso privado con Access.
@@ -76,7 +76,7 @@ Consulta `docs/ops/ci.md` para los requisitos, flujo completo y troubleshooting.
 
 ## Cómo navegar
 - [Arquitectura](docs/briefing_arquitectura.md)
-- [Corte Fase ARQ](docs/reports/corte_arq.md)
+- [Corte Fase ARQ](docs/client_projects/runart_foundry/reports/corte_arq.md)
 - [Mapa de interfaces (ARQ)](docs/arq/mapa_interfaces.md)
 - [Dashboards KPIs (cliente)](docs/dashboards/cliente.md)
 - [Herramientas → Editor](docs/editor/index.md)
@@ -147,7 +147,7 @@ Consulta `docs/ops/ci.md` para los requisitos, flujo completo y troubleshooting.
    - `docs/projects/en/<slug>.yaml` (stub en inglés).
    - `assets/<year>/<slug>/.gitkeep` (carpeta para medios futuros).
 4. El menú del briefing añade la sección **“Nuevas fichas (ES)”** con los slugs generados.
-5. Consultar `./reports/fase1_fichas.md` y `./_logs/briefing_run.log` para el registro de la promoción.
+5. Consultar `./docs/client_projects/runart_foundry/reports/fase1_fichas.md` y `./_logs/briefing_run.log` para el registro de la promoción.
 
 ### Capturar fichas con el editor guiado
 1. Ir a **Herramientas → Editor** en la navegación interna (rol equipo).
@@ -199,7 +199,7 @@ bash apps/briefing/scripts/smoke_exports.sh
 
 ### Corte ARQ (MF)
 - **Cobertura**: ARQ-0 → ARQ-5 completados (baseline, roles, editor, seguridad/moderación, dashboard cliente y exportaciones).
-- **Reporte**: Ver [`reports/corte_arq.md`](./reports/corte_arq.md) para resumen, QA y pendientes.
+- **Reporte**: Ver [`reports/corte_arq.md`](./docs/client_projects/runart_foundry/reports/corte_arq.md) para resumen, QA y pendientes.
 - **Mapa de interfaces (ARQ)**: ver `Reportes → Mapa de interfaces (ARQ)`.
 - **Warnings conocidos**: Navegación incluye rutas fuera de `docs/`; MkDocs emite avisos tolerados hasta reubicar reportes/PDFs en fases siguientes.
 - **Próxima fase sugerida**: Endurecimiento adicional y limpieza de navegación (rate limiting, filtros KPIs, export ZIP/PDF, reorden de reportes).
@@ -233,19 +233,26 @@ apps/briefing/
 ├─ README_briefing.md
 ├─ docs/
 │  ├─ index.md
-│  ├─ plan/index.md
-│  ├─ fases/index.md
-│  ├─ auditoria/index.md
-│  ├─ proceso/index.md
-│  ├─ galeria/index.md
+│  ├─ client_projects/
+│  │  └─ runart_foundry/
+│  │     ├─ plan/index.md
+│  │     ├─ auditoria/index.md
+│  │     └─ reports/
+│  ├─ internal/
+│  │  └─ briefing_system/
+│  │     ├─ architecture/
+│  │     ├─ ops/
+│  │     └─ ci/
 │  ├─ decisiones/
-│  │  ├─ index.md
-│  │  └─ contenido-sitio-viejo.md
-│  ├─ inbox/index.md
-│  ├─ acerca/index.md
-│  └─ robots.txt
+│  ├─ editor/
+│  ├─ exports/
+│  ├─ inbox/
+│  └─ ...
 ├─ overrides/
+│  ├─ extra.css
 │  └─ main.html
+├─ functions/
+│  └─ api/
 └─ workers/
    └─ decisiones.js
 ```

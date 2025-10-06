@@ -82,7 +82,7 @@ flowchart LR
 * **Hito C (8–10 semanas)**: ARQ-05/07 (exportaciones + trazabilidad).
 
 ## Ver también
-- [Corte Fase ARQ](reports/corte_arq.md)
+- [Corte Fase ARQ](client_projects/runart_foundry/reports/corte_arq.md)
 - [Mapa de interfaces (ARQ)](arq/mapa_interfaces.md)
 
 ## 10. Anexos

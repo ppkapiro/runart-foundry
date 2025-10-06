@@ -5,7 +5,7 @@ Fase ARQ cerrada y ARQ+ v1 completada: navegación limpia dentro de `docs/`, exp
 
 ## Mapa rápido
 - [Arquitectura](briefing_arquitectura.md)
-- [Corte Fase ARQ](reports/corte_arq.md)
+- [Corte Fase ARQ](client_projects/runart_foundry/reports/corte_arq.md)
 - [Mapa de interfaces (ARQ)](arq/mapa_interfaces.md)
 - [Dashboards KPIs (cliente)](dashboards/cliente.md)
 - [Herramientas → Editor](editor/index.md)
@@ -15,9 +15,9 @@ Fase ARQ cerrada y ARQ+ v1 completada: navegación limpia dentro de `docs/`, exp
 > APIs y herramientas están protegidas por Cloudflare Access.
 
 ## Secciones principales
-- [Plan & Roadmap](plan/index.md)
+- [Plan & Roadmap](client_projects/runart_foundry/plan/index.md)
 - [Fases](fases/index.md)
-- [Auditoría](auditoria/index.md)
+- [Auditoría](client_projects/runart_foundry/auditoria/index.md)
 - [Proceso](proceso/index.md)
 - [Decisiones](decisiones/index.md)
 - [Galería](galeria/index.md)

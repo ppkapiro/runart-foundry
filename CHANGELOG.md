@@ -8,6 +8,14 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) 
 
 *No hay cambios pendientes.*
 
+## [Released — 2025-10-07] (briefing)
+### Changed
+- Se archiva la capa legacy `briefing/` completa en `_archive/legacy_removed_20251007/`.
+- Navegación y contenidos reorganizados en `apps/briefing/docs/` separando vistas de cliente (`client_projects/runart_foundry/`) y equipo (`internal/briefing_system/`).
+- `apps/briefing/mkdocs.yml` actualiza rutas, evitando warnings en build estricta.
+- `tools/check_env.py` acepta la nueva ruta de "Entornos" en la navegación.
+- `README.md` y `apps/briefing/README_briefing.md` documentan la separación Cliente/Equipo y el estado post-limpieza.
+
 ## [Released — 2025-10-06] (ops)
 ### Added
 - Script de lint de documentación (`tools/lint_docs`) — en construcción.
