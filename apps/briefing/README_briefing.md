@@ -225,6 +225,13 @@ python scripts/validate_projects.py docs/projects/<slug>.yaml
 - Baseline bootstrap (sin snapshot histórico del tag) en `_reports/snapshots/site_baseline_briefing-cleanup-20251007.tsv`.
 - Reporte de diff (`tools/diff_site_snapshots.py`) disponible en [`_reports/diff_briefing-cleanup-20251007.md`](_reports/diff_briefing-cleanup-20251007.md) → Added 0 · Removed 0 · Changed 0 · Unchanged 57.
 
+### 🚀 Despliegue APU 2025-10-07
+- Merge final: `deploy/apu-briefing-20251007` → `main` (`deploy: briefing-cleanup-20251007 (release final)` en 2025-10-06T21:36:39Z).
+- Producción Cloudflare Pages: <https://briefing.runartfoundry.com> (verificar banner `env: production` y navegación Cliente/Interno).
+- Validaciones post-despliegue esperadas: `/api/whoami` → 200 (`env:"production"`), `/api/inbox` → 403 sin token, `/api/decisiones` → 401 sin token.
+- Documentación asociada: bitácora [`082_reestructuracion_local`](docs/internal/briefing_system/ci/082_reestructuracion_local.md) y [`CHANGELOG.md`](CHANGELOG.md).
+- Tag release: `briefing-cleanup-20251007` y PR `deploy: briefing-cleanup-20251007 (Cloudflare Pages)` (revisión ARQ).
+
 ## Enlaces internos no publicados
 - `python scripts/neutralize_external_links.py`: neutraliza enlaces a `audits/`, `scripts/` y otros recursos fuera de `docs/`, generando un snapshot en `_tmp/link_toggle_snapshot.json`.
 - `python scripts/neutralize_external_links.py --dry-run`: vista previa sin escribir cambios.

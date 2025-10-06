@@ -65,6 +65,14 @@ Bitácora para coordinar la separación "Cliente vs Equipo" en la documentación
 - `curl http://127.0.0.1:8787/api/inbox` → `403 Forbidden`, cuerpo `{"ok":false,"error":"Acceso restringido","role":"visitante"}` (esperado sin token de equipo).
 - `curl -X POST http://127.0.0.1:8787/api/decisiones` (JSON mínimo, sin token) → `401 Unauthorized`, cuerpo `{"ok":false,"error":"Token inválido o ausente."}` confirmando protección de editor.
 
+### Despliegue APU — 2025-10-07
+
+- Merge `deploy/apu-briefing-20251007` → `main` ejecutado el 2025-10-06T21:36:39Z con mensaje `deploy: briefing-cleanup-20251007 (release final)`.
+- Despliegue automático de Cloudflare Pages (rama `main`). **Pendiente de confirmar en panel**: build `Success`, variable `RUNART_ENV=production` y Access activo para los correos autorizados.
+- Producción: <https://briefing.runartfoundry.com> (navegación Cliente/Interno + redirects legacy). Repetir smoke `/api/whoami`, `/api/inbox`, `/api/decisiones` para registrar códigos `200/403/401`.
+- Referencias: PR `deploy: briefing-cleanup-20251007 (Cloudflare Pages)`, tag `briefing-cleanup-20251007`, artefactos `_reports/` y changelog.
+- Evidencia local: `wrangler_preview.log` (no versionado) + commits `90ba5cf..f55769f`.
+
 ## Incidencias conocidas
 
 - Advertencias previas de MkDocs por enlaces a archivos `.js` (resuelto).
