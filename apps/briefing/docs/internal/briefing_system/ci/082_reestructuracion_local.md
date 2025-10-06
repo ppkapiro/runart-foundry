@@ -80,6 +80,11 @@ Bitácora para coordinar la separación "Cliente vs Equipo" en la documentación
 - Plantilla de PR (`.github/pull_request_template.md`) alineada al formato de releases APU, resaltando checks requeridos y enlaces a bitácora/changelog.
 - Script opcional `tools/ci/verify_pages_check.sh` (requiere `gh` y `jq`) permite verificar manualmente que el check de Pages esté presente.
 - Primer disparo pendiente: validar en el próximo push a `deploy/apu-*` que el auto-PR se cree y que el guardia detecte el preview; confirmar además en GitHub que Actions y Preview Deployments siguen habilitados.
+- 2025-10-07 · **Prueba smoke deploy/smoke-preview-2025-10-07**:
+	- Resultado: workflow `Auto Open PR on Deploy Branches` falló con `403 — GitHub Actions is not permitted to create or approve pull requests.` y no se creó PR.
+	- Corrección: habilitar en `Settings → Actions → General` la casilla **Allow GitHub Actions to create and approve pull requests**, requisito necesario porque usamos el `GITHUB_TOKEN` por defecto.
+	- Ajustes aplicados: el workflow ahora captura ese 403 y deja un mensaje guiado en el log; el paso de etiquetado vuelve a listar el PR antes de añadir etiquetas para evitar fallos si el PR no existe todavía.
+	- Próximo paso: reintentar el push una vez activada la casilla (o tras confirmar permisos equivalentes) y registrar el resultado junto con la verificación del guardia de Pages Preview.
 
 ## Incidencias conocidas
 

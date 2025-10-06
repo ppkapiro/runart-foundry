@@ -24,6 +24,7 @@ jobs:
           echo "branch=$BRANCH" >> $GITHUB_OUTPUT
 
       - name: Ensure PR exists (create if missing)
+        id: ensure_pr
         uses: actions/github-script@v7
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
@@ -42,6 +43,7 @@ jobs:
 
             if (prs.data.length > 0) {
               core.info(`PR ya existe: #${prs.data[0].number}`);
+              core.setOutput('pr_number', prs.data[0].number.toString());
               return;
             }
 
@@ -54,19 +56,53 @@ jobs:
               `- Changelog: apps/briefing/CHANGELOG.md`
             ].join('\n');
 
-            const pr = await github.rest.pulls.create({
-              owner,
-              repo,
-              head: branch,
-              base: 'main',
-              title,
-              body,
-              maintainer_can_modify: true,
-            });
-            core.info(`PR creado: #${pr.data.number}`);
+            try {
+              const pr = await github.rest.pulls.create({
+                owner,
+                repo,
+                head: branch,
+                base: 'main',
+                title,
+                body,
+                maintainer_can_modify: true,
+              });
+              core.info(`PR creado: #${pr.data.number}`);
+              core.setOutput('pr_number', pr.data.number.toString());
+            } catch (error) {
+              const message = error?.message || '';
+              if (error?.status === 403 && message.includes('not permitted to create or approve pull requests')) {
+                core.setFailed('El token actual no puede crear PRs. Activa "Allow GitHub Actions to create and approve pull requests" en Settings → Actions → General.');
+                return;
+              }
+              throw error;
+            }
 
       - name: Add labels
-        if: always()
-        uses: actions-ecosystem/action-add-labels@v1
+        if: success()
+        uses: actions/github-script@v7
         with:
-          labels: deploy, pages, preview
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            const branch = '${{ steps.vars.outputs.branch }}';
+            const owner = context.repo.owner;
+            const repo = context.repo.repo;
+
+            const prs = await github.rest.pulls.list({
+              owner,
+              repo,
+              state: 'open',
+              head: `${owner}:${branch}`,
+              base: 'main',
+            });
+
+            if (prs.data.length === 0) {
+              core.info('No se encontraron PRs para etiquetar.');
+              return;
+            }
+
+            await github.rest.issues.addLabels({
+              owner,
+              repo,
+              issue_number: prs.data[0].number,
+              labels: ['deploy', 'pages', 'preview'],
+            });
