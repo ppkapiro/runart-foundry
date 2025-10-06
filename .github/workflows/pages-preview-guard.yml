@@ -29,7 +29,10 @@ jobs:
             const sha = prData.head.sha;
 
             const checks = await github.rest.checks.listForRef({ owner, repo, ref: sha });
-            const names = checks.data.check_runs.map((c) => c.name.toLowerCase());
+            const rawNames = checks.data.check_runs.map((c) => c.name);
+            core.info(`Checks detectados: ${rawNames.join(', ') || 'ninguno'}`);
+
+            const names = rawNames.map((name) => name.toLowerCase());
 
             const hasPages = names.some((n) =>
               n.includes('cloudflare pages') ||
