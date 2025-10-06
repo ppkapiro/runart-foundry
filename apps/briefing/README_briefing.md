@@ -220,6 +220,11 @@ PAGES_URL=... RUN_TOKEN=... \
 python scripts/validate_projects.py docs/projects/<slug>.yaml
 ```
 
+### Inventario de páginas (preview 2025-10-07)
+- Generar snapshot del build con `python tools/list_site_pages.py --root apps/briefing/site --output apps/briefing/_reports/snapshots/site_preview_2025-10-07.tsv`.
+- Baseline bootstrap (sin snapshot histórico del tag) en `_reports/snapshots/site_baseline_briefing-cleanup-20251007.tsv`.
+- Reporte de diff (`tools/diff_site_snapshots.py`) disponible en [`_reports/diff_briefing-cleanup-20251007.md`](_reports/diff_briefing-cleanup-20251007.md) → Added 0 · Removed 0 · Changed 0 · Unchanged 57.
+
 ## Enlaces internos no publicados
 - `python scripts/neutralize_external_links.py`: neutraliza enlaces a `audits/`, `scripts/` y otros recursos fuera de `docs/`, generando un snapshot en `_tmp/link_toggle_snapshot.json`.
 - `python scripts/neutralize_external_links.py --dry-run`: vista previa sin escribir cambios.
