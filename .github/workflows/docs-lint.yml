@@ -5,6 +5,8 @@ on:
     paths:
       - 'docs/**'
       - 'apps/**/docs/**'
+      - 'apps/**'
+      - 'tools/**'
       - 'mkdocs.yml'
       - 'tools/lint_docs.*'
       - '*.md'

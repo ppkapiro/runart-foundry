@@ -9,9 +9,19 @@ jobs:
   env-report:
     name: Environment Report
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pull-requests: write
+      issues: write
+      statuses: read
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
 
       - name: Resolve preview URL
         id: preview
@@ -23,7 +33,10 @@ jobs:
           REPO="${{ github.repository }}"
           PREVIEW_URL=""
           if command -v gh >/dev/null 2>&1; then
-            PREVIEW_URL=$(gh api repos/${REPO}/commits/${PR_SHA}/status --jq '.statuses[] | select(.context == "Cloudflare Pages") | .target_url' | head -n 1 || true)
+            RESPONSE=$(gh api repos/${REPO}/commits/${PR_SHA}/status --jq '.statuses[] | select(.context == "Cloudflare Pages") | .target_url' 2>/dev/null || true)
+            if [ -n "$RESPONSE" ]; then
+              PREVIEW_URL="$RESPONSE"
+            fi
           fi
           if [ -z "$PREVIEW_URL" ]; then
             PREVIEW_URL="https://example.pages.dev"
