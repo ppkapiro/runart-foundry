@@ -73,13 +73,21 @@ Bitácora para coordinar la separación "Cliente vs Equipo" en la documentación
 - Referencias: PR `deploy: briefing-cleanup-20251007 (Cloudflare Pages)`, tag `briefing-cleanup-20251007`, artefactos `_reports/` y changelog.
 - Evidencia local: `wrangler_preview.log` (no versionado) + commits `90ba5cf..f55769f`.
 
-### Blindaje de PR y Preview (2025-10-06)
+### Blindaje de PR y Preview (2025-10-06/07)
 
 - Se habilitó workflow `auto-open-pr-on-deploy-branches.yml` que crea PRs hacia `main` en cuanto se pushea una rama `deploy/*`, con etiquetas `deploy`, `pages`, `preview`.
 - Se añadió guardia `pages-preview-guard.yml` para fallar PRs sin el check de Cloudflare Pages Preview; espera 12s para que el check aparezca y emite un mensaje claro si falta.
 - Plantilla de PR (`.github/pull_request_template.md`) alineada al formato de releases APU, resaltando checks requeridos y enlaces a bitácora/changelog.
 - Script opcional `tools/ci/verify_pages_check.sh` (requiere `gh` y `jq`) permite verificar manualmente que el check de Pages esté presente.
 - Primer disparo pendiente: validar en el próximo push a `deploy/apu-*` que el auto-PR se cree y que el guardia detecte el preview; confirmar además en GitHub que Actions y Preview Deployments siguen habilitados.
+
+#### Validación final Guard + Pages Preview (2025-10-07)
+- PR #: #16 (`deploy/smoke-preview-2025-10-07` → `main`)
+- Guard: ✅ (matcher ampliado; logs registran "Checks detectados: require-pages-preview, Cloudflare Pages, Docs Lint, validate-structure, open-pr")
+- Cloudflare Pages (Preview): ✅
+- Hora de verificación total: 2025-10-06 23:21Z / 19:21 ET
+- Commit del guard: f524b5b373c0b3e9ccbefb4f944a91a14a294239
+- Nota: end-to-end en verde (auto-PR, guard, Docs Lint, Governance, Pages)
 
 ## Incidencias conocidas
 
