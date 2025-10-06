@@ -1,0 +1,64 @@
+# Estado Operativo — RUNArt Foundry
+
+## Resumen Ejecutivo
+
+- **Objetivo actual**: Consolidar la documentación y preparar la transición del monorepo hacia la estructura modular definida en `docs/architecture/020_target_structure.md`.
+- **Salud general**: CI/CD estable; documentación estratégica 000–070 publicada y enlazada en MkDocs.
+- **Prioridades inmediatas**: Adoptar el linter de documentación, completar plantillas de colaboración y planificar el job `docs-lint` en GitHub Actions.
+
+## Semáforo por módulo
+
+| Módulo | Estado | Comentarios |
+| --- | --- | --- |
+| `apps/briefing` | 🟡 | Sitio MkDocs activo; switch en ejecución y cleanup definido en `docs/architecture/075_cleanup_briefing.md`. |
+| `services/*` | ⚪ | Aún en fase de diseño; plan detallado en `060_migration_plan.md` (F5). |
+| `packages/*` | ⚪ | En backlog; creación de `packages/env-banner` programada para F3. |
+| `tools/*` | 🟡 | Scripts legacy en `scripts/`; migración a `tools/` en progreso (F2) junto al nuevo linter. |
+
+## Últimos hitos
+
+- Documentos de arquitectura `000`–`070` validados y enlazados en navegación MkDocs.
+- Sección “Arquitectura” visible en `briefing/` con contenido unificado vía snippets.
+- Plan de migración incremental (`060_migration_plan.md`) con fases F1–F5 y checklist por PR.
+- Playbook de switch (`065`) y cleanup post-switch (`075`) publicados con auditorías requeridas.
+
+## Próximos 7 días (sprint)
+
+1. Habilitar y monitorear los checks “Docs Lint” y “Environment Report” en las PR activas.
+2. Ejecutar `status-update` tras los merges de documentación y validar el commit automático.
+3. Socializar `docs/ops/integracion_operativa.md` con stewards y actualizar playbooks internos.
+4. Definir responsables (stewards) por módulo en la matriz del semáforo.
+5. Programar limpieza de la capa `briefing/` tras 48 h de estabilidad siguiendo `docs/architecture/075_cleanup_briefing.md`.
+
+## Integración Operativa — Iteración 3
+
+- **Objetivo:** Automatizar control de calidad y reporting CI.
+- **Documentación:** `docs/ops/integracion_operativa.md`.
+
+| Workflow | Estado | Comentarios |
+| --- | --- | --- |
+| Docs Lint | ⏳ Pending activation | Primera ejecución en PR piloto pendiente de confirmar.
+| Status Update | ⏳ Pending activation | Se activará tras el siguiente merge a `main`.
+| Env Report | ⏳ Pending activation | Requiere validar detección de URL de preview en una PR real.
+
+## Riesgos activos
+
+Consultar `docs/architecture/070_risks.md`. Riesgos en rojo actuales:
+
+- **R1 (CI/CD)** — mitigación: migración canary para workflows.
+- **R2 (Make targets)** — mitigación: validar `make build MODULE=x` y documentar atajos.
+- **R6 (Duplicidad de assets)** — mitigación: crear `packages/*` con verificación hash.
+
+## Enlaces rápidos
+
+- **Preview briefing**: https://example.pages.dev/
+- **Producción briefing**: https://example.pages.dev/
+- **Logs de auditoría**: `audits/`
+- **CHANGELOG**: [ver registro](changelog.md)
+- **Registro de incidentes**: [abrir tablero](incidents.md)
+
+## Anexos
+
+- Métricas y convenciones: `docs/architecture/000_overview.md`
+- Workflow compartido propuesto: `docs/architecture/040_ci_shared.md`
+- Próximo tablero dinámico: se actualizará quincenalmente tras cada iteración.

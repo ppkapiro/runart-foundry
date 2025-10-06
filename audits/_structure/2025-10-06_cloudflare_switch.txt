@@ -1,0 +1,19 @@
+# 2025-10-06 — Cloudflare Pages switch to `apps/briefing`
+
+Ubicación real esperada: `audits/2025-10-06_cloudflare_switch/`
+
+## Carpetas
+- `smokes/`
+  - `smoke_arq3.log`
+  - `smoke_exports.log`
+
+## Archivos
+- `cf_pages_config.png` — captura de la configuración del proyecto Pages mostrando el nuevo comando de build y output.
+- `test_env_preview.log` — salida completa de `make test-env-preview` apuntando a la URL de preview.
+- `test_env_prod.log` — salida completa de `make test-env-prod` tras el despliegue a producción.
+- `diff_sites.txt` — resultado de `diff -qr briefing/site apps/briefing/site` post-deploy.
+- `README.md` — mini bitácora con timestamps (inicio del cambio, validaciones, smoke tests, cierre).
+
+## Notas
+- Registrar el enlace a `audits/2025-10-06_cloudflare_switch/` en `STATUS.md` (sección “Últimos hitos”).
+- Adjuntar logs relevantes como artefactos en la PR correspondiente.

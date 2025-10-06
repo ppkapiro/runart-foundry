@@ -1,0 +1,74 @@
+name: Environment Report
+
+on:
+  pull_request:
+    paths:
+      - '*'
+
+jobs:
+  env-report:
+    name: Environment Report
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Resolve preview URL
+        id: preview
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          PR_SHA="${{ github.event.pull_request.head.sha }}"
+          REPO="${{ github.repository }}"
+          PREVIEW_URL=""
+          if command -v gh >/dev/null 2>&1; then
+            PREVIEW_URL=$(gh api repos/${REPO}/commits/${PR_SHA}/status --jq '.statuses[] | select(.context == "Cloudflare Pages") | .target_url' | head -n 1 || true)
+          fi
+          if [ -z "$PREVIEW_URL" ]; then
+            PREVIEW_URL="https://example.pages.dev"
+          fi
+          echo "Preview URL: $PREVIEW_URL"
+          echo "url=$PREVIEW_URL" >> "$GITHUB_OUTPUT"
+
+      - name: Run config check
+        id: config
+        continue-on-error: true
+        run: |
+          python tools/check_env.py --mode=config
+
+      - name: Run HTTP check (preview)
+        id: http
+        continue-on-error: true
+        run: |
+          python tools/check_env.py --mode=http --base-url "${{ steps.preview.outputs.url }}" --expect-env preview
+
+      - name: Upload env check log
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: env-check-log
+          path: audits/env_check.log
+
+      - name: Comment on PR
+        if: always()
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const configOk = "${{ steps.config.outcome }}" === "success";
+            const httpOk = "${{ steps.http.outcome }}" === "success";
+            const body = (configOk && httpOk)
+              ? "✅ ENV CHECK PASSED — env=preview"
+              : "❌ ENV CHECK FAILED — see audits/env_check.log";
+            await github.rest.issues.createComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.issue.number,
+              body,
+            });
+
+      - name: Fail if checks failed
+        if: ${{ steps.config.outcome != 'success' || steps.http.outcome != 'success' }}
+        run: |
+          echo "Environment checks failed."
+          exit 1

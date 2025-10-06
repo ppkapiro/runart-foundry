@@ -1,0 +1,111 @@
+name: Status & Changelog Update
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  update-status:
+    name: Update status & changelog
+    runs-on: ubuntu-latest
+    env:
+      STATUS_TAG: ops
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Update STATUS.md and CHANGELOG.md
+        id: update
+        run: |
+          python - <<'PY'
+          import datetime
+          import os
+          import re
+          from pathlib import Path
+
+          root = Path('.').resolve()
+          changelog_path = root / 'CHANGELOG.md'
+          status_path = root / 'STATUS.md'
+
+          today = datetime.date.today().isoformat()
+          tag = os.getenv('STATUS_TAG', 'ops')
+
+          changelog_text = changelog_path.read_text(encoding='utf-8')
+          unreleased_match = re.search(r"## \[Unreleased\](.*?)(\n## |\Z)", changelog_text, re.S)
+          changed = False
+
+          if unreleased_match:
+              block_raw = unreleased_match.group(1)
+              block = block_raw.strip()
+              if block and block != "*No hay cambios pendientes.*":
+                  released_heading = f"## [Released — {today}] ({tag})"
+                  prefix = changelog_text[:unreleased_match.start(1)]
+                  suffix = changelog_text[unreleased_match.end(1):]
+                  placeholder = "\n\n*No hay cambios pendientes.*\n"
+                  released_block = f"\n{released_heading}\n{block}\n"
+                  changelog_text = prefix + placeholder + released_block + suffix
+                  changed = True
+
+          if changed:
+              changelog_path.write_text(changelog_text, encoding='utf-8')
+
+              status_text = status_path.read_text(encoding='utf-8')
+              marker = '## Últimos hitos'
+              if marker in status_text:
+                  head, tail = status_text.split(marker, 1)
+                  if '\n## ' in tail:
+                      section, rest = tail.split('\n## ', 1)
+                      rest = '\n## ' + rest
+                  else:
+                      section = tail
+                      rest = ''
+                  lines = section.splitlines()
+                  insertion = f"- {today} — Release automático registrado en CHANGELOG ({tag})."
+                  while lines and lines[0].strip() == '':
+                      lines.pop(0)
+                  lines.insert(0, insertion)
+                  section = '\n'.join([''] + lines + [''])
+                  status_text = head + marker + section + rest
+                  status_path.write_text(status_text, encoding='utf-8')
+
+          with open(os.environ['GITHUB_OUTPUT'], 'a', encoding='utf-8') as fh:
+              fh.write(f"changes={'true' if changed else 'false'}\n")
+          PY
+
+      - name: Configure git
+        if: steps.update.outputs.changes == 'true'
+        run: |
+          git config user.name "runart-foundry-bot"
+          git config user.email "bot@runartfoundry.local"
+
+      - name: Commit changes
+        if: steps.update.outputs.changes == 'true'
+        run: |
+          git add CHANGELOG.md STATUS.md
+          git commit -m "chore(docs): update status & changelog [skip ci]"
+
+      - name: Push changes
+        if: steps.update.outputs.changes == 'true'
+        run: |
+          git push origin HEAD
+
+      - name: Save diff artifact
+        if: steps.update.outputs.changes == 'true'
+        run: git diff HEAD~1 HEAD > status-update.diff
+
+      - name: Upload artifact
+        if: steps.update.outputs.changes == 'true'
+        uses: actions/upload-artifact@v4
+        with:
+          name: status-update-diff
+          path: status-update.diff
