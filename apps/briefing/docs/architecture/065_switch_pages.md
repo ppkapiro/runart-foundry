@@ -1,0 +1,1 @@
+--8<-- "docs/architecture/065_switch_pages.md"

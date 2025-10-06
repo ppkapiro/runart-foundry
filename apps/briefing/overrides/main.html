@@ -1,0 +1,190 @@
+{% extends "base.html" %}
+
+{% block site_nav %}
+  <a class="skip-link" href="#contenido-principal">Saltar al contenido</a>
+  {{ super() }}
+{% endblock %}
+
+{% block content %}
+<main id="contenido-principal" role="main" tabindex="-1">
+  {{ super() }}
+</main>
+{% endblock %}
+
+{% block extrahead %}
+  {{ super() }}
+  <meta name="robots" content="noindex, nofollow" />
+{% endblock %}
+
+{% block scripts %}
+  {{ super() }}
+  <script id="runart-nav-internal" type="application/json">
+    {{ config.extra.nav_internal | default([]) | tojson }}
+  </script>
+  <script>
+document.addEventListener('DOMContentLoaded', async () => {
+  const html = document.documentElement;
+
+  const internalLabels = [
+    'Decisiones',
+    'Inbox (Decisiones)',
+    'Reportes (interno)',
+    'Herramientas'
+  ];
+  const internalHrefPatterns = [
+    'decisiones/',
+    'inbox/',
+    'briefing/_reports/README',
+    'briefing/_reports/2025-10-02_repo_inventory',
+    'docs/editor/',
+    '^/editor/',
+    'docs/exports/',
+    '^/exports/'
+  ];
+
+  const navDataEl = document.getElementById('runart-nav-internal');
+  let navInternal = [];
+  if (navDataEl && navDataEl.textContent) {
+    try {
+      navInternal = JSON.parse(navDataEl.textContent);
+    } catch (err) {
+      console.warn('nav-internal parse failed', err);
+    }
+  }
+  const navMap = new Map(navInternal.map((item) => [item.title, item.class || 'interno']));
+
+  document.querySelectorAll('.md-nav__link').forEach((link) => {
+    const text = (link.textContent || '').trim();
+    const href = link.getAttribute('href') || '';
+    const isInternal =
+      internalLabels.includes(text) ||
+      navMap.has(text) ||
+      internalHrefPatterns.some((pattern) =>
+        pattern.startsWith('^') ? href.startsWith(pattern.slice(1)) : href.includes(pattern),
+      );
+    if (isInternal) {
+      const item = link.closest('.md-nav__item');
+      if (item) {
+        item.classList.add('interno');
+        const customClass = navMap.get(text);
+        if (customClass) item.classList.add(customClass);
+      }
+    }
+  });
+
+  const updateInternalNav = (viewRole) => {
+    const showInternal = ['admin', 'equipo'].includes(viewRole);
+    document.querySelectorAll('nav .interno').forEach((item) => {
+      if (showInternal) item.removeAttribute('hidden');
+      else item.setAttribute('hidden', 'hidden');
+    });
+  };
+
+  const applyView = (viewRole) => {
+    html.setAttribute('data-viewas', viewRole);
+    if (viewRole === 'cliente') html.classList.add('role-cliente');
+    else html.classList.remove('role-cliente');
+    updateInternalNav(viewRole === 'admin' ? 'admin' : viewRole);
+  };
+
+  try {
+    const res = await fetch('/api/whoami', { credentials: 'include' });
+    if (!res.ok) throw new Error('whoami not ok');
+    const data = await res.json();
+    const role = (data.role || 'visitante').toLowerCase();
+    if (typeof window.runartSetEnv === 'function') {
+      window.runartSetEnv(data.env);
+    }
+
+    html.dataset.role = role;
+    if (role === 'cliente') html.classList.add('role-cliente');
+    else html.classList.remove('role-cliente');
+
+    if (role === 'admin') {
+      const box = document.createElement('div');
+      box.className = 'viewas-toggle';
+      box.innerHTML = `
+        <label style="margin-right:4px">Ver como</label>
+        <select id="viewas">
+          <option value="admin">admin</option>
+          <option value="equipo">equipo</option>
+          <option value="cliente">cliente</option>
+        </select>`;
+      document.body.appendChild(box);
+
+      const sel = box.querySelector('#viewas');
+      const saved = localStorage.getItem('runart:viewas');
+      if (saved) sel.value = saved;
+
+      applyView(sel.value);
+
+      sel.addEventListener('change', (e) => {
+        localStorage.setItem('runart:viewas', e.target.value);
+        applyView(e.target.value);
+      });
+    } else {
+      applyView(role);
+    }
+  } catch (e) {
+    console.warn('whoami failed', e);
+    html.dataset.role = 'visitante';
+    applyView('visitante');
+    if (typeof window.runartSetEnv === 'function') {
+      window.runartSetEnv();
+    }
+  }
+});
+  </script>
+  <!-- runart:env-inject -->
+  <script>
+(() => {
+  const html = document.documentElement;
+  const normalize = (raw) => {
+    if (!raw) return 'production';
+    try {
+      const value = String(raw).trim().toLowerCase();
+      return value || 'production';
+    } catch (err) {
+      console.warn('env normalize failed', err);
+      return 'production';
+    }
+  };
+
+  const applyEnv = (rawValue) => {
+    const envValue = normalize(rawValue);
+    html.dataset.env = envValue;
+    window.RUNART_ENV = envValue;
+    window.dispatchEvent(
+      new CustomEvent('runart:env-ready', { detail: envValue })
+    );
+    return envValue;
+  };
+
+  window.runartSetEnv = applyEnv;
+
+  if (html.dataset.env) {
+    applyEnv(html.dataset.env);
+  }
+})();
+  </script>
+  <!-- runart:autolog (Etapa 6) -->
+  <script>
+document.addEventListener('DOMContentLoaded', () => {
+  try {
+    const html = document.documentElement;
+    const role = (html?.dataset?.role || '').toLowerCase();
+    const path = window.location?.pathname || '';
+    if (role === 'admin' || role === 'equipo') {
+      fetch('/api/log_event', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
+        body: JSON.stringify({ action: 'page_view', path })
+      }).catch(() => {});
+    }
+  } catch (error) {
+    console.warn('autolog failed', error);
+  }
+});
+  </script>
+{% endblock %}

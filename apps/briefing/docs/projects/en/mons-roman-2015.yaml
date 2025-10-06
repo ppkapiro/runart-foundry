@@ -1,0 +1,42 @@
+id: "mons-roman-2015"
+title: "Monsignor Agustín Román"
+artist: "RUN Art Foundry (for Archdiocese of Miami)"
+year: "2015"
+location: "Miami, FL, USA"
+materials:
+  - alloy: "Bronze"
+    finish: "Brown patina"
+dimensions:
+  height_cm: 250
+  width_cm: 120
+  depth_cm: 100
+edition:
+  type: "unique"
+  size: ""
+process:
+  modeling: "Sculptural modeling and enlargement"
+  molding: "ceramic shell"
+  casting: "bronze"
+  patina: "Exterior, UV resistant"
+  mounting: "Structural anchors on pedestal"
+credits:
+  foundry: "RUN Art Foundry (Miami)"
+  lead: "Uldis López"
+  collaborators:
+    - "RUN foundry team"
+media:
+  images:
+    - path: "assets/2015/mons-roman-2015/img_01.jpg"
+      alt: "Front view of the Mons. Agustín Román monument"
+    - path: "assets/2015/mons-roman-2015/img_02.jpg"
+      alt: "Patina and finish detail"
+  video:
+    - url: "https://www.runartfoundry.com/video/"
+      note: "Foundry and patina process"
+links:
+  - label: "Archdiocese of Miami coverage"
+    url: "https://www.miamiarch.org/CatholicDiocese.php?op=Article_14422572906701"
+testimony:
+  author: "Archdiocese of Miami representatives"
+  quote: "The sculpture faithfully captures Monsignor Román's character and legacy."
+notes: "Institutional commission; flagship piece in the monumental portfolio."

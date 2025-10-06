@@ -1,0 +1,40 @@
+id: "roberto-fabelo-2016"
+title: "Roberto Fabelo — Escultura monumental"
+artist: "RUN Art Foundry (con Roberto Fabelo)"
+year: "2016"
+location: "Miami, FL, USA"
+materials:
+  - alloy: "Bronce"
+    finish: "Pátina café"
+dimensions:
+  height_cm: 210
+  width_cm: 90
+  depth_cm: 85
+edition:
+  type: "unique"
+  size: ""
+process:
+  modeling: "Optimización de texturas y volumen"
+  molding: "ceramic shell"
+  casting: "bronze"
+  patina: "Aplicación tonal para resaltar gestualidad"
+  mounting: "Anclajes en pedestal de concreto"
+credits:
+  foundry: "RUN Art Foundry (Miami)"
+  lead: "Uldis López"
+  collaborators:
+    - "Equipo de fundición RUN"
+media:
+  images:
+    - path: "assets/2016/roberto-fabelo-2016/img_01.jpg"
+      alt: "Imagen optimizada de prueba"
+    - path: "assets/2016/roberto-fabelo-2016/img_02.jpg"
+      alt: "Imagen optimizada de prueba"
+  video: []
+links:
+  - label: "Referencia prensa Roberto Fabelo"
+    url: "https://example.com/fabelo"
+testimony:
+  author: "Representación Roberto Fabelo"
+  quote: "Placeholder: RUN ejecutó la pieza con fidelidad."
+notes: "Stub; completar con datos definitivos."

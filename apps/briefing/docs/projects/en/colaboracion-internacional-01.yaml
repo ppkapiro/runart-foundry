@@ -1,0 +1,40 @@
+id: "colaboracion-internacional-01"
+title: "International Collaboration — Monumental work"
+artist: "Guest artist (international)"
+year: "2018"
+location: "To be confirmed"
+materials:
+  - alloy: "Bronze"
+    finish: "Custom patina"
+dimensions:
+  height_cm: 220
+  width_cm: 110
+  depth_cm: 90
+edition:
+  type: "unique"
+  size: ""
+process:
+  modeling: "Scanning/enlargement (if applicable) and refinement"
+  molding: "ceramic shell"
+  casting: "bronze"
+  patina: "As specified by the artist"
+  mounting: "Anchoring and international logistics plan"
+credits:
+  foundry: "RUN Art Foundry (Miami)"
+  lead: "Uldis López"
+  collaborators:
+    - "RUN foundry team"
+media:
+  images:
+    - path: "assets/2018/colaboracion-internacional-01/img_01.jpg"
+      alt: "Pouring process"
+    - path: "assets/2018/colaboracion-internacional-01/img_02.jpg"
+      alt: "Patina detail"
+  video: []
+links:
+  - label: "Press/catalog reference"
+    url: ""
+testimony:
+  author: ""
+  quote: ""
+notes: "This record will be completed with the selected case study."

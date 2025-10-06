@@ -1,0 +1,43 @@
+id: "proyecto-messi-2024"
+title: "Proyecto Messi — Monumento conmemorativo"
+artist: "RUN Art Foundry (con estudio Messi)"
+year: "2024"
+location: "Miami, FL, USA"
+materials:
+  - alloy: "Bronce"
+    finish: "Pátina azul-oro"
+  - alloy: "Acero inoxidable"
+    finish: "Pulido espejo"
+dimensions:
+  height_cm: 250
+  width_cm: 120
+  depth_cm: 110
+edition:
+  type: "unique"
+  size: "Instalación monumental"
+process:
+  modeling: "Escaneo 3D y modelado digital híbrido"
+  molding: "ceramic shell"
+  casting: "bronze"
+  patina: "Bicolor con toques azul y oro"
+  mounting: "Estructura mixta y anclajes deportivos"
+credits:
+  foundry: "RUN Art Foundry (Miami)"
+  lead: "Equipo de grandes formatos"
+  collaborators:
+    - "Departamento de ingeniería RUN"
+    - "Consultores estructurales externos"
+media:
+  images:
+    - path: "assets/2024/proyecto-messi-2024/img_01.jpg"
+      alt: "Imagen optimizada de prueba"
+    - path: "assets/2024/proyecto-messi-2024/img_02.jpg"
+      alt: "Imagen optimizada de prueba"
+  video: []
+links:
+  - label: "Referencia prensa Proyecto Messi"
+    url: "https://example.com/messi"
+testimony:
+  author: "Representación Lionel Messi"
+  quote: "Placeholder: La escultura sintetiza precisión y emoción."
+notes: "Stub; completar con datos definitivos."

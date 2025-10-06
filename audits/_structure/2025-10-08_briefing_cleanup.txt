@@ -1,0 +1,16 @@
+# 2025-10-08 — Limpieza capa `briefing/`
+
+Ubicación real esperada: `audits/2025-10-08_briefing_cleanup/`
+
+## Archivos esperados
+- `README.md` — Bitácora con objetivo, ventana de cambio, responsables y resumen de resultados.
+- `commands.log` — Salida consolidada de `make clean`, `make build`, `make lint-docs`, `make test-env`, `make test-env-preview`.
+- `artifact_diff.txt` — Resultado de `diff -qr apps/briefing/site <deploy_artifacts>` posterior a la limpieza.
+- `ci_summary.md` — Enlaces a ejecuciones de GitHub Actions que validan la ausencia de `briefing/`.
+- `smokes/smoke_arq3.log` — Evidencia de smoke ARQ3.
+- `smokes/smoke_exports.log` — Evidencia de smoke de exportaciones.
+
+## Notas
+- Enlazar la carpeta desde `STATUS.md` al cerrar el cambio.
+- Adjuntar `commands.log` y `artifact_diff.txt` como artefactos en la PR de limpieza.
+- Guardar capturas o referencias a la configuración de Cloudflare Pages únicamente si cambian durante la limpieza (no esperado).

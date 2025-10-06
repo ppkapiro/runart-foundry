@@ -1,0 +1,40 @@
+id: "pedro-pablo-oliva-2017"
+title: "Pedro Pablo Oliva — Serie escultórica"
+artist: "RUN Art Foundry (con Pedro Pablo Oliva)"
+year: "2017"
+location: "Miami, FL, USA"
+materials:
+  - alloy: "Bronce"
+    finish: "Pátina verde"
+dimensions:
+  height_cm: 160
+  width_cm: 75
+  depth_cm: 70
+edition:
+  type: "edition"
+  size: "Serie numerada"
+process:
+  modeling: "Detalle de rasgos y pulido manual"
+  molding: "ceramic shell"
+  casting: "bronze"
+  patina: "Tonos verdosos para acabado envejecido"
+  mounting: "Base metálica reforzada"
+credits:
+  foundry: "RUN Art Foundry (Miami)"
+  lead: "Uldis López"
+  collaborators:
+    - "Equipo de fundición RUN"
+media:
+  images:
+    - path: "assets/2017/pedro-pablo-oliva-2017/img_01.jpg"
+      alt: "Imagen optimizada de prueba"
+    - path: "assets/2017/pedro-pablo-oliva-2017/img_02.jpg"
+      alt: "Imagen optimizada de prueba"
+  video: []
+links:
+  - label: "Referencia prensa Pedro Pablo Oliva"
+    url: "https://example.com/oliva"
+testimony:
+  author: "Estudio Pedro Pablo Oliva"
+  quote: "Placeholder: La fundición preservó la expresividad del artista."
+notes: "Stub; completar con datos definitivos."

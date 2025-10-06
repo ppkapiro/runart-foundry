@@ -1,0 +1,1 @@
+--8<-- "docs/architecture/000_overview.md"

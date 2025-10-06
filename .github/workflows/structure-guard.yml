@@ -9,6 +9,8 @@ on:
 jobs:
   validate-structure:
     runs-on: ubuntu-latest
+    env:
+      SKIP_COMPAT: "1"  # Compat será eliminado por 075_cleanup_briefing.md; CI se centra en apps/briefing
     
     steps:
       - name: Checkout repository
