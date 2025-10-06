@@ -53,9 +53,9 @@ Bitácora para coordinar la separación "Cliente vs Equipo" en la documentación
 
 ### Inventario y diff de páginas (preview 2025-10-07)
 
-- Snapshot actualizado con `tools/list_site_pages.py` → [`site_preview_2025-10-07.tsv`](../../../../_reports/snapshots/site_preview_2025-10-07.tsv).
-- Baseline inicializada (bootstrap 2025-10-07) en [`site_baseline_briefing-cleanup-20251007.tsv`](../../../../_reports/snapshots/site_baseline_briefing-cleanup-20251007.tsv) ante la ausencia de snapshot histórico del tag.
-- Diff ejecutado con `tools/diff_site_snapshots.py` → [`diff_briefing-cleanup-20251007.md`](../../../../_reports/diff_briefing-cleanup-20251007.md).
+- Snapshot actualizado con `tools/list_site_pages.py` → archivo `apps/briefing/_reports/snapshots/site_preview_2025-10-07.tsv`.
+- Baseline inicializada (bootstrap 2025-10-07) en `apps/briefing/_reports/snapshots/site_baseline_briefing-cleanup-20251007.tsv` ante la ausencia de snapshot histórico del tag.
+- Diff ejecutado con `tools/diff_site_snapshots.py` → reporte `apps/briefing/_reports/diff_briefing-cleanup-20251007.md`.
 - Resultado: Added 0 · Removed 0 · Changed 0 · Unchanged 57 (primer corte idéntico al baseline creado).
 
 ### Validación de endpoints (preview 2025-10-07)
