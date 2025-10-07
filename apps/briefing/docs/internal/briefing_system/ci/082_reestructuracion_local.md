@@ -108,3 +108,9 @@ Bitácora para coordinar la separación "Cliente vs Equipo" en la documentación
 
 - Una vez verificados los checks, preparar changelog y nota para `README_briefing.md`.
 - Coordinar con equipo ARQ para planificar despliegue en Pages tras validaciones.
+
+#### Preparación próximo ciclo APU — 2025-10-20
+- Rama: deploy/apu-briefing-20251020
+- Acción: seed diff + auto-PR
+- Estado: auto-PR creado y mergeado tras checks (open-pr + Cloudflare Pages; guardias adicionales en curso de verificación)
+- Nota: flujo end-to-end estable; se mantiene RUNART_ENV conforme a entorno
