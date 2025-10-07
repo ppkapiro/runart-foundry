@@ -99,6 +99,18 @@ Bitácora para coordinar la separación "Cliente vs Equipo" en la documentación
 - Commit del guard: f524b5b373c0b3e9ccbefb4f944a91a14a294239
 - Nota: end-to-end en verde (auto-PR, guard, Docs Lint, Governance, Pages)
 
+### Refuerzo CI en ramas deploy/apu-* (2025-10-07)
+
+- PR #19 (`fix/ci-triggers-apu`) fusionado en `main`: `Docs Lint`, `Structure & Governance Guard` y `Guard - Require Cloudflare Pages Preview` ahora se disparan también en branches `deploy/**` (push + pull_request) además de `main`.
+- Guardia endurecida (`require-pages-preview`):
+	- Commit `0b1214c` añade reintentos (hasta 18 ciclos / ~3 minutos) y fallback a commit statuses para detectar el check de Cloudflare.
+	- Commit `9c26358` otorga permisos `statuses: read` y maneja el 403 de la API con `core.warning` para no abortar el loop.
+	- El job se restringió a eventos `pull_request` (push queda en `skipped`), evitando fallos por falta de payload.
+- PR de prueba #20 (`deploy/apu-briefing-test-triggers`):
+	- Cloudflare Pages tardó ~35 s en registrar el check (`run 18298505368`); el guard logró detectarlo en el intento 4/18 y finalizó ✅.
+	- Checks en verde: Docs Lint (push+PR), Structure & Governance (push+PR), Auto PR, Guard Pages Preview y Cloudflare Pages Preview (`https://dash.cloudflare.com/?to=/a2c7fc66f00eab69373e448193ae7201/pages/view/runart-foundry/f274f79b-8d41-4e1c-b461-544faee444cf`).
+- Resultado: flujo APU validado de punta a punta con ramas `deploy/*` sin intervención manual; documentado en esta bitácora y en release notes `apps/briefing/_reports/release_notes/APU_20251007_triggers_test.md`.
+
 ## Incidencias conocidas
 
 - Advertencias previas de MkDocs por enlaces a archivos `.js` (resuelto).
