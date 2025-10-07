@@ -73,6 +73,16 @@ Bitácora para coordinar la separación "Cliente vs Equipo" en la documentación
 - Referencias: PR `deploy: briefing-cleanup-20251007 (Cloudflare Pages)`, tag `briefing-cleanup-20251007`, artefactos `_reports/` y changelog.
 - Evidencia local: `wrangler_preview.log` (no versionado) + commits `90ba5cf..f55769f`.
 
+### Despliegue APU — 2025-10-10
+
+- PR #17 `deploy: deploy/apu-briefing-20251010 (Cloudflare Pages)` mergeado en `main` el 2025-10-06T23:53:19Z. Commit de merge: `828475298240b4f67ccacc3edafaaeb2c8f0f6b3`.
+- Checks requeridos en verde (Docs Lint, Structure & Governance, Guard Pages Preview, auto-PR) + Cloudflare Pages preview (`run ID 18297657071/79/80`).
+- Log del guardia registra `Checks detectados: Docs Lint, validate-structure, require-pages-preview, open-pr, Cloudflare Pages` → confirma detección del preview.
+- Vista de Cloudflare Pages Preview: <https://dash.cloudflare.com/?to=/a2c7fc66f00eab69373e448193ae7201/pages/view/runart-foundry/47a1c669-b99c-4309-93b2-94c7294849ed>.
+- Despliegue producción iniciado automáticamente (runs `18297709600` y `18297709612` en `main`).
+- Smoke producción (`https://runart-foundry.pages.dev`): `/api/whoami` → **200** `{"email":"","role":"visitante","env":"local"}`; `/api/inbox` → **403** `{"ok":false,"error":"Acceso restringido","role":"visitante"}`; `/api/decisiones` (POST sin token) → **401** `{"ok":false,"error":"Token inválido o ausente."}`.
+- Comportamiento esperado en dominio Access (`https://briefing.runartfoundry.com`): redirige **302** a login Cloudflare Access (`runart-briefing-pages.cloudflareaccess.com`).
+
 ### Blindaje de PR y Preview (2025-10-06/07)
 
 - Se habilitó workflow `auto-open-pr-on-deploy-branches.yml` que crea PRs hacia `main` en cuanto se pushea una rama `deploy/*`, con etiquetas `deploy`, `pages`, `preview`.
