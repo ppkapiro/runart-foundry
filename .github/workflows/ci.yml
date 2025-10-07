@@ -3,13 +3,13 @@ name: CI — Briefing
 on:
   pull_request:
     paths:
-      - 'briefing/**'
+      - 'apps/briefing/**'
       - '.github/workflows/ci.yml'
       - 'wrangler.template.toml'
   push:
     branches: [ main ]
     paths:
-      - 'briefing/**'
+      - 'apps/briefing/**'
       - '.github/workflows/ci.yml'
       - 'wrangler.template.toml'
 
@@ -31,7 +31,7 @@ jobs:
           node-version: '20'
 
       - name: Build MkDocs
-        working-directory: briefing
+        working-directory: apps/briefing
         run: |
           make venv
           make build
@@ -49,7 +49,7 @@ jobs:
           node-version: '20'
 
       - name: Run log tests (fallback mode)
-        working-directory: briefing
+        working-directory: apps/briefing
         run: |
           if [ -f scripts/test_logs_strict.mjs ]; then
             node scripts/test_logs_strict.mjs
@@ -89,12 +89,12 @@ jobs:
           CF_LOG_EVENTS_ID: ${{ secrets.CF_LOG_EVENTS_ID }}
           CF_LOG_EVENTS_PREVIEW_ID: ${{ secrets.CF_LOG_EVENTS_PREVIEW_ID }}
         run: |
-          cp wrangler.template.toml briefing/wrangler.toml
-          sed -i "s/\${CF_LOG_EVENTS_ID}/${CF_LOG_EVENTS_ID}/g" briefing/wrangler.toml
-          sed -i "s/\${CF_LOG_EVENTS_PREVIEW_ID}/${CF_LOG_EVENTS_PREVIEW_ID}/g" briefing/wrangler.toml
+          cp wrangler.template.toml apps/briefing/wrangler.toml
+          sed -i "s/\${CF_LOG_EVENTS_ID}/${CF_LOG_EVENTS_ID}/g" apps/briefing/wrangler.toml
+          sed -i "s/\${CF_LOG_EVENTS_PREVIEW_ID}/${CF_LOG_EVENTS_PREVIEW_ID}/g" apps/briefing/wrangler.toml
 
       - name: Build MkDocs for deploy
-        working-directory: briefing
+        working-directory: apps/briefing
         run: |
           python3 -m venv .venv
           . .venv/bin/activate
@@ -107,4 +107,4 @@ jobs:
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
         run: |
-          wrangler pages deploy briefing/site --project-name runart-briefing
+          wrangler pages deploy apps/briefing/site --project-name runart-briefing

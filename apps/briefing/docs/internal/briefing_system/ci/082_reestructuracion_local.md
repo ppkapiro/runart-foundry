@@ -126,3 +126,54 @@ Bitácora para coordinar la separación "Cliente vs Equipo" en la documentación
 - Acción: seed diff + auto-PR
 - Estado: auto-PR creado y mergeado tras checks (open-pr + Cloudflare Pages; guardias adicionales en curso de verificación)
 - Nota: flujo end-to-end estable; se mantiene RUNART_ENV conforme a entorno
+
+## Actualización Fase A · Access (2025-10-11)
+
+- Rama activa: `feature/access-login-tabs` (derivada de `main` tras merge de `deploy/apu-briefing-test-triggers`).
+- Objetivo: implementar la capa de roles (Cloudflare Access) y preparar los smokes previos a integrar la UI de pestañas.
+- Cambios clave:
+	1. **Middleware Access** (`functions/_middleware.js`) → clasifica correo, normaliza encabezados `X-RunArt-Email` / `X-RunArt-Role` y comparte utilitario `classifyRole` con los handlers.
+	2. **Mapa de roles provisional** (`access/roles.json`) → owners, dominios de equipo y clientes de prueba para validar lógica.
+	3. **Refactor endpoints** (`api/whoami`, `api/inbox`, `api/decisiones`) → smokes mínimos con cache-control, códigos esperados (`200/403/401`) y reutilización del middleware.
+	4. **Placeholders MkDocs** (`docs/internal/briefing_system/index.md`, `docs/client_projects/runart_foundry/index.md`) → aseguran que las rutas existan durante los smokes.
+- Validaciones locales:
+	- `make lint` (raíz) → ✅ ejecuta `tools/lint_docs.py` + build estricta sin advertencias nuevas.
+	- Por configurar: `make test-env-preview` / `make test-env-prod` una vez que se obtengan URLs de Pages (`PREVIEW_URL`, `PROD_URL`).
+- Pendientes inmediatos:
+	- Levantar `wrangler pages dev` para smoke manual (`/api/whoami`, `/api/inbox`, `/api/decisiones`) y capturar resultados.
+	- Confirmar que `RUNART_ENV` devuelva `preview` en la URL de preview y `prod` en producción (scripts `check_env.py`).
+	- Ajustar `roles.json` con correos definitivos antes del merge.
+- Evidencia git: `git status` muestra nuevos archivos (`access/roles.json`, middleware, placeholders) y refactors en APIs; commits aún en preparación.
+- Próximo entregable: PR `feat(access): login por rol con pestañas (Access)` con bitácora, registros de smokes y validaciones Access/Pages.
+
+### Validación entornos Cloudflare Pages (2025-10-07T14:39Z)
+
+- PREVIEW_URL = <https://deploy-apu-briefing-test-tri.runart-foundry.pages.dev/> (registrado 2025-10-07T14:39Z por GitHub Copilot).
+- PROD_URL    = <https://runart-foundry.pages.dev/> (registrado 2025-10-07T14:39Z por GitHub Copilot).
+- `make test-env-preview` → ✅ `JSON env -> preview` (check_env.py modo `http`, 2025-10-07T14:38Z).
+- `make test-env-prod` → ❌ `JSON env -> local` (se esperaba `production`). Resultado `ENV_MISMATCH`; detener merge hasta que Cloudflare Pages ajuste la variable `RUNART_ENV=production` en el entorno de producción.
+- Próximo paso: reintentar `make test-env-prod` y smokes de producción una vez corregido el valor de `RUNART_ENV`.
+
+### Smokes preliminares Access (2025-10-07T14:40Z)
+
+| Endpoint | Entorno | Contexto | Status esperado | Status obtenido | Hora UTC | Observaciones |
+| --- | --- | --- | --- | --- | --- | --- |
+| `/api/whoami` | Preview | Visitante (sin sesión Access) | 200 · `env:"preview"` | 200 · `env:"preview"` | 2025-10-07T14:40Z | Cabeceras `Cache-Control` presentes. |
+| `/api/whoami` | Producción | Visitante (sin sesión Access) | 200 · `env:"production"` | 200 · `env:"local"` | 2025-10-07T14:40Z | Coincide con mismatch de `RUNART_ENV`; requiere ajuste en Pages. |
+| `/api/inbox` | Preview | Visitante | 403 | 403 | 2025-10-07T14:40Z | Cuerpo `{"ok":false,"error":"Acceso restringido","role":"visitante"}`. |
+| `/api/inbox` | Preview | Team/Owner | 200 | N/D | — | Pendiente autenticarse vía Cloudflare Access (se registrará tras contar con credenciales). |
+| `/api/inbox` | Producción | Visitante | 403 | 403 | 2025-10-07T14:40Z | Igual respuesta que preview. |
+| `/api/inbox` | Producción | Team/Owner | 200 | N/D | — | Bloqueado hasta resolver sesión Access y `RUNART_ENV`. |
+| `/api/decisiones` (POST `{}`) | Preview | Sin sesión | 401 | 401 | 2025-10-07T14:40Z | Respuesta `{"ok":false,"error":"Token inválido o ausente."}` (implementación actual en Pages). |
+| `/api/decisiones` (POST `{}`) | Producción | Sin sesión | 401 | 401 | 2025-10-07T14:40Z | Idem preview; repetir tras despliegue de nueva versión. |
+
+> Nota: los códigos 200/403/401 concuerdan con la versión activa en Pages; la rama `feature/access-login-tabs` refina payloads (`ok:true/false`, `role`) y se validará nuevamente cuando `RUNART_ENV` en producción sea `production` y exista preview desplegado con estos cambios.
+
+### Roles mapeados (owner/clients) — 2025-10-07T15:19Z
+
+- owner: `ppcapiro@gmail.com`.
+- clients: `runartfoundry@gmail.com`, `musicmanagercuba@gmail.com`.
+- team_domains: `[]` (pendiente de activar cuando se definan dominios corporativos).
+- Archivos tocados: `access/roles.json` (mapeo definitivo), revisión de `_middleware.js` (precedencia owner > team > client > visitor, ignora `/api/*` y assets, propaga `X-RunArt-*`), verificación de `api/whoami.js` (respuesta `{ok,email,role,env,ts}` con no-cache y `env` desde `RUNART_ENV`).
+- Rutas placeholder (`docs/internal/briefing_system/index.md`, `docs/client_projects/runart_foundry/index.md`) continúan listas; el preview activo seguirá 404 hasta desplegar esta rama.
+- Acceso owner/team (302 a Cloudflare Access) validado con credenciales del owner; los smokes de `/api/inbox` se registrarán en la fase de cierre.
