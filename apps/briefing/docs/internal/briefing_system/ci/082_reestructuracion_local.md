@@ -177,3 +177,65 @@ Bitácora para coordinar la separación "Cliente vs Equipo" en la documentación
 - Archivos tocados: `access/roles.json` (mapeo definitivo), revisión de `_middleware.js` (precedencia owner > team > client > visitor, ignora `/api/*` y assets, propaga `X-RunArt-*`), verificación de `api/whoami.js` (respuesta `{ok,email,role,env,ts}` con no-cache y `env` desde `RUNART_ENV`).
 - Rutas placeholder (`docs/internal/briefing_system/index.md`, `docs/client_projects/runart_foundry/index.md`) continúan listas; el preview activo seguirá 404 hasta desplegar esta rama.
 - Acceso owner/team (302 a Cloudflare Access) validado con credenciales del owner; los smokes de `/api/inbox` se registrarán en la fase de cierre.
+
+#### Cierre Fase A — Access (middleware + whoami/inbox/decisiones) — 2025-10-07T15:36Z
+
+- PR: #21 — `feat(access): login por rol con pestañas (Access)` (merge commit `c63784ae8e6b620be4e60166ab241cd65ecfa467`).
+- URLs oficiales: `PREVIEW_URL=https://deploy-apu-briefing-test-tri.runart-foundry.pages.dev/`, `PROD_URL=https://runart-foundry.pages.dev/`.
+- `RUNART_ENV`: preview → `preview` (`make test-env-preview`, 2025-10-07T15:28Z); producción → `production` (check manual via `curl /api/whoami`, script `make test-env-prod` requiere ajustar `EXPECT_ENV=production`).
+- Resultados de smokes finales:
+
+| Endpoint | Entorno | Rol | Status esperado | Status obtenido | Hora UTC | Notas |
+| --- | --- | --- | --- | --- | --- | --- |
+| `/api/whoami` | Preview | Visitante | 200 · `env:"preview"` | 200 · `env:"preview"` | 2025-10-07T15:30Z | Respuesta aún sin `ok` hasta que Cloudflare Pages sustituya preview; pendiente redeploy final. |
+| `/api/whoami` | Producción | Visitante | 200 · `env:"production"` | 200 · `env:"production"` | 2025-10-07T15:34Z | Body `{"ok":true,...}` con headers no-cache. |
+| `/api/inbox` | Preview | Owner (ppcapiro@gmail.com) | 200 | 403 | — | Preview anterior no refleja commit merged; requiere nuevo despliegue o login real. |
+| `/api/inbox` | Producción | Owner (ppcapiro@gmail.com) | 200 | 403 | 2025-10-07T15:34Z | Cloudflare Access bloquea spoof manual del header; pendiente verificación interactiva en dashboard. |
+| `/api/inbox` | Producción | Cliente (runartfoundry@gmail.com) | 403 | 403 | 2025-10-07T15:34Z | Rol `client` clasificado como acceso restringido (esperado). |
+| `/api/decisiones` (POST `{}`) | Preview | Visitante | 401 | 401 | 2025-10-07T15:30Z | Sin sesión, devuelve `{"ok":false,"status":401}`. |
+| `/api/decisiones` (POST `{}`) | Producción | Visitante | 401 | 401 | 2025-10-07T15:34Z | Idéntico a preview. |
+
+- Deploy CI: Checks 5/5 en PR (Docs Lint, Structure & Governance, Guard Pages Preview, CI — Briefing, Cloudflare Pages). Ajuste adicional en curso: PR `fix/ci-wrangler-template` para tolerar ausencia de `wrangler.template.toml` durante despliegues automáticos.
+- Siguientes pasos inmediatos: validar `/api/inbox` con sesión Access real (owner) y actualizar tabla anterior; cerrar hotfix de CI en cuanto pase el pipeline.
+
+#### Plan Fase B — UI/Userbar
+
+1. **Integración UI sin romper MkDocs Material**: priorizar inyección vía JS (`docs/assets/runart/userbar.js`); alternativa controlada con override `overrides/partials/header.html` (sin `extends`).
+2. **Consumo de `/api/whoami`**: fetch con `credentials:"include"`, manejar estados `loading/error`, cache corto en memoria.
+3. **Menú contextual “Mi pestaña”**: opciones por rol (owner/team → `/internal/briefing_system/`, clients → `/client_projects/runart_foundry/`, visitor → `/`). Incluir acción “Salir” apuntando a `/cdn-cgi/access/logout?return_to=/`.
+4. **Accesibilidad**: navegación con teclado (Enter/Espacio abre menú, Esc cierra, foco controlado, aria-expanded/aria-controls), contraste en dark/light.
+5. **Responsive**: en móvil mostrar sólo avatar + chip del rol, menú deslizable; en desktop incluir etiqueta de rol y enlace directo.
+6. **Archivos previstos**: `docs/assets/runart/userbar.js`, `docs/assets/runart/userbar.css`, `overrides/partials/header.html` (opcional), pruebas manuales documentadas en `_reports/`.
+7. **Dependencias**: evaluar si se requiere `role-sim.js` actualizado para entorno local y documentar fallback en README.
+
+### UI — Userbar (2025-10-07T15:49Z)
+
+- Archivos creados: `docs/assets/runart/userbar.js`, `docs/assets/runart/userbar.css`. Contienen la lógica de fetch `whoami`, renderizado (avatar + correo + chip) y estilos responsive con prefijo `ra-`.
+- Inyección no intrusiva: el script localiza `.md-header__inner` y coloca la userbar justo antes del botón de búsqueda, sin overrides adicionales en Material.
+- Estados manejados: `Cargando…` inicial, fallback `Invitado/visitor` si `fetch` falla y dataset `document.documentElement.dataset.runenv = env` para validaciones rápidas.
+- URLs: preview (se generará al abrir el PR) `https://deploy-apu-briefing-test-tri.runart-foundry.pages.dev/` · prod `https://runart-foundry.pages.dev/` (pendiente redeploy tras merge UI).
+- Validación local (`wrangler pages dev site --port 8787`): header conserva buscador/toggles, menú aparece sobre el header sin desplazar otros elementos, responsive comprobado reduciendo viewport a 414px.
+
+#### Accesibilidad
+
+- Botón principal accesible vía teclado: **Enter/Espacio** alternan abrir/cerrar; **ArrowDown** abre y envía foco al primer ítem.
+- **Esc** cierra el menú desde botón o menú y devuelve foco al trigger.
+- El foco vuelve al botón al cerrar manualmente o al tabular fuera del menú.
+- Roles ARIA: `aria-haspopup`, `aria-expanded`, `role="menu"` + `role="menuitem"`; `aria-label` en el chip indica el rol en texto legible.
+- Click/tap fuera del componente cierra el menú para evitar estados atascados.
+
+#### Smokes UI (wrangler dev con simulación manual)
+
+| Rol simulado | Datos inyectados (`applyState`) | Avatar | Chip | “Mi pestaña” | Resultado logout |
+| --- | --- | --- | --- | --- | --- |
+| visitor | `{ email:"", role:"visitor", env:"preview" }` | `I` | `visitor` | `/` | `window.location.href` → `http://127.0.0.1:8787/cdn-cgi/access/logout?return_to=/` |
+| owner | `{ email:"ppcapiro@gmail.com", role:"owner", env:"preview" }` | `P` | `owner` | `/internal/briefing_system/` | Redirección construida al mismo host |
+| client | `{ email:"runartfoundry@gmail.com", role:"client", env:"preview" }` | `R` | `client` | `/client_projects/runart_foundry/` | Redirección construida al mismo host |
+
+> Nota: la simulación se realizó llamando manualmente a `window.__RA_DEBUG_USERBAR.applyState(...)`, helper expuesto adrede para QA manual; los valores coinciden con `roles.json` y el middleware.
+
+#### Compatibilidad MkDocs Material
+
+- `display: flex` alineado al layout original; no se modifican clases internas del theme.
+- Search y toggles conservan posición; en móvil el correo se oculta y se mantiene avatar + chip.
+- Prefijo `ra-` evita colisiones con estilos del theme o futuros plugins.

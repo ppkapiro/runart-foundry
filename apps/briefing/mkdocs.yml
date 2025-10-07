@@ -130,6 +130,8 @@ markdown_extensions:
         - ../..
 extra_css:
   - assets/extra.css
+  - assets/runart/userbar.css
 extra_javascript:
   - assets/env-flag.js
+  - assets/runart/userbar.js
 # Evitar indexación por robots: robots.txt + meta en overrides/main.html

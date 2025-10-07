@@ -1,0 +1,176 @@
+:root {
+  /* Variables opcionales para ajustar rápidamente la Userbar */
+  --ra-userbar-bg: rgba(63, 81, 181, 0.08);
+  --ra-userbar-border: rgba(63, 81, 181, 0.25);
+  --ra-userbar-avatar-bg: rgba(63, 81, 181, 0.92);
+  --ra-userbar-avatar-color: #ffffff;
+  --ra-userbar-chip-bg: rgba(63, 81, 181, 0.13);
+  --ra-userbar-chip-color: var(--md-default-fg-color, #16171a);
+  --ra-userbar-menu-bg: var(--md-default-bg-color, #ffffff);
+  --ra-userbar-menu-color: var(--md-default-fg-color, #16171a);
+  --ra-userbar-shadow: 0 12px 32px rgba(15, 23, 42, 0.18);
+}
+
+html[data-md-color-scheme='slate'] {
+  --ra-userbar-bg: rgba(255, 255, 255, 0.04);
+  --ra-userbar-border: rgba(148, 163, 184, 0.35);
+  --ra-userbar-avatar-bg: rgba(148, 163, 184, 0.35);
+  --ra-userbar-chip-bg: rgba(148, 163, 184, 0.28);
+  --ra-userbar-chip-color: #f8fafc;
+  --ra-userbar-menu-bg: rgba(15, 23, 42, 0.98);
+  --ra-userbar-menu-color: rgba(241, 245, 249, 0.94);
+  --ra-userbar-shadow: 0 18px 40px rgba(15, 23, 42, 0.45);
+}
+
+.ra-userbar {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-left: 0.75rem;
+  font-size: 0.875rem;
+  line-height: 1.2;
+  color: inherit;
+}
+
+.ra-userbar__button {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.35rem 0.75rem;
+  border: 1px solid transparent;
+  border-radius: 999px;
+  background-color: var(--ra-userbar-bg);
+  color: inherit;
+  cursor: pointer;
+  transition: border-color 150ms ease, background-color 150ms ease, box-shadow 150ms ease;
+}
+
+.ra-userbar__button:hover {
+  border-color: var(--ra-userbar-border);
+}
+
+.ra-userbar__button:focus-visible {
+  outline: none;
+  border-color: var(--md-accent-fg-color, #3f51b5);
+  box-shadow: 0 0 0 3px rgba(63, 81, 181, 0.28);
+}
+
+.ra-userbar__avatar {
+  flex-shrink: 0;
+  width: 2rem;
+  height: 2rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 600;
+  border-radius: 999px;
+  background-color: var(--ra-userbar-avatar-bg);
+  color: var(--ra-userbar-avatar-color);
+  text-transform: uppercase;
+}
+
+.ra-userbar__info {
+  display: flex;
+  flex-direction: column;
+  gap: 0.1rem;
+  align-items: flex-start;
+}
+
+.ra-userbar__email {
+  max-width: 16ch;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-weight: 500;
+}
+
+.ra-userbar__role {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.1rem 0.5rem;
+  border-radius: 999px;
+  font-size: 0.7rem;
+  letter-spacing: 0.02em;
+  text-transform: lowercase;
+  background-color: var(--ra-userbar-chip-bg);
+  color: var(--ra-userbar-chip-color);
+}
+
+.ra-userbar__menu-container {
+  position: relative;
+}
+
+.ra-userbar__menu {
+  position: absolute;
+  top: calc(100% + 0.5rem);
+  right: 0;
+  min-width: 200px;
+  margin: 0;
+  padding: 0.5rem 0;
+  list-style: none;
+  border-radius: 0.75rem;
+  background-color: var(--ra-userbar-menu-bg);
+  color: var(--ra-userbar-menu-color);
+  box-shadow: var(--ra-userbar-shadow);
+  border: 1px solid rgba(15, 23, 42, 0.08);
+  z-index: 40;
+}
+
+.ra-userbar__menu[hidden] {
+  display: none !important;
+}
+
+.ra-userbar__menu-item {
+  margin: 0;
+  padding: 0;
+}
+
+.ra-userbar__menu-link {
+  width: 100%;
+  display: block;
+  padding: 0.65rem 1rem;
+  text-align: left;
+  background: transparent;
+  border: none;
+  color: inherit;
+  font-size: 0.85rem;
+  cursor: pointer;
+}
+
+.ra-userbar__menu-link:hover,
+.ra-userbar__menu-link:focus-visible {
+  outline: none;
+  background-color: rgba(63, 81, 181, 0.12);
+}
+
+.ra-userbar__menu-link--logout {
+  border-top: 1px solid rgba(15, 23, 42, 0.08);
+}
+
+@media (max-width: 1024px) {
+  .ra-userbar__email {
+    display: none;
+  }
+
+  .ra-userbar__role {
+    font-size: 0.75rem;
+  }
+}
+
+@media (max-width: 720px) {
+  .ra-userbar {
+    margin-left: 0.5rem;
+  }
+
+  .ra-userbar__button {
+    gap: 0.5rem;
+    padding: 0.25rem 0.5rem;
+  }
+
+  .ra-userbar__avatar {
+    width: 1.8rem;
+    height: 1.8rem;
+    font-size: 0.85rem;
+  }
+}
