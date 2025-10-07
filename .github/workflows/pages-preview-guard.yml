@@ -16,6 +16,7 @@ permissions:
   checks: read
   pull-requests: read
   contents: read
+  statuses: read
 
 jobs:
   require-pages-preview:
@@ -48,8 +49,13 @@ jobs:
               const checks = await github.rest.checks.listForRef({ owner, repo, ref: sha });
               const checkNames = checks.data.check_runs.map((c) => c.name);
 
-              const statuses = await github.rest.repos.listCommitStatusesForRef({ owner, repo, ref: sha });
-              const statusNames = statuses.data.map((s) => s.context);
+              let statusNames = [];
+              try {
+                const statuses = await github.rest.repos.listCommitStatusesForRef({ owner, repo, ref: sha });
+                statusNames = statuses.data.map((s) => s.context);
+              } catch (error) {
+                core.warning(`No se pudieron leer los commit statuses: ${error.message}`);
+              }
 
               const combined = [...new Set([...checkNames, ...statusNames])];
               core.info(`Intento ${attempt}/${maxAttempts} — checks detectados: ${combined.join(', ') || 'ninguno'}`);
