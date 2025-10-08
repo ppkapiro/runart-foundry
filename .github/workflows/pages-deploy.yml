@@ -68,35 +68,60 @@ jobs:
     timeout-minutes: 15
     continue-on-error: true
     steps:
+      - name: Check fallback secrets
+        id: secrets_check
+        run: |
+          missing=()
+          if [ -z "${{ secrets.CF_API_TOKEN }}" ]; then missing+=("CF_API_TOKEN"); fi
+          if [ -z "${{ secrets.CF_ACCOUNT_ID }}" ]; then missing+=("CF_ACCOUNT_ID"); fi
+
+          if [ ${#missing[@]} -gt 0 ]; then
+            echo "Missing secrets: ${missing[*]}"
+            echo "should_skip=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "All required Cloudflare secrets are present."
+            echo "should_skip=false" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Skip fallback deploy (missing secrets)
+        if: steps.secrets_check.outputs.should_skip == 'true'
+        run: echo "Skipping fallback deploy because required Cloudflare secrets are not configured."
+
       - name: Checkout repository
+        if: steps.secrets_check.outputs.should_skip != 'true'
         uses: actions/checkout@v4
 
       - name: Setup Python
+        if: steps.secrets_check.outputs.should_skip != 'true'
         uses: actions/setup-python@v5
         with:
           python-version: '3.11'
 
       - name: Setup Node.js
+        if: steps.secrets_check.outputs.should_skip != 'true'
         uses: actions/setup-node@v4
         with:
           node-version: '20'
 
       - name: Install dependencies
+        if: steps.secrets_check.outputs.should_skip != 'true'
         working-directory: apps/briefing
         run: npm ci
 
       - name: Build site
+        if: steps.secrets_check.outputs.should_skip != 'true'
         working-directory: apps/briefing
         env:
           PIP_DISABLE_PIP_VERSION_CHECK: '1'
         run: npm run build
 
       - name: Deploy to Cloudflare Pages (Production)
+        if: steps.secrets_check.outputs.should_skip != 'true'
         uses: cloudflare/pages-action@v1
         with:
           apiToken: ${{ secrets.CF_API_TOKEN }}
           accountId: ${{ secrets.CF_ACCOUNT_ID }}
-          projectName: ${{ secrets.CF_PROJECT_NAME }}
+          projectName: runart-foundry
           directory: ./apps/briefing/site
           gitHubToken: ${{ secrets.GITHUB_TOKEN }}
           branch: main
