@@ -16,6 +16,7 @@
 | `tools/*` | 🟡 | Scripts legacy en `scripts/`; migración a `tools/` en progreso (F2) junto al nuevo linter. |
 
 ## Últimos hitos
+- 2025-10-08 — Release automático registrado en CHANGELOG (ops).
 - 2025-10-07 — Dashboards por rol activos en Cloudflare Pages (`/dash/*`) con middleware unificado y logging en `LOG_EVENTS`.
 - 2025-10-07 — Redeploy de Cloudflare Pages (`runart-foundry`) tras consolidación; Access validado vía smoke test CLI.
 - 2025-10-06 — Release automático registrado en CHANGELOG (ops).
