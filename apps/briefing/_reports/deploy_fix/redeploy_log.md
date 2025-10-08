@@ -11,7 +11,14 @@
     - `/api/whoami` → 302 a Cloudflare Access (sin sesión), confirmando enforcement.
   - Documentación actualizada: `CHANGELOG.md`, `STATUS.md`, doc `082` sección “Refuerzo de build y deploy”.
 
+  - 2025-10-08T16:30Z — PR #22 `build: mkdocs strict + fallback deploy` mergeada; se disparó Pages Deploy Fallback run `18351563555`, que no llegó a ejecutar fallback por timeout y falta de `CF_PROJECT_NAME`.
+  - 2025-10-08T16:55Z — PR #23 `ci: fix pages fallback trigger` mergeada; fallback job reintentado (`18351954739`) pero falló por falta de secreto `CF_PROJECT_NAME`.
+  - 2025-10-08T17:10Z — PR #24 `ci: skip pages fallback when secrets missing` mergeada; Pages Deploy Fallback run `18352398884`:
+    - Native Cloudflare Pages deploy volvió a marcar timeout.
+    - Fallback detectó secretos mínimos y ejecutó deploy con `projectName=runart-foundry` → **Success**.
+    - Logs: https://github.com/ppkapiro/runart-foundry/actions/runs/18352398884
+    - Evidencia: job `Cloudflare Pages fallback deploy` completado en 47 s.
+
 - Próximos pasos:
-  - Abrir PR y mergear a `main`.
-  - Verificar deploy nativo de Pages (6–8 min). Si se estanca, confirmar fallback CI.
-  - Repetir smokes y agregar `prod_smokes_003.json` con env:"production" una vez desplegado.
+    - Confirmar que el deployment final en Cloudflare Pages aparece como **Success** (nuevo run posterior al fallback).
+    - Repetir smokes y agregar `prod_smokes_003.json` con env:"production" una vez desplegado.
