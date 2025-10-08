@@ -5,19 +5,19 @@
 - **Objetivo actual**: Consolidar la documentación y preparar la transición del monorepo hacia la estructura modular definida en `docs/architecture/020_target_structure.md`.
 - **Salud general**: CI/CD estable; documentación estratégica 000–070 publicada y enlazada en MkDocs.
 - **Prioridades inmediatas**: Adoptar el linter de documentación, completar plantillas de colaboración y planificar el job `docs-lint` en GitHub Actions.
-- **Novedad**: Purga y smokes OTP en producción registrados vía auto-fill; dashboards por rol estables para owner/equipo/cliente.
+- **Novedad**: Build estable en `apps/briefing` (mkdocs estricta) y workflow de fallback para deploy de Pages; además, purga y smokes OTP registrados vía auto-fill; dashboards por rol estables (owner/equipo/cliente).
 
 ## Semáforo por módulo
 
 | Módulo | Estado | Comentarios |
 | --- | --- | --- |
-| `apps/briefing` | � | Dashboards por rol en producción con purga + smokes OTP completados (auto-fill 2025-10-08T15:00Z). |
+| `apps/briefing` | 🟢 | Dashboards por rol en producción; build estable (mkdocs estricta) y fallback CI listo; purga + smokes OTP completados (auto-fill 2025-10-08T15:00Z). |
 | `services/*` | ⚪ | Aún en fase de diseño; plan detallado en `060_migration_plan.md` (F5). |
 | `packages/*` | ⚪ | En backlog; creación de `packages/env-banner` programada para F3. |
 | `tools/*` | 🟡 | Scripts legacy en `scripts/`; migración a `tools/` en progreso (F2) junto al nuevo linter. |
 
 ## Últimos hitos
-- 2025-10-08 — Purga y smokes de producción marcados como listos (auto-fill, ver `_reports/` y `_reports/autofill_log_20251008T1500Z.md`).
+- 2025-10-08 — Build estable + fallback CI (Pages deploy); purga y smokes de producción marcados como listos (auto-fill, ver `_reports/` y `_reports/autofill_log_20251008T1500Z.md`).
 - 2025-10-08 — Release automático registrado en CHANGELOG (ops).
 - 2025-10-07 — Dashboards por rol activos en Cloudflare Pages (`/dash/*`) con middleware unificado y logging en `LOG_EVENTS`.
 - 2025-10-07 — Redeploy de Cloudflare Pages (`runart-foundry`) tras consolidación; Access validado vía smoke test CLI.

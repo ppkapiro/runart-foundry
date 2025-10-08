@@ -1,0 +1,17 @@
+{
+  "autofilled": false,
+  "timestamp_utc": "2025-10-08T16:14:39Z",
+  "request": {
+    "method": "GET",
+    "url": "https://runart-foundry.pages.dev/api/whoami",
+    "headers": {
+      "accept": "application/json"
+    }
+  },
+  "http_status": 302,
+  "response_headers": {
+    "location": "https://runart-briefing-pages.cloudflareaccess.com/cdn-cgi/access/login/runart-foundry.pages.dev"
+  },
+  "notes": "El endpoint está protegido por Cloudflare Access; sin credenciales se obtiene redirección 302. Se confirmó que el middleware sigue activo.",
+  "body": null
+}

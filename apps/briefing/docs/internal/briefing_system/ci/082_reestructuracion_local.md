@@ -250,3 +250,11 @@ Bitácora para coordinar la separación "Cliente vs Equipo" en la documentación
 - `display: flex` alineado al layout original; no se modifican clases internas del theme.
 - Search y toggles conservan posición; en móvil el correo se oculta y se mantiene avatar + chip.
 - Prefijo `ra-` evita colisiones con estilos del theme o futuros plugins.
+
+---
+
+## Refuerzo de build y deploy (2025-10-08)
+
+- Se endurece el script de build de `apps/briefing` para Cloudflare Pages v3: upgrade de `pip`, instalación de `requirements.txt` y `mkdocs build --strict -d site`.
+- Se agrega workflow de fallback `.github/workflows/pages-deploy.yml` que usa `cloudflare/pages-action@v1` para publicar `apps/briefing/site` si el deploy nativo se estanca.
+- Evidencias locales y de producción registradas en `apps/briefing/_reports/deploy_fix/`.

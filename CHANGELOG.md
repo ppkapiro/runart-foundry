@@ -25,6 +25,12 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) 
 ### Pending
 *No hay pendientes; la fase se cierra con evidencias auto-rellenadas.*
 
+### Build & Deploy
+- Build estable para `apps/briefing`: script de build endurecido (upgrade de `pip` + `pip install -r requirements.txt` + `mkdocs build --strict -d site`).
+- Fallback CI agregado: `.github/workflows/pages-deploy.yml` con `cloudflare/pages-action@v1` para publicar `apps/briefing/site` si el deploy nativo de Pages se estanca.
+- Evidencias: `apps/briefing/_reports/deploy_fix/build_local.log`, `apps/briefing/_reports/deploy_fix/prod_smokes_001.json`, `apps/briefing/_reports/deploy_fix/prod_smokes_002.json`.
+- Validación producción: raíz 302→200 con `-L`; `/api/whoami` 302 a Cloudflare Access cuando no hay sesión (comportamiento esperado).
+
 ## [Released — 2025-10-07] (briefing)
 ### Changed
 - Se archiva la capa legacy `briefing/` completa en `_archive/legacy_removed_20251007/`.
