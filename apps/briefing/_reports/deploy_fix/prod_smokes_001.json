@@ -1,0 +1,14 @@
+{
+  "autofilled": false,
+  "timestamp_utc": "2025-10-08T16:14:39Z",
+  "request": {
+    "method": "GET",
+    "url": "https://runart-foundry.pages.dev/",
+    "follow_redirects": true
+  },
+  "http_status": 200,
+  "notes": "La ruta raíz devuelve 302 (Access) inicialmente; se siguió la redirección para confirmar respuesta 200 en la página de login.",
+  "evidence_files": {
+    "body_path": "/tmp/runart_root_follow.html"
+  }
+}
