@@ -9,7 +9,7 @@ jobs:
   wait_native:
     name: Wait for native Pages deployment
     runs-on: ubuntu-latest
-    timeout-minutes: 8
+    timeout-minutes: 10
     outputs:
       native_succeeded: ${{ steps.check.outputs.result }}
     steps:
@@ -43,9 +43,11 @@ jobs:
                 if (run.status === "completed") {
                   if (run.conclusion === "success") {
                     core.info("Native Cloudflare Pages deployment succeeded.");
+                    core.setOutput("result", "true");
                     return "true";
                   }
                   core.warning(`Native Cloudflare Pages deployment ended with conclusion: ${run.conclusion}`);
+                  core.setOutput("result", "false");
                   return "false";
                 }
               } else {
@@ -55,12 +57,13 @@ jobs:
             }
 
             core.warning("Timed out waiting for native Cloudflare Pages deployment to succeed.");
+            core.setOutput("result", "false");
             return "false";
 
   pages_fallback:
     name: Cloudflare Pages fallback deploy
     needs: wait_native
-    if: needs.wait_native.outputs.native_succeeded != 'true'
+    if: always() && needs.wait_native.outputs.native_succeeded != 'true'
     runs-on: ubuntu-latest
     timeout-minutes: 15
     continue-on-error: true
@@ -97,4 +100,3 @@ jobs:
           directory: ./apps/briefing/site
           gitHubToken: ${{ secrets.GITHUB_TOKEN }}
           branch: main
-          commitHash: ${{ github.sha }}
