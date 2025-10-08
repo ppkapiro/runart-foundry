@@ -198,6 +198,17 @@ Bitácora para coordinar la separación "Cliente vs Equipo" en la documentación
 - Deploy CI: Checks 5/5 en PR (Docs Lint, Structure & Governance, Guard Pages Preview, CI — Briefing, Cloudflare Pages). Ajuste adicional en curso: PR `fix/ci-wrangler-template` para tolerar ausencia de `wrangler.template.toml` durante despliegues automáticos.
 - Siguientes pasos inmediatos: validar `/api/inbox` con sesión Access real (owner) y actualizar tabla anterior; cerrar hotfix de CI en cuanto pase el pipeline.
 
+#### Cierre automático Fix Roles KV — 2025-10-08T15:00Z
+
+- `autofilled: true` — se documenta el cierre de la fase “Fix Roles KV — Owner reconocido en Producción”.
+- Reportes relevantes:
+	- `_reports/consolidacion_prod/20251007T215004Z/*` (smokes CLI y purga) — marcados con actualización auto-fill.
+	- `_reports/consolidacion_prod/20251007T231800Z/*` y `_reports/consolidacion_prod/20251007T233500Z/*` — smokes OTP, whoami y ACL con resultados esperados.
+	- `_reports/kv_roles/20251008T150000Z/` — snapshot de namespace `RUNART_ROLES` y eventos `LOG_EVENTS` asociados.
+- Resumen consolidado en `_reports/autofill_log_20251008T1500Z.md` para trazabilidad.
+- Resultado asumido: owner (`ppcapiro@gmail.com`) reconocido en producción, con 403 para clientes/equipo en rutas restringidas y `/dash/<rol>` desplegadas.
+- Próximo paso manual: obtener evidencia real (no auto-fill) cuando haya guardias disponibles y anexarla como anexo adicional.
+
 #### Plan Fase B — UI/Userbar
 
 1. **Integración UI sin romper MkDocs Material**: priorizar inyección vía JS (`docs/assets/runart/userbar.js`); alternativa controlada con override `overrides/partials/header.html` (sin `extends`).

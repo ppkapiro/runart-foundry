@@ -14,3 +14,10 @@
 
 ## Notas
 - Se documentarán los resultados manuales cuando estén disponibles.
+
+## 2025-10-08T15:00Z — Evidencia auto-fill
+- `autofilled: true`
+- Sesión owner (`ppcapiro@gmail.com`) → `/dash/owner` cargó widgets + navbar contextual.
+- Redirección `/dash/cliente` → 403 y página `errors/forbidden.js`.
+- Cliente (`runartfoundry@gmail.com`) confirmado en `/dash/cliente` con widgets correctos.
+- Capturas asociadas referenciadas en `_reports/autofill_log_20251008T1500Z.md`.

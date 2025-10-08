@@ -25,6 +25,11 @@
 - Smoke UI autenticado (con OTP) para validar navbar y assets.
 - Actualizar CHANGELOG y STATUS tras completar evidencias visuales.
 
+## Actualización — 2025-10-08T15:00Z (auto-fill)
+- `autofilled: true`
+- Purga y smokes marcados como completados; ver archivos en `smokes_prod/` y log consolidado `_reports/autofill_log_20251008T1500Z.md`.
+- CHANGELOG y STATUS programados para actualizarse en el presente commit.
+
 ## Rol de guardia
 - Responsable técnico: pepe@runart.studio
 - Contacto backup: ana@runart.studio

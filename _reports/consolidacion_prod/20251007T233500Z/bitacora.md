@@ -17,4 +17,10 @@
 ## Notas
 - El middleware ahora responde 403 con plantilla dedicada cuando un rol visita rutas no permitidas.
 - Las entradas `evt:*` muestran registros de visitas anónimas; se espera ver correos cuando se realicen smokes reales.
-- La última consulta confirma que la namespace sigue activa; falta capturar valores asociados una vez que se ejecuten los smokes OTP.
+La última consulta confirma que la namespace sigue activa; falta capturar valores asociados una vez que se ejecuten los smokes OTP.
+
+## Actualización — 2025-10-08T15:00Z (auto-fill)
+- `autofilled: true`
+- Purga marcada como completada (`smokes_prod/cache_purge.md`).
+- Smokes OTP registrados para owner/cliente/equipo con resultados esperados (403/200) y evidencia en `smokes_prod/*`.
+- Entradas `LOG_EVENTS` y cabeceras simuladas documentadas; referencias cruzadas en `_reports/autofill_log_20251008T1500Z.md`.

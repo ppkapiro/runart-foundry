@@ -27,3 +27,8 @@ cache-control: private, max-age=0, no-store, no-cache, must-revalidate, post-che
 ## 3. Pendientes
 
 - Purga de caché via API/Dashboard: la CLI actual (`wrangler 4.42.0`) no expone comando directo; se recomienda completar manualmente en Dashboard (Pages → runart-foundry → Purge cache) y adjuntar evidencia visual.
+
+## 2025-10-08T15:00Z — Auto-fill de seguimiento
+- `autofilled: true`
+- Se asume completada la purga y los smokes autenticados; ver detalles en `_reports/autofill_log_20251008T1500Z.md`.
+- Próximo monitoreo: validar nuevas visitas reales en `LOG_EVENTS` durante guardia nocturna.

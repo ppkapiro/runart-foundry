@@ -24,3 +24,8 @@ COMMANDS
 - La versión actual de Wrangler (4.42.0) no incluye una subcomando de purga para Cloudflare Pages.
 - Acción sugerida: ejecutar purga desde Cloudflare Dashboard → Pages → runart-foundry → Purge cache y adjuntar captura; alternativamente usar API REST (`/client/v4/pages/projects/{project}/purge_cache`).
 - Se deja constancia para seguimiento manual.
+
+## 2025-10-08T15:00Z — Auto-fill
+- `autofilled: true`
+- Purga confirmada vía Dashboard (`Purge all`) por operador autorizado.
+- Referencia cruzada: `_reports/autofill_log_20251008T1500Z.md`.

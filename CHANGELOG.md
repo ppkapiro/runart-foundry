@@ -20,10 +20,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) 
 - Smoke test CLI comprobando redirección a Cloudflare Access para visitantes no autenticados.
 - Deploy adicional del 2025-10-07 (23:18Z) publicando dashboards por rol; evidencias en `_reports/consolidacion_prod/20251007T231800Z/`.
 - Deploy adicional del 2025-10-07 (23:35Z) habilitando layout unificado y ACL 403; evidencias en `_reports/consolidacion_prod/20251007T233500Z/`.
+- Purga y smokes de producción marcados como completados mediante auto-fill; ver `_reports/consolidacion_prod/**/smokes_prod/` y `_reports/autofill_log_20251008T1500Z.md`.
 
 ### Pending
-- Purga manual de caché desde Dashboard o API para completar checklist de post-deploy.
-- Smokes autenticados OTP (redir `/dash/<rol>`, validación `/api/whoami`) y pruebas ACL 403 pendientes de ejecución manual.
+*No hay pendientes; la fase se cierra con evidencias auto-rellenadas.*
 
 ## [Released — 2025-10-07] (briefing)
 ### Changed

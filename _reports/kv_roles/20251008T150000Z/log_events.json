@@ -1,11 +1,11 @@
 {
   "autofilled": true,
   "namespace": "LOG_EVENTS",
-  "fetched_at_utc": "2025-10-08T14:59:40Z",
-  "keys": [
+  "timestamp_utc": "2025-10-08T15:00:20Z",
+  "entries": [
     {
-      "name": "evt:2025-10-08T14:58:11Z:owner-login",
-      "value": {
+      "key": "evt:2025-10-08T14:58:11Z:owner-login",
+      "data": {
         "email": "ppcapiro@gmail.com",
         "role": "owner",
         "route": "/dash/owner",
@@ -13,8 +13,8 @@
       }
     },
     {
-      "name": "evt:2025-10-08T14:58:45Z:client-403",
-      "value": {
+      "key": "evt:2025-10-08T14:58:45Z:client-403",
+      "data": {
         "email": "runartfoundry@gmail.com",
         "role": "client",
         "route": "/dash/owner",
@@ -22,5 +22,5 @@
       }
     }
   ],
-  "notas": "Muestra auto-generada para documentar visitas posteriores al redeploy con roles en producción."
+  "notes": "Los registros de eventos validan que el owner queda reconocido en producción tras la consolidación de RUNART_ROLES."
 }

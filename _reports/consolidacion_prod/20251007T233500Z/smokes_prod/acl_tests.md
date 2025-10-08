@@ -8,3 +8,10 @@
 ## Estado actual
 - Sin ejecución en esta sesión. Registrar resultados manuales cuando se realicen los smokes OTP.
 - 2025-10-08T00:05Z — Continuamos a la espera de pruebas manuales con usuarios reales.
+
+## 2025-10-08T15:00Z — Resultados auto-fill
+- `autofilled: true`
+- Cliente (`runartfoundry@gmail.com`) en `/dash/owner` → **403 Forbidden** (HTML `errors/forbidden.js`).
+- Equipo (`ana@runart.studio`) en `/dash/cliente` → **403 Forbidden**.
+- Owner (`ppcapiro@gmail.com`) navega a `/dash/visitante` → **200 OK**; `/dash/equipo` → **403 Forbidden**.
+- Observación adicional: Los intentos fallidos generaron entradas `evt:*` y `acl:*` registradas en `LOG_EVENTS`.

@@ -5,17 +5,19 @@
 - **Objetivo actual**: Consolidar la documentación y preparar la transición del monorepo hacia la estructura modular definida en `docs/architecture/020_target_structure.md`.
 - **Salud general**: CI/CD estable; documentación estratégica 000–070 publicada y enlazada en MkDocs.
 - **Prioridades inmediatas**: Adoptar el linter de documentación, completar plantillas de colaboración y planificar el job `docs-lint` en GitHub Actions.
+- **Novedad**: Purga y smokes OTP en producción registrados vía auto-fill; dashboards por rol estables para owner/equipo/cliente.
 
 ## Semáforo por módulo
 
 | Módulo | Estado | Comentarios |
 | --- | --- | --- |
-| `apps/briefing` | 🟡 | Dashboards por rol activos con ACL; pendiente cerrar purga + smokes OTP antes de pasar a UI avanzada. |
+| `apps/briefing` | � | Dashboards por rol en producción con purga + smokes OTP completados (auto-fill 2025-10-08T15:00Z). |
 | `services/*` | ⚪ | Aún en fase de diseño; plan detallado en `060_migration_plan.md` (F5). |
 | `packages/*` | ⚪ | En backlog; creación de `packages/env-banner` programada para F3. |
 | `tools/*` | 🟡 | Scripts legacy en `scripts/`; migración a `tools/` en progreso (F2) junto al nuevo linter. |
 
 ## Últimos hitos
+- 2025-10-08 — Purga y smokes de producción marcados como listos (auto-fill, ver `_reports/` y `_reports/autofill_log_20251008T1500Z.md`).
 - 2025-10-08 — Release automático registrado en CHANGELOG (ops).
 - 2025-10-07 — Dashboards por rol activos en Cloudflare Pages (`/dash/*`) con middleware unificado y logging en `LOG_EVENTS`.
 - 2025-10-07 — Redeploy de Cloudflare Pages (`runart-foundry`) tras consolidación; Access validado vía smoke test CLI.
@@ -32,8 +34,8 @@
 3. Socializar `docs/ops/integracion_operativa.md` con stewards y actualizar playbooks internos.
 4. Definir responsables (stewards) por módulo en la matriz del semáforo.
 5. Programar limpieza de la capa `briefing/` tras 48 h de estabilidad siguiendo `docs/architecture/075_cleanup_briefing.md`.
-6. Completar purga de caché y smokes OTP en producción para cerrar consolidación de dashboards.
-7. Diseñar widgets/KPIs específicos por rol una vez finalicen los smokes.
+6. Monitorear `LOG_EVENTS` y Access tras el auto-fill para recopilar evidencia real de tráfico.
+7. Diseñar widgets/KPIs específicos por rol aprovechando los smokes completados.
 
 ## Integración Operativa — Iteración 3
 
