@@ -1,22 +1,22 @@
-import { classifyRole } from '../_middleware.js';
+import { getEmailFromRequest, resolveRole } from "../_utils/roles.js";
 
-const JSON_HEADERS = Object.freeze({
-  'Content-Type': 'application/json',
-  'Cache-Control': 'no-store, no-cache, must-revalidate',
-  Pragma: 'no-cache'
-});
-
-// WhoAmI expone el contrato básico de Access: email, rol y entorno actual.
 export async function onRequestGet(context) {
   const { request, env } = context;
-  const emailHeader = request.headers.get('X-RunArt-Email') || request.headers.get('Cf-Access-Authenticated-User-Email') || '';
-  const email = emailHeader.trim();
-  const roleHeader = request.headers.get('X-RunArt-Role');
-  const role = roleHeader || classifyRole(email);
-  const envValue = String(env?.RUNART_ENV || '').trim() || 'local';
+  const email = await getEmailFromRequest(request);
+  const rol = await resolveRole(email, env);
 
-  return new Response(
-    JSON.stringify({ ok: true, email, role, env: envValue, ts: new Date().toISOString() }),
-    { headers: JSON_HEADERS }
-  );
+  const body = {
+    ok: true,
+    RUNART_ENV: env.RUNART_ENV || "unknown",
+    MOD_REQUIRED: env.MOD_REQUIRED || "unknown",
+    ORIGIN_ALLOWED: env.ORIGIN_ALLOWED || "unknown",
+    email: email || null,
+    rol,
+    now: new Date().toISOString(),
+  };
+
+  return new Response(JSON.stringify(body, null, 2), {
+    headers: { "content-type": "application/json; charset=utf-8" },
+    status: 200,
+  });
 }

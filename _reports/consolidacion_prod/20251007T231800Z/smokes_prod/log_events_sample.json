@@ -1,0 +1,20 @@
+{
+  "namespace": "LOG_EVENTS",
+  "fetched_at_utc": "2025-10-07T23:23:10Z",
+  "keys": [
+    {
+      "name": "decision:test-e2e-functions:2025-10-01T21:25:48.915Z",
+      "value": {
+        "decision_id": "test-e2e-functions",
+        "seleccion": "opcion_b",
+        "prioridad": 4,
+        "alcance": ["texto", "imagenes"],
+        "riesgo": "medio",
+        "comentario": "E2E Pages Functions OK",
+        "usuario": "uldis@local",
+        "ts": "2025-10-01T21:25:48.915Z"
+      }
+    }
+  ],
+  "notas": "Se obtuvo muestra usando 'npx wrangler kv key list/get --remote'. Verificar que existan entradas 'visit' tras el nuevo middleware cuando haya tráfico real."
+}

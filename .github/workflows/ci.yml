@@ -84,14 +84,19 @@ jobs:
       - name: Install Wrangler
         run: npm install -g wrangler@3
 
-      - name: Generate wrangler.toml from template
+      - name: Ensure wrangler.toml bindings
         env:
           CF_LOG_EVENTS_ID: ${{ secrets.CF_LOG_EVENTS_ID }}
           CF_LOG_EVENTS_PREVIEW_ID: ${{ secrets.CF_LOG_EVENTS_PREVIEW_ID }}
         run: |
-          cp wrangler.template.toml apps/briefing/wrangler.toml
-          sed -i "s/\${CF_LOG_EVENTS_ID}/${CF_LOG_EVENTS_ID}/g" apps/briefing/wrangler.toml
-          sed -i "s/\${CF_LOG_EVENTS_PREVIEW_ID}/${CF_LOG_EVENTS_PREVIEW_ID}/g" apps/briefing/wrangler.toml
+          if [ -f wrangler.template.toml ]; then
+            cp wrangler.template.toml apps/briefing/wrangler.toml
+          fi
+          sed -i "s/DECISIONES\s*\n/DECISIONES\n/g" apps/briefing/wrangler.toml
+          if [ -n "${CF_LOG_EVENTS_ID}" ] && [ -n "${CF_LOG_EVENTS_PREVIEW_ID}" ]; then
+            sed -i "s/\${CF_LOG_EVENTS_ID}/${CF_LOG_EVENTS_ID}/g" apps/briefing/wrangler.toml || true
+            sed -i "s/\${CF_LOG_EVENTS_PREVIEW_ID}/${CF_LOG_EVENTS_PREVIEW_ID}/g" apps/briefing/wrangler.toml || true
+          fi
 
       - name: Build MkDocs for deploy
         working-directory: apps/briefing

@@ -1,67 +1,59 @@
 // Middleware de Access: clasifica correo y fija cabeceras internas para el resto de Functions.
-import rolesConfig from '../access/roles.json' assert { type: 'json' };
+import { getEmailFromRequest, resolveRole, logEvent, isPublicPath } from "./_utils/roles.js";
+import { isAllowed } from "./_utils/acl.js";
+import { onRequestGet as forbiddenResponse } from "./errors/forbidden.js";
 
-const normalize = (value) => (value || '').trim().toLowerCase();
+/**
+ * Middleware global:
+ * - Detecta email vía Access.
+ * - Resuelve rol y enruta según dashboards.
+ * - Rutas públicas (api/assets/etc) continúan sin alterar.
+ */
+export const onRequest = [
+  async (context) => {
+    const { request, env, next } = context;
+    const url = new URL(request.url);
+    const pathname = url.pathname;
 
-const OWNERS = new Set((rolesConfig.owners || []).map(normalize));
-const TEAM_DOMAINS = new Set((rolesConfig.team_domains || []).map(normalize));
-const CLIENTS = new Set((rolesConfig.clients || []).map(normalize));
+    // Rutas públicas pasan directo
+    if (isPublicPath(pathname)) {
+      return next();
+    }
 
-const STATIC_EXTENSIONS = new Set([
-  '.css',
-  '.js',
-  '.mjs',
-  '.json',
-  '.png',
-  '.jpg',
-  '.jpeg',
-  '.gif',
-  '.svg',
-  '.ico',
-  '.woff',
-  '.woff2',
-  '.ttf',
-  '.map'
-]);
+    const email = await getEmailFromRequest(request);
+    const rol = await resolveRole(email, env);
 
-const isBypassPath = (pathname) => {
-  if (pathname.startsWith('/api/')) return true;
-  if (pathname === '/' || pathname === '') return false;
-  const lastDot = pathname.lastIndexOf('.');
-  if (lastDot === -1) return false;
-  const extension = pathname.slice(lastDot).toLowerCase();
-  return STATIC_EXTENSIONS.has(extension);
-};
+    // Log de visitas (no bloqueante)
+    context.waitUntil(
+      logEvent(env, "visit", {
+        path: pathname,
+        email: email || "anon",
+        rol,
+        ua: request.headers.get("user-agent") || "",
+      })
+    );
 
-export const classifyRole = (email) => {
-  const normalizedEmail = normalize(email);
-  if (!normalizedEmail) return 'visitor';
-  if (OWNERS.has(normalizedEmail)) return 'owner';
+    // Home redirige a dashboard del rol
+    if (pathname === "/" || pathname === "/index.html") {
+      return Response.redirect(`${url.origin}/dash/${rol}`, 302);
+    }
 
-  const domain = normalizedEmail.split('@').pop();
-  if (domain && TEAM_DOMAINS.has(domain)) return 'team';
+    // Bloquear acceso cruzado entre dashboards usando ACL
+    if (pathname.startsWith("/dash/")) {
+      if (!isAllowed(rol, pathname)) {
+        return forbiddenResponse({ env, request });
+      }
+    }
 
-  if (CLIENTS.has(normalizedEmail)) return 'client';
-  return 'visitor';
-};
+    const headers = new Headers(request.headers);
+    if (email) {
+      headers.set("X-RunArt-Email", email);
+    } else {
+      headers.delete("X-RunArt-Email");
+    }
+    headers.set("X-RunArt-Role", rol);
 
-export const onRequest = async (context) => {
-  const { request } = context;
-  const url = new URL(request.url);
-
-  const rawEmail = request.headers.get('Cf-Access-Authenticated-User-Email') || '';
-  const role = classifyRole(rawEmail);
-
-  const headers = new Headers(request.headers);
-  headers.set('X-RunArt-Email', rawEmail);
-  headers.set('X-RunArt-Role', role);
-
-  const updatedRequest = new Request(request, { headers });
-
-  if (isBypassPath(url.pathname)) {
-    return await context.next(updatedRequest);
-  }
-
-  // Por ahora no realizamos redirecciones; solo propagamos correo/rol hacia los handlers.
-  return await context.next(updatedRequest);
-};
+    const forwardedRequest = new Request(request, { headers });
+    return next(forwardedRequest);
+  },
+];

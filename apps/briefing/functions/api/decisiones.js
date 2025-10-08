@@ -1,4 +1,4 @@
-import { classifyRole } from '../_middleware.js';
+import { getEmailFromRequest, resolveRole } from '../_utils/roles.js';
 
 const JSON_HEADERS = Object.freeze({
   'Content-Type': 'application/json',
@@ -8,11 +8,10 @@ const JSON_HEADERS = Object.freeze({
 
 // Endpoint de smoke: requiere usuario autenticado, responde 401 en caso contrario.
 export async function onRequestPost(context) {
-  const { request } = context;
-  const emailHeader = request.headers.get('X-RunArt-Email') || request.headers.get('Cf-Access-Authenticated-User-Email') || '';
-  const email = emailHeader.trim();
+  const { request, env } = context;
+  const email = await getEmailFromRequest(request);
   const roleHeader = request.headers.get('X-RunArt-Role');
-  const role = roleHeader || classifyRole(email);
+  const role = roleHeader || (await resolveRole(email, env));
 
   if (!email) {
     return new Response(JSON.stringify({ ok: false, status: 401, role: 'visitor' }), {

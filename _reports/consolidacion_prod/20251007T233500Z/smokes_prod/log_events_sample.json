@@ -1,0 +1,17 @@
+{
+  "namespace": "LOG_EVENTS",
+  "fetched_at_utc": "2025-10-08T13:28:22Z",
+  "keys_sample": [
+    "decision:test-e2e-functions:2025-10-01T21:25:48.915Z",
+    "evt:2025-10-07T23:24:10.252Z:8jhotc",
+    "evt:2025-10-07T23:24:10.314Z:s644eg",
+    "evt:2025-10-07T23:24:14.525Z:hcxskg",
+    "evt:2025-10-07T23:24:14.655Z:aosgca",
+    "evt:2025-10-07T23:25:36.291Z:d8znse",
+    "evt:2025-10-07T23:31:55.823Z:5j5y56",
+    "evt:2025-10-07T23:34:39.989Z:lkaeyu",
+    "evt:2025-10-07T23:34:40.192Z:wc6xco",
+    "evt:2025-10-07T23:34:49.353Z:4h56mj"
+  ],
+  "notas": "Consulta directa via Wrangler CLI confirmando existencia de entradas recientes. Para obtener valores completos se recomienda ejecutar 'wrangler kv key get --namespace-id ... --remote --key <nombre>' para cada clave relevante. Nuevos accesos tras pruebas OTP deberían reflejarse con correos reales."
+}
