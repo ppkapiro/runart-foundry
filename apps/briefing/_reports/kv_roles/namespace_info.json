@@ -1,0 +1,21 @@
+{
+  "captured_at_utc": "2025-10-08T14:48:00Z",
+  "namespaces": [
+    {
+      "title": "DECISIONES",
+      "id": "6418ac6ace59487c97bda9c3a50ab10e"
+    },
+    {
+      "title": "DECISIONES_preview",
+      "id": "e68d7a05dce645478e25c397d4c34c08"
+    },
+    {
+      "title": "RUNART_ROLES",
+      "id": "26b8c3ca432946e2a093dcd33163f9e2"
+    },
+    {
+      "title": "RUNART_ROLES_preview",
+      "id": "7d80b07de98e4d9b9d5fd85516901ef6"
+    }
+  ]
+}
