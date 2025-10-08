@@ -1,8 +1,13 @@
+# Auditoría posterior — `wrangler.toml`
+
+Fecha (UTC): 2025-10-08T14:45:30Z
+Fuente: rama `fix/kv-roles-binding`
+
+```toml
 name = "runart-foundry"
 compatibility_date = "2025-10-01"
 pages_build_output_dir = "site"
 
-# Pages Functions KV binding
 [[kv_namespaces]]
 binding = "DECISIONES"
 id = "6418ac6ace59487c97bda9c3a50ab10e"
@@ -25,3 +30,9 @@ ACCESS_ADMINS = "ppcapiro@gmail.com"
 ACCESS_EQUIPO_DOMAINS = "runart.com,studio.com"
 RUNART_ENV = "production"
 ACCESS_DEV_OVERRIDE = "0"
+```
+
+Observaciones:
+- Se añade el binding `RUNART_ROLES` apuntando al namespace creado.
+- Se alinea `ORIGIN_ALLOWED` con el dominio público real.
+- Se incorporan variables `RUNART_ENV` y `ACCESS_DEV_OVERRIDE` coherentes con el entorno productivo.
