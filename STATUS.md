@@ -10,12 +10,14 @@
 
 | Módulo | Estado | Comentarios |
 | --- | --- | --- |
-| `apps/briefing` | 🟡 | Sitio MkDocs activo; switch en ejecución y cleanup definido en `docs/architecture/075_cleanup_briefing.md`. |
+| `apps/briefing` | 🟡 | Dashboards por rol activos con ACL; pendiente cerrar purga + smokes OTP antes de pasar a UI avanzada. |
 | `services/*` | ⚪ | Aún en fase de diseño; plan detallado en `060_migration_plan.md` (F5). |
 | `packages/*` | ⚪ | En backlog; creación de `packages/env-banner` programada para F3. |
 | `tools/*` | 🟡 | Scripts legacy en `scripts/`; migración a `tools/` en progreso (F2) junto al nuevo linter. |
 
 ## Últimos hitos
+- 2025-10-07 — Dashboards por rol activos en Cloudflare Pages (`/dash/*`) con middleware unificado y logging en `LOG_EVENTS`.
+- 2025-10-07 — Redeploy de Cloudflare Pages (`runart-foundry`) tras consolidación; Access validado vía smoke test CLI.
 - 2025-10-06 — Release automático registrado en CHANGELOG (ops).
 - Documentos de arquitectura `000`–`070` validados y enlazados en navegación MkDocs.
 - Sección “Arquitectura” visible en `briefing/` con contenido unificado vía snippets.
@@ -29,6 +31,8 @@
 3. Socializar `docs/ops/integracion_operativa.md` con stewards y actualizar playbooks internos.
 4. Definir responsables (stewards) por módulo en la matriz del semáforo.
 5. Programar limpieza de la capa `briefing/` tras 48 h de estabilidad siguiendo `docs/architecture/075_cleanup_briefing.md`.
+6. Completar purga de caché y smokes OTP en producción para cerrar consolidación de dashboards.
+7. Diseñar widgets/KPIs específicos por rol una vez finalicen los smokes.
 
 ## Integración Operativa — Iteración 3
 

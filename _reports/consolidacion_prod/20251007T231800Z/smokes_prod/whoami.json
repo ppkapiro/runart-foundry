@@ -1,0 +1,8 @@
+{
+  "status": "not-run",
+  "reason": "No fue posible resolver runart-foundry.pages.dev desde el entorno automatizado; se requiere verificación manual tras autenticación Access.",
+  "instructions": [
+    "Ejecutar curl autenticado (con Access token/cookie) desde un entorno con conectividad.",
+    "Guardar la respuesta completa en este archivo una vez obtenida."
+  ]
+}

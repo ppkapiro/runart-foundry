@@ -5,8 +5,21 @@ All notable changes to this repository will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html) when version tags sean necesarios.
 
 ## [Unreleased]
+### Added
+- Dashboards por rol (`/dash/owner|cliente|equipo|visitante`) servidos desde Pages Functions con resolución basada en Cloudflare Access y KV `RUNART_ROLES`.
+- Endpoint `/api/whoami` renovado para exponer contexto de sesión (rol, email, variables RUNART/ACCESS).
+- Logging básico de visitas en `LOG_EVENTS` para trazabilidad mínima.
+- Layout compartido y navegación contextual por rol (owner/cliente/equipo/visitante) con ACL centralizada (`_utils/ui.js`, `_utils/acl.js`).
 
-*No hay cambios pendientes.*
+### Ops
+- Redeploy de Cloudflare Pages (`runart-foundry`) con middleware de Access reactivado y evidencia en `_reports/consolidacion_prod/20251007T215004Z/`.
+- Smoke test CLI comprobando redirección a Cloudflare Access para visitantes no autenticados.
+- Deploy adicional del 2025-10-07 (23:18Z) publicando dashboards por rol; evidencias en `_reports/consolidacion_prod/20251007T231800Z/`.
+- Deploy adicional del 2025-10-07 (23:35Z) habilitando layout unificado y ACL 403; evidencias en `_reports/consolidacion_prod/20251007T233500Z/`.
+
+### Pending
+- Purga manual de caché desde Dashboard o API para completar checklist de post-deploy.
+- Smokes autenticados OTP (redir `/dash/<rol>`, validación `/api/whoami`) y pruebas ACL 403 pendientes de ejecución manual.
 
 ## [Released — 2025-10-07] (briefing)
 ### Changed
