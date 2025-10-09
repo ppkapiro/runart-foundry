@@ -1,0 +1,38 @@
+name: Pages Preview2 Deploy
+
+on:
+  push:
+    branches: [ develop ]
+  workflow_dispatch:
+
+jobs:
+  deploy-preview2:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      deployments: write
+      id-token: write
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 18
+
+      - name: Build site
+        run: |
+          npm ci
+          npm run build
+
+      - name: Deploy to Cloudflare Pages (Preview2)
+        uses: cloudflare/pages-action@v1
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          projectName: runart-foundry-preview2
+          directory: site
+          gitHubToken: ${{ secrets.GITHUB_TOKEN }}
+          branch: develop
