@@ -20,7 +20,7 @@ permissions:
 
 jobs:
   require-pages-preview:
-    if: github.event_name == 'pull_request'
+    if: ${{ false }} # Reemplazado por output steps.deploy-preview.outputs.preview_url
     runs-on: ubuntu-latest
     steps:
       - name: Verify Cloudflare Pages Preview check exists
