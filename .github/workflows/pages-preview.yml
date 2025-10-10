@@ -68,15 +68,17 @@ jobs:
           directory: ./apps/briefing/site
           branch: ${{ github.head_ref }}
           wranglerVersion: '3'
+      - name: Debug PREVIEW_BASE_URL (pre)
+        run: |
+          echo "PREVIEW_BASE_URL(pre)=${PREVIEW_BASE_URL:-<empty>}"
       - name: Extract preview URL
         id: extract-preview-url
         run: |
+          echo "deploy_preview_url=${{ steps.deploy-preview.outputs.preview_url }}"
           URL="${{ steps.deploy-preview.outputs.preview_url }}"
-          echo "preview_url=${URL}"
-          test -n "$URL" || { echo "preview_url vacío: la acción no devolvió URL"; exit 1; }
-          # Prohibir alias preview.* explícitamente:
+          test -n "$URL" || { echo "ERROR: preview_url vacío; la acción no devolvió URL"; exit 1; }
           if echo "$URL" | grep -qiE '^https?://preview[.]'; then
-            echo "ERROR: Se detectó alias 'preview.*' (no válido por defecto). Use URL hash del deploy."; exit 1;
+            echo "ERROR: URL de preview inválida (preview.*). Debe ser hash.*"; exit 1;
           fi
           echo "PREVIEW_BASE_URL=$URL" >> "$GITHUB_ENV"
           ts="$(date -u +%Y%m%dT%H%M%SZ)"
@@ -84,6 +86,24 @@ jobs:
           echo "ts=$ts" >> "$GITHUB_OUTPUT"
           echo "Preview base URL: $URL"
         shell: bash
+      - name: Debug PREVIEW_BASE_URL (post)
+        run: |
+          echo "PREVIEW_BASE_URL(post)=${PREVIEW_BASE_URL}"
+      - name: Network diagnostics
+        run: |
+          echo "nameservers in runner:"
+          cat /etc/resolv.conf || true
+          echo "DNS test example.com (getent + 1.1.1.1):"
+          getent hosts example.com || true
+          dig +short example.com @1.1.1.1 || true
+          echo "DNS test cloudflare.com (getent + 1.1.1.1):"
+          getent hosts cloudflare.com || true
+          dig +short cloudflare.com @1.1.1.1 || true
+          echo "DNS test preview host (getent + 1.1.1.1):"
+          HOST=$(echo "${PREVIEW_BASE_URL:-https://invalid}" | sed 's#https\?://##' | cut -d/ -f1)
+          echo "HOST=$HOST"
+          getent hosts "$HOST" || true
+          dig +short "$HOST" @1.1.1.1 || true
       - name: Precheck preview DNS/HTTP
         run: |
           set -e
