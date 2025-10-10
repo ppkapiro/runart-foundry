@@ -1,0 +1,13 @@
+HTTP/2 302 
+date: Fri, 10 Oct 2025 13:47:47 GMT
+location: https://runart-briefing-pages.cloudflareaccess.com/cdn-cgi/access/login/runart-foundry.pages.dev?kid=208c1b2a60b592e4f5468bd56804e905bff41b8745928f4eaf136ea2e4d5ee5b&meta=eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiIsImtpZCI6IjgxYjFkN2IwZDg4ZTNjZTkwNGFhYzc3YTExZmM2NjQ0YWY0ZTM0YWI3MzE1YjMxNDI0NDI5MDVlMDcwOGFhYTkifQ.eyJ0eXBlIjoibWV0YSIsImF1ZCI6IjIwOGMxYjJhNjBiNTkyZTRmNTQ2OGJkNTY4MDRlOTA1YmZmNDFiODc0NTkyOGY0ZWFmMTM2ZWEyZTRkNWVlNWIiLCJob3N0bmFtZSI6InJ1bmFydC1mb3VuZHJ5LnBhZ2VzLmRldiIsInJlZGlyZWN0X3VybCI6Ii9hcGkvZGVjaXNpb25lcyIsInNlcnZpY2VfdG9rZW5fc3RhdHVzIjpmYWxzZSwiaXNfd2FycCI6ZmFsc2UsImlzX2dhdGV3YXkiOmZhbHNlLCJleHAiOjE3NjAxMDQzNjcsIm5iZiI6MTc2MDEwNDA2NywiaWF0IjoxNzYwMTA0MDY3LCJhdXRoX3N0YXR1cyI6Ik5PTkUiLCJtdGxzX2F1dGgiOnsiY2VydF9pc3N1ZXJfZG4iOiIiLCJjZXJ0X3NlcmlhbCI6IiIsImNlcnRfaXNzdWVyX3NraSI6IiIsImNlcnRfcHJlc2VudGVkIjpmYWxzZSwiY29tbW9uX25hbWUiOiIiLCJhdXRoX3N0YXR1cyI6Ik5PTkUifSwicmVhbF9jb3VudHJ5IjoiVVMiLCJhcHBfc2Vzc2lvbl9oYXNoIjoiMWE4YTRhMTBlYmU3OTMwZjE3N2JlNTQyOWFlMTA3ZDExMTEyOWJmYzNiZDI5MWY2ZGZkMTJlZWQxNmI4MzkyZSJ9.jKgVqPgp_1Nzuu3TeHBZ3MPzTabXG7kFDCmDrXsuG-7eNokqY2F_gQtrA_IBxLkWVCNTHNWPctNci5NcUZfw-rM-T0bXoG219vXl44SByTfmD35pGRAe8VofA3I5ajwPj8d2LLSYwV9Fg-WZ5N5xOILYW2j90OIY6JZ98Zuqy7BhsIj819onbVf5lhdAqV7lBIRyJnEEfiQDoTjgrY2wzhEyOt3cpOIPf6aDNoY2TSyy_j1ErDzsbCW-7kk8-FAp_lDGLvlmYXpDA7O8hnUFbJqiKTsPxGO6pUKFsF9h0teTBRuynNQmL6VUratPeFXvST8I_Cm4cCJPYjp_QTCkBg&redirect_url=%2Fapi%2Fdecisiones
+expires: Thu, 01 Jan 1970 00:00:01 GMT
+access-control-allow-credentials: true
+cache-control: private, max-age=0, no-store, no-cache, must-revalidate, post-check=0, pre-check=0
+report-to: {"group":"cf-nel","max_age":604800,"endpoints":[{"url":"https://a.nel.cloudflare.com/report/v4?s=DZwnxnq5icPPETo5mptNPGyRPXQDGL6OEof3K9zg4XtUiVzavgQv3pzW9OlJ3LbNelJoFv%2BUyxfy9agxGVRgYzdHdpAJREZ7GMmfvR%2BD8omx632IgcbrMA%3D%3D"}]}
+nel: {"report_to":"cf-nel","success_fraction":0.0,"max_age":604800}
+server: cloudflare
+set-cookie: CF_AppSession=84527108f98f7cd1; HttpOnly; Secure; Path=/; Expires=Sat, 11 Oct 2025 13:47:47 GMT
+cf-ray: 98c692581a19dcf4-MIA
+alt-svc: h3=":443"; ma=86400
+

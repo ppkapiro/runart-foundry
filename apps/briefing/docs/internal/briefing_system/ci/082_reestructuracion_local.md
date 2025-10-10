@@ -556,3 +556,7 @@ Copilot debe seguir el siguiente formato para agregar bloques en esta bitácora 
 - Banner producción (env-flag): Removido: YES
 - Evidencias: `_reports/smokes_prod_20251010T133818Z/`
 - Notas: Todos los escenarios devolvieron `EAI_AGAIN`; se requiere nueva ejecución cuando el dominio responda.
+## Diagnóstico smokes Producción — 20251010T134525Z
+- Evidencias: `_reports/smokes_prod_diag_20251010T134525Z/`
+- Resumen: / → redirige a Access (302); /api/whoami → redirige a Access (302); /api/inbox → redirige a Access (302)
+- Próximo paso sugerido: revisar disponibilidad DNS/Access o ejecutar smokes con sesión válida
