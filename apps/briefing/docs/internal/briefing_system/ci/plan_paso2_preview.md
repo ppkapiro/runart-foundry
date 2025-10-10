@@ -16,3 +16,5 @@
 - Evidencias y 082 actualizadas, listas para habilitar gate en Preview igual que en Producción.
 
 <!-- TODO(paso2-preview): revisar con Cloudflare que `ACCESS_TEST_MODE` siga en "0" para preview real; hoy wrangler.toml deja `ACCESS_TEST_MODE="1"` en env.preview. Validar también que la UI muestre banner PREVIEW (ver overrides/main.html y env-flag.js). -->
+
+> Nota: El gate de preview ejecuta prechecks DNS/HTTP (nslookup + curl) antes de lanzar los smokes; si falla, corta con mensaje específico para evitar falsos negativos por DNS.
