@@ -1,0 +1,171 @@
+{
+  "baseURL": "https://d46dd024.runart-foundry.pages.dev/",
+  "timestamp": "20251009T144038",
+  "totals": {
+    "pass": 1,
+    "fail": 9,
+    "total": 10
+  },
+  "results": [
+    {
+      "name": "whoami-owner",
+      "route": "/api/whoami",
+      "method": "GET",
+      "email": "ppcapiro@gmail.com",
+      "auth": {
+        "bypass": true,
+        "email": "ppcapiro@gmail.com"
+      },
+      "status": "fail",
+      "durationMs": 607.06,
+      "response": null,
+      "error": "fetch failed (code=ETIMEDOUT)"
+    },
+    {
+      "name": "whoami-team",
+      "route": "/api/whoami",
+      "method": "GET",
+      "email": "infonetwokmedia@gmail.com",
+      "auth": {
+        "bypass": true,
+        "email": "infonetwokmedia@gmail.com"
+      },
+      "status": "fail",
+      "durationMs": 520.75,
+      "response": null,
+      "error": "fetch failed (code=ETIMEDOUT)"
+    },
+    {
+      "name": "whoami-client_admin",
+      "route": "/api/whoami",
+      "method": "GET",
+      "email": "runartfoundry@gmail.com",
+      "auth": {
+        "bypass": true,
+        "email": "runartfoundry@gmail.com"
+      },
+      "status": "fail",
+      "durationMs": 527.22,
+      "response": null,
+      "error": "fetch failed (code=ETIMEDOUT)"
+    },
+    {
+      "name": "whoami-visitor",
+      "route": "/api/whoami",
+      "method": "GET",
+      "auth": {
+        "bypass": false,
+        "email": null
+      },
+      "status": "fail",
+      "durationMs": 521.1,
+      "response": null,
+      "error": "fetch failed (code=ETIMEDOUT)"
+    },
+    {
+      "name": "inbox-owner",
+      "route": "/api/inbox",
+      "method": "GET",
+      "email": "ppcapiro@gmail.com",
+      "auth": {
+        "bypass": true,
+        "email": "ppcapiro@gmail.com"
+      },
+      "status": "fail",
+      "durationMs": 522.6,
+      "response": null,
+      "error": "fetch failed (code=ETIMEDOUT)"
+    },
+    {
+      "name": "inbox-team",
+      "route": "/api/inbox",
+      "method": "GET",
+      "email": "infonetwokmedia@gmail.com",
+      "auth": {
+        "bypass": true,
+        "email": "infonetwokmedia@gmail.com"
+      },
+      "status": "fail",
+      "durationMs": 515.22,
+      "response": null,
+      "error": "fetch failed (code=ETIMEDOUT)"
+    },
+    {
+      "name": "inbox-client",
+      "route": "/api/inbox",
+      "method": "GET",
+      "email": "musicmanagercuba@gmail.com",
+      "auth": {
+        "bypass": true,
+        "email": "musicmanagercuba@gmail.com"
+      },
+      "status": "fail",
+      "durationMs": 521.75,
+      "response": null,
+      "error": "fetch failed (code=ETIMEDOUT)"
+    },
+    {
+      "name": "inbox-visitor",
+      "route": "/api/inbox",
+      "method": "GET",
+      "auth": {
+        "bypass": false,
+        "email": null
+      },
+      "status": "fail",
+      "durationMs": 523.22,
+      "response": null,
+      "error": "fetch failed (code=ETIMEDOUT)"
+    },
+    {
+      "name": "decisiones-unauth",
+      "route": "/api/decisiones",
+      "method": "POST",
+      "auth": {
+        "bypass": false,
+        "email": null
+      },
+      "status": "fail",
+      "durationMs": 526.16,
+      "response": null,
+      "error": "fetch failed (code=ETIMEDOUT)"
+    },
+    {
+      "name": "decisiones-owner",
+      "route": "/api/decisiones",
+      "method": "POST",
+      "email": "ppcapiro@gmail.com",
+      "auth": {
+        "bypass": true,
+        "email": "ppcapiro@gmail.com"
+      },
+      "status": "pass",
+      "durationMs": 673.15,
+      "response": {
+        "status": 200,
+        "headers": {
+          "alt-svc": "h3=\":443\"; ma=86400",
+          "cache-control": "no-store, no-cache, must-revalidate",
+          "cf-ray": "98bea295b8c89ab4-MIA",
+          "connection": "keep-alive",
+          "content-encoding": "br",
+          "content-type": "application/json",
+          "date": "Thu, 09 Oct 2025 14:40:47 GMT",
+          "nel": "{\"report_to\":\"cf-nel\",\"success_fraction\":0.0,\"max_age\":604800}",
+          "pragma": "no-cache",
+          "report-to": "{\"group\":\"cf-nel\",\"max_age\":604800,\"endpoints\":[{\"url\":\"https://a.nel.cloudflare.com/report/v4?s=SgCO1g8s8EgC7wVO%2BbSuLIyOIAsM9o8TApFZ%2FS5D1JeGI11ta%2FgsW9v3DIX2Xi7Fz%2BfRb2qrKcIT7R9u2xBbivLYxzg%2B5NvqABFQhP19kmVLkx6TW5WFEi6wWM28s6gO1g%3D%3D\"}]}",
+          "server": "cloudflare",
+          "transfer-encoding": "chunked",
+          "vary": "accept-encoding"
+        },
+        "body": {
+          "ok": true,
+          "status": 200,
+          "role": "owner",
+          "message": "Solicitud registrada (mock)."
+        }
+      },
+      "error": null
+    }
+  ]
+}

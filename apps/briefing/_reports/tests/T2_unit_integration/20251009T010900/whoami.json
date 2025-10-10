@@ -1,0 +1,65 @@
+{
+  "cases": [
+    {
+      "case": "owner",
+      "status": 200,
+      "response": {
+        "ok": true,
+        "email": "ppcapiro@gmail.com",
+        "role": "owner",
+        "rol": "propietario",
+        "env": "preview",
+        "ts": "2025-10-09T01:09:01.358Z"
+      }
+    },
+    {
+      "case": "client_admin",
+      "status": 200,
+      "response": {
+        "ok": true,
+        "email": "runartfoundry@gmail.com",
+        "role": "client_admin",
+        "rol": "cliente_admin",
+        "env": "preview",
+        "ts": "2025-10-09T01:09:01.373Z"
+      }
+    },
+    {
+      "case": "client",
+      "status": 200,
+      "response": {
+        "ok": true,
+        "email": "musicmanagercuba@gmail.com",
+        "role": "client",
+        "rol": "cliente",
+        "env": "preview",
+        "ts": "2025-10-09T01:09:01.385Z"
+      }
+    },
+    {
+      "case": "team",
+      "status": 200,
+      "response": {
+        "ok": true,
+        "email": "infonetwokmedia@gmail.com",
+        "role": "team",
+        "rol": "equipo",
+        "env": "preview",
+        "ts": "2025-10-09T01:09:01.394Z"
+      }
+    },
+    {
+      "case": "visitor",
+      "status": 200,
+      "response": {
+        "ok": true,
+        "email": null,
+        "role": "visitor",
+        "rol": "visitante",
+        "env": "preview",
+        "ts": "2025-10-09T01:09:01.401Z"
+      }
+    }
+  ],
+  "reportDir": "/home/pepe/work/runartfoundry/apps/briefing/_reports/tests/T2_unit_integration/20251009T010900"
+}

@@ -1,0 +1,18 @@
+{
+  "baseURL": "https://runart-foundry.pages.dev",
+  "timestamp": "2025-10-09T15:45:00Z",
+  "requests": [
+    {
+      "endpoint": "/api/whoami",
+      "method": "GET",
+      "status": 302,
+      "notes": "Redirección a Cloudflare Access login; acceso controlado."
+    }
+  ],
+  "totals": {
+    "pass": 0,
+    "fail": 0,
+    "blocked": 1
+  },
+  "summary": "Endpoints requieren sesión Access; se mantiene referencia al smoke PASS 20251009T124000Z."
+}

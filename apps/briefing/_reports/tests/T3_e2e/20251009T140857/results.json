@@ -1,0 +1,204 @@
+{
+  "baseURL": "https://82f0c625.runart-foundry.pages.dev/",
+  "timestamp": "20251009T140857",
+  "totals": {
+    "pass": 2,
+    "fail": 4,
+    "total": 6
+  },
+  "results": [
+    {
+      "name": "whoami-owner",
+      "route": "/api/whoami",
+      "method": "GET",
+      "email": "ppcapiro@gmail.com",
+      "status": "fail",
+      "durationMs": 243.25,
+      "response": {
+        "status": 200,
+        "headers": {
+          "alt-svc": "h3=\":443\"; ma=86400",
+          "cf-ray": "98be74064c337b87-MIA",
+          "connection": "keep-alive",
+          "content-encoding": "br",
+          "content-type": "application/json; charset=utf-8",
+          "date": "Thu, 09 Oct 2025 14:08:59 GMT",
+          "nel": "{\"success_fraction\":0,\"report_to\":\"cf-nel\",\"max_age\":604800}",
+          "report-to": "{\"endpoints\":[{\"url\":\"https:\\/\\/a.nel.cloudflare.com\\/report\\/v4?s=%2FVM24bDr%2B1MR3zqFTABWvOLVVRpeiJ1rza%2FvysyrK4xaDVzDsixcpHBSluCH7Dt1QDMuIxe%2B%2BqF%2BvcYv7jnWFcHHzExUDZbs0AiD5XoBFLWkhHgRNksoz4WI6IL62HAKLEO58aAmvPO2EdZ9vsemIJGPSrQ%3D\"}],\"group\":\"cf-nel\",\"max_age\":604800}",
+          "server": "cloudflare",
+          "server-timing": "cfL4;desc=\"?proto=TCP&rtt=20187&min_rtt=19961&rtt_var=7938&sent=5&recv=5&lost=0&retrans=0&sent_bytes=2876&recv_bytes=779&delivery_rate=185183&cwnd=252&unsent_bytes=0&cid=5e498c4e05ab956d&ts=102&x=0\"",
+          "transfer-encoding": "chunked",
+          "vary": "Accept-Encoding"
+        },
+        "body": {
+          "ok": true,
+          "RUNART_ENV": "production",
+          "MOD_REQUIRED": "1",
+          "ORIGIN_ALLOWED": "https://runart-foundry.pages.dev",
+          "email": null,
+          "rol": "visitante",
+          "now": "2025-10-09T14:08:59.922Z"
+        }
+      },
+      "error": "Role inesperado: undefined"
+    },
+    {
+      "name": "whoami-visitor",
+      "route": "/api/whoami",
+      "method": "GET",
+      "status": "fail",
+      "durationMs": 74.51,
+      "response": {
+        "status": 200,
+        "headers": {
+          "alt-svc": "h3=\":443\"; ma=86400",
+          "cf-ray": "98be7406fdef7b87-MIA",
+          "connection": "keep-alive",
+          "content-encoding": "br",
+          "content-type": "application/json; charset=utf-8",
+          "date": "Thu, 09 Oct 2025 14:09:00 GMT",
+          "nel": "{\"report_to\":\"cf-nel\",\"success_fraction\":0.0,\"max_age\":604800}",
+          "report-to": "{\"group\":\"cf-nel\",\"max_age\":604800,\"endpoints\":[{\"url\":\"https://a.nel.cloudflare.com/report/v4?s=7sheewBAuHhClVY68r5sgXU72T9h7ZSly4Iia%2FL02LMlDIFaCWuzGEVAf%2Bnn1rIrhJUk0r2N9O19lZVk8rFgBdGebmATwjg99VBuoiDhGe%2F%2FhiecWk5DQkF%2Bw33jddLH5w%3D%3D\"}]}",
+          "server": "cloudflare",
+          "transfer-encoding": "chunked",
+          "vary": "accept-encoding"
+        },
+        "body": {
+          "ok": true,
+          "RUNART_ENV": "production",
+          "MOD_REQUIRED": "1",
+          "ORIGIN_ALLOWED": "https://runart-foundry.pages.dev",
+          "email": null,
+          "rol": "visitante",
+          "now": "2025-10-09T14:09:00.000Z"
+        }
+      },
+      "error": "Role visitante inesperado: undefined"
+    },
+    {
+      "name": "inbox-owner",
+      "route": "/api/inbox",
+      "method": "GET",
+      "email": "ppcapiro@gmail.com",
+      "status": "fail",
+      "durationMs": 55.61,
+      "response": {
+        "status": 403,
+        "headers": {
+          "alt-svc": "h3=\":443\"; ma=86400",
+          "cache-control": "no-store, no-cache, must-revalidate",
+          "cf-ray": "98be74076f077b87-MIA",
+          "connection": "keep-alive",
+          "content-encoding": "br",
+          "content-type": "application/json",
+          "date": "Thu, 09 Oct 2025 14:09:00 GMT",
+          "nel": "{\"report_to\":\"cf-nel\",\"success_fraction\":0.0,\"max_age\":604800}",
+          "pragma": "no-cache",
+          "report-to": "{\"group\":\"cf-nel\",\"max_age\":604800,\"endpoints\":[{\"url\":\"https://a.nel.cloudflare.com/report/v4?s=EFO1%2FAo1ucT4wvM8svElKTK6pxzspHaZgIm3gkhDWHGNOfMnCztBuuAekoLvS%2FnHtLzJ3gQaRGT1Bzs8K2BD13A%2B3RlpIW6KUaeK%2BH%2BV9LysfzmAWp93VZ8ypmday3YDgw%3D%3D\"}]}",
+          "server": "cloudflare",
+          "transfer-encoding": "chunked",
+          "vary": "accept-encoding"
+        },
+        "body": {
+          "ok": false,
+          "status": 403,
+          "role": "visitante"
+        }
+      },
+      "error": "Status esperado 200 pero se obtuvo 403"
+    },
+    {
+      "name": "inbox-client",
+      "route": "/api/inbox",
+      "method": "GET",
+      "email": "musicmanagercuba@gmail.com",
+      "status": "pass",
+      "durationMs": 32.67,
+      "response": {
+        "status": 403,
+        "headers": {
+          "alt-svc": "h3=\":443\"; ma=86400",
+          "cache-control": "no-store, no-cache, must-revalidate",
+          "cf-ray": "98be7407bfb07b87-MIA",
+          "connection": "keep-alive",
+          "content-encoding": "br",
+          "content-type": "application/json",
+          "date": "Thu, 09 Oct 2025 14:09:00 GMT",
+          "nel": "{\"report_to\":\"cf-nel\",\"success_fraction\":0.0,\"max_age\":604800}",
+          "pragma": "no-cache",
+          "report-to": "{\"group\":\"cf-nel\",\"max_age\":604800,\"endpoints\":[{\"url\":\"https://a.nel.cloudflare.com/report/v4?s=BLVjaAExQwoxQbmEVaKgDKplRhoKagW6DHssZA%2BVKMiQbAlJHKOffhI%2F0Qy96HyBQfkTWZ78%2B0V0x6zxvbHiHrXbA6qYol1%2B2UAtNLx7myp75NCvzLCvrdZoBqckTYLHIA%3D%3D\"}]}",
+          "server": "cloudflare",
+          "transfer-encoding": "chunked",
+          "vary": "accept-encoding"
+        },
+        "body": {
+          "ok": false,
+          "status": 403,
+          "role": "visitante"
+        }
+      },
+      "error": null
+    },
+    {
+      "name": "decisiones-unauth",
+      "route": "/api/decisiones",
+      "method": "POST",
+      "status": "pass",
+      "durationMs": 52.46,
+      "response": {
+        "status": 401,
+        "headers": {
+          "alt-svc": "h3=\":443\"; ma=86400",
+          "cache-control": "no-store, no-cache, must-revalidate",
+          "cf-ray": "98be7407e84e7b87-MIA",
+          "connection": "keep-alive",
+          "content-length": "42",
+          "content-type": "application/json",
+          "date": "Thu, 09 Oct 2025 14:09:00 GMT",
+          "nel": "{\"report_to\":\"cf-nel\",\"success_fraction\":0.0,\"max_age\":604800}",
+          "pragma": "no-cache",
+          "report-to": "{\"group\":\"cf-nel\",\"max_age\":604800,\"endpoints\":[{\"url\":\"https://a.nel.cloudflare.com/report/v4?s=Ev%2BK0q490l509gkZwXed%2B3a8L%2FkCyoTcQftuHvKElRbWFEF41S3mTXuIU4onMFXYb7Tu4MMP3du96PFu1ljlBK0z%2FjmCwrIHNN3k0YqVCxwulpcLpd5ZMBL%2F%2Ffwhbz5LHw%3D%3D\"}]}",
+          "server": "cloudflare",
+          "vary": "accept-encoding"
+        },
+        "body": {
+          "ok": false,
+          "status": 401,
+          "role": "visitor"
+        }
+      },
+      "error": null
+    },
+    {
+      "name": "decisiones-owner",
+      "route": "/api/decisiones",
+      "method": "POST",
+      "email": "ppcapiro@gmail.com",
+      "status": "fail",
+      "durationMs": 169.86,
+      "response": {
+        "status": 401,
+        "headers": {
+          "alt-svc": "h3=\":443\"; ma=86400",
+          "cache-control": "no-store, no-cache, must-revalidate",
+          "cf-ray": "98be74090a9c5d6c-MIA",
+          "connection": "keep-alive",
+          "content-length": "42",
+          "content-type": "application/json",
+          "date": "Thu, 09 Oct 2025 14:09:00 GMT",
+          "nel": "{\"report_to\":\"cf-nel\",\"success_fraction\":0.0,\"max_age\":604800}",
+          "pragma": "no-cache",
+          "report-to": "{\"group\":\"cf-nel\",\"max_age\":604800,\"endpoints\":[{\"url\":\"https://a.nel.cloudflare.com/report/v4?s=a9H3TAEZ8mnHw%2BftisTYwCXsCIYMiUXt09tBdfmWQx4jG%2BAZ37SYpICcPlT4xAoS4BkkWflpsZvq7E8%2FQ%2BaJWPJBeDRuzUmRctx7bLEWUHQp%2FP5FCxYGIPfbwIBSrJSJJQ%3D%3D\"}]}",
+          "server": "cloudflare",
+          "vary": "accept-encoding"
+        },
+        "body": {
+          "ok": false,
+          "status": 401,
+          "role": "visitor"
+        }
+      },
+      "error": "Status esperado 200 pero se obtuvo 401"
+    }
+  ]
+}

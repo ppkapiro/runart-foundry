@@ -1,0 +1,69 @@
+{
+  "baseURL": "https://runartfoundry-preview.pages.dev/",
+  "timestamp": "20251009T011633",
+  "totals": {
+    "pass": 0,
+    "fail": 6,
+    "total": 6
+  },
+  "results": [
+    {
+      "name": "whoami-owner",
+      "route": "/api/whoami",
+      "method": "GET",
+      "email": "ppcapiro@gmail.com",
+      "status": "fail",
+      "durationMs": 437.48,
+      "response": null,
+      "error": "fetch failed"
+    },
+    {
+      "name": "whoami-visitor",
+      "route": "/api/whoami",
+      "method": "GET",
+      "status": "fail",
+      "durationMs": 19.3,
+      "response": null,
+      "error": "fetch failed"
+    },
+    {
+      "name": "inbox-owner",
+      "route": "/api/inbox",
+      "method": "GET",
+      "email": "ppcapiro@gmail.com",
+      "status": "fail",
+      "durationMs": 47.57,
+      "response": null,
+      "error": "fetch failed"
+    },
+    {
+      "name": "inbox-client",
+      "route": "/api/inbox",
+      "method": "GET",
+      "email": "musicmanagercuba@gmail.com",
+      "status": "fail",
+      "durationMs": 16.05,
+      "response": null,
+      "error": "fetch failed"
+    },
+    {
+      "name": "decisiones-unauth",
+      "route": "/api/decisiones",
+      "method": "POST",
+      "status": "fail",
+      "durationMs": 16.92,
+      "response": null,
+      "error": "fetch failed"
+    },
+    {
+      "name": "decisiones-owner",
+      "route": "/api/decisiones",
+      "method": "POST",
+      "email": "ppcapiro@gmail.com",
+      "status": "fail",
+      "durationMs": 33.28,
+      "response": null,
+      "error": "fetch failed"
+    }
+  ]
+}

@@ -1,4 +1,4 @@
-import staticRoles from '../../access/roles.json' assert { type: 'json' };
+import staticRoles from '../../access/roles.json' with { type: 'json' };
 
 const normalize = (value) => (value || '').trim().toLowerCase();
 const KEY = 'runart_roles';
@@ -22,15 +22,19 @@ const sanitizeCollection = (input) => {
 
 const sanitizeRoles = (roles) => ({
   owners: sanitizeCollection(roles?.owners || []),
+  client_admins: sanitizeCollection(roles?.client_admins || []),
+  clients: sanitizeCollection(roles?.clients || []),
+  team: sanitizeCollection(roles?.team || []),
   team_domains: sanitizeCollection(roles?.team_domains || []),
-  clients: sanitizeCollection(roles?.clients || [])
 });
 
 const state = {
   roles: sanitizeRoles(staticRoles),
   ownersSet: new Set(),
+  teamSet: new Set(),
   teamDomainsSet: new Set(),
   clientsSet: new Set(),
+  clientAdminsSet: new Set(),
   source: 'roles.json',
   lastSync: 0
 };
@@ -39,6 +43,8 @@ const applyRolesToState = (roles, source = 'roles.json') => {
   const sanitized = sanitizeRoles(roles);
   state.roles = sanitized;
   state.ownersSet = new Set(sanitized.owners.map(normalize));
+  state.clientAdminsSet = new Set(sanitized.client_admins.map(normalize));
+  state.teamSet = new Set(sanitized.team.map(normalize));
   state.teamDomainsSet = new Set(sanitized.team_domains.map(normalize));
   state.clientsSet = new Set(sanitized.clients.map(normalize));
   state.source = source;
@@ -53,10 +59,12 @@ export const classifyEmail = (email) => {
   if (!normalizedEmail) return 'visitor';
   if (state.ownersSet.has(normalizedEmail)) return 'owner';
 
+  if (state.clientAdminsSet.has(normalizedEmail)) return 'client_admin';
+  if (state.clientsSet.has(normalizedEmail)) return 'client';
+  if (state.teamSet.has(normalizedEmail)) return 'team';
+
   const domain = normalizedEmail.split('@').pop();
   if (domain && state.teamDomainsSet.has(domain)) return 'team';
-
-  if (state.clientsSet.has(normalizedEmail)) return 'client';
   return 'visitor';
 };
 

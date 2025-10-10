@@ -16,6 +16,26 @@ Este es un **monorepo** que contiene múltiples módulos:
 - **`scripts/`**: Scripts globales del proyecto
 - **`.tools/`**: Dependencias npm para auditorías (Lighthouse, Axe)
 
+## Iteración cerrada — Fase 5 · UI contextual y experiencias por rol
+
+- Reporte de fase: `apps/briefing/docs/internal/briefing_system/reports/2025-10-11_fase5_ui_contextual_y_experiencias_por_rol.md` (sello DONE con entregables diferidos documentados).
+- Artefactos clave: `_reports/ui_context/20251011T153200Z/`, `_reports/qa_runs/20251008T221533Z/`, `_reports/access_sessions/20251008T222921Z/README.md`.
+- Bitácora 082 registra el kickoff y cierre con notas de diferimiento controlado.
+- Orquestador actualizado tras el cierre (ver `plans/00_orquestador_fases_runart_briefing.md`).
+
+## Próxima iteración — Preparación Fase 6
+
+- Backlog operativo: `NEXT_PHASE.md` (streams y entregables priorizados post-F5).
+- Objetivo: ejecutar sesiones "Ver como" reales, automatizar guardias QA/observabilidad y lanzar `packages/env-banner`.
+- `STATUS.md` refleja nuevas prioridades y responsables.
+
+## Release 2025-10-10 — Consolidación y cierre operativo
+
+- Documentación de cierre publicada (`reports/2025-10-10_fase4_consolidacion_y_cierre.md`) y enlazada en la navegación interna.
+- `STATUS.md` y `NEXT_PHASE.md` reflejan la finalización de las fases F1–F4 y establecen el backlog de la próxima iteración.
+- Changelog y orquestador sincronizados con el sello de cierre; Bitácora 082 registra el handover.
+- Validaciones QA (`make lint`, `mkdocs build --strict`) ejecutadas tras las actualizaciones de documentación.
+
 ## Release 2025-10-07 — Limpieza Briefing Local
 
 - Legacy `briefing/` archivado íntegro en `_archive/legacy_removed_20251007/` para trazabilidad.
@@ -142,5 +162,5 @@ chore: Actualizar .gitignore con exclusiones adicionales
 ## Contacto
 
 **Mantenedor**: Equipo RUN Art Foundry  
-**Última actualización**: 2 de octubre de 2025
+**Última actualización**: 10 de octubre de 2025
 # runart-foundry

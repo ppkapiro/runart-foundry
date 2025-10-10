@@ -29,5 +29,5 @@
 ## Preview quirks
 - Las policies de Preview pueden diferir de Producción; confirmar la app/audience usada por el Service Token para la URL exacta de preview.
 - Verificar que `RUNART_ENV=preview` y que `ACCESS_TEST_MODE` esté desactivado para smoke real.
-- Algunos previews generan subdominios únicos por commit; obtener el valor desde el step `deploy-preview` del workflow.
-
+- Los deploys generan subdominios hash (`<hash>.runart-foundry.pages.dev`); obtener la URL desde el output `deploy-preview.preview_url` del workflow.
+- Antes del smoke público ejecutar prechecks: `nslookup` sobre el host + `curl -sI --max-time 10` para detectar DNS/HTTP inválidos.

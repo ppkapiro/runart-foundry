@@ -1,0 +1,10 @@
+{
+  "todos": [
+    {
+      "id": 1,
+      "title": "Ejecutar bloque Preview2 finalize",
+      "description": "Seguir script: verificaciones, KV, wrangler.toml, build, deploy, smokes, documentación.",
+      "status": "in-progress"
+    }
+  ]
+}

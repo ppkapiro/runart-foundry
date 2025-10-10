@@ -1,3 +1,41 @@
+import { roleToAlias } from "./roles.js";
+
+const ROLE_SEGMENTS = {
+  owner: "/dash/owner",
+  client_admin: "/dash/client",
+  client: "/dash/client",
+  team: "/dash/team",
+  visitor: "/dash/visitor",
+};
+
+const ROLE_LABELS = {
+  owner: "Owner",
+  client_admin: "Client admin",
+  client: "Client",
+  team: "Team",
+  visitor: "Visitor",
+};
+
+const LEGACY_ROLE_MAP = {
+  owner: "owner",
+  admin: "owner",
+  client_admin: "client_admin",
+  client: "client",
+  cliente: "client",
+  team: "team",
+  equipo: "team",
+  visitor: "visitor",
+  visitante: "visitor",
+};
+
+const DASHBOARD_LABELS = {
+  owner: "Dashboard — Owner",
+  client_admin: "Dashboard — Client admin",
+  client: "Dashboard — Client",
+  team: "Dashboard — Team",
+  visitor: "Dashboard — Visitor",
+};
+
 export function renderLayout({ title, env, role, email, nav = [], content = "" }) {
   const tag = env?.RUNART_ENV || "env";
   const links = nav
@@ -24,35 +62,39 @@ export function renderLayout({ title, env, role, email, nav = [], content = "" }
     <nav>${links}</nav>
   </header>
   <main>
-    <p style="font-size:12px;color:#666">Sesión: ${email || "anónimo"} • Rol: ${role}</p>
+    <p style="font-size:12px;color:#666">Sesión: ${email || "anónimo"} • Rol: ${roleToAlias(role)} (${ROLE_LABELS[role] || role})</p>
     ${content}
   </main>
 </body></html>`;
 }
 
 export function navFor(role) {
+  const normalized = LEGACY_ROLE_MAP[role] || "visitor";
+  const dashboardHref = ROLE_SEGMENTS[normalized] || ROLE_SEGMENTS.visitor;
+  const dashboardLabel = DASHBOARD_LABELS[normalized] || DASHBOARD_LABELS.visitor;
   const common = [{ label: "whoami", href: "/api/whoami" }];
-  if (role === "owner") {
+
+  if (normalized === "owner") {
     return [
-      { label: "Dashboard", href: "/dash/owner" },
-      { label: "Bitácora", href: "/docs/logs/" },
-      { label: "Reports", href: "/docs/reports/" },
+      { label: dashboardLabel, href: dashboardHref },
+      { label: "Bitácora 082", href: "/docs/internal/briefing_system/ci/082_reestructuracion_local/" },
+      { label: "Fase 3", href: "/docs/internal/briefing_system/reports/2025-10-09_fase3_administracion_roles_y_delegaciones/" },
       ...common,
     ];
   }
-  if (role === "equipo") {
+  if (normalized === "team") {
     return [
-      { label: "Dashboard", href: "/dash/equipo" },
-      { label: "Tareas", href: "/docs/work/" },
+      { label: dashboardLabel, href: dashboardHref },
+      { label: "Operaciones", href: "/docs/internal/briefing_system/ops/status/" },
       ...common,
     ];
   }
-  if (role === "cliente") {
+  if (normalized === "client" || normalized === "client_admin") {
     return [
-      { label: "Dashboard", href: "/dash/cliente" },
-      { label: "Proyecto", href: "/docs/proyecto/" },
+      { label: dashboardLabel, href: dashboardHref },
+      { label: "Proyecto", href: "/docs/client_projects/runart_foundry/" },
       ...common,
     ];
   }
-  return [{ label: "Dashboard", href: "/dash/visitante" }, ...common];
+  return [{ label: dashboardLabel, href: dashboardHref }, ...common];
 }

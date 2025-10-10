@@ -106,6 +106,8 @@ Consulta `docs/internal/briefing_system/ops/ci.md` para los requisitos, flujo co
 - **Sitio local**: http://127.0.0.1:8000 (ejecutar `cd apps/briefing && make serve`)
 - **Cloudflare Pages**: https://runart-foundry.pages.dev/
 - **Preview (hash)**: consultar el output `preview_url` del step `deploy-preview` en GitHub Actions (no existe `preview.<project>.pages.dev` por defecto)
+
+> **Nota**: Las URLs de preview se toman del output (hash) de cloudflare/pages-action; NO usar preview.<project>.pages.dev.
 - **KV Namespaces**:
   - Production: `6418ac6ace59487c97bda9c3a50ab10e`
   - Preview: `e68d7a05dce645478e25c397d4c34c08`
@@ -190,10 +192,10 @@ Consulta `docs/internal/briefing_system/ops/ci.md` para los requisitos, flujo co
 - **Variables en Cloudflare Pages**:
    - `EDITOR_TOKEN` (Secret): Token compartido entre editor, inbox y CLI (`RUN_TOKEN`).
    - `MOD_REQUIRED` (Variable): `1` para exigir revisión manual (default), `0` para aceptar automáticamente.
-   - `ORIGIN_ALLOWED` (Variable): Prefijo permitido para `Origin/Referer` (ej. `https://runart-briefing.pages.dev`).
+   - `ORIGIN_ALLOWED` (Variable): Prefijo permitido para `Origin/Referer` (ej. `https://runart-foundry.pages.dev`).
 - **Smoke tests**: Ejecutar `apps/briefing/scripts/smoke_arq3.sh` tras escudos de Access (o `briefing/scripts/...` mientras dure la compatibilidad).
    ```bash
-   PAGES_URL=https://runart-briefing.pages.dev \
+   PAGES_URL=https://runart-foundry.pages.dev \
    RUN_TOKEN=dev-token \
    ACCESS_JWT="$(cat /path/to/cf_access.jwt)" \
    bash apps/briefing/scripts/smoke_arq3.sh
@@ -221,7 +223,7 @@ Consulta `docs/internal/briefing_system/ops/ci.md` para los requisitos, flujo co
 Para validar rápidamente que el endpoint `/api/export_zip` responde (requiere sesión Access en navegador para la verificación visual):
 
 ```bash
-PAGES_URL=https://runart-briefing.pages.dev \
+PAGES_URL=https://runart-foundry.pages.dev \
 RUN_TOKEN=dev-token \
 bash apps/briefing/scripts/smoke_exports.sh
 ```

@@ -37,14 +37,50 @@ PASSED=0
 FAILED=0
 WARNED=0
 
+# Patrones de redirects de Cloudflare Access
+ACCESS_REDIRECT_PATTERNS=(
+  "/cdn-cgi/access"
+  "/cdn-cgi/login" 
+  "cloudflareaccess"
+  "/oauth2/"
+  "auth.cloudflareaccess.com"
+)
+
 curl_capture() {
   local method="$1"; shift
   local url="$1"; shift
   local output_file="$1"; shift
 
   : >"$output_file"
-  curl -sS -o "$output_file" -w '%{http_code}' -X "$method" "$url" \
+  curl -sS -o "$output_file" -w '%{http_code}\t%{redirect_url}' -X "$method" "$url" \
     "${COOKIE_ARGS[@]}" "${ACCESS_ARGS[@]}" "$@"
+}
+
+is_access_redirect() {
+  local status="$1"
+  local redirect_url="$2"
+  
+  # Solo 301/302 pueden ser Access redirects
+  if [[ "$status" != "301" && "$status" != "302" ]]; then
+    return 1
+  fi
+  
+  # Sin URL de redirect, no es Access
+  if [[ -z "$redirect_url" || "$redirect_url" == "null" ]]; then
+    return 1
+  fi
+  
+  # Convertir a minúsculas para comparación
+  local redirect_lower=$(echo "$redirect_url" | tr '[:upper:]' '[:lower:]')
+  
+  # Verificar si contiene algún patrón de Access
+  for pattern in "${ACCESS_REDIRECT_PATTERNS[@]}"; do
+    if [[ "$redirect_lower" == *"$pattern"* ]]; then
+      return 0
+    fi
+  done
+  
+  return 1
 }
 
 evaluate_status() {
@@ -70,21 +106,32 @@ evaluate_status_with_warn() {
   local status="$2"
   local expected="$3"
   local tolerated="$4"
-  local body_file="$5"
+  local response_with_redirect="$5"
+  local body_file="$6"
   local pretty="${expected// /, }"
   local tolerated_pretty="${tolerated// /, }"
 
-  if [[ " $expected " == *" $status "* ]]; then
-    echo "✅ $name (HTTP $status)"
-  ((PASSED+=1))
-  elif [[ " $tolerated " == *" $status "* ]]; then
-    echo "⚠️  $name (HTTP $status; permitido pero requiere revisar autenticación Access)"
+  # Extraer status y redirect_url del response
+  local actual_status=$(echo "$response_with_redirect" | cut -f1)
+  local redirect_url=$(echo "$response_with_redirect" | cut -f2 2>/dev/null || echo "")
+
+  if [[ " $expected " == *" $actual_status "* ]]; then
+    echo "✅ $name (HTTP $actual_status)"
+    ((PASSED+=1))
+  elif is_access_redirect "$actual_status" "$redirect_url"; then
+    echo "✅ $name (HTTP $actual_status → Access) - Protección activa"
+    ((PASSED+=1))
+  elif [[ " $tolerated " == *" $actual_status "* ]]; then
+    echo "⚠️  $name (HTTP $actual_status; permitido pero requiere revisar autenticación Access)"
     [[ -s "$body_file" ]] && cat "$body_file"
-  ((WARNED+=1))
+    ((WARNED+=1))
   else
-    echo "❌ $name (HTTP $status, esperado: $pretty | tolerado: $tolerated_pretty)"
+    echo "❌ $name (HTTP $actual_status, esperado: $pretty | tolerado: $tolerated_pretty)"
     [[ -s "$body_file" ]] && cat "$body_file"
-  ((FAILED+=1))
+    if [[ -n "$redirect_url" && "$redirect_url" != "null" ]]; then
+      echo "   Redirect: $redirect_url"
+    fi
+    ((FAILED+=1))
   fi
   return 0
 }
@@ -94,38 +141,38 @@ DECISION_ID="smoke:${NOW}"
 
 body_no_token="$TMP_DIR/no-token.json"
 printf -v payload_no_token '{"decision_id":"%s","tipo":"ficha_proyecto","payload":{"slug":"smoke"},"comentario":"sin token"}' "$DECISION_ID"
-status=$(curl_capture POST "$API_DECISIONES" "$body_no_token" \
+response=$(curl_capture POST "$API_DECISIONES" "$body_no_token" \
   -H 'Content-Type: application/json' \
   --data-binary "$payload_no_token")
-evaluate_status_with_warn "POST /api/decisiones sin token" "$status" "401 403" "302" "$body_no_token"
+evaluate_status_with_warn "POST /api/decisiones sin token" "$response" "401 403" "302" "$response" "$body_no_token"
 
 body_honeypot="$TMP_DIR/honeypot.json"
 printf -v payload_honeypot '{"decision_id":"%s-hp","tipo":"ficha_proyecto","payload":{"slug":"smoke"},"comentario":"honeypot","website":"http://bot","auth_token":"%s","origin_hint":"smoke-test"}' "$DECISION_ID" "$TOKEN"
-status=$(curl_capture POST "$API_DECISIONES" "$body_honeypot" \
+response=$(curl_capture POST "$API_DECISIONES" "$body_honeypot" \
   -H 'Content-Type: application/json' \
   -H "X-Runart-Token: $TOKEN" \
   --data-binary "$payload_honeypot")
-evaluate_status_with_warn "POST /api/decisiones con honeypot" "$status" "400" "302" "$body_honeypot"
+evaluate_status_with_warn "POST /api/decisiones con honeypot" "$response" "400" "302" "$response" "$body_honeypot"
 
 body_valid="$TMP_DIR/valid.json"
 printf -v payload_valid '{"decision_id":"%s","tipo":"ficha_proyecto","payload":{"slug":"%s","title":"Smoke","artist":"Test","year":"2025"},"comentario":"Smoke test","website":"","auth_token":"%s","origin_hint":"smoke-test","token_origen":"smoke_cli"}' "$DECISION_ID" "$DECISION_ID" "$TOKEN"
-status=$(curl_capture POST "$API_DECISIONES" "$body_valid" \
+response=$(curl_capture POST "$API_DECISIONES" "$body_valid" \
   -H 'Content-Type: application/json' \
   -H "X-Runart-Token: $TOKEN" \
   --data-binary "$payload_valid")
-evaluate_status_with_warn "POST /api/decisiones con token válido" "$status" "200" "302" "$body_valid"
+evaluate_status_with_warn "POST /api/decisiones con token válido" "$response" "200" "302" "$response" "$body_valid"
 
 body_mod="$TMP_DIR/moderar.json"
 printf -v payload_mod '{"decision_id":"%s","action":"accept","note":"smoke via script","auth_token":"%s"}' "$DECISION_ID" "$TOKEN"
-status=$(curl_capture POST "$API_MODERAR" "$body_mod" \
+response=$(curl_capture POST "$API_MODERAR" "$body_mod" \
   -H 'Content-Type: application/json' \
   -H "X-Runart-Token: $TOKEN" \
   --data-binary "$payload_mod")
-evaluate_status_with_warn "POST /api/moderar accept" "$status" "200" "302 401 403" "$body_mod"
+evaluate_status_with_warn "POST /api/moderar accept" "$response" "200" "302 401 403" "$response" "$body_mod"
 
 body_inbox="$TMP_DIR/inbox.json"
-status=$(curl_capture GET "$API_INBOX" "$body_inbox")
-evaluate_status_with_warn "GET /api/inbox" "$status" "200" "302 401 403" "$body_inbox"
+response=$(curl_capture GET "$API_INBOX" "$body_inbox")
+evaluate_status_with_warn "GET /api/inbox" "$response" "200" "302 401 403" "$response" "$body_inbox"
 
 TOTAL=$((PASSED + FAILED + WARNED))
 echo "---"

@@ -5,7 +5,7 @@ RUN_PY := $(VENV)/bin/python
 MKDOCS := $(RUN_PY) -m mkdocs
 CHECK_ENV := $(PYTHON) $(ROOT)/tools/check_env.py
 
-.PHONY: build serve preview clean lint lint-docs lint-app test test-env test-env-preview test-env-prod venv install-deps test-logs test-logs-strict
+.PHONY: build serve preview clean lint lint-docs lint-app test test-env test-env-preview test-env-prod test-smoke-prod test-smoke-wrapper venv install-deps test-logs test-logs-strict
 
 venv:
 	$(PYTHON) -m venv $(VENV)
@@ -58,6 +58,22 @@ test-env-prod:
 	@$(CHECK_ENV) --mode=config
 	@$(CHECK_ENV) --mode=http --base-url "$$PROD_URL" --expect-env prod
 	@echo "ENV PROD OK"
+
+test-smoke-prod:
+	@if [ -z "$$PROD_URL" ]; then \
+		echo "Set PROD_URL=https://<production-domain> before running make test-smoke-prod"; \
+		exit 1; \
+	fi
+	@echo "Ejecutando smoke tests para producción (reconoce Access redirects como PASS)"
+	@PAGES_URL="$$PROD_URL" RUN_TOKEN="$${RUN_TOKEN:-dev-token}" bash scripts/smoke_production.sh
+
+test-smoke-wrapper:
+	@if [ -z "$$PROD_URL" ]; then \
+		echo "Set PROD_URL=https://<production-domain> before running make test-smoke-wrapper"; \
+		exit 1; \
+	fi
+	@echo "Ejecutando smoke tests avanzados vía Node.js (manejo automático de Access)"
+	@bash scripts/smoke_wrapper.sh "$$PROD_URL"
 
 test-logs:
 	@if [ -f scripts/test_logs.mjs ]; then \

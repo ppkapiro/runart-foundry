@@ -20,5 +20,6 @@
     - Evidencia: job `Cloudflare Pages fallback deploy` completado en 47 s.
 
 - Próximos pasos:
-    - Confirmar que el deployment final en Cloudflare Pages aparece como **Success** (nuevo run posterior al fallback).
-    - Repetir smokes y agregar `prod_smokes_003.json` con env:"production" una vez desplegado.
+  - Confirmar en Cloudflare Pages el estado "Success" del deployment Git (tras fallback).
+  - Capturar evidencias Access (owner/client) en `apps/briefing/_reports/consolidacion_prod/20251008T1750Z/` (whoami, admin roles GET/PUT, inbox, snapshots UI) cuando haya sesión disponible.
+  - Registrar eventos `LOG_EVENTS` recientes y bindings Pages tras las sesiones anteriores.

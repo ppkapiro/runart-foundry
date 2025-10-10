@@ -11,7 +11,11 @@
   }
   function applyEnv(env){
     html.dataset.env = env;
-    if (env === 'prod') {
+    const isProd =
+      env === 'prod' ||
+      env === 'production' ||
+      (typeof env === 'string' && env.toLowerCase() === 'production');
+    if (isProd) {
       if (banner) banner.remove();
       return;
     }
