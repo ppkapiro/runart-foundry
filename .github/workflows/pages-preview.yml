@@ -65,72 +65,93 @@ jobs:
           directory: ./apps/briefing/site
           branch: ${{ github.head_ref }}
           wranglerVersion: '3'
-      - name: Capture preview URL for smokes
+      - name: Extract preview URL
+        id: extract-preview-url
         run: |
           url="${{ steps.deploy-preview.outputs.preview_url }}"
           if [ -z "$url" ]; then
-            url="${{ steps.deploy-preview.outputs.deployment_url }}"
-          fi
-          if [ -z "$url" ]; then
-            echo "::error::Preview URL not found in deploy-preview outputs (id=deploy-preview)."
+            echo "preview_url vacío: la acción no devolvió URL de preview" >&2
             exit 1
           fi
           echo "PREVIEW_BASE_URL=$url" >> "$GITHUB_ENV"
-          echo "Preview base URL: $url"
           ts="$(date -u +%Y%m%dT%H%M%SZ)"
           echo "SMOKES_TS=$ts" >> "$GITHUB_ENV"
+          echo "ts=$ts" >> "$GITHUB_OUTPUT"
+          echo "Preview base URL: $url"
         shell: bash
-      - name: Public smoke (Access 30x gate)
+      - name: Precheck preview DNS/HTTP
+        run: |
+          set -euo pipefail
+          echo "Preview: $PREVIEW_BASE_URL"
+          HOST=$(echo "$PREVIEW_BASE_URL" | sed 's#https\?://##' | cut -d/ -f1)
+          nslookup "$HOST" >/dev/null || { echo "Preview DNS no resuelve: $PREVIEW_BASE_URL"; exit 1; }
+          curl -sI --max-time 10 "$PREVIEW_BASE_URL" >/dev/null || { echo "Preview no responde (HTTP timeout): $PREVIEW_BASE_URL"; exit 1; }
+        shell: bash
+      - name: Public smoke (Access 30x expected)
         run: |
           set -eo pipefail
-          if [ -z "${PREVIEW_BASE_URL:-}" ]; then
-            echo "::error::PREVIEW_BASE_URL is not set."
-            exit 1
-          fi
-          REPORT_DIR="apps/briefing/_reports/smokes_preview_${SMOKES_TS}"
-          mkdir -p "$REPORT_DIR"
+          TS="${SMOKES_TS}"
+          REPORT="apps/briefing/_reports/smokes_preview_${TS}"
+          mkdir -p "$REPORT"
           RESULT="FAIL"
-          if BASE_URL="$PREVIEW_BASE_URL" make -C apps/briefing test-smoke-prod | tee "$REPORT_DIR/smokes_stdout_public.txt"; then
+          if PROD_URL="$PREVIEW_BASE_URL" BASE_URL="$PREVIEW_BASE_URL" make -C apps/briefing test-smoke-prod | tee "$REPORT/smokes_stdout_public.txt"; then
             RESULT="PASS"
           fi
-          curl -sSL "$PREVIEW_BASE_URL" -o "$REPORT_DIR/index.html" || true
-          cat <<EOF > "$REPORT_DIR/SUMMARY.md"
+          curl -sSL "$PREVIEW_BASE_URL" -o "${REPORT}/index.html" || true
+          cat <<EOF > "${REPORT}/SUMMARY.md"
 # Smokes Preview — ${SMOKES_TS}
-- Base URL: $PREVIEW_BASE_URL
-- Público (Access 30x): $RESULT
+- Base URL: ${PREVIEW_BASE_URL}
+- Público (Access 30x): ${RESULT}
 - Autenticado (Service Token): PENDING
 - Evidencias: _reports/smokes_preview_${SMOKES_TS}/
 EOF
           echo "SMOKES_PREVIEW_PUBLIC=$RESULT" >> "$GITHUB_ENV"
           if [ "$RESULT" != "PASS" ]; then
-            echo "::error::Public smoke failed (expected 30x Access redirect)."
+            echo "::error::Public smoke (Access 30x) reportó $RESULT. Revisar smokes_stdout_public.txt"
             exit 1
           fi
         shell: bash
       - name: Auth smoke (Service Token)
+        if: ${{ secrets.ACCESS_CLIENT_ID != '' && secrets.ACCESS_CLIENT_SECRET != '' }}
         run: |
           set -eo pipefail
-          REPORT_DIR="apps/briefing/_reports/smokes_preview_${SMOKES_TS}"
-          if [ -z "${{ secrets.ACCESS_CLIENT_ID }}" ] || [ -z "${{ secrets.ACCESS_CLIENT_SECRET }}" ]; then
-            echo "Auth smoke SKIPPED: missing ACCESS_CLIENT_ID/ACCESS_CLIENT_SECRET"
-            sed -i "s/Autenticado (Service Token): PENDING/Autenticado (Service Token): SKIPPED/" "$REPORT_DIR/SUMMARY.md"
-            echo "SMOKES_PREVIEW_AUTH=SKIPPED" >> "$GITHUB_ENV"
-            exit 0
-          fi
+          TS="${SMOKES_TS}"
+          REPORT="apps/briefing/_reports/smokes_preview_${TS}"
+          mkdir -p "$REPORT"
           RESULT="FAIL"
-          if BASE_URL="$PREVIEW_BASE_URL" \
+          if PROD_URL="$PREVIEW_BASE_URL" \
+            BASE_URL="$PREVIEW_BASE_URL" \
             ACCESS_CLIENT_ID="${{ secrets.ACCESS_CLIENT_ID }}" \
             ACCESS_CLIENT_SECRET="${{ secrets.ACCESS_CLIENT_SECRET }}" \
-            make -C apps/briefing test-smoke-wrapper | tee "$REPORT_DIR/smokes_stdout_auth.txt"; then
+            make -C apps/briefing test-smoke-wrapper | tee "$REPORT/smokes_stdout_auth.txt"; then
             RESULT="PASS"
           fi
-          sed -i "s/Autenticado (Service Token): PENDING/Autenticado (Service Token): $RESULT/" "$REPORT_DIR/SUMMARY.md"
+          sed -i "s/Autenticado (Service Token): PENDING/Autenticado (Service Token): ${RESULT}/" "$REPORT/SUMMARY.md"
           echo "SMOKES_PREVIEW_AUTH=$RESULT" >> "$GITHUB_ENV"
           if [ "$RESULT" != "PASS" ]; then
-            echo "::error::Authenticated smoke failed (Service Token check)."
+            echo "::error::Authenticated smoke (Service Token) reportó $RESULT"
             exit 1
           fi
         shell: bash
+      - name: Auth smoke (SKIPPED — missing secrets)
+        if: ${{ !(secrets.ACCESS_CLIENT_ID != '' && secrets.ACCESS_CLIENT_SECRET != '') }}
+        run: |
+          echo "Auth smoke SKIPPED: falta ACCESS_CLIENT_ID/ACCESS_CLIENT_SECRET"
+          TS="${SMOKES_TS}"
+          REPORT="apps/briefing/_reports/smokes_preview_${TS}"
+          mkdir -p "$REPORT"
+          if [ -f "$REPORT/SUMMARY.md" ]; then
+            sed -i "s/Autenticado (Service Token): PENDING/Autenticado (Service Token): SKIPPED/" "$REPORT/SUMMARY.md"
+          else
+            cat <<EOF > "$REPORT/SUMMARY.md"
+# Smokes Preview — ${TS}
+- Base URL: ${PREVIEW_BASE_URL}
+- Público (Access 30x): SKIPPED
+- Autenticado (Service Token): SKIPPED
+- Evidencias: _reports/smokes_preview_${TS}/
+EOF
+          fi
+          echo "SMOKES_PREVIEW_AUTH=SKIPPED" >> "$GITHUB_ENV"
       - name: Update 082 with preview smokes
         run: |
           set -e
