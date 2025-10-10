@@ -71,7 +71,7 @@ Consultar `docs/architecture/070_risks.md`. Riesgos en rojo actuales:
 - **Preview briefing**: utilizar la URL hash publicada por Cloudflare Pages (salida `deploy-preview.preview_url`)
 - **Producción briefing**: https://runart-foundry.pages.dev/
 - **Logs de auditoría**: `audits/`
-- **CHANGELOG**: [ver registro](CHANGELOG.md)
+- **CHANGELOG**: [ver registro](../../../../CHANGELOG.md)
 - **Registro de incidentes**: [abrir tablero](incidents.md)
 
 ## Anexos
