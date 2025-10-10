@@ -566,3 +566,9 @@ Copilot debe seguir el siguiente formato para agregar bloques en esta bitácora 
 - Banner producción (env-flag): Removido: YES
 - Evidencias: `_reports/smokes_prod_20251010T135513Z/`
 - Notas: Runner sigue recibiendo `EAI_AGAIN` al resolver runart-foundry.pages.dev; revisar conectividad/DNS antes de reintentar.
+
+## Verificación producción (aggregator fixed) — 20251010T140055Z
+- Smokes HTTP (no-follow, 30x tolerado): Resultado: FAIL
+- Banner producción (env-flag): Removido: YES
+- Evidencias: `_reports/smokes_prod_20251010T140055Z/`
+- Notas: Runner falla por `EAI_AGAIN` en todos los endpoints; requiere revisar DNS o acceso de red antes de repetir.
