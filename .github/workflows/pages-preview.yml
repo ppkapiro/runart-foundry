@@ -6,6 +6,9 @@ on:
       - develop
       - main
       - deploy/**
+  push:
+    branches:
+      - ci/run-preview-now
   workflow_dispatch:
 
 jobs:
@@ -138,17 +141,17 @@ EOF
         shell: bash
       - name: Auth smoke (Service Token)
         if: ${{ secrets.ACCESS_CLIENT_ID != '' && secrets.ACCESS_CLIENT_SECRET != '' }}
+        env:
+          BASE_URL: ${{ env.PREVIEW_BASE_URL }}
+          ACCESS_CLIENT_ID: ${{ secrets.ACCESS_CLIENT_ID }}
+          ACCESS_CLIENT_SECRET: ${{ secrets.ACCESS_CLIENT_SECRET }}
         run: |
           set -eo pipefail
           TS="${SMOKES_TS}"
           REPORT="apps/briefing/_reports/smokes_preview_${TS}"
           mkdir -p "$REPORT"
           RESULT="FAIL"
-          if PROD_URL="$PREVIEW_BASE_URL" \
-            BASE_URL="$PREVIEW_BASE_URL" \
-            ACCESS_CLIENT_ID="${{ secrets.ACCESS_CLIENT_ID }}" \
-            ACCESS_CLIENT_SECRET="${{ secrets.ACCESS_CLIENT_SECRET }}" \
-            make -C apps/briefing test-smoke-wrapper | tee "$REPORT/smokes_stdout_auth.txt"; then
+          if BASE_URL="$BASE_URL" ACCESS_CLIENT_ID="$ACCESS_CLIENT_ID" ACCESS_CLIENT_SECRET="$ACCESS_CLIENT_SECRET" make -C apps/briefing test-smoke-wrapper | tee "$REPORT/smokes_stdout_auth.txt"; then
             RESULT="PASS"
           fi
           sed -i "s/Autenticado (Service Token): PENDING/Autenticado (Service Token): ${RESULT}/" "$REPORT/SUMMARY.md"
@@ -159,7 +162,7 @@ EOF
           fi
         shell: bash
       - name: Auth smoke (SKIPPED — missing secrets)
-        if: ${{ !(secrets.ACCESS_CLIENT_ID != '' && secrets.ACCESS_CLIENT_SECRET != '') }}
+        if: ${{ secrets.ACCESS_CLIENT_ID == '' || secrets.ACCESS_CLIENT_SECRET == '' }}
         run: |
           echo "Auth smoke SKIPPED: falta ACCESS_CLIENT_ID/ACCESS_CLIENT_SECRET"
           TS="${SMOKES_TS}"
@@ -168,28 +171,26 @@ EOF
           if [ -f "$REPORT/SUMMARY.md" ]; then
             sed -i "s/Autenticado (Service Token): PENDING/Autenticado (Service Token): SKIPPED/" "$REPORT/SUMMARY.md"
           else
-            cat <<EOF > "$REPORT/SUMMARY.md"
-# Smokes Preview — ${TS}
-- Base URL: ${PREVIEW_BASE_URL}
-- Público (Access 30x): SKIPPED
-- Autenticado (Service Token): SKIPPED
-- Evidencias: _reports/smokes_preview_${TS}/
-EOF
+            echo "# Smokes Preview — ${TS}" > "$REPORT/SUMMARY.md"
+            echo "- Base URL: ${PREVIEW_BASE_URL}" >> "$REPORT/SUMMARY.md"
+            echo "- Público (Access 30x): SKIPPED" >> "$REPORT/SUMMARY.md"
+            echo "- Autenticado (Service Token): SKIPPED" >> "$REPORT/SUMMARY.md"
+            echo "- Evidencias: _reports/smokes_preview_${TS}/" >> "$REPORT/SUMMARY.md"
           fi
           echo "SMOKES_PREVIEW_AUTH=SKIPPED" >> "$GITHUB_ENV"
+        shell: bash
       - name: Update 082 with preview smokes
         run: |
           set -e
           REPORT_DIR="_reports/smokes_preview_${SMOKES_TS}/"
           PUBLIC_STATUS="${SMOKES_PREVIEW_PUBLIC:-UNKNOWN}"
           AUTH_STATUS="${SMOKES_PREVIEW_AUTH:-SKIPPED}"
-          cat <<EOF >> apps/briefing/docs/internal/briefing_system/ci/082_reestructuracion_local.md
-
-## Smokes Preview — ${SMOKES_TS}
-- Público (Access 30x): ${PUBLIC_STATUS}
-- Autenticado (Service Token): ${AUTH_STATUS}
-- Evidencias: \`${REPORT_DIR}\`
-EOF
+          FILE="apps/briefing/docs/internal/briefing_system/ci/082_reestructuracion_local.md"
+          echo "" >> "$FILE"
+          echo "## Smokes Preview — ${SMOKES_TS}" >> "$FILE"
+          echo "- Público (Access 30x): ${PUBLIC_STATUS}" >> "$FILE"
+          echo "- Autenticado (Service Token): ${AUTH_STATUS}" >> "$FILE"
+          echo "- Evidencias: ${REPORT_DIR}" >> "$FILE"
         shell: bash
       - name: Upload preview smoke artifacts
         uses: actions/upload-artifact@v4
