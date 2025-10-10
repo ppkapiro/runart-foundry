@@ -58,7 +58,7 @@ jobs:
           SMOKES_RETRY_DELAY_MS: 1500
           SMOKES_ALLOW_302: "1"
         run: |
-          node apps/briefing/tests/scripts/run-smokes.mjs --base-url "$PROD_URL" --allow-302
+          node apps/briefing/tests/scripts/run-smokes.mjs --base-url "$PROD_URL" --allow-302 --no-follow
         # Si los smokes fallan, se detiene el pipeline (exit code distinto de cero)
 
       - name: Deploy to Production

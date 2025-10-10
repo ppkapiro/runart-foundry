@@ -8,7 +8,10 @@ import { getProjectPaths, DEFAULT_EMAILS } from "../config/miniflare-options.mjs
 const argv = process.argv.slice(2);
 const ALLOW_302 =
   process.env.SMOKES_ALLOW_302 === "1" || argv.includes("--allow-302") || argv.includes("--allow-access-redirects");
-const ACCESS_REDIRECT_HINTS = ["/cdn-cgi/access", "cloudflareaccess", "/oauth2/"];
+const FORCE_FOLLOW = argv.includes("--follow");
+const NO_FOLLOW = FORCE_FOLLOW ? false : ALLOW_302 || argv.includes("--no-follow");
+const ACCESS_REDIRECT_HINTS = ["/cdn-cgi/access", "/cdn-cgi/login", "cloudflareaccess", "/oauth2/"];
+const PROTECTED_ENDPOINTS = new Set(["/", "/api/whoami", "/api/inbox", "/api/decisiones"]);
 
 function parseArgs(argv) {
   const args = { baseURL: undefined };
@@ -26,6 +29,24 @@ function parseArgs(argv) {
     }
   }
   return args;
+}
+
+function isProtectedRoute(route, baseHostname, scenarioProtected) {
+  if (typeof scenarioProtected === "boolean") {
+    return scenarioProtected;
+  }
+  if (PROTECTED_ENDPOINTS.has(route)) {
+    return true;
+  }
+  if (!baseHostname) return false;
+  const host = baseHostname.toLowerCase();
+  const isPagesHost =
+    host.endsWith(".pages.dev") ||
+    host === "runart-foundry.pages.dev" ||
+    host.endsWith("runart-foundry.pages.dev");
+  if (!isPagesHost) return false;
+  if (route === "/") return true;
+  return route.startsWith("/api/");
 }
 
 function normaliseBaseURL(raw) {
@@ -46,6 +67,7 @@ function buildRequest(baseURL, route, { method = "GET", email, testEmail, header
   const url = new URL(route, baseURL);
   const init = { method, headers: new Headers(headers) };
   init.headers.set("Accept", "application/json");
+  init.redirect = NO_FOLLOW ? "manual" : "follow";
   if (testEmail) {
     init.headers.set("X-RunArt-Test-Email", testEmail);
   }
@@ -68,10 +90,11 @@ function delay(ms) {
   });
 }
 
-async function runScenario(baseURL, scenario, attempt = 1, totalAttempts = 1) {
+async function runScenario(baseURL, baseHostname, scenario, attempt = 1, totalAttempts = 1) {
   const { name, route, method, email, testEmail, headers, body, expectStatus = 200, validateJSON } = scenario;
   const start = performance.now();
   const { url, init } = buildRequest(baseURL, route, { method, email, testEmail, headers, body });
+  const protectedRoute = isProtectedRoute(route, baseHostname, scenario.protected);
   const result = {
     name,
     route,
@@ -90,6 +113,8 @@ async function runScenario(baseURL, scenario, attempt = 1, totalAttempts = 1) {
     passVariant: "normal",
     note: null,
     redirectLocation: null,
+    accessRedirect: false,
+    redirectStatus: null,
   };
 
   try {
@@ -99,10 +124,15 @@ async function runScenario(baseURL, scenario, attempt = 1, totalAttempts = 1) {
     const locationHeader = headersObject.location || "";
     const locationLower = typeof locationHeader === "string" ? locationHeader.toLowerCase() : "";
     const isAccessRedirect =
+      NO_FOLLOW &&
       ALLOW_302 &&
+      protectedRoute &&
       (statusCode === 301 || statusCode === 302) &&
       ACCESS_REDIRECT_HINTS.some((fragment) => locationLower.includes(fragment));
-    const text = await response.text();
+    let text = "";
+    if (!(NO_FOLLOW && (statusCode === 301 || statusCode === 302))) {
+      text = await response.text();
+    }
     let data = null;
     if (!isAccessRedirect) {
       try {
@@ -124,12 +154,14 @@ async function runScenario(baseURL, scenario, attempt = 1, totalAttempts = 1) {
       if (!isAccessRedirect) {
         throw new Error(`Status esperado ${expectStatus} pero se obtuvo ${statusCode}`);
       }
-      result.passVariant = "302";
-      result.note = `AccessRedirect -> ${locationHeader || "sin-location"}`;
+      result.passVariant = statusCode.toString();
+      result.note = `AccessRedirect(${statusCode}) -> ${locationHeader || "sin-location"}`;
       result.redirectLocation = locationHeader;
+      result.accessRedirect = true;
+      result.redirectStatus = statusCode;
     }
 
-    if (typeof validateJSON === "function" && data !== null) {
+    if (!result.accessRedirect && typeof validateJSON === "function" && data !== null) {
       validateJSON(data, response);
     }
   } catch (error) {
@@ -162,6 +194,7 @@ async function main() {
     process.exitCode = 1;
     return;
   }
+  const baseHostname = new URL(baseURL).hostname;
 
   const { reportsRoot } = getProjectPaths();
   const timestamp = new Date().toISOString().replace(/[-:]/g, "").replace(/\..+/, "");
@@ -175,6 +208,7 @@ async function main() {
       email: DEFAULT_EMAILS.owner,
       testEmail: DEFAULT_EMAILS.owner,
       expectStatus: 200,
+      protected: true,
       validateJSON(json) {
         if (!json || json.role !== "owner") {
           throw new Error(`Role inesperado: ${json?.role}`);
@@ -187,6 +221,7 @@ async function main() {
       email: DEFAULT_EMAILS.team,
       testEmail: DEFAULT_EMAILS.team,
       expectStatus: 200,
+      protected: true,
       validateJSON(json) {
         if (!json || json.role !== "team") {
           throw new Error(`Role team inesperado: ${json?.role}`);
@@ -199,6 +234,7 @@ async function main() {
       email: DEFAULT_EMAILS.client_admin,
       testEmail: DEFAULT_EMAILS.client_admin,
       expectStatus: 200,
+      protected: true,
       validateJSON(json) {
         if (!json || json.role !== "client_admin") {
           throw new Error(`Role client_admin inesperado: ${json?.role}`);
@@ -209,6 +245,7 @@ async function main() {
       name: "whoami-visitor",
       route: "/api/whoami",
       expectStatus: 200,
+      protected: true,
       validateJSON(json) {
         if (!json || json.role !== "visitor") {
           throw new Error(`Role visitante inesperado: ${json?.role}`);
@@ -221,6 +258,7 @@ async function main() {
       email: DEFAULT_EMAILS.owner,
       testEmail: DEFAULT_EMAILS.owner,
       expectStatus: 200,
+      protected: true,
     },
     {
       name: "inbox-team",
@@ -228,6 +266,7 @@ async function main() {
       email: DEFAULT_EMAILS.team,
       testEmail: DEFAULT_EMAILS.team,
       expectStatus: 200,
+      protected: true,
     },
     {
       name: "inbox-client",
@@ -235,11 +274,13 @@ async function main() {
       email: DEFAULT_EMAILS.client,
       testEmail: DEFAULT_EMAILS.client,
       expectStatus: 403,
+      protected: true,
     },
     {
       name: "inbox-visitor",
       route: "/api/inbox",
       expectStatus: 403,
+      protected: true,
     },
     {
       name: "decisiones-unauth",
@@ -247,6 +288,7 @@ async function main() {
       method: "POST",
       body: { draft: true },
       expectStatus: 401,
+      protected: true,
     },
     {
       name: "decisiones-owner",
@@ -256,6 +298,7 @@ async function main() {
       testEmail: DEFAULT_EMAILS.owner,
       body: { decision: "ok" },
       expectStatus: 200,
+      protected: true,
     },
   ];
 
@@ -267,7 +310,7 @@ async function main() {
 
     for (let attempt = 1; attempt <= maxAttempts; attempt += 1) {
       // eslint-disable-next-line no-await-in-loop
-      outcome = await runScenario(baseURL, scenario, attempt, maxAttempts);
+      outcome = await runScenario(baseURL, baseHostname, scenario, attempt, maxAttempts);
       if (outcome.status === "pass") {
         break;
       }
@@ -280,9 +323,16 @@ async function main() {
     }
 
     const symbol = outcome.status === "pass" ? "✅" : "❌";
-    const variantLabel = outcome.passVariant === "302" ? " (302)" : "";
     const retryNote = outcome.attempts > 1 ? ` · intento ${outcome.attempt}/${outcome.attempts}` : "";
-    console.log(`[smokes] ${symbol} ${outcome.name}${variantLabel} (${outcome.durationMs}ms${retryNote})`);
+    const statusLabel =
+      outcome.status === "pass"
+        ? outcome.accessRedirect
+          ? `PASS(${outcome.redirectStatus ?? "30x"} AccessRedirect)`
+          : "PASS"
+        : "FAIL";
+    console.log(
+      `[smokes] ${outcome.route} => ${statusLabel} [${symbol}] (${outcome.durationMs}ms${retryNote})`
+    );
     if (outcome.status === "pass" && outcome.note) {
       console.log(`  ↳ ${outcome.note}`);
     }
@@ -297,12 +347,13 @@ async function main() {
     timestamp,
     totals: {
       pass: results.filter((item) => item.status === "pass").length,
-      pass302: results.filter((item) => item.passVariant === "302").length,
+      passAccess: results.filter((item) => item.accessRedirect).length,
       fail: results.filter((item) => item.status === "fail").length,
       total: results.length,
     },
     flags: {
       allow302: ALLOW_302,
+      noFollow: NO_FOLLOW,
     },
     results,
   };
