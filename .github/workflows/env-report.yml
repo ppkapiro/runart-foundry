@@ -1,0 +1,100 @@
+name: Environment Report
+
+on:
+  workflow_dispatch:
+  pull_request:
+    paths:
+      - '*'
+
+jobs:
+  env-report:
+    name: Environment Report
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pull-requests: write
+      issues: write
+      statuses: read
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Resolve preview URL
+        id: preview
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          PR_SHA="${{ github.event.pull_request.head.sha }}"
+          REPO="${{ github.repository }}"
+          PREVIEW_URL=""
+          FALLBACK_USED="false"
+          if command -v gh >/dev/null 2>&1; then
+            RESPONSE=$(gh api repos/${REPO}/commits/${PR_SHA}/status --jq '.statuses[] | select(.context == "Cloudflare Pages") | .target_url' 2>/dev/null || true)
+            if [ -n "$RESPONSE" ]; then
+              PREVIEW_URL="$RESPONSE"
+            fi
+          fi
+          if [ -z "$PREVIEW_URL" ]; then
+            PREVIEW_URL="https://example.pages.dev"
+            FALLBACK_USED="true"
+          fi
+          echo "Preview URL: $PREVIEW_URL"
+          echo "url=$PREVIEW_URL" >> "$GITHUB_OUTPUT"
+          echo "fallback=$FALLBACK_USED" >> "$GITHUB_OUTPUT"
+
+      - name: Run config check
+        id: config
+        continue-on-error: true
+        run: |
+          python tools/check_env.py --mode=config
+
+      - name: Run HTTP check (preview)
+        id: http
+        if: steps.preview.outputs.fallback != 'true'
+        continue-on-error: true
+        run: |
+          python tools/check_env.py --mode=http --base-url "${{ steps.preview.outputs.url }}" --expect-env preview
+
+      - name: Upload env check log
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: env-check-log
+          path: audits/env_check.log
+
+      - name: Comment on PR
+        if: always()
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const configOutcome = "${{ steps.config.outcome }}";
+            const httpOutcome = "${{ steps.http.outcome }}";
+            const fallbackUsed = "${{ steps.preview.outputs.fallback }}" === "true";
+            const configOk = configOutcome === "success";
+            const httpOk = fallbackUsed ? true : httpOutcome === "success";
+            let body;
+            if (configOk && httpOk && !fallbackUsed) {
+              body = "✅ ENV CHECK PASSED — env=preview";
+            } else if (configOk && fallbackUsed) {
+              body = "⚠️ ENV CHECK PARTIAL — sin preview URL disponible; config=OK";
+            } else {
+              body = "❌ ENV CHECK FAILED — see audits/env_check.log";
+            }
+            await github.rest.issues.createComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.issue.number,
+              body,
+            });
+
+      - name: Fail if checks failed
+        if: ${{ steps.config.outcome == 'failure' || (steps.preview.outputs.fallback != 'true' && steps.http.outcome == 'failure') }}
+        run: |
+          echo "Environment checks failed."
+          exit 1

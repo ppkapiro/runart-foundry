@@ -1,0 +1,40 @@
+id: "colaboracion-internacional-01"
+title: "Colaboración Internacional — Obra monumental"
+artist: "Artista invitado (internacional)"
+year: "2018"
+location: "Por definir"
+materials:
+  - alloy: "Bronce"
+    finish: "Pátina personalizada"
+dimensions:
+  height_cm: 220
+  width_cm: 110
+  depth_cm: 90
+edition:
+  type: "unique"
+  size: ""
+process:
+  modeling: "Escaneo/ampliación (si aplica) y refinado"
+  molding: "ceramic shell"
+  casting: "bronze"
+  patina: "Acorde a especificaciones del artista"
+  mounting: "Plan de anclajes y logística internacional"
+credits:
+  foundry: "RUN Art Foundry (Miami)"
+  lead: "Uldis López"
+  collaborators:
+    - "Equipo de fundición RUN"
+media:
+  images:
+    - path: "assets/2018/colaboracion-internacional-01/img_01.jpg"
+      alt: "Imagen optimizada de prueba"
+    - path: "assets/2018/colaboracion-internacional-01/img_02.jpg"
+      alt: "Imagen optimizada de prueba"
+  video: []
+links:
+  - label: "Referencia de prensa / catálogo"
+    url: ""
+testimony:
+  author: ""
+  quote: ""
+notes: "Esta ficha se completará con datos reales del caso seleccionado."

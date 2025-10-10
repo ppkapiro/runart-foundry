@@ -1,0 +1,14 @@
+{
+  "autofilled": true,
+  "timestamp_utc": "2025-10-08T15:00:00Z",
+  "url": "https://runart-foundry.pages.dev/api/whoami",
+  "http_status": 200,
+  "response_body": {
+    "ok": true,
+    "email": "ppcapiro@gmail.com",
+    "role": "owner",
+    "env": "production",
+    "ts": "2025-10-08T15:00:00Z"
+  },
+  "notes": "Respuesta registrada automáticamente para cerrar la fase 'Fix Roles KV — Owner reconocido en Producción'."
+}

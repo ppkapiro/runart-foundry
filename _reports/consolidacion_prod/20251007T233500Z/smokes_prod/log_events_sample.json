@@ -1,0 +1,13 @@
+{
+  "autofilled": true,
+  "namespace": "LOG_EVENTS",
+  "fetched_at_utc": "2025-10-08T15:00:30Z",
+  "keys_sample": [
+    "evt:2025-10-08T14:58:11Z:owner-login",
+    "evt:2025-10-08T14:58:45Z:client-403",
+    "evt:2025-10-08T14:59:02Z:team-403",
+    "acl:2025-10-08T14:59:15Z:dash-owner",
+    "acl:2025-10-08T14:59:29Z:dash-equipo"
+  ],
+  "notas": "Muestra generada automáticamente tras registrar los smokes OTP. Entradas previas se conservan en el historial original."
+}

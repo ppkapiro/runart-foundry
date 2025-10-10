@@ -112,6 +112,18 @@ else
     done < <(git ls-files)
 fi
 
+if [[ "${SKIP_COMPAT:-}" == "1" ]]; then
+    info "SKIP_COMPAT=1 → ignorando briefing/** (compat) hasta 075_cleanup_briefing.md"
+    FILTERED_FILES=()
+    for file in "${FILES[@]}"; do
+        if [[ "$file" == briefing/* ]]; then
+            continue
+        fi
+        FILTERED_FILES+=("$file")
+    done
+    FILES=("${FILTERED_FILES[@]}")
+fi
+
 if [[ ${#FILES[@]} -eq 0 ]]; then
     success "No files to validate"
     exit 0
@@ -200,6 +212,9 @@ ALLOWED_IN_ROOT=(
     "LICENSE.md"
     "CONTRIBUTING.md"
     "CHANGELOG.md"
+    "INCIDENTS.md"
+    "STATUS.md"
+    "NEXT_PHASE.md"
 )
 
 for file in "${FILES[@]}"; do
@@ -226,10 +241,15 @@ for file in "${FILES[@]}"; do
     fi
     
     # Permitir archivos .md en carpetas de artefactos/estructura
-    if [[ "$file" =~ (_structure/|_artifacts/) ]]; then
+    if [[ "$file" =~ (_structure/|_artifacts/|_reports/) ]]; then
         continue
     fi
     
+    # Permitir contenido Markdown del micrositio canonical
+    if [[ "$file" =~ ^apps/briefing/docs/ ]]; then
+        continue
+    fi
+
     # Si es .md con patrón de reporte (contiene palabras clave)
     if [[ "$file" =~ \.md$ ]] && [[ "$file" =~ (informe|reporte|_audit|_report|_closure|_diagnostic|_overview|_status|_plan) ]]; then
         # Debe estar en ubicaciones permitidas

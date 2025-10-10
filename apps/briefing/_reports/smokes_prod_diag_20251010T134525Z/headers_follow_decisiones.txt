@@ -1,0 +1,29 @@
+HTTP/2 302 
+date: Fri, 10 Oct 2025 13:48:01 GMT
+location: https://runart-briefing-pages.cloudflareaccess.com/cdn-cgi/access/login/runart-foundry.pages.dev?kid=208c1b2a60b592e4f5468bd56804e905bff41b8745928f4eaf136ea2e4d5ee5b&meta=eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiIsImtpZCI6IjgxYjFkN2IwZDg4ZTNjZTkwNGFhYzc3YTExZmM2NjQ0YWY0ZTM0YWI3MzE1YjMxNDI0NDI5MDVlMDcwOGFhYTkifQ.eyJ0eXBlIjoibWV0YSIsImF1ZCI6IjIwOGMxYjJhNjBiNTkyZTRmNTQ2OGJkNTY4MDRlOTA1YmZmNDFiODc0NTkyOGY0ZWFmMTM2ZWEyZTRkNWVlNWIiLCJob3N0bmFtZSI6InJ1bmFydC1mb3VuZHJ5LnBhZ2VzLmRldiIsInJlZGlyZWN0X3VybCI6Ii9hcGkvZGVjaXNpb25lcyIsInNlcnZpY2VfdG9rZW5fc3RhdHVzIjpmYWxzZSwiaXNfd2FycCI6ZmFsc2UsImlzX2dhdGV3YXkiOmZhbHNlLCJleHAiOjE3NjAxMDQzODEsIm5iZiI6MTc2MDEwNDA4MSwiaWF0IjoxNzYwMTA0MDgxLCJhdXRoX3N0YXR1cyI6Ik5PTkUiLCJtdGxzX2F1dGgiOnsiY2VydF9pc3N1ZXJfZG4iOiIiLCJjZXJ0X3NlcmlhbCI6IiIsImNlcnRfaXNzdWVyX3NraSI6IiIsImNlcnRfcHJlc2VudGVkIjpmYWxzZSwiY29tbW9uX25hbWUiOiIiLCJhdXRoX3N0YXR1cyI6Ik5PTkUifSwicmVhbF9jb3VudHJ5IjoiVVMiLCJhcHBfc2Vzc2lvbl9oYXNoIjoiYWZjOWRjMmUxZGE3MzQ0ODBjM2QzMTBlODIyMzczNjMzNTA4ODJmOTcyY2U5MDlmZjU0NTNkOGVkNTRhNjRmZiJ9.iy9U_GOtKHCl76SrD-vCspUKD4so9JNgwQJfJAzKFy03OZzJzdQS3SLirYE8oCyYx-Y7ccov2XL0Ii-DC1WJNWtvLcMHbzToN83KIasltUwzlnDkWEt2JW7DggX3RDAJUu4_sbh31swTJyd3tvab45ygbJ_wuv1OzyEIKj2S35UXQ-AYzWyJ48IWnMyJRiF6oOSSjaDvQtoN2zaul-Zwh_MM3KUd5oQp5GRvngsVLEfMawlbI9hgtuifyRYxtd5z1VUF-QwFpDEOy_Ne3D2bzSg9i04b7aowWcPSPE2DxtnZGfNzwYYUjB6n49E2VE6Pq-XKITtsXAS5OBe2MILLlA&redirect_url=%2Fapi%2Fdecisiones
+cache-control: private, max-age=0, no-store, no-cache, must-revalidate, post-check=0, pre-check=0
+expires: Thu, 01 Jan 1970 00:00:01 GMT
+access-control-allow-credentials: true
+report-to: {"group":"cf-nel","max_age":604800,"endpoints":[{"url":"https://a.nel.cloudflare.com/report/v4?s=4yc3kpQJgUe%2BQVWVWznonEnKkqHFIcXVz8GR8N5t4JuafwRxVZlXYsB3eLkp0JaARpFlEc%2BPt%2BLiXDYBJRc7K7nC7PnNoOmfhd80odgK8kd%2BNitLXJIXrQ%3D%3D"}]}
+nel: {"report_to":"cf-nel","success_fraction":0.0,"max_age":604800}
+server: cloudflare
+set-cookie: CF_AppSession=6d40edb16450a51c; HttpOnly; Secure; Path=/; Expires=Sat, 11 Oct 2025 13:48:01 GMT
+cf-ray: 98c692ab7ab85c67-MIA
+alt-svc: h3=":443"; ma=86400
+
+HTTP/2 200 
+date: Fri, 10 Oct 2025 13:48:02 GMT
+content-type: text/html
+content-length: 28424
+cf-ray: 98c692b54c81dfa0-MIA
+set-cookie: CF_Session=nkxVPpzaSR1zGnE0q; Path=/; Secure; Expires=Fri, 10 Oct 2025 17:48:02 GMT; HttpOnly; SameSite=none
+strict-transport-security: max-age=31536000; includeSubDomains
+cf-access-domain: runart-foundry.pages.dev
+cf-version: 20-2f6a8a4
+content-security-policy: frame-ancestors 'none'; connect-src 'self' http://127.0.0.1:*; default-src https: 'unsafe-inline'
+referrer-policy: strict-origin-when-cross-origin
+x-content-type-options: nosniff
+x-frame-options: DENY
+x-xss-protection: 1; mode=block
+server: cloudflare
+

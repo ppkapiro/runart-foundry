@@ -1,0 +1,50 @@
+{
+  "cases": [
+    {
+      "actor": "owner",
+      "status": 200,
+      "body": {
+        "ok": true,
+        "status": 200,
+        "role": "owner"
+      }
+    },
+    {
+      "actor": "team",
+      "status": 200,
+      "body": {
+        "ok": true,
+        "status": 200,
+        "role": "team"
+      }
+    },
+    {
+      "actor": "client_admin",
+      "status": 200,
+      "body": {
+        "ok": true,
+        "status": 200,
+        "role": "client_admin"
+      }
+    },
+    {
+      "actor": "client",
+      "status": 403,
+      "body": {
+        "ok": false,
+        "status": 403,
+        "role": "client"
+      }
+    },
+    {
+      "actor": "visitor",
+      "status": 403,
+      "body": {
+        "ok": false,
+        "status": 403,
+        "role": "visitor"
+      }
+    }
+  ],
+  "reportDir": "/home/pepe/work/runartfoundry/apps/briefing/_reports/tests/T2_unit_integration/20251009T010422"
+}

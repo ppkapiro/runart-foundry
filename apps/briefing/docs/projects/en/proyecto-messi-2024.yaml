@@ -1,0 +1,17 @@
+id: "proyecto-messi-2024"
+title: "Messi Project — Commemorative monument"
+artist: "RUN Art Foundry (with Messi studio)"
+year: "2024"
+location: "Miami, FL, USA"
+materials:
+  - alloy: "Bronze"
+    finish: "Blue-gold patina"
+  - alloy: "Stainless steel"
+    finish: "Mirror polish"
+edition:
+  type: "unique"
+  size: "Monumental installation"
+process:
+  modeling: "3D scanning and hybrid digital modeling"
+  casting: "bronze"
+notes: "Stub pending full English content."

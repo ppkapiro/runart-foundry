@@ -700,3 +700,96 @@ audits/axe/*.json
 Estructura mínima confirmada, guardarraíles implementados, plantillas MIRROR creadas.
 Repositorio listo para el primer commit y PR inicial.
 
+---
+
+## Bootstrap Git — Release Note
+
+**Fecha**: 2025-10-02T15:30:00-03:00  
+**PR Bootstrap**: #1 (merged)  
+**Commits clave**:
+- Base commit: `6c45ac7` (first commit)
+- Bootstrap commit: `ea2e72b` (chore(bootstrap): estructura monorepo + guardarraíles + política MIRROR)
+- Merge commit: `bfaf210` (Merge pull request #1)
+
+**Estado**:
+- ✅ PR #1 mergeado exitosamente
+- ✅ 86 archivos añadidos (+65,562 líneas)
+- ✅ CI/CD workflow "Structure & Governance Guard" ejecutado y pasado
+- ✅ Guardarraíles implementados y funcionando
+- ✅ Política MIRROR aplicada (sin payload en Git)
+- ⚠️  Branch protection no disponible (requiere GitHub Pro para repos privados)
+
+**Limpieza post-bootstrap**:
+- PR #2: Limpieza de warnings (scripts movidos a `scripts/`)
+- Resultado: 0 warnings, 0 errors en validación
+
+**Próximos pasos**:
+1. Configurar secrets de Cloudflare (CF_ACCOUNT_ID, CF_API_TOKEN)
+2. Merge PR #2 (limpieza de warnings)
+3. Documentar proceso de deployment de briefing a Cloudflare Pages
+
+
+---
+
+## Release — Deploy CI/CD Briefing
+
+**Fecha**: 2025-10-02T21:15:00-04:00
+
+**Objetivo**: Implementar pipeline CI/CD completo para despliegue automático del micrositio `briefing/` a Cloudflare Pages.
+
+**Commits clave**:
+- Main: `aa00740` - "ci(briefing): actualiza workflow a modo explícito mkdocs_briefing"
+- PR #5: `2785fb9` - "docs(briefing): trigger workflow preview PR #5"
+
+**Workflow implementado**: `Briefing — Deploy to Cloudflare Pages`
+- **Modo**: `mkdocs_briefing` (explícito, sin heurísticas)
+- **Config**: `briefing/mkdocs.yml`
+- **Output**: `briefing/site/`
+- **Triggers**: 
+  - Push a `main` (carpeta `briefing/**`) → Deploy a producción
+  - Pull request a `main` → Deploy preview automático
+
+**Simplificaciones técnicas**:
+- ❌ Eliminada autodetección heurística (mkdocs/npm/static)
+- ❌ Eliminados pasos dinámicos con condicionales complejos
+- ✅ Build explícito con validaciones de archivos
+- ✅ Logs detallados del proceso de build
+- ✅ Permisos: `contents:read`, `deployments:write`, `pull-requests:write`
+
+**Resultados**:
+- **Build time**: ~0.37 segundos (MkDocs)
+- **Deploy time**: ~47-51 segundos (total)
+- **Páginas generadas**: 11 archivos HTML
+- **Preview URL** (PR #5): https://5af456b3.runart-briefing.pages.dev
+- **Production URL**: https://086808df.runart-briefing.pages.dev
+
+**Estructura publicada**:
+```
+briefing/site/
+├── index.html (15K)
+├── acerca/
+├── auditoria/
+├── decisiones/
+├── fases/
+├── galeria/
+├── inbox/
+├── plan/
+├── proceso/
+├── assets/ (CSS, JS, fonts)
+├── search/
+├── robots.txt
+└── sitemap.xml
+```
+
+**Lecciones aprendidas**:
+1. Workflows deben estar en rama base (`main`) para ejecutarse en PRs
+2. Cloudflare Pages requiere permisos `deployments:write` explícitos
+3. Builds explícitos son más predecibles que autodetección heurística
+4. Validaciones tempranas (archivos clave) previenen errores silenciosos
+
+**Próximos pasos**:
+1. Configurar dominio custom (opcional): `briefing.runartfoundry.com`
+2. Implementar workflows para otros módulos (`audits/`, `mirror/`)
+3. Configurar Cloudflare Analytics
+4. Documentar proceso de actualización de contenido
+

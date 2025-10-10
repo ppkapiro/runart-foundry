@@ -1,0 +1,42 @@
+id: "raider-2018"
+title: "Raider (Ransom Everglades School)"
+artist: "RUN Art Foundry (para Ransom Everglades School)"
+year: "2018"
+location: "Coconut Grove, Miami, FL, USA"
+materials:
+  - alloy: "Bronce"
+    finish: "Pátina negra/gráfica"
+dimensions:
+  height_cm: 180
+  width_cm: 90
+  depth_cm: 80
+edition:
+  type: "unique"
+  size: ""
+process:
+  modeling: "Ajustes morfológicos y preparación de moldes"
+  molding: "ceramic shell"
+  casting: "bronze"
+  patina: "Exterior, alto contraste"
+  mounting: "Base arquitectónica del campus"
+credits:
+  foundry: "RUN Art Foundry (Miami)"
+  lead: "Uldis López"
+  collaborators:
+    - "Equipo de fundición RUN"
+media:
+  images:
+    - path: "assets/2018/raider-2018/img_01.jpg"
+      alt: "Imagen optimizada de prueba"
+    - path: "assets/2018/raider-2018/img_02.jpg"
+      alt: "Imagen optimizada de prueba"
+  video:
+    - url: "https://www.runartfoundry.com/video/"
+      note: "Procesos relacionados (genérico)"
+links:
+  - label: "Ransom Everglades — Nota escolar"
+    url: "https://www.ransomeverglades.org/news-detail?pk=946559"
+testimony:
+  author: "Representantes Ransom Everglades"
+  quote: "La ejecución mejora la presencia de la mascota institucional."
+notes: "Caso emblemático de instalación en entorno educativo."

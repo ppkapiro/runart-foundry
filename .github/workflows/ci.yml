@@ -1,0 +1,115 @@
+name: CI — Briefing
+
+on:
+  pull_request:
+    paths:
+      - 'apps/briefing/**'
+      - '.github/workflows/ci.yml'
+      - 'wrangler.template.toml'
+  push:
+    branches: [ main ]
+    paths:
+      - 'apps/briefing/**'
+      - '.github/workflows/ci.yml'
+      - 'wrangler.template.toml'
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.x'
+
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Build MkDocs
+        working-directory: apps/briefing
+        run: |
+          make venv
+          make build
+
+  test-logs:
+    runs-on: ubuntu-latest
+    needs: build
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Run log tests (fallback mode)
+        working-directory: apps/briefing
+        run: |
+          if [ -f scripts/test_logs_strict.mjs ]; then
+            node scripts/test_logs_strict.mjs
+          elif [ -f scripts/test_logs.mjs ]; then
+            node scripts/test_logs.mjs
+          else
+            echo "No hay scripts de logs; usando fallback mínimo en línea..."
+            node --input-type=module -e $'import { existsSync } from "fs";\nimport { fileURLToPath } from "url";\n\nconst base = new URL(".", import.meta.url);\nconst logEventUrl = new URL("./functions/api/log_event.js", base);\nconst logsListUrl = new URL("./functions/api/logs_list.js", base);\n\nconst hasModules = existsSync(fileURLToPath(logEventUrl)) && existsSync(fileURLToPath(logsListUrl));\nif (!hasModules) {\n  console.warn("No se encontraron módulos de logging; gate en modo noop.");\n  process.exit(0);\n}\n\nconst { onRequestPost: logPost } = await import(logEventUrl);\nconst { onRequestGet: listGet } = await import(logsListUrl);\n\nconst headers = new Headers({ "Cf-Access-Authenticated-User-Email": "alguien@runart.com" });\nconst ctxPost = { env: { ACCESS_ADMINS:"tu@correo.com", ACCESS_EQUIPO_DOMAINS:"runart.com,studio.com" }, request: new Request("https://x/api/log_event",{ method:"POST", headers, body: JSON.stringify({ action:"page_view", path:"/inbox" }) }) };\nconst ctxGet  = { env: { ACCESS_ADMINS:"tu@correo.com", ACCESS_EQUIPO_DOMAINS:"runart.com,studio.com" }, request: new Request("https://x/api/logs_list?limit=1",{ headers: new Headers({ "Cf-Access-Authenticated-User-Email": "tu@correo.com" }) }) };\n\nconst r1 = await logPost(ctxPost);\nconsole.log("log_event status:", r1.status);\nconst r2 = await listGet(ctxGet);\nconsole.log("logs_list status:", r2.status);\n'
+          fi
+
+  deploy:
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    needs: [build, test-logs]
+    permissions:
+      contents: read
+      deployments: write
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.x'
+
+      - name: Install Wrangler
+        run: npm install -g wrangler@3
+
+      - name: Ensure wrangler.toml bindings
+        env:
+          CF_LOG_EVENTS_ID: ${{ secrets.CF_LOG_EVENTS_ID }}
+          CF_LOG_EVENTS_PREVIEW_ID: ${{ secrets.CF_LOG_EVENTS_PREVIEW_ID }}
+        run: |
+          if [ -f wrangler.template.toml ]; then
+            cp wrangler.template.toml apps/briefing/wrangler.toml
+          fi
+          sed -i "s/DECISIONES\s*\n/DECISIONES\n/g" apps/briefing/wrangler.toml
+          if [ -n "${CF_LOG_EVENTS_ID}" ] && [ -n "${CF_LOG_EVENTS_PREVIEW_ID}" ]; then
+            sed -i "s/\${CF_LOG_EVENTS_ID}/${CF_LOG_EVENTS_ID}/g" apps/briefing/wrangler.toml || true
+            sed -i "s/\${CF_LOG_EVENTS_PREVIEW_ID}/${CF_LOG_EVENTS_PREVIEW_ID}/g" apps/briefing/wrangler.toml || true
+          fi
+
+      - name: Build MkDocs for deploy
+        working-directory: apps/briefing
+        run: |
+          python3 -m venv .venv
+          . .venv/bin/activate
+          pip install --upgrade pip
+          pip install -r requirements.txt
+          mkdocs build
+
+      - name: Deploy to Cloudflare Pages
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+        run: |
+          wrangler pages deploy apps/briefing/site --project-name runart-briefing

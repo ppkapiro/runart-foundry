@@ -1,0 +1,100 @@
+name: Briefing Deploy (LEGACY)
+
+on:
+  workflow_dispatch:
+    inputs:
+      confirm_legacy:
+        description: "Confirmo que entiendo que este workflow usa rutas legacy briefing/ y NO apps/briefing/"
+        required: true
+        default: "no"
+  push:
+    branches: [ "main" ]
+    paths:
+      - "briefing/**"
+      - ".github/workflows/briefing_deploy.yml"
+  pull_request:
+    branches: [ "main" ]
+    paths:
+      - "briefing/**"
+      - ".github/workflows/briefing_deploy.yml"
+
+permissions:
+  contents: read
+  deployments: write
+  pull-requests: write
+
+jobs:
+  build-and-deploy:
+    if: ${{ github.event.inputs.confirm_legacy == 'yes' }}
+    runs-on: ubuntu-latest
+    env:
+      PROJECT_NAME: runart-briefing
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Python (for MkDocs)
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.x"
+
+      - name: Install MkDocs dependencies
+        run: |
+          pip install --upgrade pip
+          pip install mkdocs mkdocs-material
+
+      - name: Build MkDocs site from briefing/
+        run: |
+          echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+          echo "🔨 BUILD MODE: mkdocs_briefing (EXPLÍCITO)"
+          echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+          echo "📂 Config: briefing/mkdocs.yml"
+          echo "📂 Docs:   briefing/docs/"
+          echo "📂 Output: briefing/site/"
+          echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+          
+          # Validar que existe la configuración
+          if [ ! -f "briefing/mkdocs.yml" ]; then
+            echo "❌ ERROR: briefing/mkdocs.yml no existe"
+            exit 1
+          fi
+          
+          if [ ! -f "briefing/docs/index.md" ]; then
+            echo "❌ ERROR: briefing/docs/index.md no existe"
+            exit 1
+          fi
+          
+          echo "✅ Archivos de configuración validados"
+          echo ""
+          
+          # Construir el sitio
+          echo "🔨 Construyendo sitio con MkDocs..."
+          cd briefing
+          mkdocs build --clean --site-dir site --config-file mkdocs.yml
+          
+          # Verificar que se generó correctamente
+          if [ ! -f "site/index.html" ]; then
+            echo "❌ ERROR: No se generó site/index.html"
+            exit 1
+          fi
+          
+          echo ""
+          echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+          echo "✅ BUILD COMPLETADO EXITOSAMENTE"
+          echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+          echo "📊 Contenido generado en briefing/site/:"
+          ls -lah site/ | head -20
+          echo ""
+          echo "📄 Total de archivos HTML generados:"
+          find site/ -name "*.html" | wc -l
+
+      - name: Deploy to Cloudflare Pages
+        uses: cloudflare/pages-action@v1
+        with:
+          apiToken: ${{ secrets.CF_API_TOKEN }}
+          accountId: ${{ secrets.CF_ACCOUNT_ID }}
+          projectName: ${{ env.PROJECT_NAME }}
+          # LEGACY PATH: esta ruta permanece para compatibilidad puntual (estructura activa es apps/briefing/)
+          directory: briefing/site
+          gitHubToken: ${{ secrets.GITHUB_TOKEN }}

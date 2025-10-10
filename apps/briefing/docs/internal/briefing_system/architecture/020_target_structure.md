@@ -1,0 +1,1 @@
+--8<-- "docs/architecture/020_target_structure.md"

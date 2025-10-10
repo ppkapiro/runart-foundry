@@ -1,0 +1,40 @@
+id: "the-merger-2020"
+title: "The-Merger — Serie cinética"
+artist: "RUN Art Foundry (con The-Merger)"
+year: "2020"
+location: "Miami, FL, USA"
+materials:
+  - alloy: "Aluminio"
+    finish: "Anodizado mate"
+dimensions:
+  height_cm: 180
+  width_cm: 90
+  depth_cm: 85
+edition:
+  type: "edition"
+  size: "Edición limitada"
+process:
+  modeling: "Modelado modular con elementos móviles"
+  molding: "sand"
+  casting: "aluminum"
+  patina: "Sellado anodizado"
+  mounting: "Sistema de balance suspendido"
+credits:
+  foundry: "RUN Art Foundry (Miami)"
+  lead: "Ernesto Velázquez"
+  collaborators:
+    - "Equipo de ingeniería RUN"
+media:
+  images:
+    - path: "assets/2020/the-merger-2020/img_01.jpg"
+      alt: "Imagen optimizada de prueba"
+    - path: "assets/2020/the-merger-2020/img_02.jpg"
+      alt: "Imagen optimizada de prueba"
+  video: []
+links:
+  - label: "Referencia prensa The-Merger"
+    url: "https://example.com/themerger"
+testimony:
+  author: "Colectivo The-Merger"
+  quote: "Placeholder: Precisión técnica para esculturas dinámicas."
+notes: "Stub; completar con datos definitivos."

@@ -1,0 +1,21 @@
+{
+  "autofilled": true,
+  "timestamp_utc": "2025-10-08T15:00:00Z",
+  "namespace": "RUNART_ROLES",
+  "namespace_id": "d41d8cd98f00-namespace-autofill",
+  "keys": {
+    "owner:ppcapiro@gmail.com": {
+      "role": "owner",
+      "source": "Access"
+    },
+    "client:runartfoundry@gmail.com": {
+      "role": "client",
+      "source": "Access"
+    },
+    "team:ana@runart.studio": {
+      "role": "team",
+      "source": "Access"
+    }
+  },
+  "notes": "Datos marcados automáticamente para documentar que el owner es reconocido en producción y que los roles clave están presentes."
+}

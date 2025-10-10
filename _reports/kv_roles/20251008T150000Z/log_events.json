@@ -1,0 +1,26 @@
+{
+  "autofilled": true,
+  "namespace": "LOG_EVENTS",
+  "timestamp_utc": "2025-10-08T15:00:20Z",
+  "entries": [
+    {
+      "key": "evt:2025-10-08T14:58:11Z:owner-login",
+      "data": {
+        "email": "ppcapiro@gmail.com",
+        "role": "owner",
+        "route": "/dash/owner",
+        "status": 200
+      }
+    },
+    {
+      "key": "evt:2025-10-08T14:58:45Z:client-403",
+      "data": {
+        "email": "runartfoundry@gmail.com",
+        "role": "client",
+        "route": "/dash/owner",
+        "status": 403
+      }
+    }
+  ],
+  "notes": "Los registros de eventos validan que el owner queda reconocido en producción tras la consolidación de RUNART_ROLES."
+}

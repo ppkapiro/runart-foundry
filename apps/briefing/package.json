@@ -1,0 +1,24 @@
+{
+  "name": "briefing",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "python -m pip install --upgrade pip && pip install -r requirements.txt && mkdocs build --strict -d site",
+    "test:bootstrap": "node --unhandled-rejections=strict --no-warnings tests/scripts/ping-bootstrap.mjs",
+    "test:imports": "node tools/check-bare-specifiers.mjs",
+    "test:setup": "node --unhandled-rejections=strict --no-warnings tests/scripts/setup-mocks.mjs",
+    "test:unit": "node --test --test-timeout=30000 tests/unit/*.mjs",
+    "test:unit:smoke": "node --test --test-timeout=30000 tests/unit/smoke-imports.mjs",
+    "test:e2e": "node tests/scripts/run-smokes.mjs"
+  },
+  "devDependencies": {
+    "@cloudflare/workers-types": "^4.20251004.0",
+    "miniflare": "^4.20251004.0",
+    "msw": "^2.3.1",
+    "nock": "^14.0.0",
+    "playwright": "^1.47.0",
+    "undici": "^6.19.2",
+    "vitest": "^1.6.0"
+  }
+}

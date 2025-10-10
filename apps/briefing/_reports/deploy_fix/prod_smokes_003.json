@@ -1,0 +1,37 @@
+{
+  "autofilled": false,
+  "timestamp_utc": "2025-10-08T17:30:32Z",
+  "context": {
+    "fallback_runs": ["18352398884", "18352732800"],
+    "notes": "Validación posterior a los fallback deploys más recientes; confirma que Access sigue activo y la raíz responde 200 tras seguir la redirección."
+  },
+  "checks": [
+    {
+      "name": "root_redirect",
+      "request": {
+        "method": "GET",
+        "url": "https://runart-foundry.pages.dev/",
+        "follow_redirects": false
+      },
+      "http_status": 302,
+      "followup_status": 200,
+      "evidence_files": {
+        "initial_body_path": "/tmp/runart_root_latest.html",
+        "follow_body_path": "/tmp/runart_root_latest_follow.html"
+      },
+      "notes": "La raíz redirige a Cloudflare Access (302); al seguir la redirección se obtiene 200 en la página de login."
+    },
+    {
+      "name": "whoami_access_redirect",
+      "request": {
+        "method": "GET",
+        "url": "https://runart-foundry.pages.dev/api/whoami"
+      },
+      "http_status": 302,
+      "response_headers": {
+        "location_sample": "https://runart-briefing-pages.cloudflareaccess.com/cdn-cgi/access/login/runart-foundry.pages.dev/..."
+      },
+      "notes": "El endpoint sigue protegido por Cloudflare Access; sin sesión devuelve 302 hacia el login."
+    }
+  ]
+}

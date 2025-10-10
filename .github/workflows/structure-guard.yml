@@ -1,14 +1,22 @@
 name: Structure & Governance Guard
 
 on:
-  pull_request:
-    branches: [ "main" ]
+  workflow_dispatch:
   push:
-    branches: [ "main" ]
+    branches:
+      - main
+      - 'deploy/**'
+  pull_request:
+    types: [opened, synchronize, reopened, ready_for_review]
+    branches:
+      - main
+      - 'deploy/**'
 
 jobs:
   validate-structure:
     runs-on: ubuntu-latest
+    env:
+      SKIP_COMPAT: "1"  # Compat será eliminado por 075_cleanup_briefing.md; CI se centra en apps/briefing
     
     steps:
       - name: Checkout repository

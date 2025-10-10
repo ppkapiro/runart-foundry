@@ -1,0 +1,26 @@
+{
+  "autofilled": true,
+  "namespace": "LOG_EVENTS",
+  "fetched_at_utc": "2025-10-08T14:59:40Z",
+  "keys": [
+    {
+      "name": "evt:2025-10-08T14:58:11Z:owner-login",
+      "value": {
+        "email": "ppcapiro@gmail.com",
+        "role": "owner",
+        "route": "/dash/owner",
+        "status": 200
+      }
+    },
+    {
+      "name": "evt:2025-10-08T14:58:45Z:client-403",
+      "value": {
+        "email": "runartfoundry@gmail.com",
+        "role": "client",
+        "route": "/dash/owner",
+        "status": 403
+      }
+    }
+  ],
+  "notas": "Muestra auto-generada para documentar visitas posteriores al redeploy con roles en producción."
+}

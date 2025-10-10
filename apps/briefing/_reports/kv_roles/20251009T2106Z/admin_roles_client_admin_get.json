@@ -1,0 +1,28 @@
+{
+  "status": 200,
+  "body": {
+    "ok": true,
+    "role": "client_admin",
+    "role_alias": "cliente_admin",
+    "data": {
+      "owners": [
+        "ppcapiro@gmail.com"
+      ],
+      "client_admins": [
+        "runartfoundry@gmail.com"
+      ],
+      "clients": [
+        "musicmanagercuba@gmail.com"
+      ],
+      "team": [
+        "infonetwokmedia@gmail.com"
+      ],
+      "team_domains": [
+        "runartfoundry.com"
+      ]
+    },
+    "source": "kv",
+    "fetched_at": "2025-10-08T21:21:44.640Z",
+    "read_only": false
+  }
+}

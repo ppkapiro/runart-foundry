@@ -1,0 +1,7 @@
+{
+  "timestamp_utc": "2025-10-08T15:00:51Z",
+  "request": "GET https://runart-foundry.pages.dev/api/inbox",
+  "status": 302,
+  "note": "Sin sesión Access, el endpoint redirige al login. Requiere autenticación para obtener 403 esperado en visita sin permisos.",
+  "location": "https://runart-briefing-pages.cloudflareaccess.com/cdn-cgi/access/login/runart-foundry.pages.dev?..."
+}

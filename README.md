@@ -1,18 +1,47 @@
 # RUN Art Foundry — Proyecto Local
 
+[![Deploy: Briefing](https://github.com/ppkapiro/runart-foundry/actions/workflows/briefing_deploy.yml/badge.svg)](https://github.com/ppkapiro/runart-foundry/actions/workflows/briefing_deploy.yml)
+
 Este directorio contiene TODO el trabajo local de investigación y automatización del sitio web de RUN Art Foundry.
 
 ## Estructura del Proyecto (Monorepo)
 
 Este es un **monorepo** que contiene múltiples módulos:
 
-- **`briefing/`**: Micrositio privado (MkDocs Material) con Cloudflare Pages + Access
+- **`apps/briefing/`**: Micrositio privado (MkDocs Material) con Cloudflare Pages + Access (`briefing/` legado archivado en `_archive/legacy_removed_20251007/`)
 - **`audits/`**: Auditorías del sitio del cliente (rendimiento, SEO, accesibilidad)
 - **`mirror/`**: Snapshots del sitio del cliente (descargas SFTP/wget)
 - **`docs/`**: Documentación del proyecto (especificaciones, gobernanza)
 - **`source/`**: Código editable (temas/plantillas) del sitio del cliente
 - **`scripts/`**: Scripts globales del proyecto
 - **`.tools/`**: Dependencias npm para auditorías (Lighthouse, Axe)
+
+## Iteración cerrada — Fase 5 · UI contextual y experiencias por rol
+
+- Reporte de fase: `apps/briefing/docs/internal/briefing_system/reports/2025-10-11_fase5_ui_contextual_y_experiencias_por_rol.md` (sello DONE con entregables diferidos documentados).
+- Artefactos clave: `_reports/ui_context/20251011T153200Z/`, `_reports/qa_runs/20251008T221533Z/`, `_reports/access_sessions/20251008T222921Z/README.md`.
+- Bitácora 082 registra el kickoff y cierre con notas de diferimiento controlado.
+- Orquestador actualizado tras el cierre (ver `plans/00_orquestador_fases_runart_briefing.md`).
+
+## Próxima iteración — Preparación Fase 6
+
+- Backlog operativo: `NEXT_PHASE.md` (streams y entregables priorizados post-F5).
+- Objetivo: ejecutar sesiones "Ver como" reales, automatizar guardias QA/observabilidad y lanzar `packages/env-banner`.
+- `STATUS.md` refleja nuevas prioridades y responsables.
+
+## Release 2025-10-10 — Consolidación y cierre operativo
+
+- Documentación de cierre publicada (`reports/2025-10-10_fase4_consolidacion_y_cierre.md`) y enlazada en la navegación interna.
+- `STATUS.md` y `NEXT_PHASE.md` reflejan la finalización de las fases F1–F4 y establecen el backlog de la próxima iteración.
+- Changelog y orquestador sincronizados con el sello de cierre; Bitácora 082 registra el handover.
+- Validaciones QA (`make lint`, `mkdocs build --strict`) ejecutadas tras las actualizaciones de documentación.
+
+## Release 2025-10-07 — Limpieza Briefing Local
+
+- Legacy `briefing/` archivado íntegro en `_archive/legacy_removed_20251007/` para trazabilidad.
+- Navegación MkDocs y contenido reubicados en `apps/briefing/docs/client_projects/runart_foundry/` (cliente) e `apps/briefing/docs/internal/briefing_system/` (equipo).
+- Documentación actualizada: `mkdocs.yml`, `README_briefing.md` y bitácora `082` para reflejar la separación Cliente/Equipo.
+- Check suite revalidada (`tools/lint_docs.py`, `scripts/validate_structure.sh`, `tools/check_env.py --mode config`, `mkdocs build --strict`).
 
 ## Guardarraíles de Gobernanza
 
@@ -22,9 +51,9 @@ Este proyecto implementa **validaciones automáticas** para mantener la organiza
 
 Cada **Pull Request** y **push a `main`** ejecuta el workflow [`structure-guard.yml`](.github/workflows/structure-guard.yml) que valida:
 
-- ✅ Archivos en ubicaciones permitidas (reportes en `briefing/_reports/` o `audits/reports/`, NO en raíz)
+- ✅ Archivos en ubicaciones permitidas (reportes en `apps/briefing/docs/client_projects/runart_foundry/reports/` o `audits/reports/`, NO en raíz)
 - ✅ Tamaños de archivo (hard limit: ≥25 MB, warning: 10-25 MB)
-- ✅ Exclusión de builds (`briefing/site/`), node_modules, logs, credenciales
+- ✅ Exclusión de builds (`apps/briefing/site/`), node_modules, logs, credenciales
 - ✅ Exclusión de binarios pesados (`mirror/raw/*/wp-content/uploads/`)
 
 **El PR/push FALLA** si hay violaciones.
@@ -85,7 +114,7 @@ Al crear un PR, se mostrará automáticamente un **checklist de gobernanza** ([`
 
 El archivo [`.github/CODEOWNERS`](.github/CODEOWNERS) asigna **revisores por módulo**:
 
-- `/briefing/` → `@owner-briefing`
+- `/apps/briefing/` → `@owner-briefing`
 - `/audits/` → `@owner-audits`
 - `/mirror/` → `@owner-mirror`
 - `/docs/` → `@owner-docs`
@@ -97,8 +126,15 @@ El archivo [`.github/CODEOWNERS`](.github/CODEOWNERS) asigna **revisores por mó
 
 - **[Documento de Gobernanza](docs/proyecto_estructura_y_gobernanza.md)**: Reglas completas de organización, ubicación de archivos, control de cambios
 - **[Árbol de Directorios](docs/_artifacts/repo_tree.txt)**: Estructura completa del repositorio (niveles 1-3)
-- **[README Briefing](briefing/README_briefing.md)**: Documentación del micrositio Cloudflare Pages
+- **[README Briefing](apps/briefing/README_briefing.md)**: Documentación del micrositio Cloudflare Pages
 - **[README Audits](audits/README.md)**: Documentación de auditorías
+
+## Gestión de imágenes para fichas
+
+- Cada proyecto usa `assets/{año}/{slug}/` con al menos dos imágenes optimizadas (`img_01`, `img_02`, etc.).
+- Formatos recomendados: `.webp` o `.jpg` ≤300 KB para compatibilidad con la web actual.
+- Mantener el archivo `.gitkeep` hasta reemplazarlo por media definitiva; eliminarlo al subir las imágenes finales.
+- Respaldar el original pesado en `assets/_incoming/` si requiere reprocesamiento antes de optimizar.
 
 ## Convención de Commits
 
@@ -118,7 +154,7 @@ chore: Actualizar .gitignore con exclusiones adicionales
 
 ## Estado del Proyecto
 
-- ✅ **Briefing**: Micrositio operativo en https://runart-briefing.pages.dev
+- ✅ **Briefing**: Micrositio operativo en https://runart-briefing.pages.dev (estructura local reorganizada Cliente/Equipo)
 - ✅ **Audits**: Reportes de auditoría generados (2025-10-01)
 - ✅ **Mirror**: Snapshot del sitio descargado (2025-10-01, 760 MB localmente)
 - ✅ **Gobernanza**: Guardarraíles implementados (CI + hooks locales)
@@ -126,5 +162,5 @@ chore: Actualizar .gitignore con exclusiones adicionales
 ## Contacto
 
 **Mantenedor**: Equipo RUN Art Foundry  
-**Última actualización**: 2 de octubre de 2025
+**Última actualización**: 10 de octubre de 2025
 # runart-foundry

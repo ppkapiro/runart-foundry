@@ -1,0 +1,41 @@
+id: ""
+title: ""
+artist: ""
+year: ""
+location: ""
+materials:
+  - alloy: ""
+    finish: ""
+dimensions:
+  height_cm: 0
+  width_cm: 0
+  depth_cm: 0
+edition:
+  type: "unique | edition"
+  size: ""
+process:
+  modeling: ""
+  molding: "ceramic shell | silicone | rubber"
+  casting: "bronze | resin | other"
+  patina: ""
+  mounting: ""
+credits:
+  foundry: "RUN Art Foundry (Miami)"
+  lead: "Uldis López"
+  collaborators: []
+media:
+  images:
+    - path: "assets/{year}/{slug}/img_01.jpg"
+      alt: ""
+    - path: "assets/{year}/{slug}/img_02.jpg"
+      alt: ""
+  video:
+    - url: ""
+      note: ""
+links:
+  - label: "Prensa / referencia"
+    url: ""
+testimony:
+  author: ""
+  quote: ""
+notes: ""

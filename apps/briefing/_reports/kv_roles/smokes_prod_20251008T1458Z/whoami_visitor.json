@@ -1,0 +1,7 @@
+{
+  "timestamp_utc": "2025-10-08T15:00:10Z",
+  "request": "GET https://runart-foundry.pages.dev/api/whoami",
+  "status": 302,
+  "location": "https://runart-briefing-pages.cloudflareaccess.com/cdn-cgi/access/login/runart-foundry.pages.dev?...",
+  "note": "Sin sesión Access, el endpoint redirige al login de Cloudflare Access. Se requiere completar OTP para obtener respuesta 200 con role='visitor'."
+}

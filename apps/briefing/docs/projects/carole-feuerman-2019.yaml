@@ -1,0 +1,40 @@
+id: "carole-feuerman-2019"
+title: "Carole Feuerman — Serie hiperrealista"
+artist: "RUN Art Foundry (con Carole Feuerman)"
+year: "2019"
+location: "Miami, FL, USA"
+materials:
+  - alloy: "Bronce"
+    finish: "Pátina hiperrealista"
+dimensions:
+  height_cm: 150
+  width_cm: 80
+  depth_cm: 70
+edition:
+  type: "edition"
+  size: "Serie limitada"
+process:
+  modeling: "Ajuste de moldes y retoques hiperrealistas"
+  molding: "ceramic shell"
+  casting: "bronze"
+  patina: "Capas de color para efecto piel"
+  mounting: "Base museográfica custom"
+credits:
+  foundry: "RUN Art Foundry (Miami)"
+  lead: "Uldis López"
+  collaborators:
+    - "Equipo de fundición RUN"
+media:
+  images:
+    - path: "assets/2019/carole-feuerman-2019/img_01.jpg"
+      alt: "Imagen optimizada de prueba"
+    - path: "assets/2019/carole-feuerman-2019/img_02.jpg"
+      alt: "Imagen optimizada de prueba"
+  video: []
+links:
+  - label: "Referencia prensa Carole Feuerman"
+    url: "https://example.com/feuerman"
+testimony:
+  author: "Representación del estudio Feuerman"
+  quote: "Placeholder: colaboración ejemplar con RUN Art Foundry."
+notes: "Stub; completar con datos definitivos."

@@ -1,0 +1,40 @@
+id: "lawrence-holofcener-2015"
+title: "Lawrence Holofcener — Figuras históricas"
+artist: "RUN Art Foundry (con Lawrence Holofcener)"
+year: "2015"
+location: "Nueva York, NY, USA"
+materials:
+  - alloy: "Bronce"
+    finish: "Pátina marrón"
+dimensions:
+  height_cm: 200
+  width_cm: 120
+  depth_cm: 100
+edition:
+  type: "edition"
+  size: "Serie pública"
+process:
+  modeling: "Modelado figurativo con detalle gestual"
+  molding: "ceramic shell"
+  casting: "bronze"
+  patina: "Acabado clásico"
+  mounting: "Base estructural para espacio público"
+credits:
+  foundry: "RUN Art Foundry (Nueva York)"
+  lead: "Equipo histórico RUN"
+  collaborators:
+    - "Especialistas en montaje urbano"
+media:
+  images:
+    - path: "assets/2015/lawrence-holofcener-2015/img_01.jpg"
+      alt: "Imagen optimizada de prueba"
+    - path: "assets/2015/lawrence-holofcener-2015/img_02.jpg"
+      alt: "Imagen optimizada de prueba"
+  video: []
+links:
+  - label: "Referencia prensa Holofcener"
+    url: "https://example.com/holofcener"
+testimony:
+  author: "Lawrence Holofcener Estate"
+  quote: "Placeholder: La instalación se realizó sin contratiempos."
+notes: "Stub; completar con datos definitivos."

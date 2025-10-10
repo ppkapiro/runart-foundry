@@ -1,0 +1,3 @@
+window.BriefingRoleConfig = {
+  role: "equipo",
+};

@@ -1,0 +1,94 @@
+name: Auto Open PR on Deploy Branches
+
+on:
+  push:
+    branches:
+      - "deploy/**"
+      - "deploy/*"
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  open-pr:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Extract branch name
+        id: vars
+        run: |
+          BRANCH="${GITHUB_REF_NAME}"
+          echo "branch=$BRANCH" >> $GITHUB_OUTPUT
+
+      - name: Ensure PR exists (create if missing)
+        id: ensure-pr
+        uses: actions/github-script@v7
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            const branch = '${{ steps.vars.outputs.branch }}';
+            const owner = context.repo.owner;
+            const repo = context.repo.repo;
+
+            const prs = await github.rest.pulls.list({
+              owner,
+              repo,
+              state: 'open',
+              head: `${owner}:${branch}`,
+              base: 'main',
+            });
+
+            let prNumber;
+            if (prs.data.length > 0) {
+              prNumber = prs.data[0].number;
+              core.info(`PR ya existe: #${prNumber}`);
+            }
+
+            if (!prNumber) {
+              const title = `deploy: ${branch} (Cloudflare Pages)`;
+              const body = [
+                `Release desde rama **${branch}**`,
+                `- Validaciones locales: lint/build/env PASS`,
+                `- Tag relacionado (si aplica): briefing-cleanup-20251007`,
+                `- Bitácora: apps/briefing/docs/082_reestructuracion_local.md`,
+                `- Changelog: apps/briefing/CHANGELOG.md`
+              ].join('\n');
+
+              const pr = await github.rest.pulls.create({
+                owner,
+                repo,
+                head: branch,
+                base: 'main',
+                title,
+                body,
+                maintainer_can_modify: true,
+              });
+              prNumber = pr.data.number;
+              core.info(`PR creado: #${prNumber}`);
+            }
+
+            core.setOutput('pr_number', prNumber);
+            core.exportVariable('PR_NUMBER', String(prNumber));
+
+      - name: Add labels
+        if: always()
+        uses: actions/github-script@v7
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            const prNumber = Number(process.env.PR_NUMBER || '');
+            if (!prNumber) {
+              core.info('No hay PR asociado; se omite el etiquetado.');
+              return;
+            }
+
+            await github.rest.issues.addLabels({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: prNumber,
+              labels: ['deploy', 'pages', 'preview'],
+            });
+            core.info(`Etiquetas aplicadas al PR #${prNumber}`);

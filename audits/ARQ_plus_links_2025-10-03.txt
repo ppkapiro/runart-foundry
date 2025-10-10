@@ -1,0 +1,77 @@
+ARQ+ — Neutralización de enlaces internos no publicados
+Fecha: 2025-10-03
+
+- reports/2025-10-02_repo_inventory.md :: ../../audits/reports/2025-10-02_repo_inventory.json => `../../audits/reports/2025-10-02_repo_inventory.json` *(recurso interno no publicado)*
+- reports/2025-10-02_repo_inventory.md :: ../../audits/reports/2025-10-02_repo_inventory.json => `../../audits/reports/2025-10-02_repo_inventory.json` *(recurso interno no publicado)*
+- reports/2025-10-02_repo_inventory.md :: ../../docs/proyecto_estructura_y_gobernanza.md => `../../docs/proyecto_estructura_y_gobernanza.md` *(recurso interno no publicado)*
+- reports/2025-10-02_repo_inventory.md :: ../../audits/reports/2025-10-01_auditoria_integral.md => `../../audits/reports/2025-10-01_auditoria_integral.md` *(recurso interno no publicado)*
+- reports/2025-10-02_repo_inventory.md :: ../../scripts/validate_structure.sh => `../../scripts/validate_structure.sh` *(recurso interno no publicado)*
+- reports/2025-10-02_repo_inventory.md :: ../../scripts/fase3_auditoria.sh => `../../scripts/fase3_auditoria.sh` *(recurso interno no publicado)*
+- reports/presskit_v1_EN.md :: assets/2015/mons-roman-2015/img_02.jpg => `assets/2015/mons-roman-2015/img_02.jpg` *(recurso interno no publicado)*
+- reports/presskit_v1_EN.md :: assets/2018/colaboracion-internacional-01/img_01.jpg => `assets/2018/colaboracion-internacional-01/img_01.jpg` *(recurso interno no publicado)*
+- reports/presskit_v1_EN.md :: assets/2015/mons-roman-2015/img_01.jpg => `assets/2015/mons-roman-2015/img_01.jpg` *(recurso interno no publicado)*
+- reports/presskit_v1_EN.md :: assets/2015/mons-roman-2015/img_02.jpg => `assets/2015/mons-roman-2015/img_02.jpg` *(recurso interno no publicado)*
+- reports/presskit_v1_EN.md :: assets/2018/raider-2018/img_01.jpg => `assets/2018/raider-2018/img_01.jpg` *(recurso interno no publicado)*
+- reports/presskit_v1_EN.md :: assets/2018/raider-2018/img_02.jpg => `assets/2018/raider-2018/img_02.jpg` *(recurso interno no publicado)*
+- reports/presskit_v1_EN.md :: assets/2018/colaboracion-internacional-01/img_01.jpg => `assets/2018/colaboracion-internacional-01/img_01.jpg` *(recurso interno no publicado)*
+- reports/presskit_v1_EN.md :: assets/2018/colaboracion-internacional-01/img_02.jpg => `assets/2018/colaboracion-internacional-01/img_02.jpg` *(recurso interno no publicado)*
+- reports/2025-10-02_cierre_fase0.md :: ../audits/reports/2025-10-02_repo_inventory.json => `../audits/reports/2025-10-02_repo_inventory.json` *(recurso interno no publicado)*
+- reports/2025-10-02_cierre_fase0.md :: ../briefing/_reports/2025-10-02_repo_inventory.md => `../briefing/_reports/2025-10-02_repo_inventory.md` *(recurso interno no publicado)*
+- reports/2025-10-02_cierre_fase0.md :: ../audits/reports/2025-10-01_auditoria_seo.md => `../audits/reports/2025-10-01_auditoria_seo.md` *(recurso interno no publicado)*
+- reports/2025-10-02_cierre_fase0.md :: ../audits/seo/2025-10-01_sin_meta_description.txt => `../audits/seo/2025-10-01_sin_meta_description.txt` *(recurso interno no publicado)*
+- reports/2025-10-02_cierre_fase0.md :: ../audits/inventory/2025-10-01_imagenes_pesadas.txt => `../audits/inventory/2025-10-01_imagenes_pesadas.txt` *(recurso interno no publicado)*
+- reports/2025-10-02_cierre_fase0.md :: ../audits/inventory/2025-10-01_plugins.txt => `../audits/inventory/2025-10-01_plugins.txt` *(recurso interno no publicado)*
+- reports/2025-10-02_cierre_fase0.md :: ../audits/inventory/2025-10-01_themes.txt => `../audits/inventory/2025-10-01_themes.txt` *(recurso interno no publicado)*
+- reports/2025-10-02_cierre_fase0.md :: ../docs/proyecto_estructura_y_gobernanza.md => `../docs/proyecto_estructura_y_gobernanza.md` *(recurso interno no publicado)*
+- reports/README.md :: ../../audits/reports/2025-10-02_repo_inventory.json => `../../audits/reports/2025-10-02_repo_inventory.json` *(recurso interno no publicado)*
+- reports/presskit_v1_ES.md :: assets/2015/mons-roman-2015/img_02.jpg => `assets/2015/mons-roman-2015/img_02.jpg` *(recurso interno no publicado)*
+- reports/presskit_v1_ES.md :: assets/2018/colaboracion-internacional-01/img_01.jpg => `assets/2018/colaboracion-internacional-01/img_01.jpg` *(recurso interno no publicado)*
+- reports/presskit_v1_ES.md :: assets/2015/mons-roman-2015/img_01.jpg => `assets/2015/mons-roman-2015/img_01.jpg` *(recurso interno no publicado)*
+- reports/presskit_v1_ES.md :: assets/2015/mons-roman-2015/img_02.jpg => `assets/2015/mons-roman-2015/img_02.jpg` *(recurso interno no publicado)*
+- reports/presskit_v1_ES.md :: assets/2018/raider-2018/img_01.jpg => `assets/2018/raider-2018/img_01.jpg` *(recurso interno no publicado)*
+- reports/presskit_v1_ES.md :: assets/2018/raider-2018/img_02.jpg => `assets/2018/raider-2018/img_02.jpg` *(recurso interno no publicado)*
+- reports/presskit_v1_ES.md :: assets/2018/colaboracion-internacional-01/img_01.jpg => `assets/2018/colaboracion-internacional-01/img_01.jpg` *(recurso interno no publicado)*
+- reports/presskit_v1_ES.md :: assets/2018/colaboracion-internacional-01/img_02.jpg => `assets/2018/colaboracion-internacional-01/img_02.jpg` *(recurso interno no publicado)*
+
+---
+Build: mkdocs build (PASS, sin warnings residuales — 2025-10-03)
+git status -s:
+ M README.md
+ M briefing/README_briefing.md
+ M briefing/_reports/fase1_fichas.md
+ M briefing/docs/arq/mapa_interfaces.md
+ M briefing/docs/assets/exports/exports.js
+ M briefing/docs/exports/index.md
+ M briefing/mkdocs.yml
+?? .github/workflows/presskit_pdf.yml
+?? .github/workflows/promote_inbox.yml
+?? .github/workflows/promote_inbox_preview.yml
+?? .pre-commit-config.yaml
+?? .yamllint
+?? assets/
+?? audits/ARQ_plus_links_2025-10-03.txt
+?? audits/reports/2025-10-02_repo_inventory.json
+?? briefing/_reports/2025-10-02_cierre_fase0.md
+?? briefing/_reports/2025-10-02_master_plan.md
+?? briefing/_reports/2025-10-02_plan_fase1_fichas.md
+?? briefing/_reports/2025-10-02_repo_inventory.md
+?? briefing/_reports/adr/
+?? briefing/_reports/briefing_arquitectura.md
+?? briefing/_reports/corte_control_fase2.md
+?? briefing/_reports/plan_fase_arq.md
+?? briefing/_reports/presskit_v0.md
+?? briefing/_reports/presskit_v1_EN.md
+?? briefing/_reports/presskit_v1_ES.md
+?? briefing/_tmp/
+?? briefing/docs/decisiones/ficha-proyecto.md
+?? briefing/docs/editor/editor.md
+?? briefing/docs/inbox/fichas.md
+?? briefing/docs/projects/
+?? briefing/docs/reports/
+?? briefing/functions/api/export_zip.js
+?? briefing/scripts/corte_control_fase2.py
+?? briefing/scripts/generate_preview_from_inbox.py
+?? briefing/scripts/neutralize_external_links.py
+?? briefing/scripts/promote_inbox_to_yaml.py
+?? briefing/scripts/qa_arq6.sh
+?? docs/projects/
