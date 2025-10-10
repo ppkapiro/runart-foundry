@@ -51,6 +51,39 @@ jobs:
         working-directory: apps/briefing
         run: npm run test:unit:smoke
 
+      - name: Precheck prod DNS/HTTP (with 1.1.1.1 fallback & retries)
+        env:
+          PROD_URL: https://runart-foundry.pages.dev/
+        run: |
+          set -e
+          echo "Prod: $PROD_URL"
+          HOST=$(echo "$PROD_URL" | sed 's#https\?://##' | cut -d/ -f1)
+          echo "Host: $HOST"
+
+          resolve() {
+            getent hosts "$HOST" >/dev/null && return 0
+            dig +short "$HOST" @1.1.1.1 | grep -qE '^[0-9.]+$' && return 0
+            return 1
+          }
+
+          tries=0; max=6
+          until resolve; do
+            tries=$((tries+1))
+            echo "DNS intento $tries/$max…"
+            sleep $((tries*2))
+            [ $tries -ge $max ] && { echo "DNS no resuelve: $HOST"; exit 1; }
+          done
+          echo "DNS OK"
+
+          tries=0; max=3
+          until curl -sI --max-time 10 "$PROD_URL" >/dev/null; do
+            tries=$((tries+1))
+            echo "HTTP intento $tries/$max…"
+            sleep $((tries*2))
+            [ $tries -ge $max ] && { echo "HTTP no responde: $PROD_URL"; exit 1; }
+          done
+          echo "HTTP OK"
+
       - name: Run HTTP smokes against Production (gate)
         env:
           PROD_URL: https://runart-foundry.pages.dev/

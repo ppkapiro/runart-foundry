@@ -68,24 +68,49 @@ jobs:
       - name: Extract preview URL
         id: extract-preview-url
         run: |
-          url="${{ steps.deploy-preview.outputs.preview_url }}"
-          if [ -z "$url" ]; then
-            echo "preview_url vacío: la acción no devolvió URL de preview" >&2
-            exit 1
+          URL="${{ steps.deploy-preview.outputs.preview_url }}"
+          echo "preview_url=${URL}"
+          test -n "$URL" || { echo "preview_url vacío: la acción no devolvió URL"; exit 1; }
+          # Prohibir alias preview.* explícitamente:
+          if echo "$URL" | grep -qiE '^https?://preview[.]'; then
+            echo "ERROR: Se detectó alias 'preview.*' (no válido por defecto). Use URL hash del deploy."; exit 1;
           fi
-          echo "PREVIEW_BASE_URL=$url" >> "$GITHUB_ENV"
+          echo "PREVIEW_BASE_URL=$URL" >> "$GITHUB_ENV"
           ts="$(date -u +%Y%m%dT%H%M%SZ)"
           echo "SMOKES_TS=$ts" >> "$GITHUB_ENV"
           echo "ts=$ts" >> "$GITHUB_OUTPUT"
-          echo "Preview base URL: $url"
+          echo "Preview base URL: $URL"
         shell: bash
       - name: Precheck preview DNS/HTTP
         run: |
-          set -euo pipefail
+          set -e
           echo "Preview: $PREVIEW_BASE_URL"
           HOST=$(echo "$PREVIEW_BASE_URL" | sed 's#https\?://##' | cut -d/ -f1)
-          nslookup "$HOST" >/dev/null || { echo "Preview DNS no resuelve: $PREVIEW_BASE_URL"; exit 1; }
-          curl -sI --max-time 10 "$PREVIEW_BASE_URL" >/dev/null || { echo "Preview no responde (HTTP timeout): $PREVIEW_BASE_URL"; exit 1; }
+          echo "Host: $HOST"
+
+          resolve() {
+            getent hosts "$HOST" >/dev/null && return 0
+            dig +short "$HOST" @1.1.1.1 | grep -qE '^[0-9.]+$' && return 0
+            return 1
+          }
+
+          tries=0; max=6
+          until resolve; do
+            tries=$((tries+1))
+            echo "DNS intento $tries/$max…"
+            sleep $((tries*2))
+            [ $tries -ge $max ] && { echo "DNS no resuelve: $HOST"; exit 1; }
+          done
+          echo "DNS OK"
+
+          tries=0; max=3
+          until curl -sI --max-time 10 "$PREVIEW_BASE_URL" >/dev/null; do
+            tries=$((tries+1))
+            echo "HTTP intento $tries/$max…"
+            sleep $((tries*2))
+            [ $tries -ge $max ] && { echo "HTTP no responde: $PREVIEW_BASE_URL"; exit 1; }
+          done
+          echo "HTTP OK"
         shell: bash
       - name: Public smoke (Access 30x expected)
         run: |
