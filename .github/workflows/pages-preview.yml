@@ -1,0 +1,152 @@
+name: Deploy Preview (Cloudflare)
+
+on:
+  pull_request:
+    branches:
+      - develop
+      - main
+      - deploy/**
+  workflow_dispatch:
+
+jobs:
+  build-and-deploy:
+    name: Build & Deploy Preview
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      deployments: write
+      statuses: write
+    env:
+      CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+      CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+      CF_PROJECT_NAME: runart-foundry
+      RUNART_ENV: preview
+    steps:
+      - name: Validate secrets
+        run: |
+          missing=()
+          for name in CLOUDFLARE_API_TOKEN CLOUDFLARE_ACCOUNT_ID; do
+            if [ -z "${!name}" ]; then missing+=("$name"); fi
+          done
+          if [ -z "${{ secrets.CF_PROJECT_NAME }}" ]; then missing+=("CF_PROJECT_NAME"); fi
+          if [ ${#missing[@]} -gt 0 ]; then
+            echo "ERROR: faltan secrets: ${missing[*]}" >&2
+            exit 1
+          fi
+      - name: Echo project name (debug)
+        run: |
+          echo "CF_PROJECT_NAME=${{ secrets.CF_PROJECT_NAME }}" | sed 's/=.*/=<hidden>/'
+      - name: Checkout repository
+        uses: actions/checkout@v4
+      - name: Setup Python 3.11
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Setup Node.js 20
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      - name: Install dependencies
+        working-directory: apps/briefing
+        run: npm ci
+      - name: Build site
+        working-directory: apps/briefing
+        run: npm run build
+      - name: Smoke tests (unit imports)
+        working-directory: apps/briefing
+        run: npm run test:unit:smoke
+      - name: Deploy preview branch
+        id: deploy-preview
+        uses: cloudflare/pages-action@v1
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          projectName: ${{ secrets.CF_PROJECT_NAME }}
+          directory: ./apps/briefing/site
+          branch: ${{ github.head_ref }}
+          wranglerVersion: '3'
+      - name: Capture preview URL for smokes
+        run: |
+          url="${{ steps.deploy-preview.outputs.preview_url }}"
+          if [ -z "$url" ]; then
+            url="${{ steps.deploy-preview.outputs.deployment_url }}"
+          fi
+          if [ -z "$url" ]; then
+            echo "::error::Preview URL not found in deploy-preview outputs (id=deploy-preview)."
+            exit 1
+          fi
+          echo "PREVIEW_BASE_URL=$url" >> "$GITHUB_ENV"
+          echo "Preview base URL: $url"
+          ts="$(date -u +%Y%m%dT%H%M%SZ)"
+          echo "SMOKES_TS=$ts" >> "$GITHUB_ENV"
+        shell: bash
+      - name: Public smoke (Access 30x gate)
+        run: |
+          set -eo pipefail
+          if [ -z "${PREVIEW_BASE_URL:-}" ]; then
+            echo "::error::PREVIEW_BASE_URL is not set."
+            exit 1
+          fi
+          REPORT_DIR="apps/briefing/_reports/smokes_preview_${SMOKES_TS}"
+          mkdir -p "$REPORT_DIR"
+          RESULT="FAIL"
+          if BASE_URL="$PREVIEW_BASE_URL" make -C apps/briefing test-smoke-prod | tee "$REPORT_DIR/smokes_stdout_public.txt"; then
+            RESULT="PASS"
+          fi
+          curl -sSL "$PREVIEW_BASE_URL" -o "$REPORT_DIR/index.html" || true
+          cat <<EOF > "$REPORT_DIR/SUMMARY.md"
+# Smokes Preview — ${SMOKES_TS}
+- Base URL: $PREVIEW_BASE_URL
+- Público (Access 30x): $RESULT
+- Autenticado (Service Token): PENDING
+- Evidencias: _reports/smokes_preview_${SMOKES_TS}/
+EOF
+          echo "SMOKES_PREVIEW_PUBLIC=$RESULT" >> "$GITHUB_ENV"
+          if [ "$RESULT" != "PASS" ]; then
+            echo "::error::Public smoke failed (expected 30x Access redirect)."
+            exit 1
+          fi
+        shell: bash
+      - name: Auth smoke (Service Token)
+        run: |
+          set -eo pipefail
+          REPORT_DIR="apps/briefing/_reports/smokes_preview_${SMOKES_TS}"
+          if [ -z "${{ secrets.ACCESS_CLIENT_ID }}" ] || [ -z "${{ secrets.ACCESS_CLIENT_SECRET }}" ]; then
+            echo "Auth smoke SKIPPED: missing ACCESS_CLIENT_ID/ACCESS_CLIENT_SECRET"
+            sed -i "s/Autenticado (Service Token): PENDING/Autenticado (Service Token): SKIPPED/" "$REPORT_DIR/SUMMARY.md"
+            echo "SMOKES_PREVIEW_AUTH=SKIPPED" >> "$GITHUB_ENV"
+            exit 0
+          fi
+          RESULT="FAIL"
+          if BASE_URL="$PREVIEW_BASE_URL" \
+            ACCESS_CLIENT_ID="${{ secrets.ACCESS_CLIENT_ID }}" \
+            ACCESS_CLIENT_SECRET="${{ secrets.ACCESS_CLIENT_SECRET }}" \
+            make -C apps/briefing test-smoke-wrapper | tee "$REPORT_DIR/smokes_stdout_auth.txt"; then
+            RESULT="PASS"
+          fi
+          sed -i "s/Autenticado (Service Token): PENDING/Autenticado (Service Token): $RESULT/" "$REPORT_DIR/SUMMARY.md"
+          echo "SMOKES_PREVIEW_AUTH=$RESULT" >> "$GITHUB_ENV"
+          if [ "$RESULT" != "PASS" ]; then
+            echo "::error::Authenticated smoke failed (Service Token check)."
+            exit 1
+          fi
+        shell: bash
+      - name: Update 082 with preview smokes
+        run: |
+          set -e
+          REPORT_DIR="_reports/smokes_preview_${SMOKES_TS}/"
+          PUBLIC_STATUS="${SMOKES_PREVIEW_PUBLIC:-UNKNOWN}"
+          AUTH_STATUS="${SMOKES_PREVIEW_AUTH:-SKIPPED}"
+          cat <<EOF >> apps/briefing/docs/internal/briefing_system/ci/082_reestructuracion_local.md
+
+## Smokes Preview — ${SMOKES_TS}
+- Público (Access 30x): ${PUBLIC_STATUS}
+- Autenticado (Service Token): ${AUTH_STATUS}
+- Evidencias: \`${REPORT_DIR}\`
+EOF
+        shell: bash
+      - name: Upload preview smoke artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: smokes_preview_${{ env.SMOKES_TS }}
+          path: apps/briefing/_reports/smokes_preview_${{ env.SMOKES_TS }}/
