@@ -14,12 +14,14 @@
 - **Autenticado**: 200 con payload JSON esperado (`/api/whoami`) = PASS. 302/401/403 implican token inválido o política errónea.
 
 ## Service Tokens — creación y secrets
+**Prerequisito obligatorio para smokes autenticados:**
 1. Cloudflare Zero Trust → Access → Service Auth → **Create Service Token**.
 2. Guardar `Client ID` y `Client Secret` (se muestran una sola vez).
 3. GitHub → Settings → Secrets → Actions:
    - `ACCESS_CLIENT_ID` = `<Client ID>`
    - `ACCESS_CLIENT_SECRET` = `<Client Secret>`
-4. Re-lanzar workflow; el paso “Auth smoke” dejará de aparecer como SKIPPED.
+4. Re-lanzar workflow; el paso “Auth smoke” dejará de aparecer como SKIPPED y será obligatorio en Preview.
+5. En producción, el smoke autenticado solo reporta (no bloquea el deploy).
 
 ## Modo Debug
 - Revisar `SUMMARY.md` y `smokes_stdout_*.txt` en cada carpeta de `_reports`.
