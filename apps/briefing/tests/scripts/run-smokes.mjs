@@ -303,6 +303,10 @@ async function main() {
   ];
 
   const results = [];
+  let total = 0;
+  let pass200 = 0;
+  let passAccess = 0;
+  let failCount = 0;
   for (const scenario of scenarios) {
     const maxAttempts = Math.max(1, Number.parseInt(scenario.retries ?? process.env.SMOKES_RETRIES ?? "2", 10));
     const backoff = Number.parseInt(scenario.retryDelayMs ?? process.env.SMOKES_RETRY_DELAY_MS ?? "200", 10);
@@ -312,6 +316,10 @@ async function main() {
       // eslint-disable-next-line no-await-in-loop
       outcome = await runScenario(baseURL, baseHostname, scenario, attempt, maxAttempts);
       if (outcome.status === "pass") {
+        if (outcome.accessRedirect) {
+          // Access redirects se consideran éxito en el primer intento.
+          break;
+        }
         break;
       }
 
@@ -340,16 +348,28 @@ async function main() {
       console.error(`  ↳ ${outcome.error}`);
     }
     results.push(outcome);
+
+    total += 1;
+    if (outcome.status === "pass") {
+      if (outcome.accessRedirect) {
+        passAccess += 1;
+      } else {
+        pass200 += 1;
+      }
+    } else {
+      failCount += 1;
+    }
   }
 
   const summary = {
     baseURL,
     timestamp,
     totals: {
-      pass: results.filter((item) => item.status === "pass").length,
-      passAccess: results.filter((item) => item.accessRedirect).length,
-      fail: results.filter((item) => item.status === "fail").length,
-      total: results.length,
+      pass: pass200 + passAccess,
+      pass200,
+      passAccess,
+      fail: failCount,
+      total,
     },
     flags: {
       allow302: ALLOW_302,
@@ -361,9 +381,15 @@ async function main() {
   await writeFile(join(reportDir, "results.json"), JSON.stringify(summary, null, 2), "utf8");
   console.log(`[smokes] Reporte guardado en ${reportDir}`);
 
-  if (summary.totals.fail > 0) {
-    process.exitCode = 1;
+  console.log(
+    `[smokes] RESULT: pass200=${pass200} pass30x=${passAccess} fail=${failCount} total=${total}`
+  );
+
+  if (failCount === 0 && pass200 + passAccess === total) {
+    process.exitCode = 0;
+    return;
   }
+  process.exitCode = 1;
 }
 
 main().catch((error) => {
