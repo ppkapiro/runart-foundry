@@ -550,3 +550,9 @@ Copilot debe seguir el siguiente formato para agregar bloques en esta bitácora 
 - Banner producción (env-flag): Removido: YES
 - Evidencias: `_reports/smokes_prod_20251010T132947Z/`
 - Notas: Todos los endpoints rechazaron la conexión (EAI_AGAIN); repetir cuando la red esté disponible.
+
+## Verificación producción (302 Access) — 20251010T133818Z
+- Smokes HTTP con tolerancia 302: Resultado: FAIL
+- Banner producción (env-flag): Removido: YES
+- Evidencias: `_reports/smokes_prod_20251010T133818Z/`
+- Notas: Todos los escenarios devolvieron `EAI_AGAIN`; se requiere nueva ejecución cuando el dominio responda.
