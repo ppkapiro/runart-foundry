@@ -572,3 +572,8 @@ Copilot debe seguir el siguiente formato para agregar bloques en esta bitácora 
 - Banner producción (env-flag): Removido: YES
 - Evidencias: `_reports/smokes_prod_20251010T140055Z/`
 - Notas: Runner falla por `EAI_AGAIN` en todos los endpoints; requiere revisar DNS o acceso de red antes de repetir.
+
+## Smokes Preview — 20251010T143001Z
+- Público (Access 30x): FAIL
+- Autenticado (Service Token): SKIPPED
+- Evidencias: `_reports/smokes_preview_20251010T143001Z/`
