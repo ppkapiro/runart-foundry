@@ -6,6 +6,9 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) 
 
 ## [Unreleased]
 
+*No hay cambios pendientes.*
+
+## [Released — 2025-10-13] (ops)
 ### Added
 - Sello de cierre de la Fase 5 publicado en `reports/2025-10-11_fase5_ui_contextual_y_experiencias_por_rol.md` con backlog diferido documentado.
 - Referencias a artefactos de Fase 5 (`_reports/ui_context/`, `_reports/qa_runs/`, `_reports/access_sessions/README.md`) añadidas a README.

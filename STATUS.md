@@ -17,6 +17,7 @@
 | `tools/*` | 🟡 | Guardias Docs Lint/Env Report validadas en local; migración de scripts y smoke Access programados para Fase 6. |
 
 ## Últimos hitos
+- 2025-10-13 — Release automático registrado en CHANGELOG (ops).
 - 2025-10-08 — Fase 5 cerrada (reporte v1.0, backlog diferido registrado en STATUS/NEXT).
 - 2025-10-11 — Wireframes v1 de dashboards por rol publicados (`docs/internal/briefing_system/ui/dash/*.md`).
 - 2025-10-08 — Observabilidad LOG_EVENTS documentada (`ops/observabilidad.md`) + script `tools/log_events_summary.py`.
