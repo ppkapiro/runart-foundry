@@ -1,0 +1,12 @@
+{
+  "timestamp": "2025-10-09T19:21:12Z",
+  "target": "https://preview2.runart-foundry.pages.dev",
+  "checks": [
+    {
+      "name": "root redirect",
+      "method": "HEAD",
+      "status": 302,
+      "location": "https://preview2.runart-foundry.pages.dev/dash/visitor"
+    }
+  ]
+}

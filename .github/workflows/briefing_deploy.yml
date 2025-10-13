@@ -1,6 +1,18 @@
+<<<<<<< HEAD
 name: Briefing — Deploy to Cloudflare Pages
 
 on:
+=======
+name: Briefing Deploy (LEGACY)
+
+on:
+  workflow_dispatch:
+    inputs:
+      confirm_legacy:
+        description: "Confirmo que entiendo que este workflow usa rutas legacy briefing/ y NO apps/briefing/"
+        required: true
+        default: "no"
+>>>>>>> chore/bootstrap-git
   push:
     branches: [ "main" ]
     paths:
@@ -19,6 +31,10 @@ permissions:
 
 jobs:
   build-and-deploy:
+<<<<<<< HEAD
+=======
+    if: ${{ github.event.inputs.confirm_legacy == 'yes' }}
+>>>>>>> chore/bootstrap-git
     runs-on: ubuntu-latest
     env:
       PROJECT_NAME: runart-briefing
@@ -88,5 +104,9 @@ jobs:
           apiToken: ${{ secrets.CF_API_TOKEN }}
           accountId: ${{ secrets.CF_ACCOUNT_ID }}
           projectName: ${{ env.PROJECT_NAME }}
+<<<<<<< HEAD
+=======
+          # LEGACY PATH: esta ruta permanece para compatibilidad puntual (estructura activa es apps/briefing/)
+>>>>>>> chore/bootstrap-git
           directory: briefing/site
           gitHubToken: ${{ secrets.GITHUB_TOKEN }}

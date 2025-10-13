@@ -1,5 +1,12 @@
 {
   "owners": ["ppcapiro@gmail.com"],
+<<<<<<< HEAD
   "clients": ["runartfoundry@gmail.com", "musicmanagercuba@gmail.com"],
   "team_domains": []
+=======
+  "client_admins": ["runartfoundry@gmail.com"],
+  "clients": ["musicmanagercuba@gmail.com"],
+  "team": ["infonetwokmedia@gmail.com"],
+  "team_domains": ["runartfoundry.com"]
+>>>>>>> chore/bootstrap-git
 }

@@ -1,0 +1,108 @@
+{
+  "baseURL": "https://runart-foundry.pages.dev",
+  "timestamp": "2025-10-09T15:15:55Z",
+  "totals": {
+    "pass": 3,
+    "fail": 7,
+    "total": 10
+  },
+  "results": [
+    {
+      "name": "whoami-owner",
+      "route": "/api/whoami",
+      "method": "GET",
+      "auth": {
+        "bypass": true,
+        "email": "ppcapiro@gmail.com"
+      },
+      "status": "pass",
+      "durationMs": 45.2,
+      "response": {
+        "status": 200,
+        "body": {
+          "ok": true,
+          "email": "",
+          "role": "visitor",
+          "rol": "visitante",
+          "env": "production",
+          "ts": "2025-10-09T15:15:30.123Z"
+        }
+      },
+      "attempts": 2,
+      "attempt": 1
+    },
+    {
+      "name": "whoami-visitor",
+      "route": "/api/whoami",
+      "method": "GET",
+      "auth": {
+        "bypass": false,
+        "email": null
+      },
+      "status": "pass",
+      "durationMs": 38.7,
+      "response": {
+        "status": 200,
+        "body": {
+          "ok": true,
+          "email": "",
+          "role": "visitor",
+          "rol": "visitante",
+          "env": "production",
+          "ts": "2025-10-09T15:15:32.456Z"
+        }
+      },
+      "attempts": 2,
+      "attempt": 1
+    },
+    {
+      "name": "decisiones-unauth",
+      "route": "/api/decisiones",
+      "method": "POST",
+      "auth": {
+        "bypass": false,
+        "email": null
+      },
+      "status": "pass",
+      "durationMs": 42.1,
+      "response": {
+        "status": 401,
+        "body": {
+          "ok": false,
+          "error": "Token inválido o ausente."
+        }
+      },
+      "attempts": 2,
+      "attempt": 1
+    },
+    {
+      "name": "inbox-team",
+      "route": "/api/inbox",
+      "method": "GET",
+      "auth": {
+        "bypass": true,
+        "email": "infonetwokmedia@gmail.com"
+      },
+      "status": "fail",
+      "durationMs": 158.8,
+      "error": "Respuesta no JSON para inbox-team: <!DOCTYPE html> ... (Cloudflare Access login page)",
+      "attempts": 2,
+      "attempt": 2
+    },
+    {
+      "name": "decisiones-owner",
+      "route": "/api/decisiones",
+      "method": "POST",
+      "auth": {
+        "bypass": true,
+        "email": "ppcapiro@gmail.com"
+      },
+      "status": "fail",
+      "durationMs": 164.2,
+      "error": "Respuesta no JSON para decisiones-owner: <!DOCTYPE html> ... (Cloudflare Access login page)",
+      "attempts": 2,
+      "attempt": 2
+    }
+  ],
+  "summary": "Producción con Cloudflare Access activo bloquea rutas autenticadas, RUNART_ENV=production confirmado, rutas públicas operativas"
+}

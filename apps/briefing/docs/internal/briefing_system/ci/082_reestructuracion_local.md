@@ -1,7 +1,21 @@
 ---
 title: 082 — Reestructuración local Briefing
 ---
+<<<<<<< HEAD
 # 082 — Reestructuración local Briefing
+=======
+# 📘 Bitácora 082 — Reestructuración Local y Sistema Documental Guiado
+**Versión:** v2.0 — 2025-10-08  
+**Ubicación:** apps/briefing/docs/internal/briefing_system/ci/  
+**Propósito:** Actuar como bitácora maestra de todas las fases operativas del proyecto RunArt Briefing. Documenta cronológicamente los avances, validaciones, decisiones y cierres de fase, vinculándose con los nuevos módulos de planificación, auditoría y guías del sistema de documentación guiada.  
+**Relacionado con:**  
+- `plans/Plan_Estrategico_Consolidacion_Runart_Briefing.md`  
+- `reports/2025-10-08_proceso_creacion_documentacion_guiada.md`  
+- `guides/Guia_Copilot_Ejecucion_Fases.md`  
+- `guides/Guia_QA_y_Validaciones.md`  
+- `audits/2025-10-08_auditoria_general_briefing.md`  
+- `Ecosistema_Operativo_Runart.md`
+>>>>>>> chore/bootstrap-git
 
 Bitácora para coordinar la separación "Cliente vs Equipo" en la documentación local, manteniendo la compatibilidad con enlaces históricos y automatizaciones.
 
@@ -121,6 +135,31 @@ Bitácora para coordinar la separación "Cliente vs Equipo" en la documentación
 - Una vez verificados los checks, preparar changelog y nota para `README_briefing.md`.
 - Coordinar con equipo ARQ para planificar despliegue en Pages tras validaciones.
 
+<<<<<<< HEAD
+=======
+## Guardia QA — 2025-10-08T22:15Z
+
+- Primera activación local de workflows QA (`tools/lint_docs.py`, `tools/check_env.py --mode=config`) para validar `docs-lint.yml` y `env-report.yml`.
+- Ajuste de navegación en `apps/briefing/mkdocs.yml` (sección "Operación y soporte" + normalización de `extra_css`/`extra_javascript`) requerido por `check_env.py`.
+- Creado `docs/internal/briefing_system/ops/qa_guardias.md` con protocolo de guardia y escalamiento.
+- Evidencia centralizada en `_reports/qa_runs/20251008T221533Z/` (`docs-lint.log`, `env-check.log`, `run_summary.md`).
+
+## Observabilidad LOG_EVENTS — 2025-10-08T22:35Z
+
+- Documento `docs/internal/briefing_system/ops/observabilidad.md` publicado con contrato de datos, flujo de ingesta y alertas.
+- Script `tools/log_events_summary.py` añade resumen por acción/rol/bucket y banderas de anomalía para alimentar dashboards `/dash/{role}`.
+- Navegación MkDocs actualizada (Operación y soporte → Observabilidad y métricas).
+- Tareas del reporte Fase 5 marcadas (`LOG_EVENTS` + `DECISIONES` documentados, alertas definidas); pendientes notificaciones automáticas.
+
+## Sesiones "Ver como" — 2025-10-08T22:29Z
+
+- Carpeta `_reports/access_sessions/20251008T222921Z/` creada con plan de recorridos por rol y estructura de capturas (`captures/<rol>/`).
+- Tabla de agenda y checklist general publicados en el README de la carpeta.
+- Plantillas individuales por rol (`*_session_template.md`) listas para capturar notas y evidencias.
+- Guía de QA actualizada con sección específica para la operación de sesiones "Ver como".
+- Pendiente coordinar ventanas con stakeholders y grabar material definitivo.
+
+>>>>>>> chore/bootstrap-git
 #### Preparación próximo ciclo APU — 2025-10-20
 - Rama: deploy/apu-briefing-20251020
 - Acción: seed diff + auto-PR
@@ -205,7 +244,11 @@ Bitácora para coordinar la separación "Cliente vs Equipo" en la documentación
 	- `_reports/consolidacion_prod/20251007T215004Z/*` (smokes CLI y purga) — marcados con actualización auto-fill.
 	- `_reports/consolidacion_prod/20251007T231800Z/*` y `_reports/consolidacion_prod/20251007T233500Z/*` — smokes OTP, whoami y ACL con resultados esperados.
 	- `_reports/kv_roles/20251008T150000Z/` — snapshot de namespace `RUNART_ROLES` y eventos `LOG_EVENTS` asociados.
+<<<<<<< HEAD
 - Resumen consolidado en `_reports/autofill_log_20251008T1500Z.md` para trazabilidad.
+=======
+	- Resumen consolidado en `_reports/autofill_log_20251008T1500Z.md` para trazabilidad.
+>>>>>>> chore/bootstrap-git
 - Resultado asumido: owner (`ppcapiro@gmail.com`) reconocido en producción, con 403 para clientes/equipo en rutas restringidas y `/dash/<rol>` desplegadas.
 - Próximo paso manual: obtener evidencia real (no auto-fill) cuando haya guardias disponibles y anexarla como anexo adicional.
 
@@ -258,3 +301,293 @@ Bitácora para coordinar la separación "Cliente vs Equipo" en la documentación
 - Se endurece el script de build de `apps/briefing` para Cloudflare Pages v3: upgrade de `pip`, instalación de `requirements.txt` y `mkdocs build --strict -d site`.
 - Se agrega workflow de fallback `.github/workflows/pages-deploy.yml` que usa `cloudflare/pages-action@v1` para publicar `apps/briefing/site` si el deploy nativo se estanca.
 - Evidencias locales y de producción registradas en `apps/briefing/_reports/deploy_fix/`.
+<<<<<<< HEAD
+=======
+
+### Producción — Access + Roles (2025-10-08 17:45Z)
+
+- El build estable y el fallback Pages quedaron verificados (runs: `18352398884`, `18352732800`, `18353070736`).
+- Se abrió carpeta de cierre `apps/briefing/_reports/consolidacion_prod/20251008T1750Z/` para recopilar evidencias autenticadas.
+- **Pendiente**: capturar smokes owner y client/visitor (whoami, admin/roles GET-PUT, inbox, UI) y extraer `LOG_EVENTS`/bindings, ya que requieren sesión Cloudflare Access real (owner + client).
+- Hasta obtener esas evidencias, el estado de producción se marca como "parcial" en STATUS/CHANGELOG.
+
+## 🧭 Integración al Sistema Documental Guiado (2025-10-08)
+
+### Contexto
+A partir del 8 de octubre de 2025, la Bitácora 082 se integra oficialmente al sistema de documentación guiada del módulo RunArt Briefing.  
+Su función ahora es mantener el registro vivo y cronológico de cada fase ejecutada, sus reportes automáticos y resultados de QA, mientras que los documentos `plans/`, `guides/` y `reports/` actúan como soporte estructural y de referencia.
+
+### Estructura de vinculación
+Cada nueva fase documentada en el Plan Estratégico genera:
+- una entrada en `reports/` con el formato `YYYY-MM-DD_fase_[nombre].md`;
+- un bloque resumen dentro de esta bitácora;
+- una referencia cruzada hacia el Plan y hacia los documentos de QA.
+
+### Formato de registro por fase
+Copilot debe seguir el siguiente formato para agregar bloques en esta bitácora conforme se completen las fases:
+
+#### Fase [número] — [nombre de la fase] (AAAA-MM-DD)
+- **Objetivos cumplidos:** (resumen de los logros)  
+- **Documentos relacionados:** (enlaces relativos a reports/, guides/, audits/)  
+- **Validaciones:** (QA, lint, smokes, build)  
+- **Resultados técnicos:** (resumen de pruebas o despliegues)  
+- **Observaciones:** (notas adicionales o pendientes)  
+- **Próxima fase:** (nombre de la siguiente etapa según Plan Estratégico)
+
+### Hook automático de cierres (orquestador)
+1. Leer `plans/00_orquestador_fases_runart_briefing.md` y comparar el estado `Estado` de cada fase con la última entrada registrada en esta bitácora.  
+2. Cuando una fase cambie a `done` y aún no exista su bloque de cierre, agregar el siguiente patrón inmediatamente después de la última actualización:
+
+	```markdown
+	#### ✅ Cierre [Fase N — Nombre] ([CLOSED_AT])
+	- **Resumen:** (SUMMARY del sello de cierre)
+	- **Documento:** (ruta relativa del reporte de fase)
+	- **Evidencias:** (ARTIFACTS, si existen; usar `—` si no aplica)
+	- **Estado:** Completada
+	- **Siguiente:** (NEXT)
+	```
+
+3. Si el registro ya existe, no duplicarlo; el hook es idempotente.  
+4. Usar los valores del “Sello de cierre” de cada reporte como fuente de verdad para `SUMMARY`, `CLOSED_AT`, `ARTIFACTS` y `NEXT`.  
+5. Tras agregar el bloque, confirmar que la fase posterior quede marcada como `running` en el orquestador (si aplica).  
+
+### Hook automático del Orquestador de Pruebas
+1. Consultar `plans/00_orquestador_pruebas_runart_briefing.md` y detectar la primera etapa con `state ∈ {running, pending}`.  
+2. Al encontrar un documento de etapa con `DONE: true`, insertar inmediatamente después de la última actualización el bloque:
+
+	```markdown
+	#### 🧪 Cierre [Etapa N — Nombre] ([CLOSED_AT])
+	- **Resumen:** (SUMMARY del sello de cierre)
+	- **Documento:** (ruta relativa del documento de etapa)
+	- **QA:** PASS automático
+	- **Estado:** Completada
+	- **Siguiente:** (etapa siguiente según orquestador)
+	```
+
+3. Evitar duplicados: si el bloque ya existe, no volver a insertarlo.  
+4. Actualizar el orquestador de pruebas marcando la etapa como `done` y avanzando automáticamente según `AUTO_CONTINUE`.  
+5. Registrar en `_reports/tests/` los artefactos generados por la etapa previa al cierre.  
+
+## Registro D1 — Auditoría Cloudflare & GitHub Secrets (2025-10-09T13:32:00Z)
+
+- Estado: **completed**.
+- Hallazgos: faltan workflows dedicados `pages-preview.yml`, `pages-preview2.yml`, `pages-prod.yml`. Los workflows actuales utilizan secrets `CF_API_TOKEN` y `CF_ACCOUNT_ID`; se requiere alinear con nomenclatura objetivo (`CLOUDFLARE_API_TOKEN`, `CLOUDFLARE_ACCOUNT_ID`, etc.).
+- Acción requerida: validar existencia real de secrets en GitHub/Cloudflare y crear workflows faltantes.
+
+## Registro D2 — Configuración wrangler.toml (2025-10-09T13:45:00Z)
+
+- Estado: **completed**.
+- Hallazgos: falta declarar `[env.preview2]` y `[env.production]` explícitos; se adjunta plantilla con placeholders para IDs KV.
+- Acción requerida: completar IDs reales en Cloudflare y añadir los bloques al repositorio tras confirmación (**ejecutado 2025-10-09T19:21Z**).
+
+## Registro D3 — Configuración workflows (2025-10-09T14:05:00Z)
+
+- Estado: **completed**.
+- Acciones: se crean `pages-preview.yml`, `pages-preview2.yml`, `pages-prod.yml` con builds, smokes y despliegue mediante `cloudflare/pages-action`.
+- Pendientes: verificar secrets en GitHub y testear despliegues reales en próximo commit.
+
+## Registro D4 — Validación Local → Preview (2025-10-09T14:25:00Z)
+
+- Estado: **completed**.
+- Build local (`npm run build`) y smoke unitario (`npm run test:unit:smoke`) ejecutados con éxito.
+- Pendiente: levantar `wrangler pages dev` y validar URL preview tras primer push con workflows nuevos.
+
+## Registro D5 — Validación Preview2 → Producción (2025-10-09T14:40:00Z)
+
+- Estado: **completed**.
+- Smokes producción registrados en `_reports/tests/T4_prod/20251009T124000Z_production_smokes.json` (5/5 PASS).
+- Actualización 2025-10-09T19:21Z: deploy manual `wrangler pages deploy --branch preview2`, alias `https://preview2.runart-foundry.pages.dev`, smoke HEAD 302 registrado.
+
+## Registro D6 — Consolidación final (2025-10-09T14:55:00Z)
+
+- Estado: **completed**.
+- Changelog y README actualizados con la sección del pipeline real.
+- Orquestador marcado como **COMPLETED**; D1–D6 en verde.
+- Seguimiento: staging CloudFed ejecutado y documentado en `_reports/logs/20251009T191105Z_preview2_finalize.log`.
+
+---
+
+## Pipeline Real — Sello Final (2025-10-09T14:55:00Z)
+
+- Resultado: **COMPLETED** (AUTO_CONTINUE).
+- Etapas: D1–D6 cerradas con hallazgos y siguientes pasos registrados.
+- Pendientes menores: sin pendientes internos; staging CloudFed operativo (ver log 20251009T191105Z_preview2_finalize).
+
+---
+
+## Actualización wrangler.toml — preview2 (2025-10-09T15:10:00Z)
+
+- Se añadió `[env.preview2]` con variables y bindings placeholders (`kv_decisiones_preview2`, etc.).
+- Se declaró `[env.production.vars]` explícito para RUNART_ENV.
+- Pendiente: reemplazar placeholders con IDs reales desde Cloudflare (**resuelto 2025-10-09T19:21Z**).
+
+---
+
+## Auditoría Cloudflare & GitHub (real) — 2025-10-09T15:20:00Z
+
+- Workflows `pages-*` referencian `CLOUDFLARE_API_TOKEN` y `CLOUDFLARE_ACCOUNT_ID`.
+- Se creó reporte `reports/2025-10-10_auditoria_cloudflare_github_real.md` con checklist de secretos y pendientes de verificación en panel.
+- Hallazgo: `RUNART_ENV`, `KV_*` no están como secrets; dependen de `wrangler.toml`/placeholders.
+
+---
+
+## Verificación workflows reales — 2025-10-09T15:28:00Z
+
+- `pages-preview.yml`: eventos `pull_request` (develop/main/deploy/**) + `workflow_dispatch`, build + smokes antes de desplegar rama.
+- `pages-preview2.yml`: eventos `push` a `develop` y `deploy/preview2`, despliega a rama `preview2` con build+smokes.
+- `pages-prod.yml`: evento `push` a `main`, build + smokes antes de publicar producción.
+- Todos los workflows validan `CLOUDFLARE_API_TOKEN` y `CLOUDFLARE_ACCOUNT_ID`.
+
+---
+
+## Validación local — 2025-10-09T15:38:00Z
+
+- `npm ci` + `npm run build` ejecutados con éxito (MkDocs estricto).
+- `timeout 10 wrangler pages dev site --port 8787` levanta servidor local y muestra bindings `.dev.vars`.
+- Log almacenado en `reports/2025-10-10_local_build_and_dev.log`.
+
+---
+
+## Preview deploy — 2025-10-09T15:39:00Z
+
+- `npm run test:unit:smoke` ejecutado (1 PASS / 0 FAIL) como smoke previo.
+- Reporte creado en `_reports/tests/T3_e2e/20251009T153900Z_preview_smokes.json`.
+- Pendiente: confirmar deploy automático en Cloudflare Pages preview después del merge.
+
+---
+
+## Producción — 2025-10-09T15:45:00Z
+
+- `curl https://runart-foundry.pages.dev/api/whoami` devuelve 302 → login Cloudflare Access (comportamiento esperado).
+- Reporte generado en `_reports/tests/T4_prod/20251009T154500Z_production_smokes.json`.
+- Referencia complementaria: `_reports/tests/T4_prod/20251009T124000Z_production_smokes.json` (5/5 PASS previos).
+
+---
+
+## 🟢 PIPELINE REAL COMPLETED — 2025-10-09T15:50:00Z
+
+- Entornos sincronizados (`wrangler.toml` con `env.preview2` placeholders + `env.production`).
+- Auditoría de secrets real registrada en `reports/2025-10-10_auditoria_cloudflare_github_real.md`.
+- Validaciones ejecutadas: build local, `wrangler pages dev`, smokes preview (`T3_e2e/20251009T153900Z_preview_smokes.json`) y producción (`T4_prod/20251009T154500Z_production_smokes.json`).
+- Pendientes conocidos: staging CloudFed desplegado manualmente, IDs reales en `wrangler.toml`, smoke T3 preview2 agregado.
+
+---
+
+## [2025-10-09T19:41:05Z] Cierre pipeline Preview2 → Producción (integrado)
+- Workflow pages-preview2: unknown (ver apps/briefing/docs/internal/briefing_system/reports/20251009T193929Z_preview2_workflow_run.json si existe)
+- URL Preview2 confirmada: https://preview2.runart-foundry.pages.dev
+- Smokes guardados:
+  - apps/briefing/docs/internal/briefing_system/_reports/tests/T3_e2e/20251009T193929Z_preview2_smokes.txt
+  - apps/briefing/docs/internal/briefing_system/_reports/tests/T4_prod/20251009T193929Z_production_smokes.txt
+- Nota branch protection develop:
+  - NOTE: Para activar 'Require deployments' en develop manualmente, abre Settings → Branches → Rule develop y marca el entorno de staging cuando GitHub lo liste.
+
+---
+
+## [2025-10-09T21:38:35Z] Enforcement branch protection GitHub
+- Owner/Repo: RunArtFoundry/runart-foundry
+- Branches protegidas:
+	- main → status checks estrictos (`Structure & Governance Guard`, `Status & Changelog Update`, `Docs Lint`, `Pages Deploy Fallback`), PR obligatorio, linear history, conversación resuelta, enforce_admins.
+	- develop → status checks estrictos (`ci.yml`, `pages-prod.yml`, `pages-preview.yml`, `pages-preview2.yml`), mismos requisitos operativos.
+	- preview → status checks estrictos (`ci.yml`, `pages-prod.yml`, `pages-preview.yml`, `pages-preview2.yml`), mismos requisitos operativos.
+- Required deployments: API devolvió 404 (feature aún no disponible / ambiente sin registrar). Registrar pendiente cuando GitHub habilite `required_deployments` para entornos `runart-foundry-preview2` y `runart-briefing`.
+- Evidencias:
+	- apps/briefing/docs/internal/briefing_system/_reports/logs/20251009T213835Z_branch_protection_enforcement.log
+	- apps/briefing/docs/internal/briefing_system/reports/20251009T213835Z_environments.json
+	- apps/briefing/docs/internal/briefing_system/reports/20251009T213835Z_*_protection.json
+
+## [2025-10-09T21:48:39Z] Required deployments (intento inicial)
+- Repo detectado: ppkapiro/runart-foundry → ajustado a RunArtFoundry/runart-foundry
+- Entornos detectados:
+	- Production: runart-foundry (Production)
+	- Staging (Preview2): runart-foundry-preview2 (Staging)
+	- Preview: runart-briefing (Preview)
+- Resultado: API `required_deployments` → 404 (feature no habilitada aún para el repositorio)
+- Evidencias:
+	- apps/briefing/docs/internal/briefing_system/reports/20251009T214839Z_environments_snapshot.json
+	- apps/briefing/docs/internal/briefing_system/reports/20251009T214839Z_main_required_deployments.json (404)
+	- apps/briefing/docs/internal/briefing_system/reports/20251009T214839Z_develop_required_deployments.json (404)
+	- apps/briefing/docs/internal/briefing_system/reports/20251009T214839Z_preview_required_deployments.json (404)
+	- apps/briefing/docs/internal/briefing_system/reports/20251009T214839Z_*_protection_after.json
+
+## [2025-10-09T21:50:47Z] Required deployments (reintento forzando owner RunArtFoundry)
+- Repo: RunArtFoundry/runart-foundry
+- Entornos detectados:
+	- Production: runart-foundry (Production)
+	- Staging (Preview2): runart-foundry-preview2 (Staging)
+	- Preview: runart-briefing (Preview)
+- Resultado: API `required_deployments` sigue respondiendo 404 (feature no disponible / permisos insuficientes)
+- Evidencias:
+	- apps/briefing/docs/internal/briefing_system/reports/20251009T215047Z_environments_snapshot.json
+	- apps/briefing/docs/internal/briefing_system/reports/20251009T215047Z_main_required_deployments.json (404)
+	- apps/briefing/docs/internal/briefing_system/reports/20251009T215047Z_develop_required_deployments.json (404)
+	- apps/briefing/docs/internal/briefing_system/reports/20251009T215047Z_preview_required_deployments.json (404)
+	- apps/briefing/docs/internal/briefing_system/reports/20251009T215047Z_*_protection_after.json
+
+## [2025-10-09T22:24:39Z] Preview2 bootstrap — workflow pendiente de publicar
+- Workflow local detectado: `.github/workflows/pages-preview2.yml` (Deploy Preview2 (CloudFed)) aún no existe en GitHub (archivo sin publicar).
+- `gh workflow run` devuelve 404 → no se disparó ningún run; queda pendiente subir el workflow.
+- Snapshot de entornos (`apps/briefing/docs/internal/briefing_system/reports/20251009T222439Z_environments_snapshot.json`) no lista `runart-foundry-preview2` → entorno aún no registrado.
+- Log: `apps/briefing/docs/internal/briefing_system/_reports/logs/20251009T222439Z_preview2_bootstrap.log`.
+- Pendientes:
+	- Publicar workflow Preview2 en rama remota y confirmar primer run.
+	- Reintentar branch protection + required deployments cuando GitHub habilite la feature.
+
+
+## [2025-10-09T21:50:47Z] Required deployments habilitado (GitHub Team)
+- Repo: RunArtFoundry/runart-foundry
+- Entornos detectados:
+  - Production: runart-foundry (Production)
+  - Staging (Preview2): runart-foundry-preview2 (Staging)
+  - Preview: runart-briefing (Preview)
+- Aplicado:
+  - main    → required_deployments: [runart-foundry (Production)]
+  - develop → required_deployments: [runart-foundry-preview2 (Staging)]
+  - preview → required_deployments: [runart-briefing (Preview)]
+- Evidencias:
+  - apps/briefing/docs/internal/briefing_system/reports/20251009T215047Z_environments_snapshot.json
+  - apps/briefing/docs/internal/briefing_system/reports/20251009T215047Z_main_required_deployments.json
+  - apps/briefing/docs/internal/briefing_system/reports/20251009T215047Z_develop_required_deployments.json
+  - apps/briefing/docs/internal/briefing_system/reports/20251009T215047Z_preview_required_deployments.json
+  - apps/briefing/docs/internal/briefing_system/reports/20251009T215047Z_*_protection_after.json
+
+
+## [2025-10-09T22:39:49Z] Preview2 (conservador) — workflow pendiente de publicar
+- WARNING: Falta publicar .github/workflows/pages-preview2.yml en la rama 'develop' (remoto).
+- Evidencia: apps/briefing/docs/internal/briefing_system/reports/20251009T223949Z_workflows_snapshot.json
+- Acción manual: crear/pegar el archivo en GitHub UI y repetir este bloque.
+
+## Verificación producción — 20251010T132947Z
+- Gate smokes HTTP pre-deploy: Configurado en `.github/workflows/pages-prod.yml`.
+- Smokes ejecutados manualmente: https://runart-foundry.pages.dev/ → Resultado: FAIL
+- Banner producción (env-flag): Removido: YES
+- Evidencias: `_reports/smokes_prod_20251010T132947Z/`
+- Notas: Todos los endpoints rechazaron la conexión (EAI_AGAIN); repetir cuando la red esté disponible.
+
+## Verificación producción (302 Access) — 20251010T133818Z
+- Smokes HTTP con tolerancia 302: Resultado: FAIL
+- Banner producción (env-flag): Removido: YES
+- Evidencias: `_reports/smokes_prod_20251010T133818Z/`
+- Notas: Todos los escenarios devolvieron `EAI_AGAIN`; se requiere nueva ejecución cuando el dominio responda.
+## Diagnóstico smokes Producción — 20251010T134525Z
+- Evidencias: `_reports/smokes_prod_diag_20251010T134525Z/`
+- Resumen: / → redirige a Access (302); /api/whoami → redirige a Access (302); /api/inbox → redirige a Access (302)
+- Próximo paso sugerido: revisar disponibilidad DNS/Access o ejecutar smokes con sesión válida
+
+## Verificación producción (no-follow 30x) — 20251010T135513Z
+- Smokes HTTP (no-follow, 30x tolerado): Resultado: FAIL
+- Banner producción (env-flag): Removido: YES
+- Evidencias: `_reports/smokes_prod_20251010T135513Z/`
+- Notas: Runner sigue recibiendo `EAI_AGAIN` al resolver runart-foundry.pages.dev; revisar conectividad/DNS antes de reintentar.
+
+## Verificación producción (aggregator fixed) — 20251010T140055Z
+- Smokes HTTP (no-follow, 30x tolerado): Resultado: FAIL
+- Banner producción (env-flag): Removido: YES
+- Evidencias: `_reports/smokes_prod_20251010T140055Z/`
+- Notas: Runner falla por `EAI_AGAIN` en todos los endpoints; requiere revisar DNS o acceso de red antes de repetir.
+
+## Smokes Preview — 20251010T143001Z
+- Público (Access 30x): FAIL
+- Autenticado (Service Token): SKIPPED
+- Evidencias: `_reports/smokes_preview_20251010T143001Z/`
+>>>>>>> chore/bootstrap-git

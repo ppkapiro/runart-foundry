@@ -1,3 +1,44 @@
+<<<<<<< HEAD
+=======
+import { roleToAlias } from "./roles.js";
+
+const ROLE_SEGMENTS = {
+  owner: "/dash/owner",
+  client_admin: "/dash/client",
+  client: "/dash/client",
+  team: "/dash/team",
+  visitor: "/dash/visitor",
+};
+
+const ROLE_LABELS = {
+  owner: "Owner",
+  client_admin: "Client admin",
+  client: "Client",
+  team: "Team",
+  visitor: "Visitor",
+};
+
+const LEGACY_ROLE_MAP = {
+  owner: "owner",
+  admin: "owner",
+  client_admin: "client_admin",
+  client: "client",
+  cliente: "client",
+  team: "team",
+  equipo: "team",
+  visitor: "visitor",
+  visitante: "visitor",
+};
+
+const DASHBOARD_LABELS = {
+  owner: "Dashboard — Owner",
+  client_admin: "Dashboard — Client admin",
+  client: "Dashboard — Client",
+  team: "Dashboard — Team",
+  visitor: "Dashboard — Visitor",
+};
+
+>>>>>>> chore/bootstrap-git
 export function renderLayout({ title, env, role, email, nav = [], content = "" }) {
   const tag = env?.RUNART_ENV || "env";
   const links = nav
@@ -24,13 +65,18 @@ export function renderLayout({ title, env, role, email, nav = [], content = "" }
     <nav>${links}</nav>
   </header>
   <main>
+<<<<<<< HEAD
     <p style="font-size:12px;color:#666">Sesión: ${email || "anónimo"} • Rol: ${role}</p>
+=======
+    <p style="font-size:12px;color:#666">Sesión: ${email || "anónimo"} • Rol: ${roleToAlias(role)} (${ROLE_LABELS[role] || role})</p>
+>>>>>>> chore/bootstrap-git
     ${content}
   </main>
 </body></html>`;
 }
 
 export function navFor(role) {
+<<<<<<< HEAD
   const common = [{ label: "whoami", href: "/api/whoami" }];
   if (role === "owner") {
     return [
@@ -55,4 +101,34 @@ export function navFor(role) {
     ];
   }
   return [{ label: "Dashboard", href: "/dash/visitante" }, ...common];
+=======
+  const normalized = LEGACY_ROLE_MAP[role] || "visitor";
+  const dashboardHref = ROLE_SEGMENTS[normalized] || ROLE_SEGMENTS.visitor;
+  const dashboardLabel = DASHBOARD_LABELS[normalized] || DASHBOARD_LABELS.visitor;
+  const common = [{ label: "whoami", href: "/api/whoami" }];
+
+  if (normalized === "owner") {
+    return [
+      { label: dashboardLabel, href: dashboardHref },
+      { label: "Bitácora 082", href: "/docs/internal/briefing_system/ci/082_reestructuracion_local/" },
+      { label: "Fase 3", href: "/docs/internal/briefing_system/reports/2025-10-09_fase3_administracion_roles_y_delegaciones/" },
+      ...common,
+    ];
+  }
+  if (normalized === "team") {
+    return [
+      { label: dashboardLabel, href: dashboardHref },
+      { label: "Operaciones", href: "/docs/internal/briefing_system/ops/status/" },
+      ...common,
+    ];
+  }
+  if (normalized === "client" || normalized === "client_admin") {
+    return [
+      { label: dashboardLabel, href: dashboardHref },
+      { label: "Proyecto", href: "/docs/client_projects/runart_foundry/" },
+      ...common,
+    ];
+  }
+  return [{ label: dashboardLabel, href: dashboardHref }, ...common];
+>>>>>>> chore/bootstrap-git
 }

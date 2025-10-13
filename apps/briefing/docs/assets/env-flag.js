@@ -11,7 +11,15 @@
   }
   function applyEnv(env){
     html.dataset.env = env;
+<<<<<<< HEAD
     if (env === 'prod') {
+=======
+    const isProd =
+      env === 'prod' ||
+      env === 'production' ||
+      (typeof env === 'string' && env.toLowerCase() === 'production');
+    if (isProd) {
+>>>>>>> chore/bootstrap-git
       if (banner) banner.remove();
       return;
     }

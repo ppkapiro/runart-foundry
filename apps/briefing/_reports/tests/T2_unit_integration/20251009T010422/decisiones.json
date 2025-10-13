@@ -1,0 +1,24 @@
+{
+  "cases": [
+    {
+      "scenario": "without_email",
+      "status": 401,
+      "body": {
+        "ok": false,
+        "status": 401,
+        "role": "visitor"
+      }
+    },
+    {
+      "scenario": "with_email",
+      "status": 200,
+      "body": {
+        "ok": true,
+        "status": 200,
+        "role": "owner",
+        "message": "Solicitud registrada (mock)."
+      }
+    }
+  ],
+  "reportDir": "/home/pepe/work/runartfoundry/apps/briefing/_reports/tests/T2_unit_integration/20251009T010422"
+}

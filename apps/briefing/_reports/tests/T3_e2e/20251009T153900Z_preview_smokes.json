@@ -1,0 +1,14 @@
+{
+  "environment": "preview",
+  "baseURL": "https://preview--runart-foundry.pages.dev",
+  "timestamp": "2025-10-09T15:39:00Z",
+  "commands": [
+    "npm run test:unit:smoke"
+  ],
+  "totals": {
+    "pass": 1,
+    "fail": 0,
+    "total": 1
+  },
+  "notes": "Validación limitada a smoke unitario. Deployment preview pendiente de confirmación en Cloudflare."
+}

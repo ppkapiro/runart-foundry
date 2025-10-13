@@ -6,7 +6,35 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) 
 
 ## [Unreleased]
 
+<<<<<<< HEAD
 *No hay cambios pendientes.*
+=======
+### Added
+- Sello de cierre de la Fase 5 publicado en `reports/2025-10-11_fase5_ui_contextual_y_experiencias_por_rol.md` con backlog diferido documentado.
+- Referencias a artefactos de Fase 5 (`_reports/ui_context/`, `_reports/qa_runs/`, `_reports/access_sessions/README.md`) añadidas a README.
+
+### Changed
+- `NEXT_PHASE.md` actualizado para preparar Fase 6 con streams derivados del backlog de Fase 5.
+- `STATUS.md` refleja cierre de Fase 5 y nuevas prioridades (sesiones "Ver como", guardias QA, alertas LOG_EVENTS, `packages/env-banner`).
+- `README.md` reemplaza sección "Iteración activa" por resumen de cierre Fase 5 y añade bloque "Próxima iteración".
+
+### Ops
+- Orquestador (v1.1) y Bitácora 082 registran el cierre de Fase 5 (2025-10-08T23:00Z) y activan backlog Fase 6.
+- Pipeline real Local→Preview→Preview2→Producción consolidado: orquestador `04_orquestador_pipeline_real.md`, reporte de auditoría `reports/2025-10-10_auditoria_cloudflare_github_real.md`, nuevos workflows `pages-preview*.yml`/`pages-prod.yml`, log local `reports/2025-10-10_local_build_and_dev.log` y smokes `_reports/tests/T3_e2e/*`, `_reports/tests/T4_prod/*`.
+
+## [Released — 2025-10-10] (briefing)
+### Added
+- Reporte final de cierre `apps/briefing/docs/internal/briefing_system/reports/2025-10-10_fase4_consolidacion_y_cierre.md` enlazado en MkDocs.
+- Backlog actualizado en `NEXT_PHASE.md` con las líneas base de la siguiente iteración (Fase 5).
+
+### Changed
+- `STATUS.md` ahora refleja el cierre de las fases F1–F4 y redefine prioridades semanales.
+- `README.md` actualizado con fecha vigente y resumen del handover operativo.
+
+### Ops
+- Orquestador y Bitácora 082 sincronizados con el sello de cierre de F4 (2025-10-10).
+- QA documentado (`make lint`, `mkdocs build --strict`) previo al handover.
+>>>>>>> chore/bootstrap-git
 
 ## [Released — 2025-10-08] (ops)
 ### Added
@@ -30,6 +58,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) 
 - Fallback CI agregado: `.github/workflows/pages-deploy.yml` con `cloudflare/pages-action@v1` para publicar `apps/briefing/site` si el deploy nativo de Pages se estanca.
 - Evidencias: `apps/briefing/_reports/deploy_fix/build_local.log`, `apps/briefing/_reports/deploy_fix/prod_smokes_001.json`, `apps/briefing/_reports/deploy_fix/prod_smokes_002.json`.
 - Validación producción: raíz 302→200 con `-L`; `/api/whoami` 302 a Cloudflare Access cuando no hay sesión (comportamiento esperado).
+<<<<<<< HEAD
+=======
+- Acciones pendientes (Access): queda por documentar smokes owner/client e `LOG_EVENTS`; carpeta preparada en `apps/briefing/_reports/consolidacion_prod/20251008T1750Z/`.
+>>>>>>> chore/bootstrap-git
 
 ## [Released — 2025-10-07] (briefing)
 ### Changed
@@ -75,3 +107,26 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) 
 
 ### CI
 - Validación de navegación ampliada ejecutando `make build` dentro de `briefing/`.
+<<<<<<< HEAD
+=======
+
+### 20251009T193929Z – Preview2 vía Actions
+- Workflow pages-preview2: estado observado = unknown
+- Staging URL: https://preview2.runart-foundry.pages.dev
+- Smokes: T3_e2e/20251009T193929Z_preview2_smokes.txt · T4_prod/20251009T193929Z_production_smokes.txt
+
+### 20251009T213835Z – Enforcement branch protection
+- Ramas protegidas (`main`, `develop`, `preview`) ahora exigen PRs, historial lineal, resolución de conversaciones y checks estrictos.
+- Checks requeridos:
+	- main → Structure & Governance Guard · Status & Changelog Update · Docs Lint · Pages Deploy Fallback.
+	- develop → ci.yml · pages-prod.yml · pages-preview.yml · pages-preview2.yml.
+	- preview → ci.yml · pages-prod.yml · pages-preview.yml · pages-preview2.yml.
+- Environments JSON y branch_protection JSON guardados en `apps/briefing/docs/internal/briefing_system/reports/20251009T213835Z_*`.
+- Required deployments pendiente; API `required_deployments` devuelve 404. Ver log `apps/briefing/docs/internal/briefing_system/_reports/logs/20251009T213835Z_branch_protection_enforcement.log`.
+
+### 20251009T215047Z – Required deployments API 404
+- Script `enable_required_deployments.sh` intentó habilitar entornos obligatorios para `main/develop/preview`.
+- Owner real forzado a `RunArtFoundry` pero `gh api .../required_deployments` responde 404 (feature no habilitada / permisos).
+- Evidencias guardadas en `apps/briefing/docs/internal/briefing_system/_reports/logs/20251009T214839Z_required_deployments_enable.log`, `.../20251009T215047Z_required_deployments_enable.log` y snapshots JSON correspondientes.
+- Pendiente coordinar con soporte GitHub para habilitar `required_deployments` o realizar setup manual cuando el endpoint esté disponible.
+>>>>>>> chore/bootstrap-git

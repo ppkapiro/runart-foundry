@@ -1,0 +1,401 @@
+{
+  "baseURL": "https://preview.runart-foundry.pages.dev/",
+  "timestamp": "20251009T144345",
+  "totals": {
+    "pass": 10,
+    "fail": 0,
+    "total": 10
+  },
+  "results": [
+    {
+      "name": "whoami-owner",
+      "route": "/api/whoami",
+      "method": "GET",
+      "email": "ppcapiro@gmail.com",
+      "auth": {
+        "bypass": true,
+        "email": "ppcapiro@gmail.com"
+      },
+      "status": "pass",
+      "durationMs": 292.23,
+      "response": {
+        "status": 200,
+        "headers": {
+          "alt-svc": "h3=\":443\"; ma=86400",
+          "cache-control": "no-store, no-cache, must-revalidate",
+          "cf-ray": "98bea7028cfccf39-MIA",
+          "connection": "keep-alive",
+          "content-encoding": "br",
+          "content-type": "application/json; charset=utf-8",
+          "date": "Thu, 09 Oct 2025 14:43:48 GMT",
+          "nel": "{\"success_fraction\":0,\"report_to\":\"cf-nel\",\"max_age\":604800}",
+          "pragma": "no-cache",
+          "report-to": "{\"endpoints\":[{\"url\":\"https:\\/\\/a.nel.cloudflare.com\\/report\\/v4?s=F6QfOHq%2Fm6edXUPtM5QC%2Bm%2FYiA9JRk%2FHTqluWylXZM7HoBfBOBuH9xkDF%2F6Zk2v7%2FECEPHtMLlVIKDOllbys%2BUDOA2Tokn7d904muglR0nJ%2FD8%2BaN%2FneiA2SrSft9I%2BhMSaCVnCK7j930J9Jl0pugPFx7A%3D%3D\"}],\"group\":\"cf-nel\",\"max_age\":604800}",
+          "server": "cloudflare",
+          "server-timing": "cfL4;desc=\"?proto=TCP&rtt=23270&min_rtt=19947&rtt_var=11539&sent=4&recv=7&lost=0&retrans=0&sent_bytes=2877&recv_bytes=818&delivery_rate=110520&cwnd=252&unsent_bytes=0&cid=3ab5bf9f227b44b9&ts=82&x=0\"",
+          "transfer-encoding": "chunked",
+          "vary": "Accept-Encoding"
+        },
+        "body": {
+          "ok": true,
+          "email": "ppcapiro@gmail.com",
+          "role": "owner",
+          "rol": "propietario",
+          "env": "preview",
+          "ts": "2025-10-09T14:43:48.261Z"
+        }
+      },
+      "error": null,
+      "attempts": 2,
+      "attempt": 1
+    },
+    {
+      "name": "whoami-team",
+      "route": "/api/whoami",
+      "method": "GET",
+      "email": "infonetwokmedia@gmail.com",
+      "auth": {
+        "bypass": true,
+        "email": "infonetwokmedia@gmail.com"
+      },
+      "status": "pass",
+      "durationMs": 84.82,
+      "response": {
+        "status": 200,
+        "headers": {
+          "alt-svc": "h3=\":443\"; ma=86400",
+          "cache-control": "no-store, no-cache, must-revalidate",
+          "cf-ray": "98bea7034e7dcf39-MIA",
+          "connection": "keep-alive",
+          "content-encoding": "br",
+          "content-type": "application/json; charset=utf-8",
+          "date": "Thu, 09 Oct 2025 14:43:48 GMT",
+          "nel": "{\"report_to\":\"cf-nel\",\"success_fraction\":0.0,\"max_age\":604800}",
+          "pragma": "no-cache",
+          "report-to": "{\"group\":\"cf-nel\",\"max_age\":604800,\"endpoints\":[{\"url\":\"https://a.nel.cloudflare.com/report/v4?s=f0XQmFh7GE%2BhBq4qpaw2e4jDE0t32g0jdFmJzOEXVRCJ5T%2BfcMb2OfEa5OpyLg9fd7fDJOfewFonVHtJA9%2FlSj%2BfZ5I4uwn7CZCLOaHYSZM%2BeB5czcyANazclbFCTR7i\"}]}",
+          "server": "cloudflare",
+          "transfer-encoding": "chunked",
+          "vary": "accept-encoding"
+        },
+        "body": {
+          "ok": true,
+          "email": "infonetwokmedia@gmail.com",
+          "role": "team",
+          "rol": "equipo",
+          "env": "preview",
+          "ts": "2025-10-09T14:43:48.370Z"
+        }
+      },
+      "error": null,
+      "attempts": 2,
+      "attempt": 1
+    },
+    {
+      "name": "whoami-client_admin",
+      "route": "/api/whoami",
+      "method": "GET",
+      "email": "runartfoundry@gmail.com",
+      "auth": {
+        "bypass": true,
+        "email": "runartfoundry@gmail.com"
+      },
+      "status": "pass",
+      "durationMs": 52.42,
+      "response": {
+        "status": 200,
+        "headers": {
+          "alt-svc": "h3=\":443\"; ma=86400",
+          "cache-control": "no-store, no-cache, must-revalidate",
+          "cf-ray": "98bea703af23cf39-MIA",
+          "connection": "keep-alive",
+          "content-encoding": "br",
+          "content-type": "application/json; charset=utf-8",
+          "date": "Thu, 09 Oct 2025 14:43:48 GMT",
+          "nel": "{\"report_to\":\"cf-nel\",\"success_fraction\":0.0,\"max_age\":604800}",
+          "pragma": "no-cache",
+          "report-to": "{\"group\":\"cf-nel\",\"max_age\":604800,\"endpoints\":[{\"url\":\"https://a.nel.cloudflare.com/report/v4?s=tI79LNi6UrDM2brTgKomTNYi6FpVUvYw2Muj7g0uSVup8YMAhKwtSwM2F02NG0csPqNlxm0oZvPrVBmH3B4mpHAA0iyTMkCGiGVVDJW4jelnIAb2FCIiMM8Ufl4BZxiU\"}]}",
+          "server": "cloudflare",
+          "transfer-encoding": "chunked",
+          "vary": "accept-encoding"
+        },
+        "body": {
+          "ok": true,
+          "email": "runartfoundry@gmail.com",
+          "role": "client_admin",
+          "rol": "cliente_admin",
+          "env": "preview",
+          "ts": "2025-10-09T14:43:48.429Z"
+        }
+      },
+      "error": null,
+      "attempts": 2,
+      "attempt": 1
+    },
+    {
+      "name": "whoami-visitor",
+      "route": "/api/whoami",
+      "method": "GET",
+      "auth": {
+        "bypass": false,
+        "email": null
+      },
+      "status": "pass",
+      "durationMs": 50.24,
+      "response": {
+        "status": 200,
+        "headers": {
+          "alt-svc": "h3=\":443\"; ma=86400",
+          "cache-control": "no-store, no-cache, must-revalidate",
+          "cf-ray": "98bea703ffe6cf39-MIA",
+          "connection": "keep-alive",
+          "content-encoding": "br",
+          "content-type": "application/json; charset=utf-8",
+          "date": "Thu, 09 Oct 2025 14:43:48 GMT",
+          "nel": "{\"report_to\":\"cf-nel\",\"success_fraction\":0.0,\"max_age\":604800}",
+          "pragma": "no-cache",
+          "report-to": "{\"group\":\"cf-nel\",\"max_age\":604800,\"endpoints\":[{\"url\":\"https://a.nel.cloudflare.com/report/v4?s=zQA5zunyTjmNRe4yyzimiWFSQ%2F46DJGCQeUOuIQQFwjj8IW5fdH4qWskuB9ovML%2B%2FvSBKJDbl181nd9A4pUojh%2FcBr5LxDc8w0NiTUqpIlpiZL9mbzrtIkEZecrEBqCi\"}]}",
+          "server": "cloudflare",
+          "transfer-encoding": "chunked",
+          "vary": "accept-encoding"
+        },
+        "body": {
+          "ok": true,
+          "email": null,
+          "role": "visitor",
+          "rol": "visitante",
+          "env": "preview",
+          "ts": "2025-10-09T14:43:48.480Z"
+        }
+      },
+      "error": null,
+      "attempts": 2,
+      "attempt": 1
+    },
+    {
+      "name": "inbox-owner",
+      "route": "/api/inbox",
+      "method": "GET",
+      "email": "ppcapiro@gmail.com",
+      "auth": {
+        "bypass": true,
+        "email": "ppcapiro@gmail.com"
+      },
+      "status": "pass",
+      "durationMs": 52.24,
+      "response": {
+        "status": 200,
+        "headers": {
+          "alt-svc": "h3=\":443\"; ma=86400",
+          "cache-control": "no-store, no-cache, must-revalidate",
+          "cf-ray": "98bea7044889cf39-MIA",
+          "connection": "keep-alive",
+          "content-encoding": "br",
+          "content-type": "application/json",
+          "date": "Thu, 09 Oct 2025 14:43:48 GMT",
+          "nel": "{\"report_to\":\"cf-nel\",\"success_fraction\":0.0,\"max_age\":604800}",
+          "pragma": "no-cache",
+          "report-to": "{\"group\":\"cf-nel\",\"max_age\":604800,\"endpoints\":[{\"url\":\"https://a.nel.cloudflare.com/report/v4?s=2FlKHGyL0JwnhouXU90wAv%2BvqJ99%2Fo6axIndxIPPiu6nt1F4LrJYla0GAXKgPvEbxz1i6T%2FMDXoiAyXHGVxp%2FrrlVV6I0a7RkPr8LAaoROV6pUgChTqOXBtMjNxbS6mT\"}]}",
+          "server": "cloudflare",
+          "transfer-encoding": "chunked",
+          "vary": "accept-encoding"
+        },
+        "body": {
+          "ok": true,
+          "status": 200,
+          "role": "owner"
+        }
+      },
+      "error": null,
+      "attempts": 2,
+      "attempt": 1
+    },
+    {
+      "name": "inbox-team",
+      "route": "/api/inbox",
+      "method": "GET",
+      "email": "infonetwokmedia@gmail.com",
+      "auth": {
+        "bypass": true,
+        "email": "infonetwokmedia@gmail.com"
+      },
+      "status": "pass",
+      "durationMs": 42.07,
+      "response": {
+        "status": 200,
+        "headers": {
+          "alt-svc": "h3=\":443\"; ma=86400",
+          "cache-control": "no-store, no-cache, must-revalidate",
+          "cf-ray": "98bea7048928cf39-MIA",
+          "connection": "keep-alive",
+          "content-encoding": "br",
+          "content-type": "application/json",
+          "date": "Thu, 09 Oct 2025 14:43:48 GMT",
+          "nel": "{\"report_to\":\"cf-nel\",\"success_fraction\":0.0,\"max_age\":604800}",
+          "pragma": "no-cache",
+          "report-to": "{\"group\":\"cf-nel\",\"max_age\":604800,\"endpoints\":[{\"url\":\"https://a.nel.cloudflare.com/report/v4?s=vRDkXHS51Ui69O%2Bg%2BLhSrqb3DPnFUBDcEm4VFcnZmgzTzVvLwjvf9%2FKyIs5j5fT4f%2BLQURjXB%2Fyjid%2FV%2FlF6ENTNm0FNCPAbWZUq7LBK5RxOYfMgLapBdk%2FPQT%2BOq90q\"}]}",
+          "server": "cloudflare",
+          "transfer-encoding": "chunked",
+          "vary": "accept-encoding"
+        },
+        "body": {
+          "ok": true,
+          "status": 200,
+          "role": "team"
+        }
+      },
+      "error": null,
+      "attempts": 2,
+      "attempt": 1
+    },
+    {
+      "name": "inbox-client",
+      "route": "/api/inbox",
+      "method": "GET",
+      "email": "musicmanagercuba@gmail.com",
+      "auth": {
+        "bypass": true,
+        "email": "musicmanagercuba@gmail.com"
+      },
+      "status": "pass",
+      "durationMs": 56.51,
+      "response": {
+        "status": 403,
+        "headers": {
+          "alt-svc": "h3=\":443\"; ma=86400",
+          "cache-control": "no-store, no-cache, must-revalidate",
+          "cf-ray": "98bea704e9c5cf39-MIA",
+          "connection": "keep-alive",
+          "content-length": "41",
+          "content-type": "application/json",
+          "date": "Thu, 09 Oct 2025 14:43:48 GMT",
+          "nel": "{\"success_fraction\":0,\"report_to\":\"cf-nel\",\"max_age\":604800}",
+          "pragma": "no-cache",
+          "report-to": "{\"endpoints\":[{\"url\":\"https:\\/\\/a.nel.cloudflare.com\\/report\\/v4?s=bxoqt%2FWLBNzRtOQjZpvuPhKF4EmQ4mCP71%2B6jfYk3E7I5gqn9YwU%2F9XCDH5vEJ63fA%2FjkwO%2BlPq3rnR3t6pcPlrXuG3W%2FCp2JvFf7liPkbQSfBfTyF%2BsS1ujrPrAwblwkii%2FzSNkW06ba%2FMd7bPeIHPcGA%3D%3D\"}],\"group\":\"cf-nel\",\"max_age\":604800}",
+          "server": "cloudflare",
+          "server-timing": "cfL4;desc=\"?proto=TCP&rtt=29522&min_rtt=18462&rtt_var=11095&sent=17&recv=19&lost=0&retrans=0&sent_bytes=8515&recv_bytes=2770&delivery_rate=144983&cwnd=257&unsent_bytes=0&cid=3ab5bf9f227b44b9&ts=450&x=0\"",
+          "vary": "Accept-Encoding"
+        },
+        "body": {
+          "ok": false,
+          "status": 403,
+          "role": "client"
+        }
+      },
+      "error": null,
+      "attempts": 2,
+      "attempt": 1
+    },
+    {
+      "name": "inbox-visitor",
+      "route": "/api/inbox",
+      "method": "GET",
+      "auth": {
+        "bypass": false,
+        "email": null
+      },
+      "status": "pass",
+      "durationMs": 230.73,
+      "response": {
+        "status": 403,
+        "headers": {
+          "alt-svc": "h3=\":443\"; ma=86400",
+          "cache-control": "no-store, no-cache, must-revalidate",
+          "cf-ray": "98bea7065d443d4f-MIA",
+          "connection": "keep-alive",
+          "content-encoding": "br",
+          "content-type": "application/json",
+          "date": "Thu, 09 Oct 2025 14:43:48 GMT",
+          "nel": "{\"report_to\":\"cf-nel\",\"success_fraction\":0.0,\"max_age\":604800}",
+          "pragma": "no-cache",
+          "report-to": "{\"group\":\"cf-nel\",\"max_age\":604800,\"endpoints\":[{\"url\":\"https://a.nel.cloudflare.com/report/v4?s=QAjQGaz%2FaIga2Wj%2B3NPH7XAYMHGNv9vgmUc9BJOQWeTHrMPBycyiVdDANbupiFmH1cPHaODEAu5y3NBd8%2F3PVwGX23riQv42YIEl2yc2XEGFjNerouuGYpTX%2BqSVPUW%2F\"}]}",
+          "server": "cloudflare",
+          "transfer-encoding": "chunked",
+          "vary": "accept-encoding"
+        },
+        "body": {
+          "ok": false,
+          "status": 403,
+          "role": "visitor"
+        }
+      },
+      "error": null,
+      "attempts": 2,
+      "attempt": 1
+    },
+    {
+      "name": "decisiones-unauth",
+      "route": "/api/decisiones",
+      "method": "POST",
+      "auth": {
+        "bypass": false,
+        "email": null
+      },
+      "status": "pass",
+      "durationMs": 64.38,
+      "response": {
+        "status": 401,
+        "headers": {
+          "alt-svc": "h3=\":443\"; ma=86400",
+          "cache-control": "no-store, no-cache, must-revalidate",
+          "cf-ray": "98bea706ce37cf39-MIA",
+          "connection": "keep-alive",
+          "content-length": "42",
+          "content-type": "application/json",
+          "date": "Thu, 09 Oct 2025 14:43:48 GMT",
+          "nel": "{\"report_to\":\"cf-nel\",\"success_fraction\":0.0,\"max_age\":604800}",
+          "pragma": "no-cache",
+          "report-to": "{\"group\":\"cf-nel\",\"max_age\":604800,\"endpoints\":[{\"url\":\"https://a.nel.cloudflare.com/report/v4?s=qMnU3fb5xM7rzydlG%2BTmp%2F3BLDcqFJPfNR7ioSbVGuMkeVuUvCb6u2YmJsEJeWr96OdCaJ40zzTzfwU6VzsT79BgP8eULveOK0%2Frk7P9Ts7OoxAX3nK9L3CIoIpPivhy\"}]}",
+          "server": "cloudflare",
+          "vary": "accept-encoding"
+        },
+        "body": {
+          "ok": false,
+          "status": 401,
+          "role": "visitor"
+        }
+      },
+      "error": null,
+      "attempts": 2,
+      "attempt": 1
+    },
+    {
+      "name": "decisiones-owner",
+      "route": "/api/decisiones",
+      "method": "POST",
+      "email": "ppcapiro@gmail.com",
+      "auth": {
+        "bypass": true,
+        "email": "ppcapiro@gmail.com"
+      },
+      "status": "pass",
+      "durationMs": 58.86,
+      "response": {
+        "status": 200,
+        "headers": {
+          "alt-svc": "h3=\":443\"; ma=86400",
+          "cache-control": "no-store, no-cache, must-revalidate",
+          "cf-ray": "98bea7071f773d4f-MIA",
+          "connection": "keep-alive",
+          "content-encoding": "br",
+          "content-type": "application/json",
+          "date": "Thu, 09 Oct 2025 14:43:48 GMT",
+          "nel": "{\"report_to\":\"cf-nel\",\"success_fraction\":0.0,\"max_age\":604800}",
+          "pragma": "no-cache",
+          "report-to": "{\"group\":\"cf-nel\",\"max_age\":604800,\"endpoints\":[{\"url\":\"https://a.nel.cloudflare.com/report/v4?s=Fod07B2v3bLLNeHgBJ5COe75EY80sgQvdSzSNwGpVIdI%2Bqm4LsXriwUtMIVYOqIXIJd501sgRZ63%2F3wouEvU1m%2FvfNHZyf5XdpngU1oXL%2BOa5%2Bz%2B%2FrF2v5tSPBbUMyVC\"}]}",
+          "server": "cloudflare",
+          "transfer-encoding": "chunked",
+          "vary": "accept-encoding"
+        },
+        "body": {
+          "ok": true,
+          "status": 200,
+          "role": "owner",
+          "message": "Solicitud registrada (mock)."
+        }
+      },
+      "error": null,
+      "attempts": 2,
+      "attempt": 1
+    }
+  ]
+}

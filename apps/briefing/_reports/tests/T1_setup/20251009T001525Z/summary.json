@@ -1,0 +1,16 @@
+{
+  "timestamp": "20251009T001525Z",
+  "ping": {
+    "status": 200,
+    "body": "setup-ok"
+  },
+  "seededRoles": [
+    "owner",
+    "client_admin",
+    "client",
+    "team",
+    "visitor"
+  ],
+  "notes": "Miniflare initialized with minimal worker and KV namespaces.",
+  "rolesSource": "/home/pepe/work/runartfoundry/apps/briefing/access/roles.json"
+}

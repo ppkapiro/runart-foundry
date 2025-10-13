@@ -1,0 +1,27 @@
+== STAGING SMOKES 2025-10-09T19:41:05Z (https://preview2.runart-foundry.pages.dev) ==
+HTTP/2 302 
+date: Thu, 09 Oct 2025 19:41:09 GMT
+location: https://preview2.runart-foundry.pages.dev/dash/visitor
+vary: accept-encoding
+report-to: {"group":"cf-nel","max_age":604800,"endpoints":[{"url":"https://a.nel.cloudflare.com/report/v4?s=fc0bb1MRh3oqlENH3h0MQmv%2ByQbaPUTKudWKG80UdXwLYNYzcjPMGnt0vWHHaK%2FZbv0J2XlUrNwEO4MS4QZBul7pfRTmkNcqvQoFm%2FN3vfYhhpiJw33t6hensTTbetSI0Q%3D%3D"}]}
+nel: {"report_to":"cf-nel","success_fraction":0.0,"max_age":604800}
+server: cloudflare
+cf-ray: 98c05a95bae2f3e0-MIA
+alt-svc: h3=":443"; ma=86400
+
+HTTP/2 200 
+date: Thu, 09 Oct 2025 19:41:09 GMT
+content-type: application/octet-stream
+access-control-allow-origin: *
+cache-control: public, max-age=0, must-revalidate
+etag: "e2110cad3de4bbc3f8bfa1cbd948cdd3"
+referrer-policy: strict-origin-when-cross-origin
+x-content-type-options: nosniff
+x-robots-tag: noindex
+vary: accept-encoding
+report-to: {"group":"cf-nel","max_age":604800,"endpoints":[{"url":"https://a.nel.cloudflare.com/report/v4?s=MIImU7DWGgZ6guQyOs5v8xqsswKWd%2BM0yDV0sKYtXOOujZ%2ByuadAW37WLuLLvnI5CJCias4o5raZg%2BLWtgnL7KsYbEKAGuXPo3OBQrbr7h7%2F3xa2hpNdTJPKgCwQqjOQ8w%3D%3D"}]}
+nel: {"report_to":"cf-nel","success_fraction":0.0,"max_age":604800}
+server: cloudflare
+cf-ray: 98c05a9729be67e1-MIA
+alt-svc: h3=":443"; ma=86400
+

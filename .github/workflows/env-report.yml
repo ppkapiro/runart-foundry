@@ -1,6 +1,10 @@
 name: Environment Report
 
 on:
+<<<<<<< HEAD
+=======
+  workflow_dispatch:
+>>>>>>> chore/bootstrap-git
   pull_request:
     paths:
       - '*'

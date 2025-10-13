@@ -49,8 +49,14 @@ def split_front_matter(text: str) -> tuple[dict, str]:
 
     try:
         data = yaml.safe_load(front) or {}
+<<<<<<< HEAD
     except yaml.YAMLError as exc:  # pragma: no cover
         raise RuntimeError(f"Front matter inválido: {exc}") from exc
+=======
+    except yaml.YAMLError:
+        # Treat malformed front matter as plain content so legacy docs without YAML blocks do not halt the build.
+        return {}, text
+>>>>>>> chore/bootstrap-git
 
     if not isinstance(data, dict):
         data = {}
