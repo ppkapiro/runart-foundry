@@ -46,6 +46,8 @@ jobs:
           # Si origin/main existe y diverge, fusionar para evitar push no fast-forward (sin forzar)
           if git ls-remote --exit-code --heads origin main >/dev/null 2>&1; then
             echo "origin/main existe; realizando merge no destructivo (preferimos contenido estable actual)";
+            git config user.name "github-actions[bot]"
+            git config user.email "github-actions[bot]@users.noreply.github.com"
             git merge --no-edit -X ours origin/main || git merge --no-edit origin/main;
           fi
           # Empujar main a remoto de forma segura
