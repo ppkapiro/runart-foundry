@@ -52,6 +52,11 @@ jobs:
       - name: Install dependencies
         working-directory: apps/briefing
         run: npm ci
+      - name: Sync roles to Preview KV
+        working-directory: apps/briefing
+        run: |
+          node scripts/sync_roles_preview.mjs
+          ls -la _reports/logs || true
       - name: Build site
         working-directory: apps/briefing
         run: npm run build
@@ -143,6 +148,28 @@ jobs:
             echo "- URL: $URL"
           } >> "$GITHUB_STEP_SUMMARY"
         shell: bash
+      - name: Preview env audit & roles debug
+        run: |
+          set -e
+          TS="${SMOKES_TS}"
+          REPORT="apps/briefing/_reports/smokes_preview_${TS}"
+          mkdir -p "$REPORT"
+          BASE="$PREVIEW_BASE_URL"
+          echo "Audit base: $BASE"
+          # Capturar /api/debug/roles con y sin Service Token
+          # Sin auth
+          curl -sS "$BASE/api/debug/roles" -o "$REPORT/debug_roles_noauth.json" || true
+          # Con Service Token
+          if [ -n "${{ secrets.ACCESS_CLIENT_ID }}" ] && [ -n "${{ secrets.ACCESS_CLIENT_SECRET }}" ]; then
+            H_ID="${{ secrets.ACCESS_CLIENT_ID }}"
+            H_SECRET="${{ secrets.ACCESS_CLIENT_SECRET }}"
+            for role in owner team client_admin client visitor; do
+              echo "Role hint: $role"
+              curl -sS -H "CF-Access-Client-Id: $H_ID" -H "CF-Access-Client-Secret: $H_SECRET" -H "X-RunArt-Role: $role" \
+                "$BASE/api/debug/roles" -o "$REPORT/debug_roles_${role}.json" || true
+            done
+          fi
+        shell: bash
       - name: Debug PREVIEW_BASE_URL (post)
         run: |
           echo "PREVIEW_BASE_URL(post)=${PREVIEW_BASE_URL}"
@@ -233,6 +260,7 @@ jobs:
         shell: bash
       - name: Auth smoke (Service Token)
         if: ${{ steps.auth-flags.outputs.enabled == 'true' }}
+        continue-on-error: true
         env:
           BASE_URL: ${{ env.PREVIEW_BASE_URL }}
           PROD_URL: ${{ env.PREVIEW_BASE_URL }}
@@ -248,10 +276,20 @@ jobs:
           if PROD_URL="$PROD_URL" BASE_URL="$BASE_URL" ACCESS_CLIENT_ID="$ACCESS_CLIENT_ID" ACCESS_CLIENT_SECRET="$ACCESS_CLIENT_SECRET" make -C apps/briefing test-smoke-wrapper | tee "$REPORT/smokes_stdout_auth.txt"; then
             RESULT="PASS"
           fi
+          # Capturar whoami directo para diagnóstico
+          echo "Capturando whoami (service token)…"
+          curl -sS -H "CF-Access-Client-Id: $ACCESS_CLIENT_ID" -H "CF-Access-Client-Secret: $ACCESS_CLIENT_SECRET" "$BASE_URL/api/whoami" -o "$REPORT/whoami_service.json" || true
           sed -i "s/Autenticado (Service Token): PENDING/Autenticado (Service Token): ${RESULT}/" "$REPORT/SUMMARY.md"
           echo "SMOKES_PREVIEW_AUTH=$RESULT" >> "$GITHUB_ENV"
           if [ "$RESULT" != "PASS" ]; then
-            echo "::error::Authenticated smoke (Service Token) reportó $RESULT"
+            echo "::error::Authenticated smoke (Service Token) reportó $RESULT (continuando para subir artefactos y 082)"
+          fi
+        shell: bash
+      - name: Gate on Auth smoke result
+        if: ${{ steps.auth-flags.outputs.enabled == 'true' }}
+        run: |
+          if [ "${SMOKES_PREVIEW_AUTH}" != "PASS" ]; then
+            echo "Auth smoke fue ${SMOKES_PREVIEW_AUTH}. Fallando el job tras recolectar evidencias."
             exit 1
           fi
         shell: bash

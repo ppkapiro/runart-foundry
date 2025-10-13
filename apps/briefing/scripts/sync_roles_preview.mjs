@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-import { readFileSync, writeFileSync } from "node:fs";
+import { readFileSync, writeFileSync, mkdirSync } from "node:fs";
 import { join } from "node:path";
 import { spawnSync } from "node:child_process";
 
@@ -9,6 +9,11 @@ function main() {
   const logDir = join(root, "_reports", "logs");
   const ts = new Date().toISOString().replace(/[-:]/g, "").replace(/\..+/, "");
   const logFile = join(logDir, `${ts}_sync_roles_preview.log`);
+
+  // Asegurar directorio de logs
+  try {
+    mkdirSync(logDir, { recursive: true });
+  } catch (_) {}
 
   const raw = readFileSync(rolesPath, "utf8");
   const json = JSON.parse(raw);
@@ -31,7 +36,8 @@ function main() {
   // Ejecutar wrangler KV bulk put apuntando a Preview
   // Requiere que wrangler.toml esté configurado con la namespace de Preview para RUNART_ROLES
   const cmd = "npx";
-  const args = ["wrangler", "kv", "bulk", "put", tmpFile, "--binding", "RUNART_ROLES"];
+  // Forzar el uso de la namespace de preview (preview_id) definida en wrangler.toml
+  const args = ["wrangler", "kv", "bulk", "put", tmpFile, "--binding", "RUNART_ROLES", "--preview"];
   const res = spawnSync(cmd, args, { cwd: root, stdio: "pipe", encoding: "utf8" });
 
   const summary = {
@@ -40,7 +46,7 @@ function main() {
     samples: Object.fromEntries(
       Object.entries(groups).map(([k, arr]) => [k, arr.slice(0, 2)])
     ),
-    wrangler: { code: res.status, stdout: res.stdout?.slice(0, 2000) },
+  wrangler: { code: res.status, stdout: res.stdout?.slice(0, 2000), stderr: res.stderr?.slice(0, 2000) },
   };
 
   writeFileSync(logFile, `${JSON.stringify(summary, null, 2)}\n`, "utf8");

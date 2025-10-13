@@ -603,3 +603,18 @@ Copilot debe seguir el siguiente formato para agregar bloques en esta bitácora 
 - Nuevo run Preview: https://github.com/RunArtFoundry/runart-foundry/actions/runs/18471719981 — preview_url: https://5655e660.runart-foundry.pages.dev
 - Evidencias T1 públicas escritas en: apps/briefing/_reports/tests/T1_preview_access/20251013T161200Z/
 - T2 preparado (plantillas y scripts públicos) en: apps/briefing/_reports/tests/T2_routes_roles/20251013T161200Z/
+
+## Smokes Preview — 20251013T170812Z (T3)
+- Preview URL: https://8f745766.runart-foundry.pages.dev
+- Público (Access 30x): PASS/WARN
+- Autenticado (Service Token): FAIL
+- Evidencias: `_reports/smokes_preview_20251013T170812Z/`, `_reports/tests/T3_e2e/20251013T170900Z/`
+- Run: https://github.com/RunArtFoundry/runart-foundry/actions/runs/18473160346
+- Diagnóstico: `/api/whoami` devuelve `role: "admin"` para distintos correos (owner/team/client_admin/visitor). Verificar ENV (`ACCESS_ADMINS`, `ACCESS_CLIENT_ADMINS`) y KV `RUNART_ROLES` en Preview.
+
+## Smokes Preview2 — 20251013T165921Z (T3)
+- Preview2 URL: https://1d18c874.runart-foundry.pages.dev
+- Público (Access 30x): PASS
+- Autenticado (Service Token): PASS
+- Evidencias: `_reports/smokes_preview2_20251013T165921Z/`, `_reports/tests/T3_e2e/20251013T170900Z/`
+- Run: https://github.com/RunArtFoundry/runart-foundry/actions/runs/18472917793
