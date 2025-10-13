@@ -2,9 +2,14 @@ name: Deploy Production (Cloudflare)
 
 on:
   push:
-    branches:
-      - main
+    branches: [ main ]
   workflow_dispatch:
+    inputs:
+      collect_evidence:
+        description: "Guardar evidencias (resúmenes)"
+        required: false
+        default: true
+        type: boolean
 
 jobs:
   build-and-deploy:
@@ -20,6 +25,8 @@ jobs:
       CF_PROJECT_NAME: runart-foundry
       TARGET_BRANCH: main
       RUNART_ENV: production
+      ACCESS_CLIENT_ID: ${{ secrets.ACCESS_CLIENT_ID }}
+      ACCESS_CLIENT_SECRET: ${{ secrets.ACCESS_CLIENT_SECRET }}
     steps:
       - name: Validate secrets
         run: |
@@ -31,22 +38,28 @@ jobs:
             echo "ERROR: faltan secrets: ${missing[*]}" >&2
             exit 1
           fi
+
       - name: Checkout repository
         uses: actions/checkout@v4
+
       - name: Setup Python 3.11
         uses: actions/setup-python@v5
         with:
           python-version: '3.11'
+
       - name: Setup Node.js 20
         uses: actions/setup-node@v4
         with:
           node-version: '20'
+
       - name: Install dependencies
         working-directory: apps/briefing
         run: npm ci
+
       - name: Build site
         working-directory: apps/briefing
         run: npm run build
+
       - name: Run unit smoke tests
         working-directory: apps/briefing
         run: npm run test:unit:smoke
@@ -103,135 +116,9 @@ jobs:
           directory: ./apps/briefing/site
           branch: ${{ env.TARGET_BRANCH }}
           wranglerVersion: '3'
-        - name: Auth smoke (Service Token, post-deploy, non-blocking)
-          if: ${{ secrets.ACCESS_CLIENT_ID != '' && secrets.ACCESS_CLIENT_SECRET != '' }}
-          env:
-            PROD_URL: https://runart-foundry.pages.dev/
-            ACCESS_CLIENT_ID: ${{ secrets.ACCESS_CLIENT_ID }}
-            ACCESS_CLIENT_SECRET: ${{ secrets.ACCESS_CLIENT_SECRET }}
-          run: |
-            set +e
-            TS=$(date -u +%Y%m%dT%H%M%SZ)
-            REPORT="apps/briefing/_reports/smokes_prod_${TS}"
-            mkdir -p "$REPORT"
-            BASE_URL="$PROD_URL" make -C apps/briefing test-smoke-wrapper
-            STATUS=$?
-            if [ $STATUS -eq 0 ]; then
-              echo "- Autenticado Prod: PASS (200 ok)" >> "${REPORT}/SUMMARY.md"
-            else
-              echo "- Autenticado Prod: FAIL (ver stdout)" >> "${REPORT}/SUMMARY.md"
-            fi
-            exit 0
-        - name: Auth smoke (Prod SKIPPED — missing secrets)
-          if: ${{ ! (secrets.ACCESS_CLIENT_ID != '' && secrets.ACCESS_CLIENT_SECRET != '' ) }}
-          run: |
-            echo "Auth smoke Prod SKIPPED: falta ACCESS_CLIENT_ID/ACCESS_CLIENT_SECRET"
-        - name: Update 082 (Prod, auth)
-          run: |
-            TS=$(date -u +%Y%m%dT%H%M%SZ)
-            REPORT="_reports/smokes_prod_${TS}/"
-            FILE="apps/briefing/docs/internal/briefing_system/ci/082_reestructuracion_local.md"
-            { echo "## Smokes Producción (auth) — ${TS}";
-              echo "- Autenticado (Service Token): PASS|SKIPPED|FAIL";
-              echo "- Evidencias: ${REPORT}"; } >> "$FILE"
 
-        - name: Auth smoke (Service Token, post-deploy, non-blocking)
-          if: ${{ secrets.ACCESS_CLIENT_ID != '' && secrets.ACCESS_CLIENT_SECRET != '' }}
-          env:
-            PROD_URL: https://runart-foundry.pages.dev/
-            ACCESS_CLIENT_ID: ${{ secrets.ACCESS_CLIENT_ID }}
-            ACCESS_CLIENT_SECRET: ${{ secrets.ACCESS_CLIENT_SECRET }}
-          run: |
-            set +e
-            TS=$(date -u +%Y%m%dT%H%M%SZ)
-            REPORT="apps/briefing/_reports/smokes_prod_${TS}"
-            mkdir -p "$REPORT"
-            BASE_URL="$PROD_URL" make -C apps/briefing test-smoke-wrapper
-            STATUS=$?
-            if [ $STATUS -eq 0 ]; then
-              echo "- Autenticado Prod: PASS (200 ok)" >> "${REPORT}/SUMMARY.md"
-            else
-              echo "- Autenticado Prod: FAIL (ver stdout)" >> "${REPORT}/SUMMARY.md"
-            fi
-            exit 0
-
-        - name: Auth smoke (Prod SKIPPED — missing secrets)
-          if: ${{ ! (secrets.ACCESS_CLIENT_ID != '' && secrets.ACCESS_CLIENT_SECRET != '' ) }}
-          run: |
-            echo "Auth smoke Prod SKIPPED: falta ACCESS_CLIENT_ID/ACCESS_CLIENT_SECRET"
-
-        - name: Update 082 (Prod, auth)
-          run: |
-            TS=$(date -u +%Y%m%dT%H%M%SZ)
-            REPORT="_reports/smokes_prod_${TS}/"
-            FILE="apps/briefing/docs/internal/briefing_system/ci/082_reestructuracion_local.md"
-            { echo "## Smokes Producción (auth) — ${TS}";
-              echo "- Autenticado (Service Token): PASS|SKIPPED|FAIL";
-              echo "- Evidencias: ${REPORT}"; } >> "$FILE"
-        - name: Auth smoke (Service Token, post-deploy, non-blocking)
-          if: ${{ secrets.ACCESS_CLIENT_ID != '' && secrets.ACCESS_CLIENT_SECRET != '' }}
-          env:
-            PROD_URL: https://runart-foundry.pages.dev/
-            ACCESS_CLIENT_ID: ${{ secrets.ACCESS_CLIENT_ID }}
-            ACCESS_CLIENT_SECRET: ${{ secrets.ACCESS_CLIENT_SECRET }}
-          run: |
-            set +e
-            TS=$(date -u +%Y%m%dT%H%M%SZ)
-            REPORT="apps/briefing/_reports/smokes_prod_${TS}"
-            mkdir -p "$REPORT"
-            BASE_URL="$PROD_URL" make -C apps/briefing test-smoke-wrapper
-            STATUS=$?
-            if [ $STATUS -eq 0 ]; then
-              echo "- Autenticado Prod: PASS (200 ok)" >> "${REPORT}/SUMMARY.md"
-            else
-              echo "- Autenticado Prod: FAIL (ver stdout)" >> "${REPORT}/SUMMARY.md"
-            fi
-            exit 0
-        - name: Auth smoke (Prod SKIPPED — missing secrets)
-          if: ${{ ! (secrets.ACCESS_CLIENT_ID != '' && secrets.ACCESS_CLIENT_SECRET != '' ) }}
-          run: |
-            echo "Auth smoke Prod SKIPPED: falta ACCESS_CLIENT_ID/ACCESS_CLIENT_SECRET"
-        - name: Update 082 (Prod, auth)
-          run: |
-            TS=$(date -u +%Y%m%dT%H%M%SZ)
-            REPORT="_reports/smokes_prod_${TS}/"
-            FILE="apps/briefing/docs/internal/briefing_system/ci/082_reestructuracion_local.md"
-            { echo "## Smokes Producción (auth) — ${TS}";
-              echo "- Autenticado (Service Token): PASS|SKIPPED|FAIL";
-              echo "- Evidencias: ${REPORT}"; } >> "$FILE"
-        - name: Auth smoke (Service Token, post-deploy, non-blocking)
-          if: ${{ secrets.ACCESS_CLIENT_ID != '' && secrets.ACCESS_CLIENT_SECRET != '' }}
-          env:
-            PROD_URL: https://runart-foundry.pages.dev/
-            ACCESS_CLIENT_ID: ${{ secrets.ACCESS_CLIENT_ID }}
-            ACCESS_CLIENT_SECRET: ${{ secrets.ACCESS_CLIENT_SECRET }}
-          run: |
-            set +e
-            TS=$(date -u +%Y%m%dT%H%M%SZ)
-            REPORT="apps/briefing/_reports/smokes_prod_${TS}"
-            mkdir -p "$REPORT"
-            BASE_URL="$PROD_URL" make -C apps/briefing test-smoke-wrapper
-            STATUS=$?
-            if [ $STATUS -eq 0 ]; then
-              echo "- Autenticado Prod: PASS (200 ok)" >> "${REPORT}/SUMMARY.md"
-            else
-              echo "- Autenticado Prod: FAIL (ver stdout)" >> "${REPORT}/SUMMARY.md"
-            fi
-            exit 0
-        - name: Auth smoke (Prod SKIPPED — missing secrets)
-          if: ${{ ! (secrets.ACCESS_CLIENT_ID != '' && secrets.ACCESS_CLIENT_SECRET != '' ) }}
-          run: |
-            echo "Auth smoke Prod SKIPPED: falta ACCESS_CLIENT_ID/ACCESS_CLIENT_SECRET"
-        - name: Update 082 (Prod, auth)
-          run: |
-            TS=$(date -u +%Y%m%dT%H%M%SZ)
-            REPORT="_reports/smokes_prod_${TS}/"
-            FILE="apps/briefing/docs/internal/briefing_system/ci/082_reestructuracion_local.md"
-            { echo "## Smokes Producción (auth) — ${TS}";
-              echo "- Autenticado (Service Token): PASS|SKIPPED|FAIL";
-              echo "- Evidencias: ${REPORT}"; } >> "$FILE"
       - name: Auth smoke (Service Token, post-deploy, non-blocking)
-  if: ${{ secrets.ACCESS_CLIENT_ID != '' && secrets.ACCESS_CLIENT_SECRET != '' }}
+        if: ${{ env.ACCESS_CLIENT_ID != '' && env.ACCESS_CLIENT_SECRET != '' }}
         env:
           PROD_URL: https://runart-foundry.pages.dev/
           ACCESS_CLIENT_ID: ${{ secrets.ACCESS_CLIENT_ID }}
@@ -249,41 +136,12 @@ jobs:
             echo "- Autenticado Prod: FAIL (ver stdout)" >> "${REPORT}/SUMMARY.md"
           fi
           exit 0
+
       - name: Auth smoke (Prod SKIPPED — missing secrets)
-  if: ${{ ! (secrets.ACCESS_CLIENT_ID != '' && secrets.ACCESS_CLIENT_SECRET != '' ) }}
+        if: ${{ ! (env.ACCESS_CLIENT_ID != '' && env.ACCESS_CLIENT_SECRET != '' ) }}
         run: |
           echo "Auth smoke Prod SKIPPED: falta ACCESS_CLIENT_ID/ACCESS_CLIENT_SECRET"
-      - name: Update 082 (Prod, auth)
-        run: |
-          TS=$(date -u +%Y%m%dT%H%M%SZ)
-          REPORT="_reports/smokes_prod_${TS}/"
-          FILE="apps/briefing/docs/internal/briefing_system/ci/082_reestructuracion_local.md"
-          { echo "## Smokes Producción (auth) — ${TS}";
-            echo "- Autenticado (Service Token): PASS|SKIPPED|FAIL";
-            echo "- Evidencias: ${REPORT}"; } >> "$FILE"
-      - name: Auth smoke (Service Token, post-deploy, non-blocking)
-        if: ${{ secrets.ACCESS_CLIENT_ID != '' && secrets.ACCESS_CLIENT_SECRET != '' }}
-        env:
-          PROD_URL: https://runart-foundry.pages.dev/
-          ACCESS_CLIENT_ID: ${{ secrets.ACCESS_CLIENT_ID }}
-          ACCESS_CLIENT_SECRET: ${{ secrets.ACCESS_CLIENT_SECRET }}
-        run: |
-          set +e
-          TS=$(date -u +%Y%m%dT%H%M%SZ)
-          REPORT="apps/briefing/_reports/smokes_prod_${TS}"
-          mkdir -p "$REPORT"
-          BASE_URL="$PROD_URL" make -C apps/briefing test-smoke-wrapper
-          STATUS=$?
-          if [ $STATUS -eq 0 ]; then
-            echo "- Autenticado Prod: PASS (200 ok)" >> "${REPORT}/SUMMARY.md"
-          else
-            echo "- Autenticado Prod: FAIL (ver stdout)" >> "${REPORT}/SUMMARY.md"
-          fi
-          exit 0
-      - name: Auth smoke (Prod SKIPPED — missing secrets)
-        if: ${{ ! (secrets.ACCESS_CLIENT_ID != '' && secrets.ACCESS_CLIENT_SECRET != '' ) }}
-        run: |
-          echo "Auth smoke Prod SKIPPED: falta ACCESS_CLIENT_ID/ACCESS_CLIENT_SECRET"
+
       - name: Update 082 (Prod, auth)
         run: |
           TS=$(date -u +%Y%m%dT%H%M%SZ)
