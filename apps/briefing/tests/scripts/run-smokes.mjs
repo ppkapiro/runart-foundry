@@ -11,7 +11,7 @@ const ALLOW_302 =
 const FORCE_FOLLOW = argv.includes("--follow");
 const NO_FOLLOW = FORCE_FOLLOW ? false : ALLOW_302 || argv.includes("--no-follow");
 const ACCESS_REDIRECT_HINTS = ["/cdn-cgi/access", "/cdn-cgi/login", "cloudflareaccess", "/oauth2/"];
-const PROTECTED_ENDPOINTS = new Set(["/", "/api/whoami", "/api/inbox", "/api/decisiones"]);
+const PROTECTED_ENDPOINTS = new Set(["/", "/api/whoami", "/api/inbox", "/api/decisiones", "/api/debug/roles"]);
 
 function parseArgs(argv) {
   const args = { baseURL: undefined };
@@ -63,7 +63,7 @@ function normaliseBaseURL(raw) {
   }
 }
 
-function buildRequest(baseURL, route, { method = "GET", email, testEmail, headers = {}, body } = {}) {
+function buildRequest(baseURL, route, { method = "GET", email, testEmail, headers = {}, body, roleHint } = {}) {
   const url = new URL(route, baseURL);
   const init = { method, headers: new Headers(headers) };
   init.headers.set("Accept", "application/json");
@@ -74,6 +74,10 @@ function buildRequest(baseURL, route, { method = "GET", email, testEmail, header
   if (svcId && svcSecret) {
     init.headers.set("CF-Access-Client-Id", svcId);
     init.headers.set("CF-Access-Client-Secret", svcSecret);
+  }
+  // En preview bajo auth service, permitir matriz por rol vía X-RunArt-Role
+  if ((process.env.RUNART_ENV || "").toLowerCase() === "preview" && svcId && svcSecret && roleHint) {
+    init.headers.set("X-RunArt-Role", roleHint);
   }
   if (testEmail) {
     init.headers.set("X-RunArt-Test-Email", testEmail);
@@ -100,7 +104,7 @@ function delay(ms) {
 async function runScenario(baseURL, baseHostname, scenario, attempt = 1, totalAttempts = 1) {
   const { name, route, method, email, testEmail, headers, body, expectStatus = 200, validateJSON } = scenario;
   const start = performance.now();
-  const { url, init } = buildRequest(baseURL, route, { method, email, testEmail, headers, body });
+  const { url, init } = buildRequest(baseURL, route, { method, email, testEmail, headers, body, roleHint: scenario.roleHint });
   const protectedRoute = isProtectedRoute(route, baseHostname, scenario.protected);
   const result = {
     name,
@@ -205,15 +209,15 @@ async function main() {
 
   const { reportsRoot } = getProjectPaths();
   const timestamp = new Date().toISOString().replace(/[-:]/g, "").replace(/\..+/, "");
-  const reportDir = join(reportsRoot, "T3_e2e", timestamp);
+  const reportDir = join(reportsRoot, "T3_preview_auth", timestamp);
   await mkdir(reportDir, { recursive: true });
 
+  const ROLE_MATRIX = ["owner", "client_admin", "team", "client", "visitor"];
   const scenarios = [
     {
       name: "whoami-owner",
       route: "/api/whoami",
-      email: DEFAULT_EMAILS.owner,
-      testEmail: DEFAULT_EMAILS.owner,
+      roleHint: "owner",
       expectStatus: 200,
       protected: true,
       validateJSON(json) {
@@ -225,8 +229,7 @@ async function main() {
     {
       name: "whoami-team",
       route: "/api/whoami",
-      email: DEFAULT_EMAILS.team,
-      testEmail: DEFAULT_EMAILS.team,
+      roleHint: "team",
       expectStatus: 200,
       protected: true,
       validateJSON(json) {
@@ -238,8 +241,7 @@ async function main() {
     {
       name: "whoami-client_admin",
       route: "/api/whoami",
-      email: DEFAULT_EMAILS.client_admin,
-      testEmail: DEFAULT_EMAILS.client_admin,
+      roleHint: "client_admin",
       expectStatus: 200,
       protected: true,
       validateJSON(json) {
@@ -251,6 +253,7 @@ async function main() {
     {
       name: "whoami-visitor",
       route: "/api/whoami",
+      roleHint: "visitor",
       expectStatus: 200,
       protected: true,
       validateJSON(json) {
@@ -262,30 +265,28 @@ async function main() {
     {
       name: "inbox-owner",
       route: "/api/inbox",
-      email: DEFAULT_EMAILS.owner,
-      testEmail: DEFAULT_EMAILS.owner,
+      roleHint: "owner",
       expectStatus: 200,
       protected: true,
     },
     {
       name: "inbox-team",
       route: "/api/inbox",
-      email: DEFAULT_EMAILS.team,
-      testEmail: DEFAULT_EMAILS.team,
+      roleHint: "team",
       expectStatus: 200,
       protected: true,
     },
     {
       name: "inbox-client",
       route: "/api/inbox",
-      email: DEFAULT_EMAILS.client,
-      testEmail: DEFAULT_EMAILS.client,
+      roleHint: "client",
       expectStatus: 403,
       protected: true,
     },
     {
       name: "inbox-visitor",
       route: "/api/inbox",
+      roleHint: "visitor",
       expectStatus: 403,
       protected: true,
     },
@@ -301,13 +302,21 @@ async function main() {
       name: "decisiones-owner",
       route: "/api/decisiones",
       method: "POST",
-      email: DEFAULT_EMAILS.owner,
-      testEmail: DEFAULT_EMAILS.owner,
+      roleHint: "owner",
       body: { decision: "ok" },
       expectStatus: 200,
       protected: true,
     },
   ];
+
+  // Guardar respuestas por rol en evidencias
+  async function saveOutcome(name, outcome) {
+    const fname = name.replace(/\W+/g, "_").toLowerCase();
+    const outPath = join(reportDir, "responses");
+    await mkdir(outPath, { recursive: true });
+    const file = join(outPath, `${fname}.json`);
+    await writeFile(file, JSON.stringify(outcome, null, 2), "utf8");
+  }
 
   const results = [];
   let total = 0;
@@ -354,7 +363,9 @@ async function main() {
     if (outcome.status === "fail") {
       console.error(`  ↳ ${outcome.error}`);
     }
-    results.push(outcome);
+  results.push(outcome);
+  // persistir outcome
+  await saveOutcome(scenario.name, outcome);
 
     total += 1;
     if (outcome.status === "pass") {

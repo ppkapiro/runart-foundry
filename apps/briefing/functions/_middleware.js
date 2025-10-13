@@ -27,6 +27,10 @@ export const onRequest = [
     const testMode = env?.ACCESS_TEST_MODE;
     const testEmailHeader = request.headers.get("X-RunArt-Test-Email")?.trim() ?? "";
     const isTestBypassActive = runEnv === "preview" && testMode === "1" && testEmailHeader.length > 0;
+    // Determinar modo de autenticación
+    const hasServiceId = !!request.headers.get("CF-Access-Client-Id");
+    const hasServiceSecret = !!request.headers.get("CF-Access-Client-Secret");
+    const authMode = hasServiceId && hasServiceSecret ? "service" : "user";
     const isPublic = isPublicPath(pathname);
 
     // Rutas públicas pasan directo
@@ -36,13 +40,25 @@ export const onRequest = [
 
     let email = null;
     let role = "visitor";
+    let headerRole = null;
 
     if (isTestBypassActive) {
       email = testEmailHeader;
       role = await resolveRole(email, env);
     } else {
       email = await getEmailFromRequest(request);
-      role = await resolveRole(email, env);
+      // Regla: NUNCA elevar a admin por Service Token sin email resoluble
+      // Resolver rol sólo por listas KV/ENV si hay email
+      if (email) {
+        role = await resolveRole(email, env);
+      } else if (authMode === "service" && runEnv === "preview") {
+        // Permitir override por header X-RunArt-Role en Preview bajo auth service
+        headerRole = (request.headers.get("X-RunArt-Role") || "").trim().toLowerCase();
+        const allowedRoles = new Set(["owner", "client_admin", "team", "client", "visitor"]);
+        role = allowedRoles.has(headerRole) ? headerRole : "visitor";
+      } else {
+        role = "visitor";
+      }
     }
 
     const roleAlias = roleToAlias(role);
@@ -78,9 +94,9 @@ export const onRequest = [
     } else {
       headers.delete("X-RunArt-Email");
     }
-  headers.set("X-RunArt-Role", role);
-  headers.set("X-RunArt-Role-Alias", roleAlias);
-  headers.set("X-RunArt-Rol", roleAlias);
+    headers.set("X-RunArt-Role", role);
+    headers.set("X-RunArt-Role-Alias", roleAlias);
+    headers.set("X-RunArt-Rol", roleAlias);
     if (isTestBypassActive) {
       headers.set("X-RunArt-Bypass", "ACCESS_TEST_MODE");
     } else {
@@ -90,6 +106,19 @@ export const onRequest = [
     if (isPublic) {
       const forwarded = new Request(request, { headers });
       return next(forwarded);
+    }
+
+    // Logs de depuración sólo en Preview
+    if (runEnv === "preview") {
+      context.waitUntil(
+        logEvent(env, "role_resolve", {
+          path: pathname,
+          auth_mode: authMode,
+          email: email || null,
+          header_role: headerRole || null,
+          final_role: role,
+        })
+      );
     }
 
     const forwardedRequest = new Request(request, { headers });
