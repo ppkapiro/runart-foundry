@@ -116,7 +116,7 @@ jobs:
         shell: bash
         run: |
           set -e
-          cat > wrangler.toml <<'EOF'
+          cat > wrangler.toml <<EOF
           name = "runart-overlay-api"
           main = "worker.js"
           compatibility_date = "2024-10-01"
