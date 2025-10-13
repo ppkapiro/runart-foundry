@@ -144,8 +144,8 @@ jobs:
             async fetch(req, env, ctx) {
               const url = new URL(req.url);
               const path = url.pathname;
-              const isPreview = url.hostname.endsWith(".runart-foundry.pages.dev") && url.hostname.split(".")[0].length >= 6;
-              const envName = isPreview ? "preview" : "production";
+              // Use RUNART_ENV variable to determine environment
+              const envName = env.RUNART_ENV?.includes("preview") ? "preview" : "production";
               const h = new Map(req.headers); // case-insensitive
               const id = (k) => h.get(k) || h.get(k.toLowerCase());
               const hasService = !!(id("Cf-Access-Client-Id") && id("Cf-Access-Client-Secret"));
