@@ -62,7 +62,6 @@ jobs:
           echo "Prod KV: $prod_id"
 
       - name: Backfill repo secrets for KV IDs (if gh available)
-        if: ${{ steps.preflight.outputs != '' || env.KV_PREVIEW_ID != '' || env.KV_PROD_ID != '' }}
         shell: bash
         run: |
           set -e
@@ -81,6 +80,31 @@ jobs:
           [ -n "$PROD_ID" ] || { echo "::error::Missing RUNART_ROLES_KV_PROD"; exit 1; }
           echo "PREVIEW_ID=$PREVIEW_ID" >> $GITHUB_ENV
           echo "PROD_ID=$PROD_ID" >> $GITHUB_ENV
+
+      - name: Preflight KV namespace IDs
+        shell: bash
+        run: |
+          set -e
+          validate() {
+            local label="$1"; local id="$2"
+            resp=$(curl -sS -H "Authorization: Bearer $CLOUDFLARE_API_TOKEN" "https://api.cloudflare.com/client/v4/accounts/$CLOUDFLARE_ACCOUNT_ID/storage/kv/namespaces/$id")
+            ok=$(echo "$resp" | jq -r '.success')
+            if [[ "$ok" != "true" ]]; then
+              echo "::error::KV namespace $label ($id) inválido o inaccesible"
+              echo "$resp"
+              exit 1
+            fi
+            found=$(echo "$resp" | jq -r '.result.id // empty')
+            if [[ -z "$found" || "$found" != "$id" ]]; then
+              echo "::error::KV namespace $label ($id) respuesta inconsistente"
+              echo "$resp"
+              exit 1
+            fi
+            echo "KV $label OK ($id)"
+          }
+          validate "PREVIEW" "$PREVIEW_ID"
+          validate "PROD" "$PROD_ID"
+
 
       - name: Setup Node & Wrangler
         uses: actions/setup-node@v4
@@ -195,7 +219,7 @@ jobs:
         run: echo "Ver resultados en Actions → pages-preview.yml (se ejecuta con overlay activo)"
 
       - name: If T3 PASS and input says so, deploy overlay to PROD
-        if: ${{ github.event.inputs.run_t4_if_t3_pass == 'true' }}
+        if: ${{ github.event.inputs.promote_to_prod == 'true' }}
         shell: bash
         run: |
           # Aquí asumimos que T3 se revisará; si ya es PASS, relanza este job con run_t4_if_t3_pass=true o continúa manualmente:
