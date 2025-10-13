@@ -184,7 +184,13 @@ jobs:
         shell: bash
         run: |
           set -e
-          wrangler deploy --env preview
+          deploy_output=$(wrangler deploy --env preview)
+          echo "$deploy_output"
+          # Extract Worker URL from wrangler output
+          worker_url=$(echo "$deploy_output" | grep -o 'https://[^[:space:]]*\.workers\.dev' | head -1)
+          [ -n "$worker_url" ] || { echo "::error::No worker URL found in deploy output"; exit 1; }
+          echo "WORKER_URL=$worker_url" >> $GITHUB_ENV
+          echo "Worker deployed to: $worker_url"
 
       - name: Get latest Preview URL (Pages API)
         shell: bash
@@ -201,7 +207,8 @@ jobs:
         shell: bash
         run: |
           set -e
-          curl -fsS -i "$PREVIEW_URL/api/health" | sed -n '1,20p'
+          echo "Testing overlay Worker at: $WORKER_URL"
+          curl -fsS -i "$WORKER_URL/api/health" | sed -n '1,20p'
 
       - name: Run T3 via pages-preview.yml
         uses: actions/github-script@v7
