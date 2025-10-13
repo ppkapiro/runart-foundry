@@ -235,6 +235,7 @@ jobs:
         if: ${{ steps.auth-flags.outputs.enabled == 'true' }}
         env:
           BASE_URL: ${{ env.PREVIEW_BASE_URL }}
+          PROD_URL: ${{ env.PREVIEW_BASE_URL }}
           ACCESS_CLIENT_ID: ${{ secrets.ACCESS_CLIENT_ID }}
           ACCESS_CLIENT_SECRET: ${{ secrets.ACCESS_CLIENT_SECRET }}
         run: |
@@ -243,7 +244,8 @@ jobs:
           REPORT="apps/briefing/_reports/smokes_preview_${TS}"
           mkdir -p "$REPORT"
           RESULT="FAIL"
-          if BASE_URL="$BASE_URL" ACCESS_CLIENT_ID="$ACCESS_CLIENT_ID" ACCESS_CLIENT_SECRET="$ACCESS_CLIENT_SECRET" make -C apps/briefing test-smoke-wrapper | tee "$REPORT/smokes_stdout_auth.txt"; then
+          # Pasar explícitamente PROD_URL requerido por Makefile junto con BASE_URL y credenciales
+          if PROD_URL="$PROD_URL" BASE_URL="$BASE_URL" ACCESS_CLIENT_ID="$ACCESS_CLIENT_ID" ACCESS_CLIENT_SECRET="$ACCESS_CLIENT_SECRET" make -C apps/briefing test-smoke-wrapper | tee "$REPORT/smokes_stdout_auth.txt"; then
             RESULT="PASS"
           fi
           sed -i "s/Autenticado (Service Token): PENDING/Autenticado (Service Token): ${RESULT}/" "$REPORT/SUMMARY.md"
