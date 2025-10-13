@@ -586,3 +586,11 @@ Copilot debe seguir el siguiente formato para agregar bloques en esta bitácora 
 - Evidencias: apps/briefing/_reports/tests/T4_prod_smokes/20251013T230022Z/
 - Notas: overlay activo en prod; KV validados.
 
+### [2025-10-13] — Producción con AUS_XMOC habilitado
+- Workflow: pages-prod (manual `workflow_dispatch`)
+- Run: https://github.com/RunArtFoundry/runart-foundry/actions/runs/18480582333
+- SMOKES_STATUS: NONBLOCKING-FAIL
+- Evidencias: apps/briefing/_reports/tests/T4_prod_smokes/20251013T230022Z/
+- Notas: auth-smoke habilitado vía AUS_XMOC; deploy no bloqueante; overlay/Access operativos.
+---
+
