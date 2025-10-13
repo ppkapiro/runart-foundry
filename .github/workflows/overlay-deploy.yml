@@ -1,0 +1,203 @@
+name: Overlay Deploy
+on:
+  workflow_dispatch:
+    inputs:
+      run_t3_smokes:
+        description: "Run T3 auth smokes on preview"
+        required: false
+        default: "true"
+      promote_to_prod:
+        description: "Promote overlay to production if T3 passes"
+        required: false
+        default: "true"
+  pull_request:
+    branches: [ chore/bootstrap-git ]
+# touch: force workflow re-index
+permissions:
+  contents: read
+  actions: write
+  deployments: write
+jobs:
+  overlay:
+    runs-on: ubuntu-latest
+    env:
+      CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+      CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+      ACCESS_CLIENT_ID: ${{ secrets.ACCESS_CLIENT_ID }}
+      ACCESS_CLIENT_SECRET: ${{ secrets.ACCESS_CLIENT_SECRET }}
+      RUNART_ROLES_KV_PREVIEW: ${{ secrets.RUNART_ROLES_KV_PREVIEW }}
+      RUNART_ROLES_KV_PROD: ${{ secrets.RUNART_ROLES_KV_PROD }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Preflight secrets
+        shell: bash
+        run: |
+          set -e
+          check() { [ -n "$1" ] || { echo "::error::Missing secret: $2"; exit 1; }; }
+          check "$CLOUDFLARE_ACCOUNT_ID" "CLOUDFLARE_ACCOUNT_ID"
+          check "$CLOUDFLARE_API_TOKEN" "CLOUDFLARE_API_TOKEN"
+          echo "ACCESS_CLIENT_ID: $([[ -n \"$ACCESS_CLIENT_ID\" ]] && echo OK || echo MISSING)"
+          echo "ACCESS_CLIENT_SECRET: $([[ -n \"$ACCESS_CLIENT_SECRET\" ]] && echo OK || echo MISSING)"
+          echo "RUNART_ROLES_KV_PREVIEW: $([[ -n \"$RUNART_ROLES_KV_PREVIEW\" ]] && echo $RUNART_ROLES_KV_PREVIEW || echo MISSING)"
+          echo "RUNART_ROLES_KV_PROD: $([[ -n \"$RUNART_ROLES_KV_PROD\" ]] && echo $RUNART_ROLES_KV_PROD || echo MISSING)"
+
+      - name: Ensure KV namespaces (create if missing)
+        if: ${{ !env.RUNART_ROLES_KV_PREVIEW || !env.RUNART_ROLES_KV_PROD }}
+        shell: bash
+        run: |
+          set -e
+          api() { curl -sS -H "Authorization: Bearer $CLOUDFLARE_API_TOKEN" -H "Content-Type: application/json" "$@"; }
+          list=$(api "https://api.cloudflare.com/client/v4/accounts/$CLOUDFLARE_ACCOUNT_ID/storage/kv/namespaces?per_page=100")
+          get_id() { echo "$list" | jq -r --arg t "$1" '.result[]?|select(.title==$t)|.id' | head -n1; }
+          prev_id=${RUNART_ROLES_KV_PREVIEW:-$(get_id runart_roles_preview)}
+          prod_id=${RUNART_ROLES_KV_PROD:-$(get_id runart_roles_prod)}
+          create_ns(){ api -X POST "https://api.cloudflare.com/client/v4/accounts/$CLOUDFLARE_ACCOUNT_ID/storage/kv/namespaces" -d "{\"title\":\"$1\"}"; }
+          if [ -z "$prev_id" ]; then prev_id=$(create_ns runart_roles_preview | jq -r '.result.id'); fi
+          if [ -z "$prod_id" ]; then prod_id=$(create_ns runart_roles_prod | jq -r '.result.id'); fi
+          echo "KV_PREVIEW_ID=$prev_id" >> $GITHUB_ENV
+          echo "KV_PROD_ID=$prod_id" >> $GITHUB_ENV
+          echo "Preview KV: $prev_id"
+          echo "Prod KV: $prod_id"
+
+      - name: Backfill repo secrets for KV IDs (if gh available)
+        if: ${{ steps.preflight.outputs != '' || env.KV_PREVIEW_ID != '' || env.KV_PROD_ID != '' }}
+        shell: bash
+        run: |
+          set -e
+          which gh && {
+            [ -n "$KV_PREVIEW_ID" ] && gh secret set RUNART_ROLES_KV_PREVIEW -b"$KV_PREVIEW_ID" || true
+            [ -n "$KV_PROD_ID" ] && gh secret set RUNART_ROLES_KV_PROD -b"$KV_PROD_ID" || true
+          } || echo "gh CLI not available; ensure repo secrets set manually."
+
+      - name: Resolve KV IDs from secrets/env
+        shell: bash
+        run: |
+          set -e
+          PREVIEW_ID="${RUNART_ROLES_KV_PREVIEW:-$KV_PREVIEW_ID}"
+          PROD_ID="${RUNART_ROLES_KV_PROD:-$KV_PROD_ID}"
+          [ -n "$PREVIEW_ID" ] || { echo "::error::Missing RUNART_ROLES_KV_PREVIEW"; exit 1; }
+          [ -n "$PROD_ID" ] || { echo "::error::Missing RUNART_ROLES_KV_PROD"; exit 1; }
+          echo "PREVIEW_ID=$PREVIEW_ID" >> $GITHUB_ENV
+          echo "PROD_ID=$PROD_ID" >> $GITHUB_ENV
+
+      - name: Setup Node & Wrangler
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+      - run: npm i -g wrangler@3
+
+      - name: Generate overlay files (ephemeral)
+        shell: bash
+        run: |
+          set -e
+          cat > wrangler.toml <<'EOF'
+          name = "runart-overlay-api"
+          main = "worker.js"
+          compatibility_date = "2024-10-01"
+
+          [vars]
+          RUNART_ENV = "overlay"
+
+          [[env.preview.kv_namespaces]]
+          binding = "RUNART_ROLES"
+          id = "${PREVIEW_ID}"
+
+          [env.preview]
+          routes = ["*.runart-foundry.pages.dev/api/*"]
+
+          [[env.prod.kv_namespaces]]
+          binding = "RUNART_ROLES"
+          id = "${PROD_ID}"
+
+          [env.prod]
+          routes = ["runart-foundry.pages.dev/api/*"]
+          EOF
+
+          cat > worker.js <<'EOF'
+          export default {
+            async fetch(req, env, ctx) {
+              const url = new URL(req.url);
+              const path = url.pathname;
+              const isPreview = url.hostname.endsWith(".runart-foundry.pages.dev") && url.hostname.split(".")[0].length >= 6;
+              const envName = isPreview ? "preview" : "production";
+              const h = new Map(req.headers); // case-insensitive
+              const id = (k) => h.get(k) || h.get(k.toLowerCase());
+              const hasService = !!(id("Cf-Access-Client-Id") && id("Cf-Access-Client-Secret"));
+              const headerRole = (id("X-RunArt-Role") || "").toLowerCase();
+
+              const JSONR = (obj, status=200) => new Response(JSON.stringify(obj), {
+                status,
+                headers: { "content-type":"application/json; charset=utf-8", "cache-control":"no-store" }
+              });
+
+              const resolveRole = async () => {
+                const auth_mode = hasService ? "service" : "public";
+                let final_role = "visitor";
+                let email = null; // (futuro) si parseamos identidad, mapear KV
+                if (envName === "preview" && auth_mode === "service" && ["owner","client_admin","team","client","visitor"].includes(headerRole)) {
+                  final_role = headerRole;
+                } else {
+                  final_role = "visitor";
+                }
+                return { env: envName, auth_mode, email, header_role: headerRole || null, final_role, sources:{ kv_hit:false, env_admin_hit:false } };
+              };
+
+              if (path === "/api/health") return JSONR({ ok:true, env: envName });
+              if (path === "/api/debug/roles") return JSONR(await resolveRole());
+              if (path === "/api/whoami") {
+                const info = await resolveRole();
+                return JSONR({ env: info.env, role: info.final_role, auth_mode: info.auth_mode });
+              }
+              if (path.startsWith("/api/")) return JSONR({ error:"Not Found", path }, 404);
+              return new Response("OK", { status:200, headers:{ "content-type":"text/plain" }});
+            }
+          }
+          EOF
+
+      - name: Deploy overlay to Preview
+        shell: bash
+        run: |
+          set -e
+          wrangler deploy --env preview
+
+      - name: Get latest Preview URL (Pages API)
+        shell: bash
+        run: |
+          set -e
+          resp=$(curl -sS -H "Authorization: Bearer $CLOUDFLARE_API_TOKEN" \
+            "https://api.cloudflare.com/client/v4/accounts/$CLOUDFLARE_ACCOUNT_ID/pages/projects/runart-foundry/deployments?per_page=1")
+          url=$(echo "$resp" | jq -r '.result[0].url')
+          [ -n "$url" ] || { echo "::error::No preview_url"; echo "$resp"; exit 1; }
+          echo "PREVIEW_URL=$url" >> $GITHUB_ENV
+          echo "Preview URL: $url"
+
+      - name: Canary check (overlay)
+        shell: bash
+        run: |
+          set -e
+          curl -fsS -i "$PREVIEW_URL/api/health" | sed -n '1,20p'
+
+      - name: Run T3 via pages-preview.yml
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const res = await github.rest.actions.createWorkflowDispatch({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              workflow_id: "pages-preview.yml",
+              ref: context.ref.replace("refs/heads/","")
+            });
+            core.info(`Triggered pages-preview.yml with ref ${context.ref}`);
+
+      - name: Wait for T3 run to complete (best-effort)
+        run: echo "Ver resultados en Actions → pages-preview.yml (se ejecuta con overlay activo)"
+
+      - name: If T3 PASS and input says so, deploy overlay to PROD
+        if: ${{ github.event.inputs.run_t4_if_t3_pass == 'true' }}
+        shell: bash
+        run: |
+          # Aquí asumimos que T3 se revisará; si ya es PASS, relanza este job con run_t4_if_t3_pass=true o continúa manualmente:
+          echo "Para promover a prod: re-ejecuta este workflow cuando T3 sea PASS, o ejecuta:"
+          echo "wrangler deploy --env prod"
