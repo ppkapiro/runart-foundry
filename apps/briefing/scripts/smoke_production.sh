@@ -152,7 +152,8 @@ body_root="$TMP_DIR/root.html"
 response=$(curl_capture GET "$ROOT_URL" "$body_root")
 status=$(echo "$response" | cut -f1)
 redirect_url=$(echo "$response" | cut -f2)
-evaluate_production_status "GET /" "$status" "200" "$redirect_url" "$body_root"
+# En producción/preview, sin sesión, Access puede devolver 401/403 o redirect 30x
+evaluate_production_status "GET /" "$status" "200 401 403" "$redirect_url" "$body_root"
 
 # Test 2: API whoami (debe redirigir a Access si no hay sesión)
 echo ""
