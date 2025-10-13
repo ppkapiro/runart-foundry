@@ -90,17 +90,25 @@ jobs:
           set -e
           # Intentar por filename primero, luego por nombre visible del workflow
           gh workflow run "pages-prod.yml" -f collect_evidence=true --ref main || gh workflow run "Deploy Production (Cloudflare)" -f collect_evidence=true --ref main
-          echo "Esperando a que el run arranque…"; sleep 5
-          # Intentar capturar el ID del run recién disparado (por filename)
-          RUN_ID=$(gh run list --workflow "pages-prod.yml" --branch main --event workflow_dispatch --limit 1 --json databaseId,createdAt,status | jq -r '.[0].databaseId' || true)
-          if [ -z "$RUN_ID" ] || [ "$RUN_ID" = "null" ]; then
-            # Fallback por nombre visible del workflow
-            RUN_ID=$(gh run list --workflow "Deploy Production (Cloudflare)" --branch main --event workflow_dispatch --limit 1 --json databaseId,createdAt,status | jq -r '.[0].databaseId' || true)
-          fi
+          echo "Esperando a que el run arranque…"
+          # Reintentos para evitar condición de carrera (hasta ~60s)
+          RUN_ID=""
+          for i in $(seq 1 20); do
+            # Intentar capturar el ID del run recién disparado (por filename)
+            RUN_ID=$(gh run list --workflow "pages-prod.yml" --branch main --event workflow_dispatch --limit 1 --json databaseId,createdAt,status | jq -r '.[0].databaseId' 2>/dev/null || true)
+            if [ -z "$RUN_ID" ] || [ "$RUN_ID" = "null" ]; then
+              # Fallback por nombre visible del workflow
+              RUN_ID=$(gh run list --workflow "Deploy Production (Cloudflare)" --branch main --event workflow_dispatch --limit 1 --json databaseId,createdAt,status | jq -r '.[0].databaseId' 2>/dev/null || true)
+            fi
+            if [ -n "$RUN_ID" ] && [ "$RUN_ID" != "null" ]; then
+              break
+            fi
+            sleep 3
+          done
           if [ -z "$RUN_ID" ] || [ "$RUN_ID" = "null" ]; then
             echo "ERROR: No pude localizar el run ID de Pages Prod recién disparado" >&2
-            echo "Últimos runs:" >&2
-            gh run list --limit 5 >&2 || true
+            echo "Últimos runs (debug):" >&2
+            gh run list --limit 10 >&2 || true
             exit 1
           fi
           echo "PAGES_PROD_RUN_ID=$RUN_ID" >> $GITHUB_ENV
