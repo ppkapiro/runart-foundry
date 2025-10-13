@@ -30,6 +30,8 @@ jobs:
       RUNART_ENV: production
       ACCESS_CLIENT_ID: ${{ secrets.ACCESS_CLIENT_ID }}
       ACCESS_CLIENT_SECRET: ${{ secrets.ACCESS_CLIENT_SECRET }}
+      AUS_XMOC: "1"
+      SMOKES_NONBLOCKING: "1"
     steps:
       - name: Validate secrets
         run: |
@@ -143,25 +145,37 @@ jobs:
           branch: ${{ env.TARGET_BRANCH }}
           wranglerVersion: '3'
 
-      - name: Auth smoke (Service Token, post-deploy, non-blocking)
-        if: ${{ env.ACCESS_CLIENT_ID != '' && env.ACCESS_CLIENT_SECRET != '' }}
+      - name: Auth smoke (AUS_XMOC, post-deploy, non-blocking)
         env:
           PROD_URL: https://runart-foundry.pages.dev/
           ACCESS_CLIENT_ID: ${{ secrets.ACCESS_CLIENT_ID }}
           ACCESS_CLIENT_SECRET: ${{ secrets.ACCESS_CLIENT_SECRET }}
+          AUS_XMOC: "1"
+          SMOKES_NONBLOCKING: "1"
         run: |
-          set +e
+          set -e
           TS=$(date -u +%Y%m%dT%H%M%SZ)
-          REPORT="apps/briefing/_reports/smokes_prod_${TS}"
-          mkdir -p "$REPORT"
-          BASE_URL="$PROD_URL" make -C apps/briefing test-smoke-wrapper
-          STATUS=$?
-          if [ $STATUS -eq 0 ]; then
-            echo "- Autenticado Prod: PASS (200 ok)" >> "${REPORT}/SUMMARY.md"
-          else
-            echo "- Autenticado Prod: FAIL (ver stdout)" >> "${REPORT}/SUMMARY.md"
+          DEST="apps/briefing/_reports/tests/T4_prod_smokes/$TS"
+          mkdir -p "$DEST"
+          STATUS="SKIPPED"
+          if [ "${AUS_XMOC}" = "1" ] && [ -n "${ACCESS_CLIENT_ID}" ] && [ -n "${ACCESS_CLIENT_SECRET}" ]; then
+            STATUS="NONBLOCKING-FAIL"
+            curl -sS https://runart-foundry.pages.dev/api/health | tee "$DEST/health_prod.json" | jq -e '.env=="production" and .ok==true' && OK_HEALTH=1 || OK_HEALTH=0
+            curl -sS -H "CF-Access-Client-Id: ${ACCESS_CLIENT_ID}" -H "CF-Access-Client-Secret: ${ACCESS_CLIENT_SECRET}" \
+              https://runart-foundry.pages.dev/api/whoami | tee "$DEST/whoami_prod.json" | jq -e '.env=="production"' && OK_AUTH=1 || OK_AUTH=0
+
+            if [ "$OK_HEALTH" = "1" ] && [ "$OK_AUTH" = "1" ]; then
+              STATUS="PASS"
+            fi
           fi
-          exit 0
+
+          printf "# T4 Producción (auth-smoke)\n\n- Fecha (UTC): %s\n- SMOKES_STATUS: %s\n" "$TS" "$STATUS" > "$DEST/README.md"
+          echo "SMOKES_STATUS=$STATUS" >> $GITHUB_ENV
+
+          # no bloquear el pipeline si SMOKES_NONBLOCKING=1
+          if [ "${SMOKES_NONBLOCKING}" != "1" ] && [ "$STATUS" != "PASS" ]; then
+            echo "Auth-smoke FAIL y bloqueante"; exit 1
+          fi
 
       - name: Auth smoke (Prod SKIPPED — missing secrets)
         if: ${{ ! (env.ACCESS_CLIENT_ID != '' && env.ACCESS_CLIENT_SECRET != '' ) }}
