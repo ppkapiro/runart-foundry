@@ -27,6 +27,7 @@
 /scripts/ @ppkapiro
 /.github/ @ppkapiro
 /.github/workflows/ @ppkapiro
+.github/workflows/*      @ppcapiro
 
 # Source code (themes, plugins)
 /source/ @ppkapiro
@@ -35,3 +36,6 @@
 /.gitignore @ppkapiro
 /.gitattributes @ppkapiro
 /README.md @ppkapiro
+
+# CI/CD workflows y overlay
+apps/briefing/**         @ppcapiro
