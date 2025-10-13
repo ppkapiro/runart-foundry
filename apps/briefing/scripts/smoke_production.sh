@@ -170,7 +170,8 @@ body_inbox="$TMP_DIR/inbox.json"
 response=$(curl_capture GET "$API_INBOX" "$body_inbox")
 status=$(echo "$response" | cut -f1)
 redirect_url=$(echo "$response" | cut -f2)
-evaluate_production_status "GET /api/inbox" "$status" "200" "$redirect_url" "$body_inbox"
+# En producción/preview, sin sesión, Access puede devolver 401/403 o redirect 30x
+evaluate_production_status "GET /api/inbox" "$status" "200 401 403" "$redirect_url" "$body_inbox"
 
 # Test 4: API decisiones sin token (debe redirigir a Access o devolver 401)
 echo ""
