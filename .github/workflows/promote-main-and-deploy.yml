@@ -89,16 +89,32 @@ jobs:
         run: |
           set -e
           # Intentar por filename primero, luego por nombre visible del workflow
-          gh workflow run "pages-prod.yml" -f collect_evidence=true || gh workflow run "Deploy Production (Cloudflare)" -f collect_evidence=true
-          gh run watch --exit-status
+          gh workflow run "pages-prod.yml" -f collect_evidence=true --ref main || gh workflow run "Deploy Production (Cloudflare)" -f collect_evidence=true --ref main
+          echo "Esperando a que el run arranque…"; sleep 5
+          # Intentar capturar el ID del run recién disparado (por filename)
+          RUN_ID=$(gh run list --workflow "pages-prod.yml" --branch main --event workflow_dispatch --limit 1 --json databaseId,createdAt,status | jq -r '.[0].databaseId' || true)
+          if [ -z "$RUN_ID" ] || [ "$RUN_ID" = "null" ]; then
+            # Fallback por nombre visible del workflow
+            RUN_ID=$(gh run list --workflow "Deploy Production (Cloudflare)" --branch main --event workflow_dispatch --limit 1 --json databaseId,createdAt,status | jq -r '.[0].databaseId' || true)
+          fi
+          if [ -z "$RUN_ID" ] || [ "$RUN_ID" = "null" ]; then
+            echo "ERROR: No pude localizar el run ID de Pages Prod recién disparado" >&2
+            echo "Últimos runs:" >&2
+            gh run list --limit 5 >&2 || true
+            exit 1
+          fi
+          echo "PAGES_PROD_RUN_ID=$RUN_ID" >> $GITHUB_ENV
+          gh run watch "$RUN_ID" --exit-status
 
       - name: Capture last run URL
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          gh run list --limit 1 --json url,workflowName,headBranch,status,conclusion \
-            | tee /tmp/last_run.json
-          cat /tmp/last_run.json | jq -r '.[0].url' | tee /tmp/prod_run_url.txt
+          if [ -z "${PAGES_PROD_RUN_ID:-}" ]; then
+            echo "ERROR: PAGES_PROD_RUN_ID no está definido" >&2
+            exit 1
+          fi
+          gh run view "$PAGES_PROD_RUN_ID" --json url -q .url | tee /tmp/prod_run_url.txt
 
       - name: Post-deploy smokes (Prod)
         run: |
