@@ -5,11 +5,7 @@ RUN_PY := $(VENV)/bin/python
 MKDOCS := $(RUN_PY) -m mkdocs
 CHECK_ENV := $(PYTHON) $(ROOT)/tools/check_env.py
 
-<<<<<<< HEAD
-.PHONY: build serve preview clean lint lint-docs lint-app test test-env test-env-preview test-env-prod venv install-deps test-logs test-logs-strict
-=======
 .PHONY: build serve preview clean lint lint-docs lint-app test test-env test-env-preview test-env-prod test-smoke-prod test-smoke-wrapper venv install-deps test-logs test-logs-strict
->>>>>>> chore/bootstrap-git
 
 venv:
 	$(PYTHON) -m venv $(VENV)
