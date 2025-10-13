@@ -244,8 +244,8 @@ jobs:
           REPORT="apps/briefing/_reports/smokes_preview_${TS}"
           mkdir -p "$REPORT"
           RESULT="FAIL"
-          # Pasar explícitamente PROD_URL requerido por Makefile como variable de make, junto con BASE_URL y credenciales
-          if BASE_URL="$BASE_URL" ACCESS_CLIENT_ID="$ACCESS_CLIENT_ID" ACCESS_CLIENT_SECRET="$ACCESS_CLIENT_SECRET" make -C apps/briefing test-smoke-wrapper PROD_URL="$PROD_URL" | tee "$REPORT/smokes_stdout_auth.txt"; then
+          # Pasar explícitamente PROD_URL requerido por Makefile como variable de entorno inline, junto con BASE_URL y credenciales
+          if PROD_URL="$PROD_URL" BASE_URL="$BASE_URL" ACCESS_CLIENT_ID="$ACCESS_CLIENT_ID" ACCESS_CLIENT_SECRET="$ACCESS_CLIENT_SECRET" make -C apps/briefing test-smoke-wrapper | tee "$REPORT/smokes_stdout_auth.txt"; then
             RESULT="PASS"
           fi
           sed -i "s/Autenticado (Service Token): PENDING/Autenticado (Service Token): ${RESULT}/" "$REPORT/SUMMARY.md"
