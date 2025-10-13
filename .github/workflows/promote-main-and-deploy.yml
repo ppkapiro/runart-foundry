@@ -1,0 +1,134 @@
+name: Promote main and deploy prod
+on:
+  workflow_dispatch:
+    inputs:
+      cleanup_workflow:
+        description: "Crear PR para borrar este workflow temporal al finalizar"
+        required: false
+        default: "true"
+
+jobs:
+  promote-and-deploy:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      actions: write
+      pull-requests: write
+    env:
+      ACCOUNT_ID: a2c7fc66f00eab69373e448193ae7201
+      CF_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+      ACCESS_CLIENT_ID: ${{ secrets.ACCESS_CLIENT_ID }}
+      ACCESS_CLIENT_SECRET: ${{ secrets.ACCESS_CLIENT_SECRET }}
+
+    steps:
+      - name: Checkout default branch
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Preflight Cloudflare token
+        run: |
+          set -e
+          curl -sS -H "Authorization: Bearer $CF_TOKEN" https://api.cloudflare.com/client/v4/user/tokens/verify | jq -e '.success==true' >/dev/null
+
+      - name: Ensure Pages project accessible
+        run: |
+          set -e
+          curl -sS -H "Authorization: Bearer $CF_TOKEN" "https://api.cloudflare.com/client/v4/accounts/${ACCOUNT_ID}/pages/projects/runart-foundry" | jq -e '.success==true' >/dev/null
+
+      - name: Create/Update main from chore/bootstrap-git
+        run: |
+          set -e
+          git fetch origin chore/bootstrap-git
+          git checkout -B main origin/chore/bootstrap-git
+          git push -u origin main
+          echo "MAIN_HEAD=$(git rev-parse --short HEAD)" >> $GITHUB_ENV
+
+      - name: Set default branch to main
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -e
+          gh api -X PATCH repos/${{ github.repository }} -f default_branch=main
+          gh repo view --json defaultBranchRef --jq '.defaultBranchRef.name' | grep -qx "main"
+
+      - name: Align Cloudflare Pages production_branch = main
+        run: |
+          set -e
+          curl -sS -X PATCH \
+            -H "Authorization: Bearer $CF_TOKEN" -H "Content-Type: application/json" \
+            --data '{"production_branch":"main"}' \
+            "https://api.cloudflare.com/client/v4/accounts/${ACCOUNT_ID}/pages/projects/runart-foundry" \
+            | jq -e '.success==true' >/dev/null
+
+      - name: Re-list workflows
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh workflow list
+
+      - name: Run Pages Prod (workflow_dispatch)
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -e
+          gh workflow run "Pages Prod" -f collect_evidence=true
+          gh run watch --exit-status
+
+      - name: Capture last run URL
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh run list --limit 1 --json url,workflowName,headBranch,status,conclusion \
+            | tee /tmp/last_run.json
+          cat /tmp/last_run.json | jq -r '.[0].url' | tee /tmp/prod_run_url.txt
+
+      - name: Post-deploy smokes (Prod)
+        run: |
+          set -e
+          curl -sS https://runart-foundry.pages.dev/api/health | tee /tmp/health_prod.json | jq -e '.env=="production" and .ok==true' >/dev/null
+          curl -sS -H "CF-Access-Client-Id: $ACCESS_CLIENT_ID" -H "CF-Access-Client-Secret: $ACCESS_CLIENT_SECRET" \
+            https://runart-foundry.pages.dev/api/whoami | tee /tmp/whoami_prod.json | jq -e '.env=="production"' >/dev/null
+
+      - name: Save evidences and update 082
+        run: |
+          set -e
+          TS=$(date -u +%Y%m%dT%H%M%SZ)
+          DEST="apps/briefing/_reports/tests/T4_prod_smokes/$TS"
+          mkdir -p "$DEST"
+          cp /tmp/health_prod.json /tmp/whoami_prod.json "$DEST"/
+          printf "# T4 Producción (post-switch a main)\n\n- Run: %s\n- Fecha (UTC): %s\n" "$(cat /tmp/prod_run_url.txt)" "$TS" > "$DEST/README.md"
+
+          FILE="apps/briefing/docs/internal/briefing_system/ci/082_reestructuracion_local.md"
+          mkdir -p "$(dirname "$FILE")"
+          touch "$FILE"
+          {
+            echo ""
+            echo "### [$(date -u +%Y-%m-%d)] — Switch a `main` + Pages producción alineada"
+            echo "- Default branch: main"
+            echo "- Pages: production_branch=main"
+            echo "- Run Producción: $(cat /tmp/prod_run_url.txt)"
+            echo "- Smokes post-deploy: PASS (health env=production, whoami OK)"
+            echo "- Evidencias: $DEST/"
+            echo "- Notas: overlay activo en prod; KV validados."
+            echo ""
+          } >> "$FILE"
+
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add "$DEST" "$FILE"
+          git commit -m "docs(ci): evidencias T4 prod + 082 update (post-switch to main)"
+          git push
+
+      - name: (Optional) Open PR to remove this temporary workflow
+        if: ${{ inputs.cleanup_workflow == 'true' }}
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -e
+          BR="chore/remove-temp-promote-workflow"
+          git checkout -b "$BR"
+          git rm .github/workflows/promote-main-and-deploy.yml
+          git commit -m "ci: remove temporary promote-main-and-deploy workflow"
+          git push -u origin "$BR"
+          gh pr create --title "ci: remove temporary promote workflow" --body "Cleanup after promoting main and deploying prod" --base main
+        
