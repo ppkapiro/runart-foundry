@@ -4,7 +4,14 @@ on:
   push:
     branches:
       - main
+  pull_request:
+    branches: [ chore/bootstrap-git ]
   workflow_dispatch:
+    inputs:
+      collect_evidence:
+        description: "Guardar evidencias T* en _reports"
+        required: false
+        default: "true"
 
 jobs:
   build-and-deploy:

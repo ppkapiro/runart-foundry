@@ -6,7 +6,13 @@ on:
       - develop
       - main
       - deploy/**
+      - chore/bootstrap-git
   workflow_dispatch:
+    inputs:
+      collect_evidence:
+        description: "Guardar evidencias T* en _reports"
+        required: false
+        default: "true"
 
 jobs:
   build-and-deploy:
