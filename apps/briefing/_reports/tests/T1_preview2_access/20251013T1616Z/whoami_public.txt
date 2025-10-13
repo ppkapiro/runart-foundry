@@ -1,0 +1,3 @@
+# whoami público
+
+(Ejecutar curl https://preview2.runart-foundry.pages.dev/api/whoami)

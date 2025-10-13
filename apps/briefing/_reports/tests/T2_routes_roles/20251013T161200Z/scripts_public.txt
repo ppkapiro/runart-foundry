@@ -1,0 +1,11 @@
+# Comprobaciones públicas (sin credenciales)
+PREVIEW=https://5655e660.runart-foundry.pages.dev
+
+# whoami
+curl -i --max-time 20 "$PREVIEW/api/whoami"
+
+# inbox
+curl -i --max-time 20 "$PREVIEW/api/inbox"
+
+# decisiones (POST vacía)
+curl -i --max-time 20 -X POST -H 'Content-Type: application/json' -d '{}' "$PREVIEW/api/decisiones"

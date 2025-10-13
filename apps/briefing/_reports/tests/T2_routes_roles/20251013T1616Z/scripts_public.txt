@@ -1,0 +1,6 @@
+# Scripts y comandos públicos usados
+
+- curl https://preview.runart-foundry.pages.dev/api/whoami
+- curl https://preview2.runart-foundry.pages.dev/api/whoami
+- curl -I https://preview.runart-foundry.pages.dev/
+- curl -I https://preview2.runart-foundry.pages.dev/

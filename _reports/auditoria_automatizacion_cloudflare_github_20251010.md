@@ -1,7 +1,7 @@
 
 # Auditoría completa de automatización Cloudflare & GitHub
 
-**Fecha:** 2025-10-10
+**Fecha:** 2025-10-13
 **Auditor:** GitHub Copilot
 
 ---
@@ -10,8 +10,8 @@
 
 ### Autenticación y conexión
 - ✅ Usuario autenticado: ppcapiro@gmail.com
-- ✅ Token OAuth con todos los permisos necesarios
-- ✅ Wrangler CLI funcional y conectado
+- ⚠️ Token API usado por GitHub Actions responde `Unable to authenticate request` (ver run 18414305468)
+- ⚠️ Wrangler CLI pendiente de reconfirmar con token renovado
 
 ### Proyectos Cloudflare Pages detectados
 - ✅ `runart-foundry` (`runart-foundry.pages.dev`)
@@ -29,7 +29,14 @@
 - ✅ Variables de entorno configuradas correctamente
 
 ### Estado final Cloudflare
-El entorno está correctamente conectado y operativo. Se pueden realizar deploys, consultar el historial y operar sobre los proyectos y recursos desde la terminal.
+La consola muestra proyectos y despliegues históricos, pero el token consumido por CI dejó de autenticar. Es necesario rotar el `CLOUDFLARE_API_TOKEN` antes de retomar los deploys automatizados.
+
+### Verificación del workflow `pages-preview.yml`
+- 🔄 Run `Deploy Preview (Cloudflare) #29` (GitHub run 18414305468, 2025-10-10) ejecutado vía `workflow_dispatch`
+- ✅ Build MkDocs (modo estricto) y smoke de imports en Node completados
+- ❌ Paso `cloudflare/pages-action@v1` falló con HTTP 400 → `Unable to authenticate request`
+- ⛔ Sin URL hash (`preview_url` vacío); no se ejecutaron prechecks DNS/HTTP ni smokes Access
+- ✅ Reintento del mismo run replicó el fallo
 
 ---
 
@@ -56,8 +63,7 @@ El entorno está correctamente conectado y operativo. Se pueden realizar deploys
 - ✅ Lint y validación de documentación
 - ✅ Smoke tests automáticos en deploy y preview
 
-### Configuración y seguridad
-- ✅ Secrets configurados: `CLOUDFLARE_API_TOKEN`, `CLOUDFLARE_ACCOUNT_ID`, `CF_PROJECT_NAME`, `GITHUB_TOKEN`, `ACCESS_CLIENT_ID`, `ACCESS_CLIENT_SECRET`, `CF_LOG_EVENTS_ID`, `CF_LOG_EVENTS_PREVIEW_ID`
+- ⚠️ Secrets detectados, pero `CLOUDFLARE_API_TOKEN` vigente no autentica ante Pages API
 - ✅ Permisos restringidos por job (`contents`, `deployments`, `statuses`, `pull-requests`, `checks`)
 - ✅ Validación de presencia de secrets antes de ejecutar deploys
 
@@ -65,7 +71,7 @@ El entorno está correctamente conectado y operativo. Se pueden realizar deploys
 
 ## 3. Errores y advertencias detectados
 
-### Cloudflare
+- ❌ `cloudflare/pages-action@v1` devuelve `Unable to authenticate request` (token expirado o con permisos insuficientes)
 - ⚠️ Comando de purga de caché con `wrangler` fallido: No existe, usar dashboard o API REST
 - ⚠️ Algunos reportes referencian comandos obsoletos para purga de caché
 
@@ -88,11 +94,13 @@ El entorno está correctamente conectado y operativo. Se pueden realizar deploys
 - Eliminar workflows legacy y actualizar referencias en documentación
 - Consolidar y revisar los secrets en GitHub
 - Corregir comandos obsoletos en scripts y reportes (especialmente purga de caché)
+- Rotar `CLOUDFLARE_API_TOKEN`, validar scopes (Pages:Edit, Pages:Read) y actualizar GitHub Secrets
 
 ### Validación y mantenimiento
 - Validar que todos los workflows documentados existan y estén activos
 - Revisar y actualizar scripts de validación y lint según necesidades futuras
 - Confirmar que Cloudflare Access esté activado y configurado correctamente en producción
+- Realizar smoke end-to-end tras el nuevo token para generar artefactos y actualizar reporte 082
 
 ---
 

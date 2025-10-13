@@ -1,0 +1,24 @@
+HTTP/2 200 
+date: Mon, 13 Oct 2025 16:00:07 GMT
+content-type: application/octet-stream
+content-length: 140
+cf-ray: 98e00c4d3c4fddd5-MIA
+access-control-allow-origin: *
+cache-control: public, max-age=0, must-revalidate
+etag: "e2110cad3de4bbc3f8bfa1cbd948cdd3"
+referrer-policy: strict-origin-when-cross-origin
+x-content-type-options: nosniff
+x-robots-tag: noindex
+report-to: {"endpoints":[{"url":"https:\/\/a.nel.cloudflare.com\/report\/v4?s=nghPa0aKqMoIE58NAS3dAn%2BiBnTWIJFMeKTlOUti97Q%2B9qlOzb3%2F0uox4S4N83qNsWmK9rVmevnDl%2FR%2FUq4AVYZiHVV3iYgqkiAILrUOhbp5VxjPCkjQmAqjS6blbAMxSYaXImYTR8c9jyoK8n%2Fodhs7%2F6U%3D"}],"group":"cf-nel","max_age":604800}
+nel: {"success_fraction":0,"report_to":"cf-nel","max_age":604800}
+server: cloudflare
+alt-svc: h3=":443"; ma=86400
+server-timing: cfL4;desc="?proto=TCP&rtt=38352&min_rtt=26893&rtt_var=18270&sent=6&recv=7&lost=0&retrans=0&sent_bytes=3424&recv_bytes=767&delivery_rate=149927&cwnd=252&unsent_bytes=0&cid=7470c81ac70aec8a&ts=85&x=0"
+
+{
+  "email": "local-admin@runart.dev",
+  "role": "admin",
+  "env": "local",
+  "source": "mkdocs-dev-stub",
+  "ts": "2025-10-03T12:00:00Z"
+}

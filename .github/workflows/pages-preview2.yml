@@ -52,6 +52,7 @@ jobs:
         working-directory: apps/briefing
         run: npm run test:unit:smoke
       - name: Deploy to CloudFed staging
+        id: deploy-preview
         uses: cloudflare/pages-action@v1
         with:
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
@@ -60,3 +61,72 @@ jobs:
           directory: ./apps/briefing/site
           branch: ${{ env.TARGET_BRANCH }}
           wranglerVersion: '3'
+      - name: Extract preview URL (API fallback)
+        id: extract-preview-url
+        env:
+          CF_API_URL: https://api.cloudflare.com/client/v4
+        run: |
+          set -eo pipefail
+          # 1) Determinar rama efectiva
+          BRANCH="${{ env.TARGET_BRANCH }}"
+          if [ -z "$BRANCH" ]; then BRANCH="${{ github.ref_name }}"; fi
+          echo "Branch efectivo: $BRANCH"
+
+          # 2) Intento directo con output del action
+          DIRECT_URL="${{ steps.deploy-preview.outputs.preview_url }}"
+          if [ -n "$DIRECT_URL" ]; then
+            echo "Se recibió preview_url directo del action: $DIRECT_URL"
+            URL="$DIRECT_URL"
+          fi
+
+          # 3) Llamada API de Cloudflare si no hay URL directa
+          if [ -z "$URL" ]; then
+            echo "Consultando API Cloudflare Pages…"
+            PROJ="${CF_PROJECT_NAME}"
+            ACC="${CLOUDFLARE_ACCOUNT_ID}"
+            API="${CF_API_URL}/accounts/${ACC}/pages/projects/${PROJ}/deployments?branch=${BRANCH}&per_page=1"
+            echo "GET $API"
+            RESP=$(curl -sS -H "Authorization: Bearer ${CLOUDFLARE_API_TOKEN}" -H "Content-Type: application/json" "$API" || true)
+            echo "Respuesta API: $(echo "$RESP" | jq -r '.success as $s | "success=" + ($s|tostring) + ", count=" + ((.result|length)//0|tostring))' || echo '<sin jq>')"
+            URL=$(echo "$RESP" | jq -r '.result[0].url // empty') || true
+            if [ -z "$URL" ]; then
+              DEPLOY_ID=$(echo "$RESP" | jq -r '.result[0].id // empty') || true
+              if [ -n "$DEPLOY_ID" ] && [ -n "$PROJ" ]; then
+                URL="https://${DEPLOY_ID}.${PROJ}.pages.dev"
+                echo "Construida URL por id: $URL"
+              fi
+            fi
+          fi
+
+          # 4) Regex fallback en logs del paso anterior (si el action imprimió URL)
+          if [ -z "$URL" ]; then
+            echo "Intentando regex fallback en logs del deploy…"
+            LOGFILE="${GITHUB_WORKSPACE}/.tmp_deploy_log.txt"
+            : > "$LOGFILE"
+            echo "(no disponible: logs del paso previo no se exponen en filesystem)" > "$LOGFILE"
+            CANDIDATE=$(grep -Eo 'https://[a-z0-9]+\.${CF_PROJECT_NAME}\.pages\.dev' "$LOGFILE" | head -n1 || true)
+            if [ -n "$CANDIDATE" ]; then URL="$CANDIDATE"; fi
+          fi
+
+          # 5) Validación y exportes
+          if [ -z "$URL" ]; then
+            echo "::error::No se pudo resolver preview_url. Parámetros: accountId=${CLOUDFLARE_ACCOUNT_ID}, projectName=${CF_PROJECT_NAME}, branch=${BRANCH}"
+            echo "Resumen API (truncado):"; echo "$RESP" | head -c 1000 || true
+            exit 1
+          fi
+          if echo "$URL" | grep -qiE '^https?://preview[.]'; then
+            echo "::warning::URL 'preview.*' detectada; aceptando provisionalmente"
+          fi
+          echo "PREVIEW_BASE_URL=$URL" >> "$GITHUB_ENV"
+          ts="$(date -u +%Y%m%dT%H%M%SZ)"
+          echo "SMOKES_TS=$ts" >> "$GITHUB_ENV"
+          echo "ts=$ts" >> "$GITHUB_OUTPUT"
+          echo "preview_url=$URL" >> "$GITHUB_OUTPUT"
+          echo "Preview base URL: $URL"
+          {
+            echo "### Preview URL"
+            echo "- Branch: $BRANCH"
+            echo "- Project: ${CF_PROJECT_NAME}"
+            echo "- URL: $URL"
+          } >> "$GITHUB_STEP_SUMMARY"
+        shell: bash

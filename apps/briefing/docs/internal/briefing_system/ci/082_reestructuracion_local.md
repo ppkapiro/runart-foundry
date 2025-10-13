@@ -1,3 +1,17 @@
+## Apéndice T1/T2 - Evidencia de extractor robusto y despliegues
+
+Fecha: 2025-10-13T16:16Z
+
+- Patch extractor robusto aplicado en `.github/workflows/pages-preview.yml` y `.github/workflows/pages-preview2.yml`.
+- Workflows ejecutados en rama `ci/fix-preview-extractor`.
+- Resultados:
+	- Preview: smokes públicos fallaron por HTTP 405 en `/api/decisiones` (esperado: 401/403/200). El extractor funcionó.
+	- Preview2: deploy y extractor exitosos. URL: https://preview2.runart-foundry.pages.dev (alias: https://d31f6f3c.runart-foundry.pages.dev)
+- Evidencias generadas:
+	- T1 preview: `apps/briefing/_reports/tests/T1_preview_access/20251013T1616Z/`
+	- T1 preview2: `apps/briefing/_reports/tests/T1_preview2_access/20251013T1616Z/`
+	- T2 rutas/roles: `apps/briefing/_reports/tests/T2_routes_roles/20251013T1616Z/`
+- Siguiente: ajustar smokes, preparar PR manual, completar pruebas autenticadas.
 ---
 title: 082 — Reestructuración local Briefing
 ---
@@ -577,3 +591,15 @@ Copilot debe seguir el siguiente formato para agregar bloques en esta bitácora 
 - Público (Access 30x): FAIL
 - Autenticado (Service Token): SKIPPED
 - Evidencias: `_reports/smokes_preview_20251010T143001Z/`
+---
+### 2025-10-13 — Fase 1: Recuperación de Preview tras rotación de token
+- Workflow: pages-preview.yml — Run: https://github.com/RunArtFoundry/runart-foundry/actions/runs/18471480373 — Rama: ci/run-preview-now
+- Resultado: FAIL
+- Preview URL: https://2ce2f51e.runart-foundry.pages.dev
+- Evidencias: `apps/briefing/_reports/tests/T1_preview_access/20251013T155907Z/`
+- Notas: Extract preview URL: preview_url vacío; la acción no devolvió URL
+---
+- Extractor de preview_url: parchado con API de Cloudflare + regex fallback.
+- Nuevo run Preview: https://github.com/RunArtFoundry/runart-foundry/actions/runs/18471719981 — preview_url: https://5655e660.runart-foundry.pages.dev
+- Evidencias T1 públicas escritas en: apps/briefing/_reports/tests/T1_preview_access/20251013T161200Z/
+- T2 preparado (plantillas y scripts públicos) en: apps/briefing/_reports/tests/T2_routes_roles/20251013T161200Z/

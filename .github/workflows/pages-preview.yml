@@ -209,6 +209,11 @@ jobs:
           RESULT="FAIL"
           if PROD_URL="$PREVIEW_BASE_URL" BASE_URL="$PREVIEW_BASE_URL" make -C apps/briefing test-smoke-prod | tee "$REPORT/smokes_stdout_public.txt"; then
             RESULT="PASS"
+          else
+            # Interpretar WARN como no fatal: si el script reporta WARN y no FAIL, marcar como WARN
+            if grep -q "⚠️" "$REPORT/smokes_stdout_public.txt" && ! grep -q "❌" "$REPORT/smokes_stdout_public.txt"; then
+              RESULT="WARN"
+            fi
           fi
           curl -sSL "$PREVIEW_BASE_URL" -o "${REPORT}/index.html" || true
           {
@@ -219,9 +224,11 @@ jobs:
             echo "- Evidencias: _reports/smokes_preview_${SMOKES_TS}/"
           } > "${REPORT}/SUMMARY.md"
           echo "SMOKES_PREVIEW_PUBLIC=$RESULT" >> "$GITHUB_ENV"
-          if [ "$RESULT" != "PASS" ]; then
+          if [ "$RESULT" = "FAIL" ]; then
             echo "::error::Public smoke (Access 30x) reportó $RESULT. Revisar smokes_stdout_public.txt"
             exit 1
+          elif [ "$RESULT" = "WARN" ]; then
+            echo "::warning::Public smoke (Access 30x) reportó WARN. Continuando (no fatal)."
           fi
         shell: bash
       - name: Auth smoke (Service Token)

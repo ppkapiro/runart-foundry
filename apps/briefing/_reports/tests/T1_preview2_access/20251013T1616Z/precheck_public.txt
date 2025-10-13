@@ -1,0 +1,3 @@
+# Precheck DNS/HTTP
+
+(Ejecutar curl y getent para https://preview2.runart-foundry.pages.dev)
