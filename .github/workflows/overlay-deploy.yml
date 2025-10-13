@@ -128,15 +128,15 @@ jobs:
           binding = "RUNART_ROLES"
           id = "${PREVIEW_ID}"
 
-          [env.preview]
-          routes = ["*.runart-foundry.pages.dev/api/*"]
+          [env.preview.vars]
+          RUNART_ENV = "overlay-preview"
 
           [[env.prod.kv_namespaces]]
           binding = "RUNART_ROLES"
           id = "${PROD_ID}"
 
-          [env.prod]
-          routes = ["runart-foundry.pages.dev/api/*"]
+          [env.prod.vars]
+          RUNART_ENV = "overlay-prod"
           EOF
 
           cat > worker.js <<'EOF'
