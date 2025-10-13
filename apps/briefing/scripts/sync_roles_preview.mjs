@@ -36,8 +36,21 @@ function main() {
   // Ejecutar wrangler KV bulk put apuntando a Preview
   // Requiere que wrangler.toml esté configurado con la namespace de Preview para RUNART_ROLES
   const cmd = "npx";
-  // Forzar el uso de la namespace de preview (preview_id) definida en wrangler.toml
-  const args = ["wrangler", "kv", "bulk", "put", tmpFile, "--binding", "RUNART_ROLES", "--preview"];
+  // Usar Cloudflare remoto y seleccionar el entorno preview; requiere CLOUDFLARE_API_TOKEN
+  const args = [
+    "wrangler",
+    "kv",
+    "bulk",
+    "put",
+    tmpFile,
+    "--binding",
+    "RUNART_ROLES",
+    "--env",
+    "preview",
+    "--preview",
+    "true",
+    "--remote",
+  ];
   const res = spawnSync(cmd, args, { cwd: root, stdio: "pipe", encoding: "utf8" });
 
   const summary = {
@@ -50,7 +63,12 @@ function main() {
   };
 
   writeFileSync(logFile, `${JSON.stringify(summary, null, 2)}\n`, "utf8");
-  console.log(`Sync roles preview: log -> ${logFile}`);
+  if (res.status === 0) {
+    console.log(`Sync roles preview: log -> ${logFile}`);
+  } else {
+    console.error(`Sync roles preview failed (code=${res.status}). See log: ${logFile}`);
+    process.exitCode = res.status ?? 1;
+  }
 }
 
 main();

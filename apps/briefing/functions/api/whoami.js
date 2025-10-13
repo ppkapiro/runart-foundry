@@ -3,9 +3,15 @@ import { getEmailFromRequest, resolveRole, roleToAlias } from "../_utils/roles.j
 export async function onRequestGet(context) {
   const { request, env } = context;
   const email = await getEmailFromRequest(request);
-  const role = await resolveRole(email, env);
+  // Preferir rol calculado por el middleware si está presente
+  const headerRole = (request.headers.get("X-RunArt-Role") || "").trim().toLowerCase();
+  let role = headerRole;
+  if (!role) {
+    role = await resolveRole(email, env);
+  }
   const ts = new Date().toISOString();
-  const alias = roleToAlias(role);
+  const aliasHeader = (request.headers.get("X-RunArt-Role-Alias") || "").trim().toLowerCase();
+  const alias = aliasHeader || roleToAlias(role);
 
   const body = {
     ok: true,

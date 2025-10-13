@@ -1,0 +1,34 @@
+[
+  {
+    "key": "owners",
+    "value": "[\"ppcapiro@gmail.com\"]",
+    "metadata": {
+      "synced": "20251013T172921",
+      "env": "preview"
+    }
+  },
+  {
+    "key": "client_admins",
+    "value": "[\"runartfoundry@gmail.com\"]",
+    "metadata": {
+      "synced": "20251013T172921",
+      "env": "preview"
+    }
+  },
+  {
+    "key": "team",
+    "value": "[\"infonetwokmedia@gmail.com\"]",
+    "metadata": {
+      "synced": "20251013T172921",
+      "env": "preview"
+    }
+  },
+  {
+    "key": "clients",
+    "value": "[\"musicmanagercuba@gmail.com\"]",
+    "metadata": {
+      "synced": "20251013T172921",
+      "env": "preview"
+    }
+  }
+]

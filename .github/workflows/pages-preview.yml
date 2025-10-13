@@ -52,11 +52,6 @@ jobs:
       - name: Install dependencies
         working-directory: apps/briefing
         run: npm ci
-      - name: Sync roles to Preview KV
-        working-directory: apps/briefing
-        run: |
-          node scripts/sync_roles_preview.mjs
-          ls -la _reports/logs || true
       - name: Build site
         working-directory: apps/briefing
         run: npm run build
@@ -285,6 +280,12 @@ jobs:
             echo "::error::Authenticated smoke (Service Token) reportó $RESULT (continuando para subir artefactos y 082)"
           fi
         shell: bash
+      - name: Upload preview smoke artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: smokes_preview_${{ env.SMOKES_TS }}
+          path: apps/briefing/_reports/smokes_preview_${{ env.SMOKES_TS }}/
+
       - name: Gate on Auth smoke result
         if: ${{ steps.auth-flags.outputs.enabled == 'true' }}
         run: |
