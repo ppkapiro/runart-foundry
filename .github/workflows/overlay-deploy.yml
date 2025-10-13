@@ -225,10 +225,24 @@ jobs:
       - name: Wait for T3 run to complete (best-effort)
         run: echo "Ver resultados en Actions → pages-preview.yml (se ejecuta con overlay activo)"
 
-      - name: If T3 PASS and input says so, deploy overlay to PROD
+      - name: Deploy overlay to PROD (if requested)
         if: ${{ github.event.inputs.promote_to_prod == 'true' }}
         shell: bash
         run: |
-          # Aquí asumimos que T3 se revisará; si ya es PASS, relanza este job con run_t4_if_t3_pass=true o continúa manualmente:
-          echo "Para promover a prod: re-ejecuta este workflow cuando T3 sea PASS, o ejecuta:"
-          echo "wrangler deploy --env prod"
+          set -e
+          echo "Deploying overlay Worker to Production environment..."
+          deploy_output=$(wrangler deploy --env prod)
+          echo "$deploy_output"
+          # Extract Worker URL from wrangler output
+          worker_url=$(echo "$deploy_output" | grep -o 'https://[^[:space:]]*\.workers\.dev' | head -1)
+          [ -n "$worker_url" ] || { echo "::error::No prod worker URL found"; exit 1; }
+          echo "PROD_WORKER_URL=$worker_url" >> $GITHUB_ENV
+          echo "Production Worker deployed to: $worker_url"
+
+      - name: Canary check (prod overlay)
+        if: ${{ github.event.inputs.promote_to_prod == 'true' }}
+        shell: bash
+        run: |
+          set -e
+          echo "Testing production overlay Worker at: $PROD_WORKER_URL"
+          curl -fsS -i "$PROD_WORKER_URL/api/health" | sed -n '1,20p'
