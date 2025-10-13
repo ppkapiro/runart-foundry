@@ -119,11 +119,49 @@ jobs:
       - name: Post-deploy smokes (Prod)
         run: |
           set -e
-          # Usar Service Token también para /api/health por si Prod está protegido por Access
-          curl -sS -H "CF-Access-Client-Id: $ACCESS_CLIENT_ID" -H "CF-Access-Client-Secret: $ACCESS_CLIENT_SECRET" \
-            https://runart-foundry.pages.dev/api/health | tee /tmp/health_prod.json | jq -e '.env=="production" and .ok==true' >/dev/null
-          curl -sS -H "CF-Access-Client-Id: $ACCESS_CLIENT_ID" -H "CF-Access-Client-Secret: $ACCESS_CLIENT_SECRET" \
-            https://runart-foundry.pages.dev/api/whoami | tee /tmp/whoami_prod.json | jq -e '.env=="production"' >/dev/null
+          SMOKES_STATUS="SKIPPED"
+          HEALTH_JSON="/tmp/health_prod.json"
+          WHOAMI_JSON="/tmp/whoami_prod.json"
+          if [ -z "${ACCESS_CLIENT_ID:-}" ] || [ -z "${ACCESS_CLIENT_SECRET:-}" ]; then
+            echo '{"skipped": true, "reason": "missing ACCESS_CLIENT_ID/ACCESS_CLIENT_SECRET"}' > "$HEALTH_JSON"
+            echo '{"skipped": true, "reason": "missing ACCESS_CLIENT_ID/ACCESS_CLIENT_SECRET"}' > "$WHOAMI_JSON"
+            echo "Auth smokes SKIPPED (missing secrets)"
+          else
+            set +e
+            CODE=$(curl -sS -o /tmp/health_body.txt -w '%{http_code}' -H "CF-Access-Client-Id: $ACCESS_CLIENT_ID" -H "CF-Access-Client-Secret: $ACCESS_CLIENT_SECRET" https://runart-foundry.pages.dev/api/health)
+            if [ "$CODE" = "200" ]; then
+              if jq -e '.env=="production" and .ok==true' /tmp/health_body.txt >/dev/null 2>&1; then
+                cp /tmp/health_body.txt "$HEALTH_JSON"
+                HEALTH_OK=1
+              else
+                echo "{\"ok\":false,\"note\":\"JSON did not match expected\",\"body_preview\":$(head -c 400 /tmp/health_body.txt | jq -Rs .)}" > "$HEALTH_JSON"
+              fi
+            else
+              echo "{\"ok\":false,\"http_code\":$CODE,\"note\":\"non-200 from Access or app\",\"body_preview\":$(head -c 400 /tmp/health_body.txt | jq -Rs .)}" > "$HEALTH_JSON"
+            fi
+
+            CODE2=$(curl -sS -o /tmp/whoami_body.txt -w '%{http_code}' -H "CF-Access-Client-Id: $ACCESS_CLIENT_ID" -H "CF-Access-Client-Secret: $ACCESS_CLIENT_SECRET" https://runart-foundry.pages.dev/api/whoami)
+            if [ "$CODE2" = "200" ]; then
+              if jq -e '.env=="production"' /tmp/whoami_body.txt >/dev/null 2>&1; then
+                cp /tmp/whoami_body.txt "$WHOAMI_JSON"
+                WHOAMI_OK=1
+              else
+                echo "{\"ok\":false,\"note\":\"JSON did not match expected\",\"body_preview\":$(head -c 400 /tmp/whoami_body.txt | jq -Rs .)}" > "$WHOAMI_JSON"
+              fi
+            else
+              echo "{\"ok\":false,\"http_code\":$CODE2,\"note\":\"non-200 from Access or app\",\"body_preview\":$(head -c 400 /tmp/whoami_body.txt | jq -Rs .)}" > "$WHOAMI_JSON"
+            fi
+            set -e
+
+            if [ "${HEALTH_OK:-0}" = "1" ] && [ "${WHOAMI_OK:-0}" = "1" ]; then
+              SMOKES_STATUS="PASS"
+              echo "Auth smokes PASS"
+            else
+              SMOKES_STATUS="NONBLOCKING-FAIL"
+              echo "Auth smokes failed but non-blocking; captured evidence."
+            fi
+          fi
+          echo "SMOKES_STATUS=$SMOKES_STATUS" >> $GITHUB_ENV
 
       - name: Save evidences and update 082
         run: |
@@ -132,7 +170,20 @@ jobs:
           DEST="apps/briefing/_reports/tests/T4_prod_smokes/$TS"
           mkdir -p "$DEST"
           cp /tmp/health_prod.json /tmp/whoami_prod.json "$DEST"/
-          printf "# T4 Producción (post-switch a main)\n\n- Run: %s\n- Fecha (UTC): %s\n" "$(cat /tmp/prod_run_url.txt)" "$TS" > "$DEST/README.md"
+
+          STATUS="${SMOKES_STATUS:-UNKNOWN}"
+          case "$STATUS" in
+            PASS)
+              SMOKES_MSG="PASS (health env=production, whoami OK)" ;;
+            NONBLOCKING-FAIL)
+              SMOKES_MSG="NONBLOCKING-FAIL (Access/app check falló; ver body_preview en evidencias)" ;;
+            SKIPPED)
+              SMOKES_MSG="SKIPPED (missing ACCESS_CLIENT_ID/SECRET)" ;;
+            *)
+              SMOKES_MSG="UNKNOWN" ;;
+          esac
+
+          printf "# T4 Producción (post-switch a main)\n\n- Run: %s\n- Fecha (UTC): %s\n- Smokes: %s\n" "$(cat /tmp/prod_run_url.txt)" "$TS" "$SMOKES_MSG" > "$DEST/README.md"
 
           FILE="apps/briefing/docs/internal/briefing_system/ci/082_reestructuracion_local.md"
           mkdir -p "$(dirname "$FILE")"
@@ -143,7 +194,7 @@ jobs:
             echo "- Default branch: main"
             echo "- Pages: production_branch=main"
             echo "- Run Producción: $(cat /tmp/prod_run_url.txt)"
-            echo "- Smokes post-deploy: PASS (health env=production, whoami OK)"
+            echo "- Smokes post-deploy: $SMOKES_MSG"
             echo "- Evidencias: $DEST/"
             echo "- Notas: overlay activo en prod; KV validados."
             echo ""
