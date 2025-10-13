@@ -55,6 +55,11 @@ jobs:
       - name: Build site
         working-directory: apps/briefing
         run: npm run build
+      - name: Stage Pages Functions into build output
+        working-directory: apps/briefing
+        run: |
+          mkdir -p site/functions
+          rsync -av --delete functions/ site/functions/
       - name: Smoke tests (unit imports)
         working-directory: apps/briefing
         run: npm run test:unit:smoke
