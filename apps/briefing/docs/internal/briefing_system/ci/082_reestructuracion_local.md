@@ -577,3 +577,12 @@ Copilot debe seguir el siguiente formato para agregar bloques en esta bitácora 
 - Público (Access 30x): FAIL
 - Autenticado (Service Token): SKIPPED
 - Evidencias: `_reports/smokes_preview_20251010T143001Z/`
+
+### [2025-10-13] — Switch a  + Pages producción alineada
+- Default branch: main
+- Pages: production_branch=main
+- Run Producción: https://github.com/RunArtFoundry/runart-foundry/actions/runs/18480176394
+- Smokes post-deploy: NONBLOCKING-FAIL (Access/app check falló; ver body_preview en evidencias)
+- Evidencias: apps/briefing/_reports/tests/T4_prod_smokes/20251013T230022Z/
+- Notas: overlay activo en prod; KV validados.
+
