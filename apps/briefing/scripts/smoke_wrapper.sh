@@ -40,6 +40,9 @@ cd "$PROJECT_ROOT"
 
 # Ejecutar el runner de smoke tests con las banderas correctas
 if command -v node >/dev/null 2>&1; then
+  # Propagar Service Token si está definido en entorno
+  export CF_ACCESS_CLIENT_ID="${ACCESS_CLIENT_ID:-${CF_ACCESS_CLIENT_ID:-}}"
+  export CF_ACCESS_CLIENT_SECRET="${ACCESS_CLIENT_SECRET:-${CF_ACCESS_CLIENT_SECRET:-}}"
   exec node tests/scripts/run-smokes.mjs \
     --baseURL="$BASEURL" \
     --allow-access-redirects \

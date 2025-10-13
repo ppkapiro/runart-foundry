@@ -68,6 +68,13 @@ function buildRequest(baseURL, route, { method = "GET", email, testEmail, header
   const init = { method, headers: new Headers(headers) };
   init.headers.set("Accept", "application/json");
   init.redirect = NO_FOLLOW ? "manual" : "follow";
+  // Añadir headers de Service Token (Cloudflare Access) si están disponibles en entorno
+  const svcId = process.env.ACCESS_CLIENT_ID || process.env.CF_ACCESS_CLIENT_ID;
+  const svcSecret = process.env.ACCESS_CLIENT_SECRET || process.env.CF_ACCESS_CLIENT_SECRET;
+  if (svcId && svcSecret) {
+    init.headers.set("CF-Access-Client-Id", svcId);
+    init.headers.set("CF-Access-Client-Secret", svcSecret);
+  }
   if (testEmail) {
     init.headers.set("X-RunArt-Test-Email", testEmail);
   }
