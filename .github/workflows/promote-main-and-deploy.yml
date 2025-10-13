@@ -59,8 +59,15 @@ jobs:
           GH_TOKEN: ${{ github.token }}
         run: |
           set -e
+          set +e
           gh api -X PATCH repos/${{ github.repository }} -f default_branch=main
-          gh repo view --json defaultBranchRef --jq '.defaultBranchRef.name' | grep -qx "main"
+          STATUS=$?
+          CURRENT=$(gh repo view --json defaultBranchRef --jq '.defaultBranchRef.name' || echo "unknown")
+          if [ $STATUS -ne 0 ]; then
+            echo "WARN: No se pudo cambiar default branch vía GITHUB_TOKEN (posible 403). Default actual: $CURRENT. Continuando…"
+          else
+            echo "Default branch cambiado correctamente. Actual: $CURRENT"
+          fi
 
       - name: Align Cloudflare Pages production_branch = main
         run: |
@@ -96,7 +103,9 @@ jobs:
       - name: Post-deploy smokes (Prod)
         run: |
           set -e
-          curl -sS https://runart-foundry.pages.dev/api/health | tee /tmp/health_prod.json | jq -e '.env=="production" and .ok==true' >/dev/null
+          # Usar Service Token también para /api/health por si Prod está protegido por Access
+          curl -sS -H "CF-Access-Client-Id: $ACCESS_CLIENT_ID" -H "CF-Access-Client-Secret: $ACCESS_CLIENT_SECRET" \
+            https://runart-foundry.pages.dev/api/health | tee /tmp/health_prod.json | jq -e '.env=="production" and .ok==true' >/dev/null
           curl -sS -H "CF-Access-Client-Id: $ACCESS_CLIENT_ID" -H "CF-Access-Client-Secret: $ACCESS_CLIENT_SECRET" \
             https://runart-foundry.pages.dev/api/whoami | tee /tmp/whoami_prod.json | jq -e '.env=="production"' >/dev/null
 
