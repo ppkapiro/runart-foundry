@@ -59,8 +59,6 @@ test-env-prod:
 	@$(CHECK_ENV) --mode=http --base-url "$$PROD_URL" --expect-env prod
 	@echo "ENV PROD OK"
 
-<<<<<<< HEAD
-=======
 test-smoke-prod:
 	@if [ -z "$$PROD_URL" ]; then \
 		echo "Set PROD_URL=https://<production-domain> before running make test-smoke-prod"; \
@@ -76,8 +74,6 @@ test-smoke-wrapper:
 	fi
 	@echo "Ejecutando smoke tests avanzados vía Node.js (manejo automático de Access)"
 	@bash scripts/smoke_wrapper.sh "$$PROD_URL"
-
->>>>>>> chore/bootstrap-git
 test-logs:
 	@if [ -f scripts/test_logs.mjs ]; then \
 		node scripts/test_logs.mjs; \
