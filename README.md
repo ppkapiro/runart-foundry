@@ -1,3 +1,5 @@
+![Pages Prod](https://github.com/ppkapiro/runart-foundry/actions/workflows/pages-prod.yml/badge.svg)
+
 # RUN Art Foundry — Proyecto Local
 
 [![Deploy: Briefing](https://github.com/ppkapiro/runart-foundry/actions/workflows/briefing_deploy.yml/badge.svg)](https://github.com/ppkapiro/runart-foundry/actions/workflows/briefing_deploy.yml)
