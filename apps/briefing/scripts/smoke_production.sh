@@ -161,7 +161,8 @@ body_whoami="$TMP_DIR/whoami.json"
 response=$(curl_capture GET "$API_WHOAMI" "$body_whoami")
 status=$(echo "$response" | cut -f1)
 redirect_url=$(echo "$response" | cut -f2)
-evaluate_production_status "GET /api/whoami" "$status" "200" "$redirect_url" "$body_whoami"
+# En producción/preview, sin sesión, Access puede devolver 401/403 o redirect 30x
+evaluate_production_status "GET /api/whoami" "$status" "200 401 403" "$redirect_url" "$body_whoami"
 
 # Test 3: API inbox (debe redirigir a Access si no hay sesión)
 echo ""
