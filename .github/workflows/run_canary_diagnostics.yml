@@ -149,15 +149,29 @@ jobs:
             DEPLOY_JSON="$(curl -fsS -H "Authorization: Bearer $CLOUDFLARE_API_TOKEN" "https://api.cloudflare.com/client/v4/accounts/${ACCOUNT_ID}/pages/projects/${PROJECT_NAME}/deployments?per_page=50")"
             CURL_STATUS=$?
             set -e
-            if [ $CURL_STATUS -ne 0 ] || [ -z "$DEPLOY_JSON" ]; then
-              echo "❌ No obtuve deployments para $PROJECT_NAME (API)" >&2
-              exit 1
+            if [ $CURL_STATUS -eq 0 ] && [ -n "$DEPLOY_JSON" ]; then
+              RESOLVED="$(echo "$DEPLOY_JSON" | jq -r '.result | map(select(.environment=="preview")) | sort_by(.created_on) | last | .url // empty' || true)"
             fi
 
-            RESOLVED="$(echo "$DEPLOY_JSON" | jq -r '.result | map(select(.environment=="preview")) | sort_by(.created_on) | last | .url // empty' || true)"
+            # Fallbacks si no hubo éxito con la API
+            if [ -z "$RESOLVED" ]; then
+              echo "⚠️  No se pudo resolver por API; probando dominios conocidos..." >&2
+              CANDIDATES=(
+                "https://${PROJECT_NAME}.pages.dev"
+                "https://preview2.${PROJECT_NAME}.pages.dev"
+              )
+              for C in "${CANDIDATES[@]}"; do
+                D="$(echo "$C" | sed -E 's#https?://##; s#/$##')"
+                if getent hosts "$D" >/dev/null 2>&1; then
+                  RESOLVED="$C"
+                  echo "PREVIEW_HOST por fallback: $RESOLVED"
+                  break
+                fi
+              done
+            fi
 
             if [ -z "$RESOLVED" ]; then
-              echo "❌ No encontré deployment preview activo." >&2
+              echo "❌ No encontré un host válido (API y fallbacks)" >&2
               exit 1
             fi
             echo "PREVIEW_HOST reparado: $RESOLVED"
