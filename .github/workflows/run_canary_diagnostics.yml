@@ -68,7 +68,7 @@ jobs:
               PROJECT_NAME="$(awk -F'=' '/^name[[:space:]]*=/ {gsub(/[[:space:]"]/, "", $2); print $2; exit}' apps/briefing/wrangler.toml || true)"
             fi
 
-            ACCOUNT_ID="$(grep -Eo 'account_id [a-f0-9]+' -r apps/briefing/docs 2>/dev/null | head -n1 | awk '{print $2}')"
+            ACCOUNT_ID="$(grep -Eo 'account_id [a-f0-9]{32}' -r apps/briefing/docs 2>/dev/null | head -n1 | awk '{print $2}')"
             if [ -z "$ACCOUNT_ID" ]; then
               ACCOUNT_ID="$(grep -Eo 'a2c7fc66f00eab69373e448193ae7201' -r . 2>/dev/null | head -n1 | awk '{print $1}')"
             fi
