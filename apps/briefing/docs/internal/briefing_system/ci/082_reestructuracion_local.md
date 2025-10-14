@@ -477,7 +477,7 @@ Copilot debe seguir el siguiente formato para agregar bloques en esta bitácora 
 	- main → status checks estrictos (`Structure & Governance Guard`, `Status & Changelog Update`, `Docs Lint`, `Pages Deploy Fallback`), PR obligatorio, linear history, conversación resuelta, enforce_admins.
 	- develop → status checks estrictos (`ci.yml`, `pages-prod.yml`, `pages-preview.yml`, `pages-preview2.yml`), mismos requisitos operativos.
 	- preview → status checks estrictos (`ci.yml`, `pages-prod.yml`, `pages-preview.yml`, `pages-preview2.yml`), mismos requisitos operativos.
-- Required deployments: API devolvió 404 (feature aún no disponible / ambiente sin registrar). Registrar pendiente cuando GitHub habilite `required_deployments` para entornos `runart-foundry-preview2` y `runart-briefing`.
+- Required deployments: API devolvió 404 (feature aún no habilitada / ambiente sin registrar). Registrar pendiente cuando GitHub habilite `required_deployments` para entornos `runart-foundry-preview2` y `runart-briefing`.
 - Evidencias:
 	- apps/briefing/docs/internal/briefing_system/_reports/logs/20251009T213835Z_branch_protection_enforcement.log
 	- apps/briefing/docs/internal/briefing_system/reports/20251009T213835Z_environments.json
@@ -592,5 +592,15 @@ Copilot debe seguir el siguiente formato para agregar bloques en esta bitácora 
 - SMOKES_STATUS: NONBLOCKING-FAIL
 - Evidencias: apps/briefing/_reports/tests/T4_prod_smokes/20251013T230022Z/
 - Notas: auth-smoke habilitado vía AUS_XMOC; deploy no bloqueante; overlay/Access operativos.
+
+### [2025-10-14] — Endurecimiento overlay + saneamiento KV
+- Workflow `overlay-deploy.yml` actualizado para:
+	- Inyectar `RUNART_ENV` diferenciado (`preview`/`production`) en los entornos wrangler.
+	- Generar `worker.js` con resolución de roles alineada al runtime Pages (cache KV + overrides de preview controlados).
+	- Registrar evidencias de canario (`/api/health`, `/api/whoami`) y metadatos `roles_source`/`roles_fetched_at`.
+	- Limpiar automáticamente claves demo/banner (`demo|seed|sample`) en namespaces `RUNART_ROLES` (preview/prod) guardando diffs en `overlay-canary/kv/*.txt`.
+- `apps/briefing/overrides/roles.js` ahora parte de `role: "visitor"` para evitar sesgos de vista demo.
+- `apps/briefing/overrides/main.html` reconoce roles normalizados (`owner`, `team`, `client_admin`) para el autolog.
+- Reporte `082_overlay_deploy_final.md` actualizado con la nueva evidencias (payloads actualizados, higiene KV y gobernanza).
 ---
 

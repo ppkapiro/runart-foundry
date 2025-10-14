@@ -1,0 +1,14 @@
+name: Rotation Reminder
+on:
+  schedule: [{ cron: "0 9 1 */3 *" }]
+  workflow_dispatch:
+jobs:
+  remind:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Open rotation issue
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          TODAY=$(date -u +%Y-%m-%d)
+          gh issue create --title "Rotación de secretos ($TODAY)" --body "- Rotar CLOUDFLARE_API_TOKEN\n- Rotar ACCESS_CLIENT_SECRET\n- Verificar KV/Routes post-rotación" || true

@@ -1,3 +1,3 @@
 window.BriefingRoleConfig = {
-  role: "equipo",
+  role: "visitor",
 };

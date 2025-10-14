@@ -1,0 +1,77 @@
+  % Total    % Received % Xferd  Average Speed   Time    Time     Time  Current
+                                 Dload  Upload   Total   Spent    Left  Speed
+  0     0    0     0    0     0      0      0 --:--:-- --:--:-- --:--:--     0* Host runart-overlay-api-preview.ppcapiro.workers.dev:443 was resolved.
+* IPv6: 2606:4700:3036::6815:4659, 2606:4700:3035::ac43:de2b
+* IPv4: 172.67.222.43, 104.21.70.89
+*   Trying 172.67.222.43:443...
+* Connected to runart-overlay-api-preview.ppcapiro.workers.dev (172.67.222.43) port 443
+* ALPN: curl offers h2,http/1.1
+} [5 bytes data]
+* TLSv1.3 (OUT), TLS handshake, Client hello (1):
+} [512 bytes data]
+*  CAfile: /etc/ssl/certs/ca-certificates.crt
+*  CApath: /etc/ssl/certs
+{ [5 bytes data]
+* TLSv1.3 (IN), TLS handshake, Server hello (2):
+{ [122 bytes data]
+* TLSv1.3 (IN), TLS handshake, Encrypted Extensions (8):
+{ [19 bytes data]
+* TLSv1.3 (IN), TLS handshake, Certificate (11):
+{ [2555 bytes data]
+* TLSv1.3 (IN), TLS handshake, CERT verify (15):
+{ [78 bytes data]
+* TLSv1.3 (IN), TLS handshake, Finished (20):
+{ [52 bytes data]
+* TLSv1.3 (OUT), TLS change cipher, Change cipher spec (1):
+} [1 bytes data]
+* TLSv1.3 (OUT), TLS handshake, Finished (20):
+} [52 bytes data]
+* SSL connection using TLSv1.3 / TLS_AES_256_GCM_SHA384 / X25519 / id-ecPublicKey
+* ALPN: server accepted h2
+* Server certificate:
+*  subject: CN=ppcapiro.workers.dev
+*  start date: Oct  1 20:32:58 2025 GMT
+*  expire date: Dec 30 21:30:32 2025 GMT
+*  subjectAltName: host "runart-overlay-api-preview.ppcapiro.workers.dev" matched cert's "*.ppcapiro.workers.dev"
+*  issuer: C=US; O=Google Trust Services; CN=WE1
+*  SSL certificate verify ok.
+*   Certificate level 0: Public key type EC/prime256v1 (256/128 Bits/secBits), signed using ecdsa-with-SHA256
+*   Certificate level 1: Public key type EC/prime256v1 (256/128 Bits/secBits), signed using ecdsa-with-SHA384
+*   Certificate level 2: Public key type EC/secp384r1 (384/192 Bits/secBits), signed using ecdsa-with-SHA384
+} [5 bytes data]
+* using HTTP/2
+* [HTTP/2] [1] OPENED stream for https://runart-overlay-api-preview.ppcapiro.workers.dev/api/health
+* [HTTP/2] [1] [:method: GET]
+* [HTTP/2] [1] [:scheme: https]
+* [HTTP/2] [1] [:authority: runart-overlay-api-preview.ppcapiro.workers.dev]
+* [HTTP/2] [1] [:path: /api/health]
+* [HTTP/2] [1] [user-agent: curl/8.5.0]
+* [HTTP/2] [1] [accept: */*]
+} [5 bytes data]
+> GET /api/health HTTP/2
+> Host: runart-overlay-api-preview.ppcapiro.workers.dev
+> User-Agent: curl/8.5.0
+> Accept: */*
+> 
+{ [5 bytes data]
+* TLSv1.3 (IN), TLS handshake, Newsession Ticket (4):
+{ [230 bytes data]
+* TLSv1.3 (IN), TLS handshake, Newsession Ticket (4):
+{ [230 bytes data]
+* old SSL session ID is stale, removing
+{ [5 bytes data]
+< HTTP/2 200 
+< date: Mon, 13 Oct 2025 20:22:12 GMT
+< content-type: application/json; charset=utf-8
+< content-length: 30
+< cache-control: no-store
+< vary: accept-encoding
+< report-to: {"group":"cf-nel","max_age":604800,"endpoints":[{"url":"https://a.nel.cloudflare.com/report/v4?s=7uXpasi8k3Ws3C45qAX24SZ1tVHzy0Xd6tM%2BYwu9LHPA9emJKE%2BlKWEod3jb5bzlFigbARK2TQwyBv2xBT6c0ES62bI4Cm%2B8Tz%2FYDf5W6lakReELDRed2XqVPjGn3SgyFJAvYAf4heZKOtiFzzl6"}]}
+< nel: {"report_to":"cf-nel","success_fraction":0.0,"max_age":604800}
+< server: cloudflare
+< cf-ray: 98e18c383dd174aa-MIA
+< alt-svc: h3=":443"; ma=86400
+< 
+{ [5 bytes data]
+100    30  100    30    0     0    106      0 --:--:-- --:--:-- --:--:--   107
+* Connection #0 to host runart-overlay-api-preview.ppcapiro.workers.dev left intact
