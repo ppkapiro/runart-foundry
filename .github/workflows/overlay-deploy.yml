@@ -129,14 +129,14 @@ jobs:
           id = "${PREVIEW_ID}"
 
           [env.preview]
-          routes = ["*.runart-foundry.pages.dev/api/*"]
+          # No routes - usar worker directo
 
           [[env.prod.kv_namespaces]]
           binding = "RUNART_ROLES"
           id = "${PROD_ID}"
 
           [env.prod]
-          routes = ["runart-foundry.pages.dev/api/*"]
+          # No routes - usar worker directo
           EOF
 
           cat > worker.js <<'EOF'
