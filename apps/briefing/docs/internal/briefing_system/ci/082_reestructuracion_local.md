@@ -604,3 +604,133 @@ Copilot debe seguir el siguiente formato para agregar bloques en esta bitácora 
 - Reporte `082_overlay_deploy_final.md` actualizado con la nueva evidencias (payloads actualizados, higiene KV y gobernanza).
 ---
 
+### [2025-10-14] — Fase 1–3 · Canario roles unificados
+- Fecha: 2025-10-14  
+- Ramas: `feature/roles-unificados` (canario) ↔ `main` (legacy); hash canario: `TBD` (registrar al momento del merge).  
+- Entornos:
+	- preview — legacy (baseline) · **PASS** (smokes control).  
+	- preview2 — canario (`RUNART_ROLES_MODE=unified`) · **PASS** (smokes comparativos, evidencias `_reports/roles_canary_20251014T000000Z/`).  
+	- producción — sin cambios (esperando release) · **N/A**.
+- Enlaces:
+	- Evidencias canario: `_reports/roles_canary_20251014T000000Z/`  
+	- ADR: `docs/adr/ADR-0005-unificacion-roles.md`  
+	- Checklist release: `apps/briefing/docs/internal/briefing_system/checklists/roles_unificados_release.md`
+- Resultado: Canario PASS en preview2; bloqueado hasta completar checklist y aprobación de gobernanza.
+
+### [2025-10-14] — Incidente canario roles (preview2)
+- Fecha: 2025-10-14  
+- Hash / URLs: pendiente (rollback antes del merge).  
+- Evidencia: `apps/briefing/_reports/roles_canary_preview2/BUG_OWNER_FOR_ALL_20251014_1624/`  
+- Síntoma: `/api/whoami` en preview2 devolvió `role=admin` para todos los correos (owner, admin_delegate, team, client, visitor).  
+- Impacto: escalamiento de privilegios; gobernanza comprometida.  
+- Acción: rollback a resolver legacy (`ROLE_RESOLVER_SOURCE=lib`), instrumentación de logs comparativos, creación de pruebas unitarias.  
+- Estado: **ROLLBACK ACTIVADO** (no promover preview2 → preview/prod hasta corregir).  
+- Próximos pasos: ajustar resolver unificado (fallback visitor, normalización correo, orden de fuentes), repetir canario tras fix.
+
+### [2025-10-14] — Canario por lista blanca (preview)
+- Fecha: 2025-10-14T16:49Z  
+- Ramas / hash: `hotfix/roles-canary-datacheck` (merge pending), commit de canario `TBD` al momento del despliegue.  
+- Alcance: Cloudflare Pages queda limitado a entornos `preview` y `production` (se descarta `preview2`); canario se ejecuta en `preview` mediante lista blanca de correos almacenada en KV.  
+- Evidencias:
+	- `_reports/kv_snapshot_20251014T164900Z/`
+	- `_reports/kv_audit_20251014T164900Z/`
+	- `_reports/env_dump_20251014T164900Z/`
+	- `_reports/roles_canary_preview/20251014T164900Z/`
+- Decisión: mantener `ROLE_RESOLVER_SOURCE=lib` a nivel de entorno mientras se corrige el resolver unificado; habilitar canario solo para correos listados en KV (`RUNART_ROLES:canary_allowlist`).  
+- Instrumentación: endpoints diagnósticos temporales (`/api/debug/roles_unified`, `/api/debug/roles_headers`) habilitados en preview con logging adicional; se eliminarán una vez finalizado el canario.  
+- Estado: MONITOREO ACTIVO — no se promueve a producción hasta validar que la lista blanca respete la gobernanza.
+
+### [2025-10-14] — Auditoría de datos y endurecimiento canario (preview)
+- Fecha: 2025-10-14T17:05Z  
+- Rama: `hotfix/roles-canary-datacheck` (pendiente de merge tras validación).  
+- Alcance: auditoría de KV `RUNART_ROLES` (entorno preview) + endurecimiento del canario por correo con nuevas cabeceras de diagnóstico.  
+- Cambios clave:
+	- Guard (`functions/_lib/guard.js`) ahora propaga `X-RunArt-Resolver` y `X-RunArt-Canary` con origen y whitelist; los handlers esperan respuesta asíncrona (resuelve bug `role=undefined`).
+	- Resolver unificado (`functions/_shared/roles.shared.js`) expone `resolveRoleUnifiedDetailed` y cachea `CANARY_ROLE_RESOLVER_EMAILS` (normaliza correos y evita lecturas repetidas de KV).
+	- Endpoints de soporte (`functions/api/resolve_preview.js`, `functions/api/kv_roles_snapshot.js`) permiten inspección puntual del resolver y del KV durante el canario; se marcan como temporales.
+	- Script `scripts/kv_audit.mjs` genera conteos y detecta claves inválidas desde `_reports/roles_canary_preview/kv_snapshot_preview_20251014T170500Z.json`.
+- Evidencias actualizadas: `_reports/roles_canary_preview/kv_audit_preview_20251014T170500Z.md`, `_reports/roles_canary_preview/env_dump_preview_20251014T170500Z.md`, `_reports/roles_canary_preview/smokes_20251014T170600Z/` (smokes fallidos documentan `role=undefined` previo al fix asíncrono).
+- Pendientes:<br>
+	1. Exportar snapshot real del KV (correr `scripts/kv_audit.mjs` contra datos actualizados) y actualizar el markdown de conteos.<br>
+	2. Poblar lista blanca con correos finales y repetir smokes (`tests/smokes/roles_canary_preview.*`) hasta obtener PASS con encabezados esperados.<br>
+	3. Retirar endpoints de diagnóstico y limpiar evidencias temporales una vez cerrado el canario.<br>
+	4. (Añadido) Scripts auxiliares creados: `scripts/kv_export_namespace.mjs` (export REST), `scripts/smoke_canary_emails.mjs` (smokes focalizados). Documentados comandos ejemplo en `_reports/kv_snapshot_preview_YYYYmmddTHHMMSSZ.cmd.txt` y `_reports/canary_allowlist_cmd_<TS>.txt`.
+
+## Credenciales CI/CD Cloudflare (2025-10-14T18:30:00Z)
+
+### Estado Post-Auditoría
+
+**Auditoría completa ejecutada:** Rama `ci/credenciales-cloudflare-audit` con normalización hacia tokens canónicos.
+
+**Secrets actuales identificados:**
+- `CLOUDFLARE_API_TOKEN` + `CLOUDFLARE_ACCOUNT_ID` ← **CANÓNICOS** ✅
+- `CF_API_TOKEN` + `CF_ACCOUNT_ID` ← **LEGACY** (eliminar tras migración)
+
+### Matriz Workflow → Environment → Secret
+
+| Workflow | Environment | Secret Actual | Secret Target | Estado |
+|----------|-------------|---------------|---------------|---------|
+| `pages-deploy.yml` | Repo | `CF_API_TOKEN` | `CLOUDFLARE_API_TOKEN` | ❌ Migrar |
+| `pages-preview.yml` | Repo | `CLOUDFLARE_API_TOKEN` | `CLOUDFLARE_API_TOKEN` | ✅ OK |
+| `pages-preview2.yml` | Repo | `CLOUDFLARE_API_TOKEN` | `CLOUDFLARE_API_TOKEN` | ✅ OK |
+| `briefing_deploy.yml` | Repo | `CF_API_TOKEN` | `CLOUDFLARE_API_TOKEN` | ❌ Migrar |
+| `overlay-deploy.yml` | Repo | `CLOUDFLARE_API_TOKEN` | `CLOUDFLARE_API_TOKEN` | ✅ OK |
+
+### Scopes Requeridos (Least Privilege)
+
+```
+com.cloudflare.api.account.zone:read        ← Verificación dominios Pages
+com.cloudflare.edge.worker.script:read      ← Validación Workers
+com.cloudflare.edge.worker.kv:edit          ← Gestión KV namespaces  
+com.cloudflare.api.account.zone.page:edit   ← Deploy/gestión Pages
+```
+
+### Verificación Automática Implementada
+
+- **Scripts:** `tools/ci/check_cf_scopes.sh` + `scripts/secrets/node/cf_token_verify.mjs`
+- **Workflow:** `.github/workflows/ci_cloudflare_tokens_verify.yml`
+- **Frecuencia:** Semanal (lunes 09:00 UTC) + PR triggers + manual
+- **Escalación:** Auto-creación de issues en GitHub si fallan verificaciones
+
+### Política de Rotación
+
+```json
+{
+  "CLOUDFLARE_API_TOKEN": {
+    "rotation_days": 180,
+    "next_rotation": "2026-04-11", 
+    "reminder_days_before": 30,
+    "workflow": "ci_secret_rotation_reminder.yml"
+  }
+}
+```
+
+**Workflow recordatorio:** Primer lunes de cada mes + manual dispatch
+
+### Procedimiento Local (PS/Bash)
+
+```bash
+# Verificación local de scopes
+export CLOUDFLARE_API_TOKEN=****
+./tools/ci/check_cf_scopes.sh repo
+
+# Listar secrets GitHub (solo nombres)
+./tools/ci/list_github_secrets.sh
+
+# Crear issue de rotación
+./tools/ci/open_rotation_issue.sh CLOUDFLARE_API_TOKEN 30
+```
+
+### Enlaces y Documentación
+
+- **Inventario completo:** `security/credentials/github_secrets_inventory.md`
+- **Reporte auditoría:** `security/credentials/audit_cf_tokens_report.md`  
+- **Política rotación:** `security/credentials/cloudflare_tokens.json`
+- **Runbook operativo:** `docs/internal/runbooks/runbook_cf_tokens.md`
+
+### Próximos Pasos
+
+1. **Migrar workflows legacy** (pages-deploy.yml, briefing_deploy.yml)
+2. **Validar 2-3 deploys** con nombres canónicos
+3. **Eliminar secrets legacy** tras ventana de estabilización
+4. **Ejecutar verificación semanal** y documentar resultados
