@@ -69,28 +69,35 @@ jobs:
             fi
 
             if [ -z "$PROJECT_NAME" ]; then
-              PROJ_JSON="$(npx --yes --prefix apps/briefing wrangler pages project list --json || true)"
-              if [ -n "$PROJ_JSON" ]; then
-                PROJECT_NAME="$(echo "$PROJ_JSON" | jq -r '[.[] | .name] | map(select(test("runart|briefing"; "i"))) | first // empty' || true)"
-                if [ -z "$PROJECT_NAME" ]; then
-                  PROJECT_NAME="$(echo "$PROJ_JSON" | jq -r '.[0].name // empty' || true)"
-                fi
-              fi
+              PROJECT_NAME="runart-foundry"
             fi
 
-            if [ -z "$PROJECT_NAME" ]; then
-              echo "❌ No pude detectar proyecto Pages" >&2
+            ACCOUNT_ID=""
+            if [ -z "$ACCOUNT_ID" ]; then
+              ACCOUNT_ID="$(grep -Eo 'account_id [a-f0-9]+' -r apps/briefing/docs 2>/dev/null | head -n1 | awk '{print $2}')"
+            fi
+            if [ -z "$ACCOUNT_ID" ]; then
+              ACCOUNT_ID="$(grep -Eo 'a2c7fc66f00eab69373e448193ae7201' -r . 2>/dev/null | head -n1 | awk '{print $1}')"
+            fi
+
+            if [ -z "$PROJECT_NAME" ] || [ -z "$ACCOUNT_ID" ]; then
+              echo "❌ No pude detectar proyecto Pages o account id" >&2
               exit 1
             fi
+
             echo "Proyecto detectado: $PROJECT_NAME"
+            echo "Account ID: $ACCOUNT_ID"
 
-            DEPLOY_JSON="$(npx --yes --prefix apps/briefing wrangler pages deployment list --project-name "$PROJECT_NAME" --json || true)"
-            if [ -z "$DEPLOY_JSON" ]; then
-              echo "❌ No obtuve deployments para $PROJECT_NAME" >&2
+            set +e
+            DEPLOY_JSON="$(curl -fsS -H "Authorization: Bearer $CLOUDFLARE_API_TOKEN" "https://api.cloudflare.com/client/v4/accounts/${ACCOUNT_ID}/pages/projects/${PROJECT_NAME}/deployments?per_page=50")"
+            CURL_STATUS=$?
+            set -e
+            if [ $CURL_STATUS -ne 0 ] || [ -z "$DEPLOY_JSON" ]; then
+              echo "❌ No obtuve deployments para $PROJECT_NAME (API)" >&2
               exit 1
             fi
 
-            RESOLVED="$(echo "$DEPLOY_JSON" | jq -r '[.[] | select(.environment=="preview")] | sort_by(.created_on) | last | .url // empty' || true)"
+            RESOLVED="$(echo "$DEPLOY_JSON" | jq -r '.result | map(select(.environment=="preview")) | sort_by(.created_on) | last | .url // empty' || true)"
 
             if [ -z "$RESOLVED" ]; then
               echo "❌ No encontré deployment preview activo." >&2
