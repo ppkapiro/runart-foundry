@@ -1,5 +1,7 @@
 name: Run Canary Diagnostics
 
+# ⚠️ Este workflow se ejecuta en ESPAÑOL
+
 on:
   workflow_dispatch:
     inputs:
@@ -68,9 +70,24 @@ jobs:
               PROJECT_NAME="$(awk -F'=' '/^name[[:space:]]*=/ {gsub(/[[:space:]"]/, "", $2); print $2; exit}' apps/briefing/wrangler.toml || true)"
             fi
 
-            ACCOUNT_ID="$(grep -Eo 'account_id [a-f0-9]{32}' -r apps/briefing/docs 2>/dev/null | head -n1 | awk '{print $2}')"
+            if [ -f apps/briefing/wrangler.toml ]; then
+              ACCOUNT_ID="$(awk -F'=' '/^account_id[[:space:]]*=/{gsub(/[[:space:]\"]/, "", $2); print $2; exit}' apps/briefing/wrangler.toml || true)"
+            else
+              ACCOUNT_ID=""
+            fi
+
             if [ -z "$ACCOUNT_ID" ]; then
-              ACCOUNT_ID="$(grep -Eo 'a2c7fc66f00eab69373e448193ae7201' -r . 2>/dev/null | head -n1 | awk '{print $1}')"
+              RAW_ACCOUNT="$(grep -R -Eo 'account_id[[:space:]]+[a-f0-9]{32}' apps/briefing/docs 2>/dev/null || true)"
+              if [ -n "$RAW_ACCOUNT" ]; then
+                ACCOUNT_ID="$(echo "$RAW_ACCOUNT" | head -n1 | awk '{print $2}')"
+              fi
+            fi
+
+            if [ -z "$ACCOUNT_ID" ]; then
+              RAW_ACCOUNT="$(grep -R -Eo 'a2c7fc66f00eab69373e448193ae7201' . 2>/dev/null || true)"
+              if [ -n "$RAW_ACCOUNT" ]; then
+                ACCOUNT_ID="$(echo "$RAW_ACCOUNT" | head -n1 | awk '{print $1}')"
+              fi
             fi
             if [ -z "$ACCOUNT_ID" ]; then
               ACCOUNT_ID="a2c7fc66f00eab69373e448193ae7201"
@@ -139,18 +156,27 @@ jobs:
           curl -fsS "${HOST_TO_CHECK}/health" || true
           curl -I  -sS "${HOST_TO_CHECK}/" | head -n 20 || true
 
-      - name: Read KV (RUNART_ROLES + CANARY whitelist) via API
+      - name: Read KV (RUNART_ROLES + CANARY whitelist) vía API
         id: kvread
         run: |
-          ACC_ID=$(grep -Eo 'account_id [a-f0-9]+' -r apps/briefing/docs || true)
-          ACC_ID=$(echo "$ACC_ID" | head -n1 | awk '{print $2}')
-          if [ -z "$ACC_ID" ]; then
-            ACC_ID=$(grep -Eo 'a2c7fc66f00eab69373e448193ae7201' -r . || true | head -n1 | awk '{print $1}')
+          echo "🔍 Extrayendo Cloudflare account_id y namespace (documentado en español)..."
+          ACC_ID=""
+          # 1️⃣ Intentar primero desde wrangler.toml
+          if [ -f apps/briefing/wrangler.toml ]; then
+            ACC_ID=$(grep -E 'account_id' apps/briefing/wrangler.toml | awk -F'=' '{gsub(/[ "\t]/,"",$2);print $2}' | head -n1 || true)
           fi
-          echo "AccountId: ${ACC_ID:-<unknown>}"
+          # 2️⃣ Si sigue vacío, buscar heurísticamente en documentación local
+          if [ -z "$ACC_ID" ]; then
+            ACC_ID=$(grep -Eo 'account_id [a-f0-9]+' -r apps/briefing/docs || true | head -n1 | awk '{print $2}' || true)
+          fi
+          # 3️⃣ Fallback: patrón conocido (auditoría)
+          if [ -z "$ACC_ID" ]; then
+            ACC_ID=$(grep -Eo 'a2c7fc66f00eab69373e448193ae7201' -r . || true | head -n1 | awk '{print $1}' || true)
+          fi
+          echo "📄 account_id detectado: ${ACC_ID:-<no encontrado>}"
 
-          NS_ID=$(grep -Eo '7d80b07de98e4d9b9d5fd85516901ef6' -r . || true | head -n1 | awk '{print $1}')
-          echo "Namespace preview (heurística): ${NS_ID:-<unknown>}"
+          NS_ID=$(grep -Eo '7d80b07de98e4d9b9d5fd85516901ef6' -r . || true | head -n1 | awk '{print $1}' || true)
+          echo "📦 Namespace preview (heurístico): ${NS_ID:-<no encontrado>}"
 
           OUT="apps/briefing/_reports/roles_canary_preview"
           mkdir -p "$OUT"
@@ -167,12 +193,9 @@ jobs:
             echo "kv_roles_path=${OUT}/kv_RUNART_ROLES.json" >> $GITHUB_OUTPUT
             echo "kv_wl_path=${OUT}/kv_CANARY_ROLE_RESOLVER_EMAILS.json" >> $GITHUB_OUTPUT
 
-            echo "KV RUNART_ROLES:"
-            jq . "${OUT}/kv_RUNART_ROLES.json" || true
-            echo "KV CANARY WL:"
-            jq . "${OUT}/kv_CANARY_ROLE_RESOLVER_EMAILS.json" || true
+            echo "✅ KV descargado correctamente (ver archivos en artefactos)."
           else
-            echo "⚠️ No se pudieron inferir IDs; continuamos con smokes y headers igualmente."
+            echo "⚠️ No se pudieron inferir los IDs. Se continuará con las pruebas de smoke."
           fi
 
       - name: Smokes focalizados (sin export)
