@@ -68,16 +68,29 @@ jobs:
               PROJECT_NAME="$(awk -F'=' '/^name[[:space:]]*=/ {gsub(/[[:space:]"]/, "", $2); print $2; exit}' apps/briefing/wrangler.toml || true)"
             fi
 
-            if [ -z "$PROJECT_NAME" ]; then
-              PROJECT_NAME="runart-foundry"
-            fi
-
-            ACCOUNT_ID=""
-            if [ -z "$ACCOUNT_ID" ]; then
-              ACCOUNT_ID="$(grep -Eo 'account_id [a-f0-9]+' -r apps/briefing/docs 2>/dev/null | head -n1 | awk '{print $2}')"
-            fi
+            ACCOUNT_ID="$(grep -Eo 'account_id [a-f0-9]+' -r apps/briefing/docs 2>/dev/null | head -n1 | awk '{print $2}')"
             if [ -z "$ACCOUNT_ID" ]; then
               ACCOUNT_ID="$(grep -Eo 'a2c7fc66f00eab69373e448193ae7201' -r . 2>/dev/null | head -n1 | awk '{print $1}')"
+            fi
+            if [ -z "$ACCOUNT_ID" ]; then
+              ACCOUNT_ID="a2c7fc66f00eab69373e448193ae7201"
+            fi
+
+            if [ -z "$PROJECT_NAME" ]; then
+              set +e
+              PROJECT_LIST="$(curl -fsS -H "Authorization: Bearer $CLOUDFLARE_API_TOKEN" "https://api.cloudflare.com/client/v4/accounts/${ACCOUNT_ID}/pages/projects?per_page=50")"
+              LIST_STATUS=$?
+              set -e
+              if [ $LIST_STATUS -eq 0 ] && [ -n "$PROJECT_LIST" ]; then
+                PROJECT_NAME="$(echo "$PROJECT_LIST" | jq -r '.result | map(.name) | map(select(test("(briefing|runart)"; "i"))) | first // empty' || true)"
+                if [ -z "$PROJECT_NAME" ]; then
+                  PROJECT_NAME="$(echo "$PROJECT_LIST" | jq -r '.result[0].name // empty' || true)"
+                fi
+              fi
+            fi
+
+            if [ -z "$PROJECT_NAME" ]; then
+              PROJECT_NAME="runart-foundry"
             fi
 
             if [ -z "$PROJECT_NAME" ] || [ -z "$ACCOUNT_ID" ]; then
