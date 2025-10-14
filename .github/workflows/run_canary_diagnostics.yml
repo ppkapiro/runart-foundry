@@ -25,9 +25,12 @@ jobs:
       # Cloudflare Access (Service Token) — opcional
       CF_ACCESS_CLIENT_ID: ${{ secrets.CF_ACCESS_CLIENT_ID }}
       CF_ACCESS_CLIENT_SECRET: ${{ secrets.CF_ACCESS_CLIENT_SECRET }}
+      ACCESS_CLIENT_ID_SECRET: ${{ secrets.ACCESS_CLIENT_ID }}
+      ACCESS_CLIENT_SECRET_SECRET: ${{ secrets.ACCESS_CLIENT_SECRET }}
       # IDs exactos (opcionales, aceleran KV)
       CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
       NAMESPACE_ID_RUNART_ROLES_PREVIEW: ${{ secrets.NAMESPACE_ID_RUNART_ROLES_PREVIEW }}
+      RUNART_ROLES_KV_PREVIEW: ${{ secrets.RUNART_ROLES_KV_PREVIEW }}
       PREVIEW_HOST: ${{ inputs.preview_host }}
       OWNER: ${{ inputs.owner }}
       TEAM: ${{ inputs.team }}
@@ -48,6 +51,14 @@ jobs:
 
       - name: Install deps
         run: npm ci --prefix apps/briefing
+
+      - name: Normalizar secrets (Access/KV)
+        shell: bash
+        run: |
+          set -euo pipefail
+          echo "CF_ACCESS_CLIENT_ID=${CF_ACCESS_CLIENT_ID:-${ACCESS_CLIENT_ID_SECRET:-}}" >> "$GITHUB_ENV"
+          echo "CF_ACCESS_CLIENT_SECRET=${CF_ACCESS_CLIENT_SECRET:-${ACCESS_CLIENT_SECRET_SECRET:-}}" >> "$GITHUB_ENV"
+          echo "NAMESPACE_ID_RUNART_ROLES_PREVIEW=${NAMESPACE_ID_RUNART_ROLES_PREVIEW:-${RUNART_ROLES_KV_PREVIEW:-}}" >> "$GITHUB_ENV"
 
       - name: Resolve preview host dynamically
         id: resolve_host
