@@ -82,13 +82,18 @@ jobs:
             if [ -n "$ALT_URL" ]; then URL="$ALT_URL"; fi
           fi
           if [ -z "$URL" ]; then
-            echo "Fallback: consultando Cloudflare Pages API para última URL de ${CF_PROJECT} (branch=$BRANCH)…"
+            echo "Fallback: consultando Cloudflare Pages API para última URL de ${CF_PROJECT}…"
             resp=$(curl -sS -H "Authorization: Bearer ${CF_API}" "https://api.cloudflare.com/client/v4/accounts/${CF_ACCOUNT}/pages/projects/${CF_PROJECT}/deployments?per_page=20")
-            URL=$(echo "$resp" | jq -r --arg b "$BRANCH" '[.result[] | select(.deployment_trigger.metadata.branch==$b)] | sort_by(.created_on) | last | .url // empty')
+            # 1) Intentar por rama si el API la anota
+            URL=$(echo "$resp" | jq -r --arg b "$BRANCH" '[.result[] | select(.deployment_trigger.metadata.branch==$b)] | sort_by(.created_on) | last | (.url // .aliases[0] // empty)')
+            # 2) Si sigue vacío, tomar el último deployment (por fecha)
+            if [ -z "$URL" ]; then
+              URL=$(echo "$resp" | jq -r '[.result[]] | sort_by(.created_on) | last | (.url // .aliases[0] // empty)')
+            fi
           fi
           echo "preview_url=${URL}"
           test -n "$URL" || { echo "preview_url vacío: ni la acción ni la API devolvieron URL"; exit 1; }
-          # Prohibir alias preview.* explícitamente:
+          # Prohibir alias preview.* explícitamente (permitimos alias por rama como feat-*.pages.dev)
           if echo "$URL" | grep -qiE '^https?://preview[.]'; then
             echo "ERROR: Se detectó alias 'preview.*' (no válido por defecto). Use URL hash del deploy."; exit 1;
           fi
