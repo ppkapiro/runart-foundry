@@ -7,7 +7,7 @@ on:
     inputs:
       preview_host:
         description: "Pages preview host (https://<...>.pages.dev)"
-        required: true
+        required: false
         type: string
       owner: { description: "Correo owner", default: "ppcapiro@gmail.com", required: true, type: string }
       team: { description: "Correo team", default: "officemagerhealthkendall@gmail.com", required: true, type: string }
