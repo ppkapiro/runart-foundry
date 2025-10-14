@@ -132,6 +132,18 @@ echo "📍 Base URL: $API_BASE"
 echo "🔐 Access JWT: ${ACCESS_JWT:+configurado}${ACCESS_JWT:-no configurado}"
 echo ""
 
+# Configuración de expectativas por entorno
+SMOKE_ALLOW_MISSING_WHOAMI="${SMOKE_ALLOW_MISSING_WHOAMI:-0}"
+SMOKE_ALLOW_MISSING_INBOX="${SMOKE_ALLOW_MISSING_INBOX:-0}"
+EXPECTED_WHOAMI="200"
+EXPECTED_INBOX="200"
+if [[ "${RUNART_ENV:-}" == "preview" || "$SMOKE_ALLOW_MISSING_WHOAMI" == "1" ]]; then
+  EXPECTED_WHOAMI="200 404"
+fi
+if [[ "${RUNART_ENV:-}" == "preview" || "$SMOKE_ALLOW_MISSING_INBOX" == "1" ]]; then
+  EXPECTED_INBOX="200 404"
+fi
+
 # Test 1: Página raíz (debe redirigir a Access si no hay sesión)
 echo "🧪 Test 1: Página raíz"
 body_root="$TMP_DIR/root.html"
@@ -140,23 +152,23 @@ status=$(echo "$response" | cut -f1)
 redirect_url=$(echo "$response" | cut -f2)
 evaluate_production_status "GET /" "$status" "200" "$redirect_url" "$body_root"
 
-# Test 2: API whoami (debe redirigir a Access si no hay sesión)
+# Test 2: API whoami (200 en prod; en preview puede no existir → 404 permitido)
 echo ""
 echo "🧪 Test 2: API whoami"
 body_whoami="$TMP_DIR/whoami.json"
 response=$(curl_capture GET "$API_WHOAMI" "$body_whoami")
 status=$(echo "$response" | cut -f1)
 redirect_url=$(echo "$response" | cut -f2)
-evaluate_production_status "GET /api/whoami" "$status" "200" "$redirect_url" "$body_whoami"
+evaluate_production_status "GET /api/whoami" "$status" "$EXPECTED_WHOAMI" "$redirect_url" "$body_whoami"
 
-# Test 3: API inbox (debe redirigir a Access si no hay sesión)
+# Test 3: API inbox (200 en prod; en preview puede no existir → 404 permitido)
 echo ""
 echo "🧪 Test 3: API inbox"
 body_inbox="$TMP_DIR/inbox.json"
 response=$(curl_capture GET "$API_INBOX" "$body_inbox")
 status=$(echo "$response" | cut -f1)
 redirect_url=$(echo "$response" | cut -f2)
-evaluate_production_status "GET /api/inbox" "$status" "200" "$redirect_url" "$body_inbox"
+evaluate_production_status "GET /api/inbox" "$status" "$EXPECTED_INBOX" "$redirect_url" "$body_inbox"
 
 # Test 4: API decisiones sin token (debe redirigir a Access o devolver 401)
 echo ""
