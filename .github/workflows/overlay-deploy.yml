@@ -210,7 +210,8 @@ jobs:
           RUNART_ENV = "production"
           EOF
 
-          cat > worker.js <<'EOF'
+          # Importante: heredoc sin comillas para expandir ${STATIC_ROLES_JSON}
+          cat > worker.js <<EOF
           const RUNART_ROLES_KEY = "runart_roles";
           const CACHE_TTL_MS = 30_000;
           const PREVIEW_ALLOWED_OVERRIDES = new Set(["owner", "client_admin", "client", "team", "visitor"]);
