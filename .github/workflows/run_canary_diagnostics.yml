@@ -20,8 +20,14 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 25
     env:
+      # Cloudflare API Token (KV)
       CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+      # Cloudflare Access (Service Token) — opcional
+      CF_ACCESS_CLIENT_ID: ${{ secrets.CF_ACCESS_CLIENT_ID }}
+      CF_ACCESS_CLIENT_SECRET: ${{ secrets.CF_ACCESS_CLIENT_SECRET }}
+      # IDs exactos (opcionales, aceleran KV)
       CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+      NAMESPACE_ID_RUNART_ROLES_PREVIEW: ${{ secrets.NAMESPACE_ID_RUNART_ROLES_PREVIEW }}
       PREVIEW_HOST: ${{ inputs.preview_host }}
       OWNER: ${{ inputs.owner }}
       TEAM: ${{ inputs.team }}
@@ -198,12 +204,13 @@ jobs:
           curl -I  -sS "${HOST_TO_CHECK}/" | head -n 20 || true
 
       - name: Read KV (RUNART_ROLES + CANARY whitelist) vía API
-        id: kvread
         run: |
           echo "🔍 Extrayendo Cloudflare account_id y namespace (documentado en español)..."
-          ACC_ID=""
+          ACC_ID="${CLOUDFLARE_ACCOUNT_ID}"
+          # 0️⃣ Si viene por secret, úsalo de inmediato
+          if [ -n "$ACC_ID" ]; then echo "🔑 account_id from secret"; fi
           # 1️⃣ Intentar primero desde wrangler.toml
-          if [ -f apps/briefing/wrangler.toml ]; then
+          if [ -z "$ACC_ID" ] && [ -f apps/briefing/wrangler.toml ]; then
             ACC_ID=$(grep -E 'account_id' apps/briefing/wrangler.toml | awk -F'=' '{gsub(/[ "\t]/,"",$2);print $2}' | head -n1 || true)
           fi
           # 2️⃣ Si sigue vacío, buscar heurísticamente en documentación local
@@ -216,7 +223,8 @@ jobs:
           fi
           echo "📄 account_id detectado: ${ACC_ID:-<no encontrado>}"
 
-          NS_ID=$(grep -Eo '7d80b07de98e4d9b9d5fd85516901ef6' -r . || true | head -n1 | awk '{print $1}' || true)
+          NS_ID="${NAMESPACE_ID_RUNART_ROLES_PREVIEW}"
+          [ -z "$NS_ID" ] && NS_ID=$(grep -Eo '7d80b07de98e4d9b9d5fd85516901ef6' -r . || true | head -n1 | awk '{print $1}' || true)
           echo "📦 Namespace preview (heurístico): ${NS_ID:-<no encontrado>}"
 
           OUT="apps/briefing/_reports/roles_canary_preview"
@@ -254,7 +262,7 @@ jobs:
               --control "${CONTROL_LEGACY}" \
               --out "${RUN_DIR}" || true
           else
-            echo "ℹ️ Script de smokes no disponible; se omite esta verificación." | tee "${RUN_DIR}/smokes_omitidos.txt"
+            echo "⚠️ No hay script de smokes, creando smokes_omitidos.txt"; echo "smokes omitidos por falta de script" > "${RUN_DIR}/smokes_omitidos.txt"
           fi
 
       - name: Captura de headers /api/whoami
@@ -271,8 +279,8 @@ jobs:
             node apps/briefing/scripts/fetch_whoami_headers.mjs "${HOST_TO_USE}" "${CLIENT}"         > "${RUN_DIR}/whoami_headers_client.txt" 2>/dev/null || true
             node apps/briefing/scripts/fetch_whoami_headers.mjs "${HOST_TO_USE}" "${CONTROL_LEGACY}" > "${RUN_DIR}/whoami_headers_control_legacy.txt" 2>/dev/null || true
           else
-            echo "ℹ️ Script de captura no disponible; usando curl -I como fallback." | tee -a "${RUN_DIR}/fallback_info.txt"
-            curl -I -sS "${HOST_TO_USE}/api/whoami" > "${RUN_DIR}/whoami_headers_owner.txt" 2>/dev/null || true
+            echo "⚠️ Sin script de headers; usando curl -I con Access si hay secrets" | tee -a "${RUN_DIR}/fallback_info.txt"
+            curl -sI -H "CF-Access-Client-Id: ${CF_ACCESS_CLIENT_ID}" -H "CF-Access-Client-Secret: ${CF_ACCESS_CLIENT_SECRET}" "${HOST_TO_USE}/api/whoami" > "${RUN_DIR}/whoami_headers_owner.txt" 2>/dev/null || true
             cp "${RUN_DIR}/whoami_headers_owner.txt" "${RUN_DIR}/whoami_headers_team.txt" || true
             cp "${RUN_DIR}/whoami_headers_owner.txt" "${RUN_DIR}/whoami_headers_client_admin.txt" || true
             cp "${RUN_DIR}/whoami_headers_owner.txt" "${RUN_DIR}/whoami_headers_client.txt" || true
@@ -330,6 +338,9 @@ jobs:
           echo "## Veredicto (marcar)" >> "$RESUMEN"
           echo "- [ ] **GO** → Activar canario global en preview (ROLE_RESOLVER_SOURCE=\"utils\")." >> "$RESUMEN"
           echo "- [ ] **NO-GO** → Mantener legacy; abrir fix con evidencias." >> "$RESUMEN"
+          echo "" >> "$RESUMEN"
+
+          echo "## Observaciones de headers (si faltan, puede que Access/curl fallback esté en uso)" >> "$RESUMEN"
           echo "" >> "$RESUMEN"
 
           echo "resumen_path=${RESUMEN}" >> $GITHUB_OUTPUT
