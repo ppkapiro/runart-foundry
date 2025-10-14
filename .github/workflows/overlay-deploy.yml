@@ -600,15 +600,20 @@ jobs:
           } >> "$FILE"
       - name: Run T3 via pages-preview.yml
         uses: actions/github-script@v7
+        continue-on-error: true
         with:
           script: |
-            const res = await github.rest.actions.createWorkflowDispatch({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              workflow_id: "pages-preview.yml",
-              ref: context.ref.replace("refs/heads/","")
-            });
-            core.info(`Triggered pages-preview.yml with ref ${context.ref}`);
+            try {
+              await github.rest.actions.createWorkflowDispatch({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                workflow_id: "pages-preview.yml",
+                ref: context.ref.replace("refs/heads/","")
+              });
+              core.info(`Triggered pages-preview.yml with ref ${context.ref}`);
+            } catch (err) {
+              core.warning(`No se pudo disparar pages-preview.yml: ${err?.message || err}`);
+            }
 
       - name: Wait for T3 run to complete (best-effort)
         run: echo "Ver resultados en Actions → pages-preview.yml (se ejecuta con overlay activo)"
