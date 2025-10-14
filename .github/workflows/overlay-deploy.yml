@@ -212,7 +212,7 @@ jobs:
         run: |
           set -e
           echo "Testing overlay worker directly at: $WORKER_URL"
-          curl -fsS -i "$WORKER_URL/api/health" | sed -n '1,20p' | sed -n '1,20p'
+          curl -fsS -i "$WORKER_URL/api/health" | sed -n '1,20p'
 
       - name: Run T3 via pages-preview.yml
         uses: actions/github-script@v7
