@@ -34,6 +34,20 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
+      - name: Detect pages-preview dispatch capability
+        id: detect_preview_dispatch
+        shell: bash
+        run: |
+          set -e
+          FILE=".github/workflows/pages-preview.yml"
+          if [ -f "$FILE" ] && grep -q "workflow_dispatch:" "$FILE"; then
+            echo "PREVIEW_DISPATCHABLE=1" >> $GITHUB_ENV
+            echo "dispatchable=1" >> $GITHUB_OUTPUT
+          else
+            echo "PREVIEW_DISPATCHABLE=0" >> $GITHUB_ENV
+            echo "dispatchable=0" >> $GITHUB_OUTPUT
+          fi
+
       - name: Prepare workspace
         shell: bash
         run: |
@@ -599,6 +613,7 @@ jobs:
             echo "- Evidencias (artifact): overlay-canary-${GITHUB_RUN_ID}/"
           } >> "$FILE"
       - name: Run T3 via pages-preview.yml
+        if: ${{ steps.detect_preview_dispatch.outputs.dispatchable == '1' && github.event.inputs.run_t3_smokes == 'true' }}
         uses: actions/github-script@v7
         continue-on-error: true
         with:
