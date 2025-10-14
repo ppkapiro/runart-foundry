@@ -21,6 +21,7 @@ jobs:
     timeout-minutes: 25
     env:
       CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+      CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
       PREVIEW_HOST: ${{ inputs.preview_host }}
       OWNER: ${{ inputs.owner }}
       TEAM: ${{ inputs.team }}
@@ -70,30 +71,32 @@ jobs:
               PROJECT_NAME="$(awk -F'=' '/^name[[:space:]]*=/ {gsub(/[[:space:]"]/, "", $2); print $2; exit}' apps/briefing/wrangler.toml || true)"
             fi
 
-            if [ -f apps/briefing/wrangler.toml ]; then
-              ACCOUNT_ID="$(awk -F'=' '/^account_id[[:space:]]*=/{gsub(/[[:space:]\"]/, "", $2); print $2; exit}' apps/briefing/wrangler.toml || true)"
-            else
-              ACCOUNT_ID=""
+            # Prioridad 0: secreto explícito de CI
+            ACCOUNT_ID="${CLOUDFLARE_ACCOUNT_ID:-}"
+            # Prioridad 1: wrangler.toml (si existiera el campo)
+            if [ -z "$ACCOUNT_ID" ] && [ -f apps/briefing/wrangler.toml ]; then
+              ACCOUNT_ID="$(awk -F'=' '/^account_id[[:space:]]*=/{gsub(/[[:space:"]]/, "", $2); print $2; exit}' apps/briefing/wrangler.toml || true)"
             fi
 
             if [ -z "$ACCOUNT_ID" ]; then
               RAW_ACCOUNT="$(grep -R -Eo 'account_id[[:space:]]+[a-f0-9]{32}' apps/briefing/docs 2>/dev/null || true)"
               if [ -n "$RAW_ACCOUNT" ]; then
-                ACCOUNT_ID="$(echo "$RAW_ACCOUNT" | head -n1 | awk '{print $2}')"
+                ACCOUNT_ID="$(echo "$RAW_ACCOUNT" | head -n1 | sed 's/.*://' | awk '{print $2}')"
               fi
             fi
 
             if [ -z "$ACCOUNT_ID" ]; then
               RAW_ACCOUNT="$(grep -R -Eo 'a2c7fc66f00eab69373e448193ae7201' . 2>/dev/null || true)"
               if [ -n "$RAW_ACCOUNT" ]; then
-                ACCOUNT_ID="$(echo "$RAW_ACCOUNT" | head -n1 | awk '{print $1}')"
+                ACCOUNT_ID="$(echo "$RAW_ACCOUNT" | head -n1 | sed 's/.*://')"
               fi
             fi
             if [ -z "$ACCOUNT_ID" ]; then
               ACCOUNT_ID="a2c7fc66f00eab69373e448193ae7201"
             fi
 
-            if [ -z "$PROJECT_NAME" ]; then
+            # Intento directo contra el account_id detectado
+            if [ -z "$PROJECT_NAME" ] && [ -n "$ACCOUNT_ID" ]; then
               set +e
               PROJECT_LIST="$(curl -fsS -H "Authorization: Bearer $CLOUDFLARE_API_TOKEN" "https://api.cloudflare.com/client/v4/accounts/${ACCOUNT_ID}/pages/projects?per_page=50")"
               LIST_STATUS=$?
@@ -103,6 +106,30 @@ jobs:
                 if [ -z "$PROJECT_NAME" ]; then
                   PROJECT_NAME="$(echo "$PROJECT_LIST" | jq -r '.result[0].name // empty' || true)"
                 fi
+              fi
+            fi
+
+            # Búsqueda robusta: iterar todas las cuentas visibles por el token hasta encontrar el proyecto
+            if [ -z "$PROJECT_NAME" ] || [ -z "$ACCOUNT_ID" ]; then
+              set +e
+              ACCOUNTS_JSON="$(curl -fsS -H "Authorization: Bearer $CLOUDFLARE_API_TOKEN" "https://api.cloudflare.com/client/v4/accounts")"
+              ACC_STATUS=$?
+              set -e
+              if [ $ACC_STATUS -eq 0 ] && [ -n "$ACCOUNTS_JSON" ]; then
+                for AID in $(echo "$ACCOUNTS_JSON" | jq -r '.result[].id'); do
+                  set +e
+                  PJSON="$(curl -fsS -H "Authorization: Bearer $CLOUDFLARE_API_TOKEN" "https://api.cloudflare.com/client/v4/accounts/${AID}/pages/projects?per_page=50")"
+                  PJ_STATUS=$?
+                  set -e
+                  if [ $PJ_STATUS -eq 0 ] && [ -n "$PJSON" ]; then
+                    CANDIDATE="$(echo "$PJSON" | jq -r '.result | map(.name) | map(select(test("(briefing|runart)"; "i"))) | first // empty')"
+                    if [ -n "$CANDIDATE" ]; then
+                      ACCOUNT_ID="$AID"
+                      PROJECT_NAME="$CANDIDATE"
+                      break
+                    fi
+                  fi
+                done
               fi
             fi
 
