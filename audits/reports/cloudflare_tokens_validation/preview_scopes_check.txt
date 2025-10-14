@@ -1,0 +1,8 @@
+🔒 VERIFICACIÓN DE SCOPES CLOUDFLARE
+===================================
+Environment: preview
+Timestamp: 2025-10-14T18:44:26Z
+
+🌍 Verificando tokens para environment Preview...
+🔍 Verificando CLOUDFLARE_API_TOKEN (preview)...
+❌ Token CLOUDFLARE_API_TOKEN (preview) no está configurado

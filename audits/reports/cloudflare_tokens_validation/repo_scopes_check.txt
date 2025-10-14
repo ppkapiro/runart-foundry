@@ -1,0 +1,8 @@
+🔒 VERIFICACIÓN DE SCOPES CLOUDFLARE
+===================================
+Environment: repo
+Timestamp: 2025-10-14T18:44:43Z
+
+📦 Verificando tokens de repositorio...
+🔍 Verificando CLOUDFLARE_API_TOKEN...
+❌ Token CLOUDFLARE_API_TOKEN no está configurado

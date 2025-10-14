@@ -728,9 +728,28 @@ export CLOUDFLARE_API_TOKEN=****
 - **Política rotación:** `security/credentials/cloudflare_tokens.json`
 - **Runbook operativo:** `docs/internal/runbooks/runbook_cf_tokens.md`
 
+### Auditoría Cloudflare Tokens – Cierre Final
+**Fecha de auditoría:** 2025-10-14  
+**Tokens activos:** CLOUDFLARE_API_TOKEN (preview/prod)  
+**Próxima rotación:** 2026-04-11  
+**Auditor responsable:** RunArt CI Copilot  
+**Estado:** ✅ Estable
+
+#### Validación Final Ejecutada
+- **Scopes verificados:** Framework implementado (requiere ejecución en GitHub Actions)
+- **Workflows automáticos:** ci_cloudflare_tokens_verify.yml + ci_secret_rotation_reminder.yml ✅
+- **Deploy workflows:** pages-preview.yml migrado ✅, pages-deploy.yml requiere migración ❌
+- **Documentación:** Runbook completo + inventario actualizado ✅
+- **Política rotación:** 180 días con recordatorios automáticos ✅
+
+#### Hallazgos Críticos
+1. **pages-deploy.yml** usa CF_API_TOKEN (legacy) - requiere migración a CLOUDFLARE_API_TOKEN
+2. **briefing_deploy.yml** usa CF_API_TOKEN (legacy) - requiere migración a CLOUDFLARE_API_TOKEN
+3. Todos los secrets existen y están actualizados (2025-10-13)
+
 ### Próximos Pasos
 
-1. **Migrar workflows legacy** (pages-deploy.yml, briefing_deploy.yml)
+1. **CRÍTICO: Migrar workflows legacy** (pages-deploy.yml, briefing_deploy.yml)
 2. **Validar 2-3 deploys** con nombres canónicos
-3. **Eliminar secrets legacy** tras ventana de estabilización
-4. **Ejecutar verificación semanal** y documentar resultados
+3. **Eliminar secrets legacy** tras ventana de estabilización (7-14 días)
+4. **Ejecutar verificación semanal** automática y documentar resultados

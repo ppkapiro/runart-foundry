@@ -1,0 +1,72 @@
+# PRODUCTION DEPLOY SUMMARY
+## Validation Date: 2025-10-14T18:45:00Z
+## Workflow: pages-deploy.yml
+## Environment: production
+
+### Configuration Analysis - ❌ NEEDS MIGRATION
+- **Token Used:** CF_API_TOKEN (LEGACY) ❌
+- **Account ID:** CF_ACCOUNT_ID (LEGACY) ❌
+- **Project:** runart-foundry
+- **Branch:** main (production)
+
+### Current Workflow Configuration
+```yaml
+# LEGACY CONFIGURATION - NEEDS UPDATE
+apiToken: ${{ secrets.CF_API_TOKEN }}
+accountId: ${{ secrets.CF_ACCOUNT_ID }}
+```
+
+### Required Migration
+```yaml
+# TARGET CONFIGURATION
+apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+```
+
+### Secret Status
+- ❌ CF_API_TOKEN: LEGACY (updated 2025-10-13T22:14:21Z)
+- ❌ CF_ACCOUNT_ID: LEGACY (updated 2025-10-13T15:51:37Z)
+- ✅ CLOUDFLARE_API_TOKEN: Available (updated 2025-10-13T22:13:57Z)
+- ✅ CLOUDFLARE_ACCOUNT_ID: Available (updated 2025-10-13T15:49:17Z)
+
+### Build Steps Analysis
+1. **Wait for native Pages:** GitHub check polling ✅
+2. **Fallback logic:** Only if native fails ✅
+3. **Secret validation:** Checks for CF_API_TOKEN (LEGACY) ❌
+4. **Build:** Standard npm build process ✅
+5. **Deploy:** cloudflare/pages-action@v1 ✅
+
+### Migration Required
+- **File:** .github/workflows/pages-deploy.yml
+- **Lines to change:**
+  ```diff
+  - apiToken: ${{ secrets.CF_API_TOKEN }}
+  + apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+  - accountId: ${{ secrets.CF_ACCOUNT_ID }}
+  + accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+  ```
+
+### Also Update Secret Check
+```diff
+- if [ -z "${{ secrets.CF_API_TOKEN }}" ]; then missing+=("CF_API_TOKEN"); fi
++ if [ -z "${{ secrets.CLOUDFLARE_API_TOKEN }}" ]; then missing+=("CLOUDFLARE_API_TOKEN"); fi
+- if [ -z "${{ secrets.CF_ACCOUNT_ID }}" ]; then missing+=("CF_ACCOUNT_ID"); fi
++ if [ -z "${{ secrets.CLOUDFLARE_ACCOUNT_ID }}" ]; then missing+=("CLOUDFLARE_ACCOUNT_ID"); fi
+```
+
+### Validation Status
+- **Configuration:** ❌ LEGACY (needs migration to canonical)
+- **Build Process:** ✅ STANDARD
+- **Deploy Method:** ✅ OFFICIAL
+- **Token Security:** ✅ SECURE (no hardcoded values)
+
+### Migration Plan
+1. **Update workflow:** Change to canonical token names
+2. **Test deploy:** Verify functionality with new tokens
+3. **Mark legacy deprecated:** After 2-3 successful deploys
+4. **Remove legacy:** After stabilization period
+
+### Critical Action Required
+- **Priority:** HIGH - Production uses legacy tokens
+- **Risk:** Medium - Tokens functional but not following canonical naming
+- **Timeline:** Should migrate before next production deploy

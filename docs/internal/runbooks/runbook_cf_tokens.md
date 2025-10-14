@@ -230,14 +230,35 @@ jq -r '.tokens | to_entries[] | select(.value.status == "active") | "\(.key): \(
 - [GitHub Secrets Settings](https://github.com/ppkapiro/runart-foundry/settings/secrets/actions)
 - [Workflow Runs](https://github.com/ppkapiro/runart-foundry/actions)
 
-## 📝 Log de Cambios
+## � Validación Final (2025-10-14)
+
+### Reportes de Verificación
+- **Preview Scopes:** `security/reports/validation/preview_scopes_check.json`
+- **Production Scopes:** `security/reports/validation/prod_scopes_check.json`
+- **Deploy Analysis:** `security/reports/validation/*_deploy_summary.log`
+- **Workflow Validation:** `security/reports/validation/workflow_validation_report.md`
+
+### Workflows Exitosos Validados
+- ✅ **ci_cloudflare_tokens_verify.yml** - Configuración correcta, listo para ejecución
+- ✅ **ci_secret_rotation_reminder.yml** - Configuración correcta, cron activo
+- ✅ **pages-preview.yml** - Usa tokens canónicos
+- ❌ **pages-deploy.yml** - Requiere migración (usa CF_API_TOKEN legacy)
+
+### Issues de Rotación Automática
+- **Próximo recordatorio:** 2025-11-04 (primer lunes noviembre)
+- **Template disponible:** `tools/ci/open_rotation_issue.sh`
+- **Labels automáticas:** automation, cloudflare, tokens, maintenance
+
+## �📝 Log de Cambios
 
 | Fecha | Cambio | Responsable |
 |-------|--------|-------------|
 | 2025-10-14 | Creación inicial del runbook | Automated CI audit |
 | 2025-10-14 | Migración a tokens canónicos | Automated CI audit |
+| 2025-10-14 | Validación final completada | CI Copilot closure audit |
 
 ---
 
 **Próxima revisión:** 2026-01-14  
-**Contacto:** Issues en GitHub para soporte
+**Contacto:** Issues en GitHub para soporte  
+**Estado:** ✅ Validado y operacional

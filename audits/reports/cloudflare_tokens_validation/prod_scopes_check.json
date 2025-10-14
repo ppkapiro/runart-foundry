@@ -1,0 +1,32 @@
+{
+  "timestamp": "2025-10-14T18:44:43Z",
+  "environment": "production", 
+  "validation_type": "scopes_check",
+  "status": "simulated",
+  "reason": "CF_API_TOKEN not available in local environment",
+  "expected_scopes": [
+    "com.cloudflare.api.account.zone:read",
+    "com.cloudflare.edge.worker.script:read", 
+    "com.cloudflare.edge.worker.kv:edit",
+    "com.cloudflare.api.account.zone.page:edit"
+  ],
+  "validation_framework": {
+    "script": "tools/ci/check_cf_scopes.sh",
+    "verifier": "tools/security/cf_token_verify.mjs",
+    "tokens_checked": ["CLOUDFLARE_API_TOKEN"],
+    "environments": ["preview", "production"]
+  },
+  "github_secrets_confirmed": {
+    "CLOUDFLARE_API_TOKEN": "2025-10-13T22:13:57Z",
+    "CLOUDFLARE_ACCOUNT_ID": "2025-10-13T15:49:17Z", 
+    "CF_API_TOKEN": "2025-10-13T22:14:21Z (LEGACY)",
+    "CF_ACCOUNT_ID": "2025-10-13T15:51:37Z (LEGACY)"
+  },
+  "validation_note": "Production uses same repository-level secrets as preview. Tokens exist and are recently updated. Real scopes verification requires GitHub Actions execution.",
+  "compliance_status": "ready_for_github_actions_validation",
+  "next_steps": [
+    "Execute ci_cloudflare_tokens_verify.yml workflow for real validation",
+    "Monitor Job Summary for compliance status",
+    "Verify production deploy workflows function correctly"
+  ]
+}
