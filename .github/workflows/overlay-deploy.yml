@@ -176,7 +176,7 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: "20"
-      - run: npm i -g wrangler@3
+      - run: npm i -g wrangler@4
 
       - name: Generate overlay files (ephemeral)
         shell: bash
@@ -637,12 +637,97 @@ jobs:
             }
 
       - name: Wait for T3 run to complete (best-effort)
-        run: echo "Ver resultados en Actions → pages-preview.yml (se ejecuta con overlay activo)"
+        id: wait_t3
+        if: ${{ steps.detect_preview_dispatch.outputs.dispatchable == '1' && github.event.inputs.run_t3_smokes == 'true' }}
+        shell: bash
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          set -euo pipefail
+          owner='${{ github.repository_owner }}'
+          repo='${{ github.event.repository.name }}'
+          branch='${{ github.ref_name }}'
+          workflow='pages-preview.yml'
+          api="https://api.github.com/repos/${owner}/${repo}/actions/workflows/${workflow}/runs?branch=${branch}&event=workflow_dispatch&per_page=5"
+          echo "Esperando T3 (pages-preview) en ${branch}…"
+          start_ts=$(date -u +%s)
+          deadline=$(( start_ts + 20*60 ))
+          t3_run_id=""
+          poll_once() {
+            curl -sS -H "Authorization: Bearer $GH_TOKEN" -H "Accept: application/vnd.github+json" "$api" | jq -r '.workflow_runs[] | "\(.id) \(.status) \(.conclusion) \(.created_at)"'
+          }
+          while :; do
+            now=$(date -u +%s)
+            [ $now -gt $deadline ] && { echo "::warning::Timeout esperando T3"; break; }
+            mapfile -t runs < <(poll_once || true)
+            if [ ${#runs[@]} -eq 0 ]; then sleep 5; continue; fi
+            # Tomar el más reciente (ya viene ordenado), seleccionar primero
+            read -r rid status concl created <<<"${runs[0]}"
+            t3_run_id="$rid"
+            echo "T3 run id=$t3_run_id status=$status concl=$concl created=$created"
+            if [ "$status" = "completed" ]; then
+              break
+            fi
+            sleep 10
+          done
+          echo "t3_run_id=${t3_run_id}" >> "$GITHUB_OUTPUT"
+          # Obtener conclusión final si existe
+          if [ -n "$t3_run_id" ]; then
+            run_api="https://api.github.com/repos/${owner}/${repo}/actions/runs/${t3_run_id}"
+            concl=$(curl -sS -H "Authorization: Bearer $GH_TOKEN" -H "Accept: application/vnd.github+json" "$run_api" | jq -r '.conclusion // empty')
+            echo "t3_status=${concl}" >> "$GITHUB_OUTPUT"
+            echo "T3 conclusion: ${concl}"
+          else
+            echo "t3_status=unknown" >> "$GITHUB_OUTPUT"
+          fi
 
       - name: If T3 PASS and input says so, deploy overlay to PROD
-        if: ${{ github.event.inputs.promote_to_prod == 'true' }}
+        if: ${{ github.event.inputs.promote_to_prod == 'true' && steps.wait_t3.outputs.t3_status == 'success' }}
         shell: bash
         run: |
-          # Aquí asumimos que T3 se revisará; si ya es PASS, relanza este job con run_t4_if_t3_pass=true o continúa manualmente:
-          echo "Para promover a prod: re-ejecuta este workflow cuando T3 sea PASS, o ejecuta:"
-          echo "wrangler deploy --env prod"
+          set -euo pipefail
+          echo "Promoviendo overlay a producción…"
+          wrangler deploy --env prod
+          echo "Verificando /api/health en producción…"
+          # Resolver URL de prod similar a preview
+          mkdir -p canary_overlay_prod
+          prod_url=""
+          if wrangler deployments --help 2>&1 | grep -q 'list'; then
+            prod_url=$(wrangler deployments list --env prod --json | jq -r 'if type=="array" then (.[0].url // empty) else (.deployments[0].url // .result.deployments[0].url // .result[0].url // .url // empty) end' || true)
+          fi
+          if [ -z "$prod_url" ]; then
+            prod_url=$(wrangler deployments list --env prod 2>/dev/null | grep -o 'https://[^ ]*\.workers\.dev' | head -1 || true)
+          fi
+          [ -n "$prod_url" ] || { echo "::error::No se pudo determinar URL de producción"; exit 1; }
+          echo "$prod_url" > canary_overlay_prod/url.txt
+          curl -fsS -D canary_overlay_prod/headers.all "$prod_url/api/health" -o canary_overlay_prod/body.json
+          head -20 canary_overlay_prod/headers.all > canary_overlay_prod/headers.txt
+          if command -v jq >/dev/null 2>&1; then jq '.' canary_overlay_prod/body.json > canary_overlay_prod/body_pretty.json; fi
+          penv=$(jq -r '.env // empty' canary_overlay_prod/body.json || true)
+          if [ "$penv" != "production" ]; then
+            echo "::error::Se esperaba env=production pero API devolvió '$penv'"; exit 1;
+          fi
+          echo "env=$penv" > canary_overlay_prod/result.txt
+
+      - name: Upload canary overlay PROD artifacts
+        if: ${{ github.event.inputs.promote_to_prod == 'true' && steps.wait_t3.outputs.t3_status == 'success' }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: overlay-canary-prod-${{ github.run_id }}
+          path: canary_overlay_prod
+          retention-days: 30
+
+      - name: Update 082 (Overlay PROD)
+        if: ${{ github.event.inputs.promote_to_prod == 'true' && steps.wait_t3.outputs.t3_status == 'success' }}
+        shell: bash
+        run: |
+          set -e
+          TS=$(date -u +%Y%m%dT%H%M%SZ)
+          FILE="apps/briefing/docs/internal/briefing_system/ci/082_reestructuracion_local.md"
+          PROD_URL=$(cat canary_overlay_prod/url.txt)
+          {
+            echo "\n### [${TS}] — Overlay PROD"
+            echo "- WORKER_URL: ${PROD_URL}"
+            echo "- WORKER_ENV: production"
+            echo "- Evidencias (artifact): overlay-canary-prod-${GITHUB_RUN_ID}/"
+          } >> "$FILE"
