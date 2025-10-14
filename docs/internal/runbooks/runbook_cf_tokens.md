@@ -249,6 +249,76 @@ jq -r '.tokens | to_entries[] | select(.value.status == "active") | "\(.key): \(
 - **Template disponible:** `tools/ci/open_rotation_issue.sh`
 - **Labels automáticas:** automation, cloudflare, tokens, maintenance
 
+## �️ Eliminación de Tokens Legacy
+
+### Procedimiento Automatizado
+
+El script `tools/ci/cleanup_cf_legacy_tokens.sh` gestiona la eliminación segura de tokens legacy tras el período de validación.
+
+#### Ejecución en Dry-Run (Recomendado)
+```bash
+# Simular eliminación sin cambios reales
+./tools/ci/cleanup_cf_legacy_tokens.sh --dry-run
+```
+
+#### Ejecución Real
+```bash
+# Eliminar tokens legacy (requiere confirmación)
+./tools/ci/cleanup_cf_legacy_tokens.sh
+
+# El script solicitará escribir 'DELETE' para confirmar
+```
+
+### Checklist Pre-Eliminación
+
+Antes de ejecutar la eliminación, verificar:
+
+- [ ] ✅ **Período de validación completado** (14 días post-merge)
+- [ ] ✅ **Todos los deploys exitosos** con CLOUDFLARE_API_TOKEN
+- [ ] ✅ **Workflows automáticos funcionando** sin errores
+- [ ] ✅ **Workflows legacy migrados** (pages-deploy.yml, briefing_deploy.yml)
+- [ ] ✅ **Sin issues abiertos** relacionados con tokens CF
+- [ ] ✅ **Monitoreo completo** documentado en monitoring_log.md
+- [ ] ✅ **GO Decision** aprobada por equipo
+
+### Proceso de Eliminación
+
+1. **Verificación de Seguridad**
+   - Confirma que CLOUDFLARE_API_TOKEN existe en todos los environments
+   - Lista todos los secrets CF_API_TOKEN a eliminar
+
+2. **Confirmación Manual**
+   - Requiere escribir 'DELETE' para confirmar
+   - Operación irreversible
+
+3. **Eliminación Progresiva**
+   - Repository level
+   - Environment: preview
+   - Environment: production
+
+4. **Verificación Final**
+   - Confirma que todos los secrets fueron eliminados
+   - Valida ausencia de CF_API_TOKEN
+
+5. **Documentación Post-Eliminación**
+   - Actualizar `github_secrets_inventory.md`
+   - Marcar como 'Eliminado' en `legacy_cleanup_plan.md`
+   - Registrar en `monitoring_log.md`
+   - Cerrar milestone
+
+### Rollback en Emergencia
+
+Si se detectan fallos críticos post-eliminación:
+
+```bash
+# Recrear secret desde backup seguro
+gh secret set CF_API_TOKEN --body "BACKUP_TOKEN_VALUE" --repo RunArtFoundry/runart-foundry
+gh secret set CF_API_TOKEN --body "BACKUP_TOKEN_VALUE" --env preview --repo RunArtFoundry/runart-foundry
+gh secret set CF_API_TOKEN --body "BACKUP_TOKEN_VALUE" --env production --repo RunArtFoundry/runart-foundry
+```
+
+⚠️ **IMPORTANTE**: Mantener backup seguro de CF_API_TOKEN hasta 30 días post-eliminación.
+
 ## �📝 Log de Cambios
 
 | Fecha | Cambio | Responsable |
@@ -256,6 +326,8 @@ jq -r '.tokens | to_entries[] | select(.value.status == "active") | "\(.key): \(
 | 2025-10-14 | Creación inicial del runbook | Automated CI audit |
 | 2025-10-14 | Migración a tokens canónicos | Automated CI audit |
 | 2025-10-14 | Validación final completada | CI Copilot closure audit |
+| 2025-10-14 | Procedimiento de eliminación legacy agregado | CI Copilot post-merge |
+| 2025-10-14 | Script automatizado de cleanup creado | CI Copilot post-merge |
 
 ---
 
