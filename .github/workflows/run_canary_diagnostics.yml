@@ -40,18 +40,69 @@ jobs:
       - name: Install deps
         run: npm ci --prefix apps/briefing
 
-      - name: Print context (safe)
+      - name: Resolve preview host dynamically
+        id: resolve_host
+        shell: bash
         run: |
-          echo "Host: ${PREVIEW_HOST}"
+          set -euo pipefail
+          PH="${PREVIEW_HOST}"
+          echo "Input PREVIEW_HOST: ${PH:-<empty>}"
+          RESOLVED="$PH"
+          need_resolve=0
+
+          if [ -z "${RESOLVED}" ]; then
+            need_resolve=1
+          else
+            DOMAIN="$(echo "${RESOLVED}" | sed -E 's#https?://##; s#/$##')"
+            if ! getent hosts "$DOMAIN" >/dev/null 2>&1; then
+              echo "⚠️  ${DOMAIN} no resuelve, intentaré resolver un preview activo…"
+              need_resolve=1
+            fi
+          fi
+
+          if [ "$need_resolve" -eq 1 ]; then
+            echo "🔎 Buscando proyecto Pages…"
+            PROJ_JSON="$(npx --yes --prefix apps/briefing wrangler pages project list --json 2>/dev/null || true)"
+            PROJECT_NAME="$(echo "$PROJ_JSON" | jq -r '.[] | .name' 2>/dev/null | grep -Ei 'runart|briefing' | head -n 1)"
+            if [ -z "$PROJECT_NAME" ]; then
+              PROJECT_NAME="$(echo "$PROJ_JSON" | jq -r '.[0].name' 2>/dev/null)"
+            fi
+
+            if [ -z "$PROJECT_NAME" ]; then
+              echo "❌ No pude detectar proyecto Pages" >&2
+              exit 1
+            fi
+            echo "Proyecto detectado: $PROJECT_NAME"
+
+            DEPLOY_JSON="$(npx --yes --prefix apps/briefing wrangler pages deployment list --project-name "$PROJECT_NAME" --json 2>/dev/null || true)"
+            RESOLVED="$(echo "$DEPLOY_JSON" | jq -r '[.[] | select(.environment=="preview")] | sort_by(.created_on) | last | .url // empty')"
+
+            if [ -z "$RESOLVED" ]; then
+              echo "❌ No encontré deployment preview activo." >&2
+              exit 1
+            fi
+            echo "PREVIEW_HOST reparado: $RESOLVED"
+          fi
+
+          echo "preview_host=${RESOLVED}" >> "$GITHUB_OUTPUT"
+
+      - name: Print context (safe)
+        env:
+          RESOLVED_HOST: ${{ steps.resolve_host.outputs.preview_host }}
+        run: |
+          echo "Host: ${RESOLVED_HOST:-${PREVIEW_HOST}}"
           echo "Emails: ${OWNER} | ${TEAM} | ${CLIENT_ADMIN} | ${CLIENT} (control: ${CONTROL_LEGACY})"
 
       - name: Verify DNS/HTTP preview
+        env:
+          RESOLVED_HOST: ${{ steps.resolve_host.outputs.preview_host }}
         run: |
-          DOMAIN="$(echo "${PREVIEW_HOST}" | sed -E 's#https?://##; s#/$##')"
+          HOST_TO_CHECK="${RESOLVED_HOST:-${PREVIEW_HOST}}"
+          DOMAIN="$(echo "${HOST_TO_CHECK}" | sed -E 's#https?://##; s#/$##')"
           echo "Domain: $DOMAIN"
           getent hosts "$DOMAIN" || (echo "DNS no resuelve $DOMAIN" && exit 1)
-          curl -fsS "${PREVIEW_HOST}/health" || true
-          curl -I  -sS "${PREVIEW_HOST}/" | head -n 20 || true
+          curl -fsS "${HOST_TO_CHECK}/health" || true
+          curl -I  -sS "${HOST_TO_CHECK}/" | head -n 20 || true
 
       - name: Read KV (RUNART_ROLES + CANARY whitelist) via API
         id: kvread
@@ -90,30 +141,38 @@ jobs:
           fi
 
       - name: Smokes focalizados (sin export)
+        env:
+          RESOLVED_HOST: ${{ steps.resolve_host.outputs.preview_host }}
         run: |
           TS=$(date -u +%Y%m%dT%H%M%SZ)
           OUT_DIR="apps/briefing/_reports/roles_canary_preview"
           RUN_DIR="${OUT_DIR}/smokes_${TS}"
           mkdir -p "${RUN_DIR}"
-          node apps/briefing/scripts/smoke_canary_emails.mjs "${PREVIEW_HOST}" \
+          HOST_TO_USE="${RESOLVED_HOST:-${PREVIEW_HOST}}"
+          node apps/briefing/scripts/smoke_canary_emails.mjs "${HOST_TO_USE}" \
             "${OWNER}" "${TEAM}" "${CLIENT_ADMIN}" "${CLIENT}" \
             --control "${CONTROL_LEGACY}" \
             --out "${RUN_DIR}"
 
       - name: Captura de headers /api/whoami
+        env:
+          RESOLVED_HOST: ${{ steps.resolve_host.outputs.preview_host }}
         run: |
           OUT_DIR="apps/briefing/_reports/roles_canary_preview"
           RUN_DIR=$(ls -d ${OUT_DIR}/smokes_* | tail -n 1)
           if [ -f apps/briefing/scripts/fetch_whoami_headers.mjs ]; then
-            node apps/briefing/scripts/fetch_whoami_headers.mjs "${PREVIEW_HOST}" "${OWNER}"          > "${RUN_DIR}/whoami_headers_owner.txt" 2>/dev/null || true
-            node apps/briefing/scripts/fetch_whoami_headers.mjs "${PREVIEW_HOST}" "${TEAM}"           > "${RUN_DIR}/whoami_headers_team.txt" 2>/dev/null || true
-            node apps/briefing/scripts/fetch_whoami_headers.mjs "${PREVIEW_HOST}" "${CLIENT_ADMIN}"   > "${RUN_DIR}/whoami_headers_client_admin.txt" 2>/dev/null || true
-            node apps/briefing/scripts/fetch_whoami_headers.mjs "${PREVIEW_HOST}" "${CLIENT}"         > "${RUN_DIR}/whoami_headers_client.txt" 2>/dev/null || true
-            node apps/briefing/scripts/fetch_whoami_headers.mjs "${PREVIEW_HOST}" "${CONTROL_LEGACY}" > "${RUN_DIR}/whoami_headers_control_legacy.txt" 2>/dev/null || true
+            HOST_TO_USE="${RESOLVED_HOST:-${PREVIEW_HOST}}"
+            node apps/briefing/scripts/fetch_whoami_headers.mjs "${HOST_TO_USE}" "${OWNER}"          > "${RUN_DIR}/whoami_headers_owner.txt" 2>/dev/null || true
+            node apps/briefing/scripts/fetch_whoami_headers.mjs "${HOST_TO_USE}" "${TEAM}"           > "${RUN_DIR}/whoami_headers_team.txt" 2>/dev/null || true
+            node apps/briefing/scripts/fetch_whoami_headers.mjs "${HOST_TO_USE}" "${CLIENT_ADMIN}"   > "${RUN_DIR}/whoami_headers_client_admin.txt" 2>/dev/null || true
+            node apps/briefing/scripts/fetch_whoami_headers.mjs "${HOST_TO_USE}" "${CLIENT}"         > "${RUN_DIR}/whoami_headers_client.txt" 2>/dev/null || true
+            node apps/briefing/scripts/fetch_whoami_headers.mjs "${HOST_TO_USE}" "${CONTROL_LEGACY}" > "${RUN_DIR}/whoami_headers_control_legacy.txt" 2>/dev/null || true
           fi
 
       - name: Comparativa esperado vs observado (tabla)
         id: compare
+        env:
+          RESOLVED_HOST: ${{ steps.resolve_host.outputs.preview_host }}
         run: |
           OUT_DIR="apps/briefing/_reports/roles_canary_preview"
           RUN_DIR=$(ls -d ${OUT_DIR}/smokes_* | tail -n 1)
@@ -131,7 +190,8 @@ jobs:
           )
 
           printf "# Pipeline Canario — Diagnóstico (%s UTC)\n\n" "$TS" > "$RESUMEN"
-          printf "Host: %s\n\n" "$PREVIEW_HOST" >> "$RESUMEN"
+          HOST_PRINT="${RESOLVED_HOST:-${PREVIEW_HOST}}"
+          printf "Host: %s\n\n" "$HOST_PRINT" >> "$RESUMEN"
 
           echo "## KV detectado" >> "$RESUMEN"
           if [ -f "${OUT_DIR}/kv_RUNART_ROLES.json" ]; then
@@ -172,10 +232,12 @@ jobs:
             apps/briefing/_reports/roles_canary_preview/
 
       - name: Job Summary
+        env:
+          RESOLVED_HOST: ${{ steps.resolve_host.outputs.preview_host }}
         run: |
           echo "## Canary Diagnostics — Resultado" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
-          echo "**Host**: ${PREVIEW_HOST}" >> $GITHUB_STEP_SUMMARY
+          echo "**Host**: ${RESOLVED_HOST:-${PREVIEW_HOST}}" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "Artefactos: roles_canary_diag_${{ github.run_id }}" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
