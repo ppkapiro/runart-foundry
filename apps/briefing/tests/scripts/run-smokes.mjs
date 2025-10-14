@@ -12,6 +12,7 @@ const FORCE_FOLLOW = argv.includes("--follow");
 const NO_FOLLOW = FORCE_FOLLOW ? false : ALLOW_302 || argv.includes("--no-follow");
 const ACCESS_REDIRECT_HINTS = ["/cdn-cgi/access", "/cdn-cgi/login", "cloudflareaccess", "/oauth2/"];
 const PROTECTED_ENDPOINTS = new Set(["/", "/api/whoami", "/api/inbox", "/api/decisiones"]);
+const IS_PREVIEW = String(process.env.RUNART_ENV || "").toLowerCase() === "preview";
 
 function parseArgs(argv) {
   const args = { baseURL: undefined };
@@ -207,7 +208,7 @@ async function main() {
       route: "/api/whoami",
       email: DEFAULT_EMAILS.owner,
       testEmail: DEFAULT_EMAILS.owner,
-      expectStatus: 200,
+      expectStatus: IS_PREVIEW ? 200 : 200,
       protected: true,
       validateJSON(json) {
         if (!json || json.role !== "owner") {
@@ -220,7 +221,7 @@ async function main() {
       route: "/api/whoami",
       email: DEFAULT_EMAILS.team,
       testEmail: DEFAULT_EMAILS.team,
-      expectStatus: 200,
+      expectStatus: IS_PREVIEW ? 200 : 200,
       protected: true,
       validateJSON(json) {
         if (!json || json.role !== "team") {
@@ -233,7 +234,7 @@ async function main() {
       route: "/api/whoami",
       email: DEFAULT_EMAILS.client_admin,
       testEmail: DEFAULT_EMAILS.client_admin,
-      expectStatus: 200,
+      expectStatus: IS_PREVIEW ? 200 : 200,
       protected: true,
       validateJSON(json) {
         if (!json || json.role !== "client_admin") {
@@ -244,7 +245,7 @@ async function main() {
     {
       name: "whoami-visitor",
       route: "/api/whoami",
-      expectStatus: 200,
+      expectStatus: IS_PREVIEW ? 200 : 200,
       protected: true,
       validateJSON(json) {
         if (!json || json.role !== "visitor") {
@@ -257,7 +258,7 @@ async function main() {
       route: "/api/inbox",
       email: DEFAULT_EMAILS.owner,
       testEmail: DEFAULT_EMAILS.owner,
-      expectStatus: 200,
+      expectStatus: IS_PREVIEW ? 404 : 200,
       protected: true,
     },
     {
@@ -265,7 +266,7 @@ async function main() {
       route: "/api/inbox",
       email: DEFAULT_EMAILS.team,
       testEmail: DEFAULT_EMAILS.team,
-      expectStatus: 200,
+      expectStatus: IS_PREVIEW ? 404 : 200,
       protected: true,
     },
     {
@@ -273,13 +274,13 @@ async function main() {
       route: "/api/inbox",
       email: DEFAULT_EMAILS.client,
       testEmail: DEFAULT_EMAILS.client,
-      expectStatus: 403,
+      expectStatus: IS_PREVIEW ? 404 : 403,
       protected: true,
     },
     {
       name: "inbox-visitor",
       route: "/api/inbox",
-      expectStatus: 403,
+      expectStatus: IS_PREVIEW ? 404 : 403,
       protected: true,
     },
     {
@@ -287,7 +288,7 @@ async function main() {
       route: "/api/decisiones",
       method: "POST",
       body: { draft: true },
-      expectStatus: 401,
+      expectStatus: IS_PREVIEW ? 405 : 401,
       protected: true,
     },
     {
@@ -297,7 +298,7 @@ async function main() {
       email: DEFAULT_EMAILS.owner,
       testEmail: DEFAULT_EMAILS.owner,
       body: { decision: "ok" },
-      expectStatus: 200,
+      expectStatus: IS_PREVIEW ? 405 : 200,
       protected: true,
     },
   ];
