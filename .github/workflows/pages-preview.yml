@@ -69,10 +69,25 @@ jobs:
           wranglerVersion: '3'
       - name: Extract preview URL
         id: extract-preview-url
+        env:
+          CF_API: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CF_ACCOUNT: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          CF_PROJECT: ${{ env.CF_PROJECT_NAME }}
         run: |
+          set -euo pipefail
+          BRANCH='${{ github.head_ref }}'
           URL="${{ steps.deploy-preview.outputs.preview_url }}"
+          if [ -z "$URL" ]; then
+            ALT_URL="${{ steps.deploy-preview.outputs.url }}"
+            if [ -n "$ALT_URL" ]; then URL="$ALT_URL"; fi
+          fi
+          if [ -z "$URL" ]; then
+            echo "Fallback: consultando Cloudflare Pages API para última URL de ${CF_PROJECT} (branch=$BRANCH)…"
+            resp=$(curl -sS -H "Authorization: Bearer ${CF_API}" "https://api.cloudflare.com/client/v4/accounts/${CF_ACCOUNT}/pages/projects/${CF_PROJECT}/deployments?per_page=20")
+            URL=$(echo "$resp" | jq -r --arg b "$BRANCH" '[.result[] | select(.deployment_trigger.metadata.branch==$b)] | sort_by(.created_on) | last | .url // empty')
+          fi
           echo "preview_url=${URL}"
-          test -n "$URL" || { echo "preview_url vacío: la acción no devolvió URL"; exit 1; }
+          test -n "$URL" || { echo "preview_url vacío: ni la acción ni la API devolvieron URL"; exit 1; }
           # Prohibir alias preview.* explícitamente:
           if echo "$URL" | grep -qiE '^https?://preview[.]'; then
             echo "ERROR: Se detectó alias 'preview.*' (no válido por defecto). Use URL hash del deploy."; exit 1;
