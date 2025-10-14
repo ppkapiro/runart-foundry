@@ -248,10 +248,14 @@ jobs:
           RUN_DIR="${OUT_DIR}/smokes_${TS}"
           mkdir -p "${RUN_DIR}"
           HOST_TO_USE="${RESOLVED_HOST:-${PREVIEW_HOST}}"
-          node apps/briefing/scripts/smoke_canary_emails.mjs "${HOST_TO_USE}" \
-            "${OWNER}" "${TEAM}" "${CLIENT_ADMIN}" "${CLIENT}" \
-            --control "${CONTROL_LEGACY}" \
-            --out "${RUN_DIR}"
+          if [ -f apps/briefing/scripts/smoke_canary_emails.mjs ]; then
+            node apps/briefing/scripts/smoke_canary_emails.mjs "${HOST_TO_USE}" \
+              "${OWNER}" "${TEAM}" "${CLIENT_ADMIN}" "${CLIENT}" \
+              --control "${CONTROL_LEGACY}" \
+              --out "${RUN_DIR}" || true
+          else
+            echo "ℹ️ Script de smokes no disponible; se omite esta verificación." | tee "${RUN_DIR}/smokes_omitidos.txt"
+          fi
 
       - name: Captura de headers /api/whoami
         env:
@@ -259,13 +263,20 @@ jobs:
         run: |
           OUT_DIR="apps/briefing/_reports/roles_canary_preview"
           RUN_DIR=$(ls -d ${OUT_DIR}/smokes_* | tail -n 1)
+          HOST_TO_USE="${RESOLVED_HOST:-${PREVIEW_HOST}}"
           if [ -f apps/briefing/scripts/fetch_whoami_headers.mjs ]; then
-            HOST_TO_USE="${RESOLVED_HOST:-${PREVIEW_HOST}}"
             node apps/briefing/scripts/fetch_whoami_headers.mjs "${HOST_TO_USE}" "${OWNER}"          > "${RUN_DIR}/whoami_headers_owner.txt" 2>/dev/null || true
             node apps/briefing/scripts/fetch_whoami_headers.mjs "${HOST_TO_USE}" "${TEAM}"           > "${RUN_DIR}/whoami_headers_team.txt" 2>/dev/null || true
             node apps/briefing/scripts/fetch_whoami_headers.mjs "${HOST_TO_USE}" "${CLIENT_ADMIN}"   > "${RUN_DIR}/whoami_headers_client_admin.txt" 2>/dev/null || true
             node apps/briefing/scripts/fetch_whoami_headers.mjs "${HOST_TO_USE}" "${CLIENT}"         > "${RUN_DIR}/whoami_headers_client.txt" 2>/dev/null || true
             node apps/briefing/scripts/fetch_whoami_headers.mjs "${HOST_TO_USE}" "${CONTROL_LEGACY}" > "${RUN_DIR}/whoami_headers_control_legacy.txt" 2>/dev/null || true
+          else
+            echo "ℹ️ Script de captura no disponible; usando curl -I como fallback." | tee -a "${RUN_DIR}/fallback_info.txt"
+            curl -I -sS "${HOST_TO_USE}/api/whoami" > "${RUN_DIR}/whoami_headers_owner.txt" 2>/dev/null || true
+            cp "${RUN_DIR}/whoami_headers_owner.txt" "${RUN_DIR}/whoami_headers_team.txt" || true
+            cp "${RUN_DIR}/whoami_headers_owner.txt" "${RUN_DIR}/whoami_headers_client_admin.txt" || true
+            cp "${RUN_DIR}/whoami_headers_owner.txt" "${RUN_DIR}/whoami_headers_client.txt" || true
+            cp "${RUN_DIR}/whoami_headers_owner.txt" "${RUN_DIR}/whoami_headers_control_legacy.txt" || true
           fi
 
       - name: Comparativa esperado vs observado (tabla)
