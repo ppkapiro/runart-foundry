@@ -65,6 +65,17 @@ jobs:
         working-directory: apps/briefing
         run: npm run build
 
+      - name: "Guard: bloquear referencias a workers.dev en artefacto de producción"
+        run: |
+          set -e
+          FOUND=$(grep -RIl --exclude-dir=node_modules -nE 'https?://[^\s"]*workers\.dev' apps/briefing/site || true)
+          if [ -n "$FOUND" ]; then
+            echo "Se detectaron referencias a workers.dev en el artefacto de producción:" >&2
+            echo "$FOUND" >&2
+            echo "Elimina URLs workers.dev (solo se permiten para canaries internos)" >&2
+            exit 1
+          fi
+
       - name: Run unit smoke tests
         working-directory: apps/briefing
         run: npm run test:unit:smoke

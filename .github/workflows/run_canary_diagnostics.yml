@@ -1,0 +1,181 @@
+name: Run Canary Diagnostics
+
+on:
+  workflow_dispatch:
+    inputs:
+      preview_host:
+        description: "Pages preview host (https://<...>.pages.dev)"
+        required: true
+        type: string
+      owner: { description: "Correo owner", default: "ppcapiro@gmail.com", required: true, type: string }
+      team: { description: "Correo team", default: "officemagerhealthkendall@gmail.com", required: true, type: string }
+      client_admin: { description: "Correo client admin", default: "musicmanagercuba@gmail.com", required: true, type: string }
+      client: { description: "Correo client", default: "shop.artmarketpremium@gmail.com", required: true, type: string }
+      control_legacy: { description: "Correo control legacy", default: "runartfoundry@gmail.com", required: true, type: string }
+
+jobs:
+  diag:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    env:
+      CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+      PREVIEW_HOST: ${{ inputs.preview_host }}
+      OWNER: ${{ inputs.owner }}
+      TEAM: ${{ inputs.team }}
+      CLIENT_ADMIN: ${{ inputs.client_admin }}
+      CLIENT: ${{ inputs.client }}
+      CONTROL_LEGACY: ${{ inputs.control_legacy }}
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install deps
+        run: npm ci
+
+      - name: Print context (safe)
+        run: |
+          echo "Host: ${PREVIEW_HOST}"
+          echo "Emails: ${OWNER} | ${TEAM} | ${CLIENT_ADMIN} | ${CLIENT} (control: ${CONTROL_LEGACY})"
+
+      - name: Verify DNS/HTTP preview
+        run: |
+          DOMAIN="$(echo "${PREVIEW_HOST}" | sed -E 's#https?://##; s#/$##')"
+          echo "Domain: $DOMAIN"
+          getent hosts "$DOMAIN" || (echo "DNS no resuelve $DOMAIN" && exit 1)
+          curl -fsS "${PREVIEW_HOST}/health" || true
+          curl -I  -sS "${PREVIEW_HOST}/" | head -n 20 || true
+
+      - name: Read KV (RUNART_ROLES + CANARY whitelist) via API
+        id: kvread
+        run: |
+          ACC_ID=$(grep -Eo 'account_id [a-f0-9]+' -r apps/briefing/docs || true)
+          ACC_ID=$(echo "$ACC_ID" | head -n1 | awk '{print $2}')
+          if [ -z "$ACC_ID" ]; then
+            ACC_ID=$(grep -Eo 'a2c7fc66f00eab69373e448193ae7201' -r . || true | head -n1 | awk '{print $1}')
+          fi
+          echo "AccountId: ${ACC_ID:-<unknown>}"
+
+          NS_ID=$(grep -Eo '7d80b07de98e4d9b9d5fd85516901ef6' -r . || true | head -n1 | awk '{print $1}')
+          echo "Namespace preview (heurística): ${NS_ID:-<unknown>}"
+
+          OUT="apps/briefing/_reports/roles_canary_preview"
+          mkdir -p "$OUT"
+
+          if [ -n "$ACC_ID" ] && [ -n "$NS_ID" ]; then
+            curl -fsS -H "Authorization: Bearer $CLOUDFLARE_API_TOKEN" \
+              "https://api.cloudflare.com/client/v4/accounts/${ACC_ID}/storage/kv/namespaces/${NS_ID}/values/RUNART_ROLES" \
+              -o "${OUT}/kv_RUNART_ROLES.json" || true
+
+            curl -fsS -H "Authorization: Bearer $CLOUDFLARE_API_TOKEN" \
+              "https://api.cloudflare.com/client/v4/accounts/${ACC_ID}/storage/kv/namespaces/${NS_ID}/values/CANARY_ROLE_RESOLVER_EMAILS" \
+              -o "${OUT}/kv_CANARY_ROLE_RESOLVER_EMAILS.json" || true
+
+            echo "kv_roles_path=${OUT}/kv_RUNART_ROLES.json" >> $GITHUB_OUTPUT
+            echo "kv_wl_path=${OUT}/kv_CANARY_ROLE_RESOLVER_EMAILS.json" >> $GITHUB_OUTPUT
+
+            echo "KV RUNART_ROLES:"
+            jq . "${OUT}/kv_RUNART_ROLES.json" || true
+            echo "KV CANARY WL:"
+            jq . "${OUT}/kv_CANARY_ROLE_RESOLVER_EMAILS.json" || true
+          else
+            echo "⚠️ No se pudieron inferir IDs; continuamos con smokes y headers igualmente."
+          fi
+
+      - name: Smokes focalizados (sin export)
+        run: |
+          TS=$(date -u +%Y%m%dT%H%M%SZ)
+          OUT_DIR="apps/briefing/_reports/roles_canary_preview"
+          RUN_DIR="${OUT_DIR}/smokes_${TS}"
+          mkdir -p "${RUN_DIR}"
+          node apps/briefing/scripts/smoke_canary_emails.mjs "${PREVIEW_HOST}" \
+            "${OWNER}" "${TEAM}" "${CLIENT_ADMIN}" "${CLIENT}" \
+            --control "${CONTROL_LEGACY}" \
+            --out "${RUN_DIR}"
+
+      - name: Captura de headers /api/whoami
+        run: |
+          OUT_DIR="apps/briefing/_reports/roles_canary_preview"
+          RUN_DIR=$(ls -d ${OUT_DIR}/smokes_* | tail -n 1)
+          if [ -f apps/briefing/scripts/fetch_whoami_headers.mjs ]; then
+            node apps/briefing/scripts/fetch_whoami_headers.mjs "${PREVIEW_HOST}" "${OWNER}"          > "${RUN_DIR}/whoami_headers_owner.txt" 2>/dev/null || true
+            node apps/briefing/scripts/fetch_whoami_headers.mjs "${PREVIEW_HOST}" "${TEAM}"           > "${RUN_DIR}/whoami_headers_team.txt" 2>/dev/null || true
+            node apps/briefing/scripts/fetch_whoami_headers.mjs "${PREVIEW_HOST}" "${CLIENT_ADMIN}"   > "${RUN_DIR}/whoami_headers_client_admin.txt" 2>/dev/null || true
+            node apps/briefing/scripts/fetch_whoami_headers.mjs "${PREVIEW_HOST}" "${CLIENT}"         > "${RUN_DIR}/whoami_headers_client.txt" 2>/dev/null || true
+            node apps/briefing/scripts/fetch_whoami_headers.mjs "${PREVIEW_HOST}" "${CONTROL_LEGACY}" > "${RUN_DIR}/whoami_headers_control_legacy.txt" 2>/dev/null || true
+          fi
+
+      - name: Comparativa esperado vs observado (tabla)
+        id: compare
+        run: |
+          OUT_DIR="apps/briefing/_reports/roles_canary_preview"
+          RUN_DIR=$(ls -d ${OUT_DIR}/smokes_* | tail -n 1)
+          TS=$(echo "${RUN_DIR}" | sed -E 's#.*/smokes_([0-9TZ]+).*#\1#')
+          RESUMEN="${OUT_DIR}/RESUMEN_${TS}.md"
+
+          geth(){ f="$1"; k="$2"; grep -i "$k" "$f" 2>/dev/null | head -n1 | awk -F': ' '{print $2}' | tr -d '\r' | tr '[:upper:]' '[:lower:]'; }
+
+          declare -A EXPECT_ROLE=(
+            ["owner"]="owner"
+            ["client_admin"]="client_admin"
+            ["team"]="team"
+            ["client"]="client"
+            ["control_legacy"]="(legacy)"
+          )
+
+          printf "# Pipeline Canario — Diagnóstico (%s UTC)\n\n" "$TS" > "$RESUMEN"
+          printf "Host: %s\n\n" "$PREVIEW_HOST" >> "$RESUMEN"
+
+          echo "## KV detectado" >> "$RESUMEN"
+          if [ -f "${OUT_DIR}/kv_RUNART_ROLES.json" ]; then
+            echo "- RUNART_ROLES: presente ✅" >> "$RESUMEN"
+          else
+            echo "- RUNART_ROLES: no disponible ⚠️" >> "$RESUMEN"
+          fi
+          if [ -f "${OUT_DIR}/kv_CANARY_ROLE_RESOLVER_EMAILS.json" ]; then
+            echo "- CANARY_ROLE_RESOLVER_EMAILS: presente ✅" >> "$RESUMEN"
+          else
+            echo "- CANARY_ROLE_RESOLVER_EMAILS: no disponible ⚠️" >> "$RESUMEN"
+          fi
+          echo "" >> "$RESUMEN"
+
+          echo "## Comparativa" >> "$RESUMEN"
+          echo "| Caso | Esperado | X-RunArt-Canary | X-RunArt-Resolver | Archivo |" >> "$RESUMEN"
+          echo "|------|----------|------------------|-------------------|---------|" >> "$RESUMEN"
+          for case in owner client_admin team client control_legacy; do
+            FILE="${RUN_DIR}/whoami_headers_${case}.txt"
+            CANARY=$(geth "$FILE" 'X-RunArt-Canary')
+            RESOLV=$(geth "$FILE" 'X-RunArt-Resolver')
+            echo "| ${case} | ${EXPECT_ROLE[$case]} | ${CANARY:-?} | ${RESOLV:-?} | $(basename "$FILE" 2>/dev/null || echo '-') |" >> "$RESUMEN"
+          done
+          echo "" >> "$RESUMEN"
+
+          echo "## Veredicto (marcar)" >> "$RESUMEN"
+          echo "- [ ] **GO** → Activar canario global en preview (ROLE_RESOLVER_SOURCE=\"utils\")." >> "$RESUMEN"
+          echo "- [ ] **NO-GO** → Mantener legacy; abrir fix con evidencias." >> "$RESUMEN"
+          echo "" >> "$RESUMEN"
+
+          echo "resumen_path=${RESUMEN}" >> $GITHUB_OUTPUT
+
+      - name: Subir artefactos
+        uses: actions/upload-artifact@v4
+        with:
+          name: roles_canary_diag_${{ github.run_id }}
+          path: |
+            apps/briefing/_reports/roles_canary_preview/
+
+      - name: Job Summary
+        run: |
+          echo "## Canary Diagnostics — Resultado" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**Host**: ${PREVIEW_HOST}" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "Artefactos: roles_canary_diag_${{ github.run_id }}" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "Revisa el RESUMEN en el artifact para decidir GO/NO-GO." >> $GITHUB_STEP_SUMMARY
