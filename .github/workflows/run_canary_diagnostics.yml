@@ -62,10 +62,20 @@ jobs:
 
           if [ "$need_resolve" -eq 1 ]; then
             echo "🔎 Buscando proyecto Pages…"
-            PROJ_JSON="$(npx --yes --prefix apps/briefing wrangler pages project list --json 2>/dev/null || true)"
-            PROJECT_NAME="$(echo "$PROJ_JSON" | jq -r '.[] | .name' 2>/dev/null | grep -Ei 'runart|briefing' | head -n 1)"
+            PROJECT_NAME=""
+
+            if [ -f apps/briefing/wrangler.toml ]; then
+              PROJECT_NAME="$(awk -F'=' '/^name[[:space:]]*=/ {gsub(/[[:space:]"]/, "", $2); print $2; exit}' apps/briefing/wrangler.toml || true)"
+            fi
+
             if [ -z "$PROJECT_NAME" ]; then
-              PROJECT_NAME="$(echo "$PROJ_JSON" | jq -r '.[0].name' 2>/dev/null)"
+              PROJ_JSON="$(npx --yes --prefix apps/briefing wrangler pages project list --json || true)"
+              if [ -n "$PROJ_JSON" ]; then
+                PROJECT_NAME="$(echo "$PROJ_JSON" | jq -r '[.[] | .name] | map(select(test("runart|briefing"; "i"))) | first // empty' || true)"
+                if [ -z "$PROJECT_NAME" ]; then
+                  PROJECT_NAME="$(echo "$PROJ_JSON" | jq -r '.[0].name // empty' || true)"
+                fi
+              fi
             fi
 
             if [ -z "$PROJECT_NAME" ]; then
@@ -74,8 +84,13 @@ jobs:
             fi
             echo "Proyecto detectado: $PROJECT_NAME"
 
-            DEPLOY_JSON="$(npx --yes --prefix apps/briefing wrangler pages deployment list --project-name "$PROJECT_NAME" --json 2>/dev/null || true)"
-            RESOLVED="$(echo "$DEPLOY_JSON" | jq -r '[.[] | select(.environment=="preview")] | sort_by(.created_on) | last | .url // empty')"
+            DEPLOY_JSON="$(npx --yes --prefix apps/briefing wrangler pages deployment list --project-name "$PROJECT_NAME" --json || true)"
+            if [ -z "$DEPLOY_JSON" ]; then
+              echo "❌ No obtuve deployments para $PROJECT_NAME" >&2
+              exit 1
+            fi
+
+            RESOLVED="$(echo "$DEPLOY_JSON" | jq -r '[.[] | select(.environment=="preview")] | sort_by(.created_on) | last | .url // empty' || true)"
 
             if [ -z "$RESOLVED" ]; then
               echo "❌ No encontré deployment preview activo." >&2
