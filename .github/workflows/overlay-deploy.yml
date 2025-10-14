@@ -534,13 +534,18 @@ jobs:
           mkdir -p canary_overlay
           worker_url=""
           if wrangler deployments --help 2>&1 | grep -q 'list'; then
-            worker_url=$(wrangler deployments list --env preview --json | jq -r '.deployments[0].url // empty')
+            # Soportar salida JSON como array u objeto
+            worker_url=$(wrangler deployments list --env preview --json | jq -r 'if type=="array" then (.[0].url // empty) else (.deployments[0].url // .result.deployments[0].url // .result[0].url // .url // empty) end' || true)
           fi
           if [ -z "$worker_url" ] && [ -f canary_overlay/deploy.json ]; then
-            worker_url=$(jq -r '.url // .result.url // empty' canary_overlay/deploy.json || true)
+            worker_url=$(jq -r 'if type=="array" then (.[0].url // empty) else (.url // .result.url // .deployment.url // .result[0].url // empty) end' canary_overlay/deploy.json || true)
           fi
           if [ -z "$worker_url" ] && [ -f canary_overlay/deploy.log ]; then
             worker_url=$(grep -o "https://runart-overlay-api-preview\.[a-zA-Z0-9-]*\.workers\.dev" canary_overlay/deploy.log | head -1)
+          fi
+          if [ -z "$worker_url" ]; then
+            # Último recurso: listar deployments en texto plano y extraer URL
+            worker_url=$(wrangler deployments list --env preview 2>/dev/null | grep -o 'https://[^ ]*\.workers\.dev' | head -1 || true)
           fi
           if [ -z "$worker_url" ]; then
             echo "::error::Could not determine overlay worker URL after deployment"
