@@ -37,7 +37,7 @@ jobs:
           cache: 'npm'
 
       - name: Install deps
-        run: npm ci
+        run: npm ci --prefix apps/briefing
 
       - name: Print context (safe)
         run: |
