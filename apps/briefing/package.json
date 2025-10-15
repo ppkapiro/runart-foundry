@@ -12,7 +12,9 @@
     "test:unit:smoke": "node --test --test-timeout=30000 tests/unit/smoke-imports.mjs",
     "test:e2e": "node tests/scripts/run-smokes.mjs",
     "verify:access:preview": "node ../../tools/diagnostics/verify_access_service_token.mjs",
-    "canary:post": "bash ../../tools/diagnostics/postprocess_canary_summary.sh"
+    "canary:post": "bash ../../tools/diagnostics/postprocess_canary_summary.sh",
+    "access:deepcheck": "node ../../tools/diagnostics/access_deepcheck.mjs",
+    "access:export-envs": "bash ../../tools/diagnostics/export_access_envs.sh"
   },
   "devDependencies": {
     "@cloudflare/workers-types": "^4.20251004.0",
