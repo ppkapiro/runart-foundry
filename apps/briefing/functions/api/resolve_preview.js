@@ -5,11 +5,11 @@ import { resolveRoleUnifiedDetailed, isCanaryEmail } from '../_shared/roles.shar
 
 const JSON_HEADERS = { 'Content-Type': 'application/json' };
 
-const notFound = new Response('Not Found', { status: 404 });
+const notFound = () => new Response('Not Found', { status: 404 });
 
 export async function onRequestGet(context) {
   const runEnv = (context.env.RUNART_ENV || '').toLowerCase();
-  if (runEnv !== 'preview') return notFound;
+  if (runEnv !== 'preview') return notFound();
 
   const gate = await requireAdmin(context);
   if (gate?.error) return gate.error;

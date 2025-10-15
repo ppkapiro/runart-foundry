@@ -4,7 +4,7 @@ import { requireAdmin } from '../_lib/guard.js';
 const JSON_HEADERS = { 'Content-Type': 'application/json' };
 const RUNART_ROLES_KEY = 'runart_roles';
 
-const notFound = new Response('Not Found', { status: 404 });
+const notFound = () => new Response('Not Found', { status: 404 });
 
 const countRoles = (data) => {
   const counts = Object.create(null);
@@ -44,7 +44,7 @@ const countRoles = (data) => {
 
 export async function onRequestGet(context) {
   const runEnv = (context.env.RUNART_ENV || '').toLowerCase();
-  if (runEnv !== 'preview') return notFound;
+  if (runEnv !== 'preview') return notFound();
 
   const gate = await requireAdmin(context);
   if (gate?.error) return gate.error;
