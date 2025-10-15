@@ -153,6 +153,17 @@ export function roleToAlias(role) {
   return ROLE_ALIASES[role] || ROLE_ALIASES.visitor;
 }
 
+// API extendida: igual que resolveRole pero devuelve metadatos útiles
+// Contracto:
+//  - input: (email: string | null, env: Env)
+//  - output: { role: string, alias: string, source: 'kv'|'static'|'static-missing', email: string|null }
+export async function resolveRoleWithMeta(email, env) {
+  const role = await resolveRole(email, env);
+  const alias = roleToAlias(role);
+  // cacheSource refleja de dónde provino la última carga (kv, static, static-missing)
+  return { role, alias, source: cacheSource, email: email || null };
+}
+
 export async function logEvent(env, kind, payload = {}) {
   try {
     const ts = new Date().toISOString();

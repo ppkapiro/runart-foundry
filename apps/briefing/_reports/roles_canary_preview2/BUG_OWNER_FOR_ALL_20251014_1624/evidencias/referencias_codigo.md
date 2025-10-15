@@ -1,0 +1,2 @@
+- `_utils/roles.js:119-141` — resolver unificado (`resolveRole`) debe retornar `visitor` cuando no hay coincidencias; revisar normalización y orden de fuentes.
+- `_lib/guard.js:25-65` — guardas usan `ROLE_RESOLVER_SOURCE=utils`; incluir validaciones adicionales hasta que el resolver sea corregido.

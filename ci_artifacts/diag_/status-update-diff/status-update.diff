@@ -1,0 +1,26 @@
+diff --git a/CHANGELOG.md b/CHANGELOG.md
+index 1aa960b..1e8fbf3 100644
+--- a/CHANGELOG.md
++++ b/CHANGELOG.md
+@@ -6,6 +6,9 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/)
+ 
+ ## [Unreleased]
+ 
++*No hay cambios pendientes.*
++
++## [Released — 2025-10-13] (ops)
+ ### Added
+ - Sello de cierre de la Fase 5 publicado en `reports/2025-10-11_fase5_ui_contextual_y_experiencias_por_rol.md` con backlog diferido documentado.
+ - Referencias a artefactos de Fase 5 (`_reports/ui_context/`, `_reports/qa_runs/`, `_reports/access_sessions/README.md`) añadidas a README.
+diff --git a/STATUS.md b/STATUS.md
+index 9209827..a68741c 100644
+--- a/STATUS.md
++++ b/STATUS.md
+@@ -17,6 +17,7 @@
+ | `tools/*` | 🟡 | Guardias Docs Lint/Env Report validadas en local; migración de scripts y smoke Access programados para Fase 6. |
+ 
+ ## Últimos hitos
++- 2025-10-13 — Release automático registrado en CHANGELOG (ops).
+ - 2025-10-08 — Fase 5 cerrada (reporte v1.0, backlog diferido registrado en STATUS/NEXT).
+ - 2025-10-11 — Wireframes v1 de dashboards por rol publicados (`docs/internal/briefing_system/ui/dash/*.md`).
+ - 2025-10-08 — Observabilidad LOG_EVENTS documentada (`ops/observabilidad.md`) + script `tools/log_events_summary.py`.

@@ -1,0 +1,5 @@
+{"tag":"ROLE_RESOLVER","step":"input","cacheSource":"static","email":"owner@runart.com"}
+{"tag":"ROLE_RESOLVER","step":"match_env_admin","cacheSource":"static","email":"owner@runart.com"}
+{"tag":"ROLE_RESOLVER","step":"input","cacheSource":"static","email":"someone@unknown.com"}
+{"tag":"ROLE_RESOLVER","step":"loaded_roles","cacheSource":"static-missing","email":"someone@unknown.com"}
+{"tag":"ROLE_RESOLVER","step":"fallback_visitor","cacheSource":"static-missing","email":"someone@unknown.com"}

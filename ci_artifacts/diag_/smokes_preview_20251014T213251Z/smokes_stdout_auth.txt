@@ -1,0 +1,19 @@
+make: Entering directory '/home/runner/work/runart-foundry/runart-foundry/apps/briefing'
+Ejecutando smoke tests avanzados vía Node.js (manejo automático de Access)
+🔍 Ejecutando smoke tests para: https://922cbeb1.runart-foundry.pages.dev
+🏭 Entorno detectado: Producción (Access esperado)
+🔐 Configuración: ALLOW_302=1, RETRIES=2, DELAY=500ms
+
+[smokes] /api/whoami => PASS [✅] (109.96ms · intento 1/2)
+[smokes] /api/whoami => PASS [✅] (72.03ms · intento 1/2)
+[smokes] /api/whoami => PASS [✅] (19.43ms · intento 1/2)
+[smokes] /api/whoami => PASS [✅] (20.1ms · intento 1/2)
+[smokes] /api/inbox => PASS [✅] (38.74ms · intento 1/2)
+[smokes] /api/inbox => PASS [✅] (28.22ms · intento 1/2)
+[smokes] /api/inbox => PASS [✅] (35.5ms · intento 1/2)
+[smokes] /api/inbox => PASS [✅] (29.93ms · intento 1/2)
+[smokes] /api/decisiones => PASS [✅] (30.14ms · intento 1/2)
+[smokes] /api/decisiones => PASS [✅] (26.66ms · intento 1/2)
+[smokes] Reporte guardado en /home/runner/work/runart-foundry/runart-foundry/apps/briefing/_reports/tests/T3_e2e/20251014T213252
+[smokes] RESULT: pass200=10 pass30x=0 fail=0 total=10
+make: Leaving directory '/home/runner/work/runart-foundry/runart-foundry/apps/briefing'

@@ -4,6 +4,14 @@ Este archivo registra todos los cambios a secretos y credenciales del proyecto.
 
 ---
 
+## 2025-10-15 | Validación headers canary preview (bloqueado)
+
+- **Acción:** Ajuste de middleware Pages Functions para fijar las cabeceras `X-RunArt-Canary: preview` y `X-RunArt-Resolver: utils` en `/api/whoami`.
+- **Validación:** `tools/diagnostics/run_preview_validation.sh` → `docs/internal/security/evidencia/RUN_PREVIEW_VALIDATION_20251015_2000.log` (HTTP 200 sin headers).
+- **CI:** `run_canary_diagnostics.yml` (`run_id=18541050889`) generó `docs/internal/security/evidencia/RESUMEN_PREVIEW_20251015_1601.md` con cabeceras `?`.
+- **Seguimiento:** `pages-preview.yml` (`run_id=18540927697`) falló con `Authentication error`; issue `#46` abierto para habilitar `feat-ci-access-service-token-verification.runart-foundry.pages.dev`.
+- **Pendiente:** Actualizar token de Cloudflare, redeploy preview y repetir validaciones.
+
 ## 2025-10-15 | Normalización Completa de Secretos (Auditoría Inicial)
 
 ### CLOUDFLARE_API_TOKEN

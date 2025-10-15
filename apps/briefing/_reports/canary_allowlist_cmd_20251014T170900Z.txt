@@ -1,0 +1,14 @@
+# Comando para crear/actualizar whitelist canario (CANARY_ROLE_RESOLVER_EMAILS)
+# Sustituir <NAMESPACE_ID_RUNART_ROLES_PREVIEW> y correos reales.
+# Formato esperado: JSON array plano de strings (emails normalizados lowercase).
+
+wrangler kv key put --namespace-id=<NAMESPACE_ID_RUNART_ROLES_PREVIEW> \
+  --key=CANARY_ROLE_RESOLVER_EMAILS \
+  --value='["owner@example.com","team@example.com","client_admin@example.com","client@example.com"]' \
+  --preview
+
+# Verificar:
+wrangler kv key get --namespace-id=<NAMESPACE_ID_RUNART_ROLES_PREVIEW> --key=CANARY_ROLE_RESOLVER_EMAILS --preview
+
+# (Opcional) Activar logs de migración temporalmente (si var env soportada):
+# export ROLE_MIGRATION_LOG=1 (en entorno local / miniflare) y repetir una llamada a /api/whoami para capturar origen y matchedBy

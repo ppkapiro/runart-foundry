@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-set -e
+set -euo pipefail
 
 # Ubicación de apps/briefing
 BRIEFING_DIR="$(dirname "$0")/../../apps/briefing"
@@ -17,16 +17,20 @@ DATE_UTC=$(date -u +%Y%m%d_%H%M)
 # Verificar host base
 TARGET_HOST="$BASE_HOST"
 LOG_BASE="$EVID_DIR/VERIFICACION_LOCAL_BASE_${DATE_UTC}.log"
+set +e
 ACCESS_CLIENT_ID_PREVIEW="$ACCESS_CLIENT_ID_PREVIEW" ACCESS_CLIENT_SECRET_PREVIEW="$ACCESS_CLIENT_SECRET_PREVIEW" TARGET_HOST="$TARGET_HOST" bash "$(dirname "$0")/verify_whoami_with_token.sh" | tee "$LOG_BASE"
-BASE_OK=$?
+BASE_OK=${PIPESTATUS[0]}
+set -e
 
 # Verificar host de rama si DNS OK
 BRANCH_OK=2
 if [[ "$BRANCH_DNS_OK" == "true" ]]; then
   TARGET_HOST="$HOST_BRANCH"
   LOG_BRANCH="$EVID_DIR/VERIFICACION_LOCAL_BRANCH_${DATE_UTC}.log"
+  set +e
   ACCESS_CLIENT_ID_PREVIEW="$ACCESS_CLIENT_ID_PREVIEW" ACCESS_CLIENT_SECRET_PREVIEW="$ACCESS_CLIENT_SECRET_PREVIEW" TARGET_HOST="$TARGET_HOST" bash "$(dirname "$0")/verify_whoami_with_token.sh" | tee "$LOG_BRANCH"
-  BRANCH_OK=$?
+  BRANCH_OK=${PIPESTATUS[0]}
+  set -e
 else
   # Intentar registro automático si hay API keys
   if [[ -n "$CLOUDFLARE_API_TOKEN" && -n "$CLOUDFLARE_ACCOUNT_ID" ]]; then
@@ -38,8 +42,10 @@ else
       if [[ "$BRANCH_DNS_OK" == "true" ]]; then
         TARGET_HOST="$HOST_BRANCH"
         LOG_BRANCH="$EVID_DIR/VERIFICACION_LOCAL_BRANCH_${DATE_UTC}.log"
-        ACCESS_CLIENT_ID_PREVIEW="$ACCESS_CLIENT_ID_PREVIEW" ACCESS_CLIENT_SECRET_PREVIEW="$ACCESS_CLIENT_SECRET_PREVIEW" TARGET_HOST="$TARGET_HOST" bash "$(dirname "$0")/verify_whoami_with_token.sh" | tee "$LOG_BRANCH"
-        BRANCH_OK=$?
+    set +e
+    ACCESS_CLIENT_ID_PREVIEW="$ACCESS_CLIENT_ID_PREVIEW" ACCESS_CLIENT_SECRET_PREVIEW="$ACCESS_CLIENT_SECRET_PREVIEW" TARGET_HOST="$TARGET_HOST" bash "$(dirname "$0")/verify_whoami_with_token.sh" | tee "$LOG_BRANCH"
+    BRANCH_OK=${PIPESTATUS[0]}
+    set -e
       else
         bash "$(dirname "$0")/open_branch_preview_issue.sh" "$BRANCH" "$HOST_BRANCH" "$HOST_JSON"
         BRANCH_OK=3

@@ -1,0 +1,30 @@
+# Inventario wrangler.toml — 2025-10-15 16:24:05 UTC
+
+## Configuración global (production):
+RUNART_ROLES binding:
+binding = "RUNART_ROLES"
+id = "26b8c3ca432946e2a093dcd33163f9e2"
+preview_id = "7d80b07de98e4d9b9d5fd85516901ef6"
+
+## Configuración env.preview:
+No tiene kv_namespaces específicos → usa los globales con preview_id
+RUNART_ROLES preview_id: 7d80b07de98e4d9b9d5fd85516901ef6
+
+## Configuración env.preview2:
+RUNART_ROLES binding:
+binding = "RUNART_ROLES"
+id = "3d40c644267b4d93aa58c6a471eb5f22"
+preview_id = "7d80b07de98e4d9b9d5fd85516901ef6"
+
+## Análisis:
+- ID producción RUNART_ROLES: 26b8c3ca432946e2a093dcd33163f9e2
+- preview_id global: 7d80b07de98e4d9b9d5fd85516901ef6
+- ID preview2 RUNART_ROLES: 3d40c644267b4d93aa58c6a471eb5f22
+- preview_id preview2: 7d80b07de98e4d9b9d5fd85516901ef6 (mismo)
+
+⚠️ DESALINEACIÓN DETECTADA:
+  Local/scripts usan: 26b8c3ca432946e2a093dcd33163f9e2
+  wrangler.toml preview_id: 7d80b07de98e4d9b9d5fd85516901ef6
+  → env.preview debería apuntar al namespace correcto
+
+✅ Inventario wrangler.toml completado

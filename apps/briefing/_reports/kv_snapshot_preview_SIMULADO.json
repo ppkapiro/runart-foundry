@@ -1,0 +1,5 @@
+{
+  "runart_roles": "{\"owners\":[\"ppcapiro@gmail.com\"],\"admins\":[\"admin@runart.com\"],\"client_emails\":[\"client@runartfoundry.com\",\"runartfoundry@gmail.com\"],\"equipo\":[\"team@runart.com\",\"dev@studio.com\"]}",
+  "test_key": "demo_value",
+  "CANARY_ROLE_RESOLVER_EMAILS": "[]"
+}

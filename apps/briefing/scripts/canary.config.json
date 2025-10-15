@@ -1,0 +1,11 @@
+{
+  "previewHost": "https://2bea88ae.runart-briefing.pages.dev",
+  "accountId": "a2c7fc66f00eab69373e448193ae7201",
+  "namespaceIdRunartRolesPreview": "7d80b07de98e4d9b9d5fd85516901ef6",
+  "kvKeyRoles": "RUNART_ROLES",
+  "kvKeyCanaryList": "CANARY_ROLE_RESOLVER_EMAILS",
+  "emailsControlLegacy": [
+    "test_legacy_1@external.com",
+    "test_legacy_2@external.com"
+  ]
+}
