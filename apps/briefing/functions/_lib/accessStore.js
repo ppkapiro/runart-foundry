@@ -1,4 +1,4 @@
-import staticRoles from '../../access/roles.json' with { type: 'json' };
+import staticRoles from '../../access/roles.json' assert { type: 'json' };
 
 const normalize = (value) => (value || '').trim().toLowerCase();
 const KEY = 'runart_roles';
