@@ -29,8 +29,10 @@ export const onRequest = [
     const isTestBypassActive = runEnv === "preview" && testMode === "1" && testEmailHeader.length > 0;
     const isPublic = isPublicPath(pathname);
 
-    // Rutas públicas pasan directo
-    if (isPublic && !isTestBypassActive) {
+    const isApiRequest = pathname.startsWith("/api/");
+
+    // Rutas públicas (excepto API) pasan directo
+    if (isPublic && !isApiRequest && !isTestBypassActive) {
       return next();
     }
 
@@ -87,12 +89,30 @@ export const onRequest = [
       headers.delete("X-RunArt-Bypass");
     }
 
-    if (isPublic) {
-      const forwarded = new Request(request, { headers });
-      return next(forwarded);
+      // Canary headers para entorno preview
+      if (runEnv === "preview") {
+        headers.set("X-RunArt-Canary", "preview");
+        headers.set("X-RunArt-Resolver", "utils");
+      } else {
+        headers.delete("X-RunArt-Canary");
+        headers.delete("X-RunArt-Resolver");
+      }
+
+    const forwarded = new Request(request, { headers });
+    const response = await next(forwarded);
+
+    const isPreviewContext = runEnv === "preview" || url.hostname.endsWith(".pages.dev");
+    if (isPreviewContext) {
+      const responseHeaders = new Headers(response.headers);
+      responseHeaders.set("X-RunArt-Canary", "preview");
+      responseHeaders.set("X-RunArt-Resolver", "utils");
+      return new Response(response.body, {
+        status: response.status,
+        statusText: response.statusText,
+        headers: responseHeaders,
+      });
     }
 
-    const forwardedRequest = new Request(request, { headers });
-    return next(forwardedRequest);
+    return response;
   },
 ];

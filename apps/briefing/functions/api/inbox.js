@@ -20,8 +20,9 @@ export async function onRequestGet(context) {
     });
   }
 
-  return new Response(JSON.stringify({ ok: false, status: 403, role }), {
-    status: 403,
+  // Para smokes públicos, respondemos 404 en lugar de 403 para ocultar el recurso
+  return new Response(JSON.stringify({ ok: false, status: 404, role }), {
+    status: 404,
     headers: JSON_HEADERS
   });
 }

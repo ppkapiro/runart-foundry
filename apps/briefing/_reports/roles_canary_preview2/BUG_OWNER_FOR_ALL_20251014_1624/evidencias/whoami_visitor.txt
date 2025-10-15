@@ -1,0 +1,10 @@
+curl -s https://preview2.runart-foundry.pages.dev/api/whoami
+
+{
+  "ok": true,
+  "email": null,
+  "role": "admin",
+  "rol": "propietario",
+  "env": "preview2",
+  "ts": "2025-10-14T16:12:21Z"
+}

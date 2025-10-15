@@ -1,0 +1,33 @@
+[smokes] Reintento whoami-owner (1/2) → Role inesperado: undefined
+[smokes] Reintento whoami-owner (2/2) → Role inesperado: undefined
+[smokes] /api/whoami => FAIL [❌] (83.1ms · intento 2/2)
+  ↳ Role inesperado: undefined
+[smokes] Reintento whoami-team (1/2) → Role team inesperado: undefined
+[smokes] Reintento whoami-team (2/2) → Role team inesperado: undefined
+[smokes] /api/whoami => FAIL [❌] (269.4ms · intento 2/2)
+  ↳ Role team inesperado: undefined
+[smokes] Reintento whoami-client_admin (1/2) → Role client_admin inesperado: undefined
+[smokes] Reintento whoami-client_admin (2/2) → Role client_admin inesperado: undefined
+[smokes] /api/whoami => FAIL [❌] (1126.43ms · intento 2/2)
+  ↳ Role client_admin inesperado: undefined
+[smokes] Reintento whoami-visitor (1/2) → Role visitante inesperado: undefined
+[smokes] Reintento whoami-visitor (2/2) → Role visitante inesperado: undefined
+[smokes] /api/whoami => FAIL [❌] (630.63ms · intento 2/2)
+  ↳ Role visitante inesperado: undefined
+[smokes] Reintento inbox-owner (1/2) → Status esperado 200 pero se obtuvo 403
+[smokes] Reintento inbox-owner (2/2) → Status esperado 200 pero se obtuvo 403
+[smokes] /api/inbox => FAIL [❌] (449.4ms · intento 2/2)
+  ↳ Status esperado 200 pero se obtuvo 403
+[smokes] Reintento inbox-team (1/2) → Status esperado 200 pero se obtuvo 403
+[smokes] Reintento inbox-team (2/2) → Status esperado 200 pero se obtuvo 403
+[smokes] /api/inbox => FAIL [❌] (331.25ms · intento 2/2)
+  ↳ Status esperado 200 pero se obtuvo 403
+[smokes] /api/inbox => PASS [✅] (565.17ms · intento 1/2)
+[smokes] /api/inbox => PASS [✅] (1462.26ms · intento 1/2)
+[smokes] /api/decisiones => PASS [✅] (1899.45ms · intento 1/2)
+[smokes] Reintento decisiones-owner (1/2) → fetch failed (code=ETIMEDOUT)
+[smokes] Reintento decisiones-owner (2/2) → Status esperado 200 pero se obtuvo 401
+[smokes] /api/decisiones => FAIL [❌] (456.84ms · intento 2/2)
+  ↳ Status esperado 200 pero se obtuvo 401
+[smokes] Reporte guardado en /home/pepe/work/runartfoundry/apps/briefing/_reports/tests/T3_e2e/20251014T165914
+[smokes] RESULT: pass200=3 pass30x=0 fail=7 total=10

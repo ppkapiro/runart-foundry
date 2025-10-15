@@ -35,6 +35,27 @@ jobs:
             echo "ERROR: faltan secrets: ${missing[*]}" >&2
             exit 1
           fi
+      - name: Verify Cloudflare token (v2)
+        run: |
+          set -euo pipefail
+          echo "Account esperado: ${CLOUDFLARE_ACCOUNT_ID}"
+          response=$(curl -sS -X GET "https://api.cloudflare.com/client/v4/user/tokens/verify" \
+            -H "Authorization: Bearer ${CLOUDFLARE_API_TOKEN}" \
+            -H "Content-Type: application/json")
+          echo "$response"
+          status=$(echo "$response" | jq -r '.result.status // empty')
+          account_id=$(echo "$response" | jq -r '.result.account.id // empty')
+          echo "account_id extraído: ${account_id:-<empty>}"
+          if [ "$status" != "active" ]; then
+            echo "::error::Cloudflare API token inactivo (status=${status:-empty})." >&2
+            exit 1
+          fi
+          # Algunas respuestas no incluyen .result.account.id; solo comparar si viene poblado
+          if [ -n "$account_id" ] && [ -n "${CLOUDFLARE_ACCOUNT_ID}" ] && [ "$account_id" != "${CLOUDFLARE_ACCOUNT_ID}" ]; then
+            echo "::error::Token pertenece a otra cuenta (${account_id}). Esperado: ${CLOUDFLARE_ACCOUNT_ID}" >&2
+            exit 1
+          fi
+          echo "Token verificado correctamente."
       - name: Echo project name (debug)
         run: |
           echo "CF_PROJECT_NAME=${CF_PROJECT_NAME}"
@@ -61,12 +82,14 @@ jobs:
         id: deploy-preview
         uses: cloudflare/pages-action@v1
         with:
+          gitHubToken: ${{ secrets.GITHUB_TOKEN }}
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
           projectName: ${{ env.CF_PROJECT_NAME }}
-          directory: ./apps/briefing/site
+          directory: site
           branch: ${{ github.head_ref }}
           wranglerVersion: '3'
+          workingDirectory: apps/briefing
       - name: Extract preview URL
         id: extract-preview-url
         env:

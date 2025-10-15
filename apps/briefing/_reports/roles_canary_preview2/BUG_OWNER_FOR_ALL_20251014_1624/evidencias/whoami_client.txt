@@ -1,0 +1,12 @@
+curl -s https://preview2.runart-foundry.pages.dev/api/whoami \
+  -H "CF-Access-Client-Id: <CLIENT_ID>" \
+  -H "CF-Access-Client-Secret: <CLIENT_SECRET>"
+
+{
+  "ok": true,
+  "email": "musicmanagercuba@gmail.com",
+  "role": "admin",
+  "rol": "propietario",
+  "env": "preview2",
+  "ts": "2025-10-14T16:11:49Z"
+}

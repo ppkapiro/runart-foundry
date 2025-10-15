@@ -1,0 +1,11 @@
+{
+  "status": 200,
+  "headers": {
+    "cache-control": "no-store, no-cache, must-revalidate",
+    "content-type": "application/json; charset=utf-8",
+    "mf-content-encoding": "gzip",
+    "pragma": "no-cache",
+    "transfer-encoding": "chunked"
+  },
+  "body": "{\n  \"ok\": true,\n  \"email\": \"musicmanagercuba@gmail.com\",\n  \"role\": \"client\",\n  \"rol\": \"cliente\",\n  \"env\": \"preview2\",\n  \"ts\": \"2025-10-14T16:29:52.817Z\"\n}"
+}

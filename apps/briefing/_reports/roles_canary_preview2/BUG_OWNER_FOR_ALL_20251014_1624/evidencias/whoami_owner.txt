@@ -1,0 +1,12 @@
+curl -s https://preview2.runart-foundry.pages.dev/api/whoami \
+  -H "CF-Access-Client-Id: <OWNER_ID>" \
+  -H "CF-Access-Client-Secret: <OWNER_SECRET>"
+
+{
+  "ok": true,
+  "email": "ppcapiro@gmail.com",
+  "role": "admin",
+  "rol": "propietario",
+  "env": "preview2",
+  "ts": "2025-10-14T16:10:12Z"
+}

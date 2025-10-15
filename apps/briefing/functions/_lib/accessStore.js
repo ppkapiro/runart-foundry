@@ -1,4 +1,4 @@
-import staticRoles from '../../access/roles.json' with { type: 'json' };
+import staticRoles from '../../access/roles.json' assert { type: 'json' };
 
 const normalize = (value) => (value || '').trim().toLowerCase();
 const KEY = 'runart_roles';
@@ -39,7 +39,7 @@ const state = {
   lastSync: 0
 };
 
-const applyRolesToState = (roles, source = 'roles.json') => {
+const applyRolesToState = (roles, source = 'roles.json', withTimestamp = true) => {
   const sanitized = sanitizeRoles(roles);
   state.roles = sanitized;
   state.ownersSet = new Set(sanitized.owners.map(normalize));
@@ -48,11 +48,12 @@ const applyRolesToState = (roles, source = 'roles.json') => {
   state.teamDomainsSet = new Set(sanitized.team_domains.map(normalize));
   state.clientsSet = new Set(sanitized.clients.map(normalize));
   state.source = source;
-  state.lastSync = Date.now();
+  state.lastSync = withTimestamp ? Date.now() : 0;
   return sanitized;
 };
 
-applyRolesToState(state.roles, 'roles.json');
+// Inicialización del estado sin tocar el reloj en ámbito global
+applyRolesToState(state.roles, 'roles.json', false);
 
 export const classifyEmail = (email) => {
   const normalizedEmail = normalize(email);

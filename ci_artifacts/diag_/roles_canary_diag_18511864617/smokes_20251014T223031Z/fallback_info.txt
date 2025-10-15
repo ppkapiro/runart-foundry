@@ -1,0 +1,1 @@
+ℹ️ Script de captura no disponible; usando curl -I como fallback.

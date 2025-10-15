@@ -1,4 +1,4 @@
-import staticRoles from "../../access/roles.json" with { type: "json" };
+import staticRoles from "../../access/roles.json" assert { type: "json" };
 
 const RUNART_ROLES_KEY = "runart_roles";
 const CACHE_TTL_MS = 30 * 1000;
@@ -153,17 +153,39 @@ export function roleToAlias(role) {
   return ROLE_ALIASES[role] || ROLE_ALIASES.visitor;
 }
 
+// API extendida: igual que resolveRole pero devuelve metadatos útiles
+// Contracto:
+//  - input: (email: string | null, env: Env)
+//  - output: { role: string, alias: string, source: 'kv'|'static'|'static-missing', email: string|null }
+export async function resolveRoleWithMeta(email, env) {
+  const role = await resolveRole(email, env);
+  const alias = roleToAlias(role);
+  // cacheSource refleja de dónde provino la última carga (kv, static, static-missing)
+  return { role, alias, source: cacheSource, email: email || null };
+}
+
 export async function logEvent(env, kind, payload = {}) {
   try {
     const ts = new Date().toISOString();
-    const key = `evt:${ts}:${Math.random().toString(36).slice(2, 8)}`;
     const data = JSON.stringify({ ts, kind, ...payload });
+    const suffix = hash6(`${ts}|${kind}|${data}`);
+    const key = `evt:${ts}:${suffix}`;
     if (env?.LOG_EVENTS && env.LOG_EVENTS.put) {
       await env.LOG_EVENTS.put(key, data, { expirationTtl: 60 * 60 * 24 * 30 });
     }
   } catch (error) {
     console.warn("[roles] No se pudo registrar evento", error);
   }
+}
+
+function hash6(str) {
+  let h = 0x811c9dc5;
+  for (let i = 0; i < str.length; i++) {
+    h ^= str.charCodeAt(i);
+    h = (h >>> 0) * 0x01000193;
+  }
+  const v = h >>> 0;
+  return v.toString(36).slice(0, 6);
 }
 
 export function isPublicPath(pathname) {
