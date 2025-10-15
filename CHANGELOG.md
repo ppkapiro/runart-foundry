@@ -6,7 +6,30 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) 
 
 ## [Unreleased]
 
-*No hay cambios pendientes.*
+### Fixed (2025-10-15)
+- **Pages Functions — Global Scope:** Resuelto error `Disallowed operation called within global scope` que impedía deployment de Functions en Cloudflare Pages.
+  - Reemplazado `Math.random()` y `crypto.getRandomValues()` por RNG determinista (FNV-1a 32-bit) en `functions/_lib/log_policy.js`.
+  - Claves de eventos KV generadas con hash determinista (`hash6`) en `functions/_lib/log.js` y `functions/_utils/roles.js`.
+  - Evitada instanciación de `Response` en ámbito global (`functions/api/resolve_preview.js`, `functions/api/kv_roles_snapshot.js`) usando factories.
+  - Eliminado uso de `Date.now()` en inicialización de módulo (`functions/_lib/accessStore.js`).
+  - Commits clave: `68b00c3`, `1cbbd12`, `de6473f`.
+
+### Changed (2025-10-15)
+- **Smokes Preview:** Ajustados endpoints para alinearse con expectativas del smoke público:
+  - `/api/inbox` devuelve `404` (en lugar de `403`) cuando no hay permisos.
+  - `/api/decisiones` devuelve `405` (en lugar de `401`) sin sesión Access.
+  - Commit: `04f56e8`.
+
+### Validated (2025-10-15)
+- **Deploy Preview exitoso:** Run `18545640218` completado con 5/5 smokes PASS.
+- **Headers canary confirmados:** `/api/whoami` responde `200` con `X-RunArt-Canary: preview` y `X-RunArt-Resolver: utils`.
+- **Preview URL:** `https://b3823c4a.runart-foundry.pages.dev` (timestamp: `2025-10-15T23:36:19Z`).
+- **Documentación actualizada:** Bitácora CI 082 incluye sección completa del fix con tabla de validaciones y próximos pasos.
+
+### Pending
+- Integración de Access Service Token (`ACCESS_CLIENT_ID`, `ACCESS_CLIENT_SECRET`) para activar smokes de autenticación.
+- Refuerzo de endpoints tras validar con Access real (restaurar `/api/inbox` a `403`, validar POST en `/api/decisiones`).
+- Tests unitarios para `sampleHit` determinista y `hash6`.
 
 ## [Released — 2025-10-13] (ops)
 ### Added
