@@ -1,4 +1,4 @@
-import staticRoles from "../../access/roles.json" with { type: "json" };
+import staticRoles from "../../access/roles.json" assert { type: "json" };
 
 const RUNART_ROLES_KEY = "runart_roles";
 const CACHE_TTL_MS = 30 * 1000;
