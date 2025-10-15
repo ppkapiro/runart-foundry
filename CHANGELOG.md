@@ -6,6 +6,9 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) 
 
 ## [Unreleased]
 
+*No hay cambios pendientes.*
+
+## [Released — 2025-10-15] (ops)
 ### Fixed (2025-10-15)
 - **Pages Functions — Global Scope:** Resuelto error `Disallowed operation called within global scope` que impedía deployment de Functions en Cloudflare Pages.
   - Reemplazado `Math.random()` y `crypto.getRandomValues()` por RNG determinista (FNV-1a 32-bit) en `functions/_lib/log_policy.js`.
