@@ -35,7 +35,7 @@ jobs:
             echo "ERROR: faltan secrets: ${missing[*]}" >&2
             exit 1
           fi
-      - name: Verify Cloudflare token (tokens/verify)
+      - name: Verify Cloudflare token (v2)
         run: |
           set -euo pipefail
           echo "Account esperado: ${CLOUDFLARE_ACCOUNT_ID}"
@@ -45,6 +45,7 @@ jobs:
           echo "$response"
           status=$(echo "$response" | jq -r '.result.status // empty')
           account_id=$(echo "$response" | jq -r '.result.account.id // empty')
+          echo "account_id extraído: ${account_id:-<empty>}"
           if [ "$status" != "active" ]; then
             echo "::error::Cloudflare API token inactivo (status=${status:-empty})." >&2
             exit 1
