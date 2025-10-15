@@ -167,14 +167,25 @@ export async function resolveRoleWithMeta(email, env) {
 export async function logEvent(env, kind, payload = {}) {
   try {
     const ts = new Date().toISOString();
-    const key = `evt:${ts}:${Math.random().toString(36).slice(2, 8)}`;
     const data = JSON.stringify({ ts, kind, ...payload });
+    const suffix = hash6(`${ts}|${kind}|${data}`);
+    const key = `evt:${ts}:${suffix}`;
     if (env?.LOG_EVENTS && env.LOG_EVENTS.put) {
       await env.LOG_EVENTS.put(key, data, { expirationTtl: 60 * 60 * 24 * 30 });
     }
   } catch (error) {
     console.warn("[roles] No se pudo registrar evento", error);
   }
+}
+
+function hash6(str) {
+  let h = 0x811c9dc5;
+  for (let i = 0; i < str.length; i++) {
+    h ^= str.charCodeAt(i);
+    h = (h >>> 0) * 0x01000193;
+  }
+  const v = h >>> 0;
+  return v.toString(36).slice(0, 6);
 }
 
 export function isPublicPath(pathname) {

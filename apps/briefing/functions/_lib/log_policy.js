@@ -20,7 +20,11 @@ export function sampleHit(action, role, options = {}) {
   const percent = samplingPercent(String(action || ''), String(role || 'visitante'));
   if (percent <= 0) return false;
   if (percent >= 100) return true;
-  const rng = typeof options.rng === 'function' ? options.rng : randomPercentage;
+  // Usar RNG determinista por acción/rol para evitar aleatoriedad global
+  const seed = typeof options.seed === 'string' && options.seed.length
+    ? options.seed
+    : `${action}|${role}`;
+  const rng = typeof options.rng === 'function' ? options.rng : () => stableRandom01(seed);
   return rng() < percent / 100;
 }
 
@@ -35,11 +39,19 @@ function samplingPercent(action, role) {
   return 0;
 }
 
-function randomPercentage() {
-  if (typeof crypto !== 'undefined' && typeof crypto.getRandomValues === 'function') {
-    const buffer = new Uint32Array(1);
-    crypto.getRandomValues(buffer);
-    return (buffer[0] >>> 0) / 0xffffffff;
+// Hash FNV-1a 32-bit para generar un número determinista por seed
+function fnv1a32(str) {
+  let h = 0x811c9dc5; // offset basis
+  for (let i = 0; i < str.length; i++) {
+    h ^= str.charCodeAt(i);
+    // Multiplicación por el primo FNV 16777619 con overflow de 32 bits
+    h = (h >>> 0) * 0x01000193;
   }
-  return Math.random();
+  return h >>> 0;
+}
+
+function stableRandom01(seed) {
+  const h = fnv1a32(String(seed));
+  // Mapear a [0,1)
+  return h / 0x100000000; // 2^32
 }
