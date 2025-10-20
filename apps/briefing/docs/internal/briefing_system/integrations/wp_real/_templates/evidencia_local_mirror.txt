@@ -1,0 +1,18 @@
+=== INVENTARIO LOCAL (Mirror) ===
+Fecha de captura: 2025-10-20 15:19:37 EDT
+
+Ruta local del mirror: /home/pepe/work/runartfoundry/mirror
+
+Estadísticas:
+760M	/home/pepe/work/runartfoundry/mirror
+
+Listado alto nivel:
+/home/pepe/work/runartfoundry/mirror
+├── README.md
+├── index.json
+├── raw
+│   └── 2025-10-01
+└── scripts
+    └── fetch.sh
+
+4 directories, 3 files

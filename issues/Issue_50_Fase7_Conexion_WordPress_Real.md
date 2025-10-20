@@ -343,3 +343,51 @@ curl -i https://runalfondry.com/wp-json/
 ---
 
 **Issue #50 creado e integrado, listo para iniciar la Fase 7 (Conexión WordPress Real).**
+
+
+## 📊 Resultado Verificación de Accesos (Consolidado 2025-10-20)
+
+### Matriz de Estado
+
+| Pilar | Estado | Semáforo | Evidencia | Próximo Paso |
+|-------|--------|----------|-----------|-------------|
+| Repo (GitHub) | OK | ✅ | git remote -v, remotes OK | ✅ Ready |
+| Local (Mirror) | OK | ✅ | 760M disponible | ✅ Ready |
+| SSH (Servidor) | PENDIENTE | ⏳ | No configurado | ⏳ Owner: exportar WP_SSH_HOST |
+| REST API | PENDIENTE | ⏳ | DNS fallo (prod) | 🔴 Validar en staging |
+
+### Interpretación
+
+- **Repo:** ✅ LISTO — Remotes configurados, workflows enriquecidos
+- **Local:** ✅ LISTO — Mirror de 760M presente
+- **SSH:** ⏳ PENDIENTE — Owner proporciona credenciales
+- **REST:** 🔴 CRÍTICO — Validar en staging/producción real
+
+### Decisión Recomendada
+
+**🟢 OPCIÓN 2 — Preview Primero (RECOMENDADA)**
+
+Razones:
+1. Valida workflows en staging antes de producción
+2. Riesgo BAJO — entorno seguro
+3. Permite identificar bloqueadores (como DNS)
+4. Precedente: Buenas prácticas
+
+### Inputs del Owner para Avanzar
+
+- [ ] **Hoy:** Validar REST API en staging → `curl -i https://staging.example.com/wp-json/`
+- [ ] **Hoy:** Exportar `WP_SSH_HOST="user@host"` → Copilot recolecta server info
+- [ ] **Mañana:** Confirmar decisión en este Issue (Preview / Styling / Mixto)
+
+### Checklists Próximos
+
+**Owner — Inmediato:**
+- [ ] Revisar matriz de estado arriba
+- [ ] Proporcionar hostname de staging
+- [ ] Exportar WP_SSH_HOST si aplica
+- [ ] Confirmar decisión (Preview/Styling/Mixto)
+
+**Copilot — Post-Owner:**
+- [ ] Si Preview elegido → Ejecutar 070_preview_staging_plan.md
+- [ ] Si Styling elegido → Aplicar cambios de tema
+- [ ] Si Mixto elegido → Coordinar ambas fases

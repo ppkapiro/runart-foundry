@@ -78,9 +78,31 @@ Verificación integrada de accesos y estado del sitio WordPress (runalfondry.com
 
 ## 🔍 Hallazgos — Consolidado 2025-10-20
 
-**Estado:** 🟡 **PENDIENTE EVIDENCIAS** (owner aún no ha aportado datos en `_templates/`)
+Matriz de accesos (auto-detectado):
 
-### Repo Git
+| Pilar | Estado | Semáforo | Evidencia |
+|-------|--------|----------|-----------|
+| Repo (GitHub) | OK | ✅ | git remote -v, remotes detectados |
+| Local (Mirror) | OK | ✅ | /home/pepe/work/runartfoundry/mirror (760M) |
+| SSH (Servidor) | PENDIENTE | ⏳ | (no configurado — exportar WP_SSH_HOST) |
+| REST API | PENDIENTE | ⏳ | DNS no resolvió runalfondry.com (no error de REST) |
+
+
+### Interpretación
+
+- **Repo:** ✅ Remotes configurados (origin + upstream), workflows detectados
+- **Local:** ✅ Mirror disponible en /home/pepe/work/runartfoundry/mirror (760M)
+- **SSH:** ⏳ No configurado — Requerir WP_SSH_HOST al owner
+- **REST:** 🔴 DNS no resolvió (runalfondry.com) — Validar en staging real
+
+### Acciones Inmediatas (Próximas 48h)
+
+1. **Owner valida REST API** → curl -i https://runalfondry.com/wp-json/
+2. **Owner exporta WP_SSH_HOST** → Copilot recolecta server versions
+3. **Owner confirma decisión** → Preview / Styling / Mixto
+4. **Copilot ejecuta según decisión** → Setup staging o aplica cambios
+
+## Repo Git
 - **Status:** ⏳ PENDIENTE (sin evidencia_repo_remotes.txt)
 - **Remotes:** (será completado tras `git remote -v` del owner)
 - **Workflows:** ✅ `verify-home`, `verify-settings`, `verify-menus`, `verify-media` (listos en modo placeholder)
