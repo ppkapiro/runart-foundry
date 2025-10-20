@@ -21,8 +21,8 @@ jobs:
         with:
           name: audit-latest
           path: |
-            _reports/monitoring_logs/audit_latest.json
-            _reports/monitoring_logs/audit_latest.txt
+            _reports/audit_artifacts/audit_latest.json
+            _reports/audit_artifacts/audit_latest.txt
 
   remediate:
     needs: audit

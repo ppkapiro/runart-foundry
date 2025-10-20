@@ -1,9 +1,16 @@
-import json, os, time, pathlib, yaml
+import json
+import os
+import time
+import pathlib
+import yaml
 
 RULES = yaml.safe_load(open("rules/audit_rules.yml","r"))
-LOG_DIR = pathlib.Path("_reports/monitoring_logs")
-OUT_JSON = pathlib.Path("_reports/monitoring_logs/audit_latest.json")
-OUT_SUM = pathlib.Path("_reports/monitoring_logs/audit_latest.txt")
+LOG_DIR = pathlib.Path("_reports/audit_artifacts")
+OUT_JSON = pathlib.Path("_reports/audit_artifacts/audit_latest.json")
+OUT_SUM = pathlib.Path("_reports/audit_artifacts/audit_latest.txt")
+
+# Ensure output directory exists
+LOG_DIR.mkdir(parents=True, exist_ok=True)
 
 def load_latest_summaries():
     # Busca los últimos *_summary.txt generados por verify-*
