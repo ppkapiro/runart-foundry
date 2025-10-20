@@ -11,7 +11,7 @@ preview_id = "e68d7a05dce645478e25c397d4c34c08"
 [[kv_namespaces]]
 binding = "LOG_EVENTS"
 id = "9fbb7e6c2d6a4c1cb3ad2b3cce4040f5"
-preview_id = "17937e5c45fa49ec83b4d275f1714d44"
+preview_id = "5c809442ad5a4a5cb4bcca714c70fabf"
 
 [[kv_namespaces]]
 binding = "RUNART_ROLES"
@@ -42,8 +42,7 @@ id = "e68d7a05dce645478e25c397d4c34c08"
 
 [[env.preview.kv_namespaces]]
 binding = "LOG_EVENTS"
-id = "9fbb7e6c2d6a4c1cb3ad2b3cce4040f5"
-# TODO: restaurar namespace dedicado cuando el ID 17937e5c45fa49ec83b4d275f1714d44 exista en la cuenta
+id = "5c809442ad5a4a5cb4bcca714c70fabf"
 
 [[env.preview.kv_namespaces]]
 binding = "RUNART_ROLES"

@@ -404,6 +404,16 @@ npm run test:vitest
 
 **Siguiente paso:** Rerun Deploy Preview para confirmar que el fallback destraba la publicación.
 
+### 2025-10-20T15:41 — Ajuste LOG_EVENTS preview (Intento 4)
+
+**Contexto:** Run `18657210249` falló con `KV namespace '9fbb7e6c2d6a4c1cb3ad2b3cce4040f5' not found`, confirmando que el fallback sigue apuntando a un namespace inexistente.
+
+**Acción:**
+- `apps/briefing/wrangler.toml`: Binding `LOG_EVENTS` para preview actualizado al ID real `5c809442ad5a4a5cb4bcca714c70fabf` (según `docs/internal/security/evidencia/KV_NAMESPACES.json`).
+- Eliminado el TODO previo; la configuración queda alineada con el inventario actual de Cloudflare.
+
+**Resultado preliminar:** Rerun manual `18657210249` (antes de subir el cambio) vuelve a usar el ID viejo (`9fbb…`) y falla. Se necesita push + rerun para validar la corrección.
+
 ### 2025-10-20T11:15 — Preparación PR y Cierre ✅
 
 **Reporte actualizado:**
