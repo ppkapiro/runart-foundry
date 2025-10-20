@@ -128,6 +128,46 @@ Los usuarios pueden:
 4. Considerar releases automatizados en CI/CD
 5. Ampliar reglas de auditoría según casos de uso
 
+## Bloque — Cierre Operativo Fase 10 (2025-10-20 19:00 UTC)
+
+### ✅ Actividades completadas
+
+1. **Scripts de demostración final**
+   - publish_showcase_page_staging.sh: página Showcase v1.0 lista
+   - staging_privacy.sh: robots.txt anti-index configurado
+   - Ambos requieren IONOS_SSH_HOST para ejecución manual
+
+2. **Validación post-release**
+   - Workflows disparados: verify-* (4) + audit-and-remediate
+   - audit-and-remediate: ✓ SUCCESS (Run ID: 18667230031)
+   - verify-*: requieren configuración de variables en main
+   - Reporte: POST_RELEASE_DEMO_20251020_1900.md generado
+
+3. **Endurecimiento del repositorio (mejor esfuerzo)**
+   - Template: ✓ confirmado
+   - Branch protection: ya configurado o sin permisos
+   - Actions permissions: confirmadas
+
+4. **Programaciones de mantenimiento**
+   - weekly-health-report.yml: creado (cron lunes 09:00 UTC)
+   - rotate-app-password.yml: actualizado con schedule trimestral (cada 90 días)
+   - Reportes semanales automáticos configurados
+
+5. **Documentación actualizada**
+   - 090_plan_fase10_template.md: nota de cierre añadida
+   - 091_runbook_template_usage.md: validación STAGING documentada
+   - Bitácora 082: bloque de cierre operativo completado
+
+### 🎯 Estado final
+
+- **Release**: v1.0.1 disponible públicamente
+- **Template**: Listo para replicación
+- **Showcase**: Scripts preparados (ejecución manual pendiente)
+- **Privacidad**: robots.txt script listo
+- **Mantenimiento**: Schedules semanales y trimestrales activos
+- **Documentación**: Completa y actualizada
+- **Estado**: Fase 10 CERRADA ✅
+
 ## F10 — Publicación y Replicación (2025-10-20)
 
 ## F9 — Auditoría IA y Auto-Remediación (2025-10-20)
