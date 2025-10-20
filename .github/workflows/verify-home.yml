@@ -94,13 +94,16 @@ jobs:
         run: |
           AUTH="${{ steps.auth.outputs.AUTH }}"; SOF="${{ steps.settings.outputs.SOF }}"; POF="${{ steps.settings.outputs.POF }}"; EXISTS="${{ steps.front_exists.outputs.EXISTS }}"; ES="${{ steps.fronts.outputs.ES }}"; EN="${{ steps.fronts.outputs.EN }}";
           NEEDS="false"
+          # Determinar modo: real si WP_BASE_URL != placeholder.local, placeholder si no
+          MODE="placeholder"
+          if [ "$BASE_URL" != "placeholder.local" ] && [ -n "$BASE_URL" ]; then MODE="real"; fi
           # Invariantes: show_on_front==page; page_on_front>0 y existe; Home ES/EN 200
           if [ "$SOF" != "page" ]; then NEEDS="true"; fi
           if ! echo "$POF" | grep -Eq '^[0-9]+$'; then NEEDS="true"; fi
           if [ "$EXISTS" = "no" ]; then NEEDS="true"; fi
           if [ "$ES" != "200" ]; then NEEDS="true"; fi
           if [ "$EN" != "200" ]; then NEEDS="true"; fi
-          printf "Auth=%s; show_on_front=%s; page_on_front=%s; front_exists=%s; FrontES=%s; FrontEN=%s\n" "$AUTH" "$SOF" "$POF" "$EXISTS" "$ES" "$EN" | tee "$SUMMARY_FILE"
+          printf "mode=%s; Auth=%s; show_on_front=%s; page_on_front=%s; front_exists=%s; FrontES=%s; FrontEN=%s\n" "$MODE" "$AUTH" "$SOF" "$POF" "$EXISTS" "$ES" "$EN" | tee "$SUMMARY_FILE"
           echo "needs_attention=$NEEDS" >> $GITHUB_OUTPUT
           echo "summary_path=$SUMMARY_FILE" >> $GITHUB_OUTPUT
 

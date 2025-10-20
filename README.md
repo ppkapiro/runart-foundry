@@ -76,6 +76,56 @@ Workflow `run-repair.yml` con inputs `area` (home/menus/media/settings) y `mode`
 
 ---
 
+## 🔐 Integración WP Real (Fase 7 — En progreso)
+
+**Estado:** 🟡 En ejecución  
+**Rama:** `feat/fase7-wp-connection`  
+**Documentación:** [`issues/Issue_50_Fase7_Conexion_WordPress_Real.md`](issues/Issue_50_Fase7_Conexion_WordPress_Real.md)
+
+La Fase 7 marca la transición de **modo placeholder** (credenciales dummy) a **conexión real** con un sitio WordPress operativo.
+
+### Configuración de Credenciales
+
+Los workflows `verify-*` utilizan las siguientes variables y secrets para conectarse a WordPress:
+
+#### Variables (Repo → Settings → Secrets and variables → Actions → **Variables**)
+
+- **`WP_BASE_URL`**: URL base del sitio WordPress  
+  - Ejemplo: `https://tu-wp.com`
+  - Tipo: Variable de repositorio (visible en logs enmascarada tras first commit)
+  - Estado actual: **Pendiente del owner**
+
+#### Secrets (Repo → Settings → Secrets and variables → Actions → **Secrets**)
+
+- **`WP_USER`**: Usuario con rol Editor o superior  
+  - Creado en WordPress Admin → Users
+  - Estado actual: **Pendiente del owner**
+  
+- **`WP_APP_PASSWORD`**: Contraseña de aplicación generada en WordPress  
+  - ⚠️ **CRÍTICO:** No exponer este valor en commits, logs, comments ni PRs
+  - GitHub enmascara automáticamente los secrets en la salida
+  - Se genera en WordPress: Users → Tu usuario → Application Passwords
+  - **Owner solo:** Cargar manualmente en repo Settings → Secrets (Copilot NO accede a este campo)
+  - Estado actual: **Pendiente del owner**
+
+### Detección de Modo
+
+Cada workflow `verify-*` incluye un campo `mode` en el resumen:
+- `mode=real`: Si `WP_BASE_URL ≠ "placeholder.local"`
+- `mode=placeholder`: Si `WP_BASE_URL` está vacío o es placeholder
+
+### Flujo de Conmutación
+
+1. **Preparación** (esta rama): Workflows enriquecidos, documentación lista, **credenciales vacías**
+2. **Owner carga credenciales**: Ingresa valores reales en repo Settings
+3. **Ejecución**: Ejecutar manualmente `verify-home`, luego `verify-settings`, `verify-menus`, `verify-media`
+4. **Validación**: Comprobar `Auth=OK` en los artifacts *_summary.txt
+5. **Cierre**: Actualizar CHANGELOG y fusionar PR
+
+**⚠️ No crear carpetas nuevas (p.ej., `apps/wordpress/`) hasta fase posterior.**
+
+---
+
 ## Guardarraíles de Gobernanza
 
 Este proyecto implementa **validaciones automáticas** para mantener la organización del repositorio según las reglas definidas en [`docs/proyecto_estructura_y_gobernanza.md`](docs/proyecto_estructura_y_gobernanza.md).

@@ -51,6 +51,9 @@ jobs:
         id: verify
         run: |
           UP=0; REUSED=0; ASSIGN_OK=0; MISSING=0
+          # Determinar modo: real si WP_BASE_URL != placeholder.local, placeholder si no
+          MODE="placeholder"
+          if [ "$BASE_URL" != "placeholder.local" ] && [ -n "$BASE_URL" ]; then MODE="real"; fi
           if [ "${{ steps.manifest.outputs.EXIST }}" = "yes" ]; then
             # Simplificación: chequear media por filename y conteo
             TOTAL=${{ steps.manifest.outputs.COUNT }}
@@ -63,7 +66,7 @@ jobs:
           else
             MISSING=0
           fi
-          printf "subidos=%s, reusados=%s, asignacionesOK=%s, faltantes=%s; hash=%s\n" "$UP" "$REUSED" "$ASSIGN_OK" "$MISSING" "${{ steps.manifest.outputs.HASH }}" | tee "$SUMMARY_FILE"
+          printf "mode=%s; subidos=%s, reusados=%s, asignacionesOK=%s, faltantes=%s; hash=%s\n" "$MODE" "$UP" "$REUSED" "$ASSIGN_OK" "$MISSING" "${{ steps.manifest.outputs.HASH }}" | tee "$SUMMARY_FILE"
           echo "MISSING=$MISSING" >> $GITHUB_OUTPUT
 
       - name: Upload summary artifact

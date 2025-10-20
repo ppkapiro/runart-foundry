@@ -59,10 +59,13 @@ jobs:
         run: |
           TZ="${{ steps.settings.outputs.TZ }}"; PERMA="${{ steps.settings.outputs.PERMA }}"; SOW="${{ steps.settings.outputs.SOW }}";
           DRIFT="OK"; NEEDS=0
+          # Determinar modo: real si WP_BASE_URL != placeholder.local, placeholder si no
+          MODE="placeholder"
+          if [ "$BASE_URL" != "placeholder.local" ] && [ -n "$BASE_URL" ]; then MODE="real"; fi
           [ "$TZ" != "$EXPECTED_TZ" ] && DRIFT="Drift" && NEEDS=1
           [ "$PERMA" != "$EXPECTED_PERMALINK" ] && DRIFT="Drift" && NEEDS=1
           [ "$SOW" != "$EXPECTED_START_OF_WEEK" ] && DRIFT="Drift" && NEEDS=1
-          printf "timezone=%s; permalink=%s; start_of_week=%s; Compliance=%s\n" "$TZ" "$PERMA" "$SOW" "$DRIFT" | tee "$SUMMARY_FILE"
+          printf "mode=%s; timezone=%s; permalink=%s; start_of_week=%s; Compliance=%s\n" "$MODE" "$TZ" "$PERMA" "$SOW" "$DRIFT" | tee "$SUMMARY_FILE"
           echo "NEEDS=$NEEDS" >> $GITHUB_OUTPUT
 
       - name: Upload summary artifact

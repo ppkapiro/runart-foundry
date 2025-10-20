@@ -73,6 +73,9 @@ jobs:
           HASH=${{ steps.manifest.outputs.HASH }}
           MCOUNT=${{ steps.manifest.outputs.COUNT }}
           DRIFT="No"
+          # Determinar modo: real si WP_BASE_URL != placeholder.local, placeholder si no
+          MODE="placeholder"
+          if [ "$BASE_URL" != "placeholder.local" ] && [ -n "$BASE_URL" ]; then MODE="real"; fi
           if [ "${{ steps.manifest.outputs.EXIST }}" = "yes" ]; then
             if [ "$ITEMS_ES" -eq 0 ] && [ "$ITEMS_EN" -eq 0 ]; then
               DRIFT="Indeterminado (API menús no disponible)"
@@ -84,8 +87,8 @@ jobs:
           fi
           echo "HASH=$HASH" >> $GITHUB_OUTPUT
           echo "DRIFT=$DRIFT" >> $GITHUB_OUTPUT
-          printf "IDs ES/EN: n/a; localizaciones: ES=%s EN=%s; items_es=%s items_en=%s; manifest_items=%s; hash=%s; Compliance=%s\n" \
-            "${{ steps.menus.outputs.LOCS_ES }}" "${{ steps.menus.outputs.LOCS_EN }}" "$ITEMS_ES" "$ITEMS_EN" "$MCOUNT" "$HASH" "$DRIFT" | tee "$SUMMARY_FILE"
+          printf "mode=%s; IDs ES/EN: n/a; localizaciones: ES=%s EN=%s; items_es=%s items_en=%s; manifest_items=%s; hash=%s; Compliance=%s\n" \
+            "$MODE" "${{ steps.menus.outputs.LOCS_ES }}" "${{ steps.menus.outputs.LOCS_EN }}" "$ITEMS_ES" "$ITEMS_EN" "$MCOUNT" "$HASH" "$DRIFT" | tee "$SUMMARY_FILE"
 
       - name: Upload summary artifact
         uses: actions/upload-artifact@v4
