@@ -47,6 +47,15 @@ Address: 2607:f1c0:100f:f000::200
 - Workflow audit-and-remediate.yml configurado
 - MVP publish_mvp_staging.sh preparado
 
+## Inicio Fase 10 — Publicación Externa y Replicación (2025-10-20)
+- Paquete plantilla creado: runart-foundry-template_v1.0_20251020_184726.tar.gz (742M)
+- SHA256: b26a97c9186134b56e3c27d12a4cc22d00acbd66e9c2448bd2c45d53cd17ec9f
+- Workflow release-template.yml disponible (dispatch con 'tag')
+- Repo marcado como Template ✓
+- Script publish_template_page_staging.sh listo (requiere IONOS_SSH_HOST para ejecución)
+
+## F10 — Publicación y Replicación (2025-10-20)
+
 ## F9 — Auditoría IA y Auto-Remediación (2025-10-20)
 - audit-and-remediate.yml creado (cron/dispatch, pendiente de activar en Actions)
 - rules/audit_rules.yml activo; scoring con thresholds red/yellow/green
