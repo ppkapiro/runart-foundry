@@ -1,0 +1,106 @@
+name: Verify Settings
+
+on:
+  workflow_dispatch: {}
+  schedule:
+    - cron: "0 0 */1 * *" # cada 24 horas
+
+jobs:
+  verify:
+    name: Verify Settings
+    runs-on: ubuntu-latest
+    env:
+      BASE_URL: ${{ vars.WP_BASE_URL }}
+      WP_USER: ${{ secrets.WP_USER }}
+      WP_APP_PASSWORD: ${{ secrets.WP_APP_PASSWORD }}
+      SUMMARY_FILE: verify-settings_summary.txt
+      AREA_LABEL: area:settings
+      EXPECTED_TZ: America/New_York
+      EXPECTED_PERMALINK: /%postname%/
+      EXPECTED_START_OF_WEEK: "1"
+    steps:
+      - name: Auth fail-fast (users/me)
+        id: auth
+        run: |
+          AUTH=KO
+          CODE="NA"
+          if [ -n "${BASE_URL}" ] && [ -n "${WP_USER}" ] && [ -n "${WP_APP_PASSWORD}" ]; then
+            CODE=$(curl -sS -o /dev/null -w "%{http_code}" -u "$WP_USER:$WP_APP_PASSWORD" "$BASE_URL/wp-json/wp/v2/users/me") || true
+            if [ "$CODE" = "200" ]; then AUTH=OK; fi
+          fi
+          echo "AUTH=$AUTH" >> $GITHUB_OUTPUT
+          echo "AUTH_CODE=$CODE" >> $GITHUB_OUTPUT
+
+      - name: GET settings
+        id: settings
+        run: |
+          TZ="?"; PERMA="?"; SOW="?"; CODE="NA"
+          if [ -n "${BASE_URL}" ]; then
+            TMP=$(mktemp)
+            if [ "${{ steps.auth.outputs.AUTH }}" = "OK" ]; then
+              CODE=$(curl -sS -u "$WP_USER:$WP_APP_PASSWORD" -o "$TMP" -w "%{http_code}" "$BASE_URL/wp-json/wp/v2/settings" || true)
+            else
+              CODE=$(curl -sS -o "$TMP" -w "%{http_code}" "$BASE_URL/wp-json/wp/v2/settings" || true)
+            fi
+            if [ "$CODE" = "200" ]; then
+              TZ=$(jq -r '.timezone_string // "?"' "$TMP" 2>/dev/null || echo "?")
+              PERMA=$(jq -r '.permalink_structure // "?"' "$TMP" 2>/dev/null || echo "?")
+              SOW=$(jq -r '.start_of_week // "?"' "$TMP" 2>/dev/null || echo "?")
+            fi
+            rm -f "$TMP"
+          fi
+          echo "TZ=$TZ" >> $GITHUB_OUTPUT
+          echo "PERMA=$PERMA" >> $GITHUB_OUTPUT
+          echo "SOW=$SOW" >> $GITHUB_OUTPUT
+          echo "CODE=$CODE" >> $GITHUB_OUTPUT
+
+      - name: Build summary and compliance
+        id: summarize
+        run: |
+          TZ="${{ steps.settings.outputs.TZ }}"; PERMA="${{ steps.settings.outputs.PERMA }}"; SOW="${{ steps.settings.outputs.SOW }}";
+          DRIFT="OK"; NEEDS=0
+          [ "$TZ" != "$EXPECTED_TZ" ] && DRIFT="Drift" && NEEDS=1
+          [ "$PERMA" != "$EXPECTED_PERMALINK" ] && DRIFT="Drift" && NEEDS=1
+          [ "$SOW" != "$EXPECTED_START_OF_WEEK" ] && DRIFT="Drift" && NEEDS=1
+          printf "timezone=%s; permalink=%s; start_of_week=%s; Compliance=%s\n" "$TZ" "$PERMA" "$SOW" "$DRIFT" | tee "$SUMMARY_FILE"
+          echo "NEEDS=$NEEDS" >> $GITHUB_OUTPUT
+
+      - name: Upload summary artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: verify-settings-summary
+          path: ${{ env.SUMMARY_FILE }}
+
+      - name: Create/update/close issue
+        if: always()
+        uses: actions/github-script@v7
+        env:
+          NEEDS: ${{ steps.summarize.outputs.NEEDS }}
+          SUMMARY_FILE: ${{ env.SUMMARY_FILE }}
+          AREA_LABEL: ${{ env.AREA_LABEL }}
+        with:
+          script: |
+            const fs = require('fs');
+            const needs = (process.env.NEEDS||'0') !== '0';
+            const areaLabel = process.env.AREA_LABEL;
+            const summary = fs.readFileSync(process.env.SUMMARY_FILE, 'utf8');
+            const now = new Date().toISOString().replace(/\.\d+Z$/, 'Z');
+            const title = `Alerta verificación settings — ${now}`;
+            const { data: issues } = await github.rest.issues.listForRepo({ owner: context.repo.owner, repo: context.repo.repo, state: 'open' });
+            const existing = issues.find(i => i.labels.some(l => l.name === areaLabel));
+            if (needs) {
+              const body = `${summary}\n\nChecklist:\n- [ ] Corregir timezone/permalink/start_of_week en WP\n- [ ] Re-ejecutar site-settings`;
+              if (existing) {
+                await github.rest.issues.update({ owner: context.repo.owner, repo: context.repo.repo, issue_number: existing.number, title, body, labels: ['monitoring','incident', areaLabel] });
+              } else {
+                await github.rest.issues.create({ owner: context.repo.owner, repo: context.repo.repo, title, body, labels: ['monitoring','incident', areaLabel] });
+              }
+            } else if (existing) {
+              await github.rest.issues.update({ owner: context.repo.owner, repo: context.repo.repo, issue_number: existing.number, state: 'closed' });
+            }
+
+      - name: Fail if needs attention
+        if: ${{ steps.summarize.outputs.NEEDS != '0' }}
+        run: |
+          echo "needs-attention: settings drift" >&2
+          exit 1

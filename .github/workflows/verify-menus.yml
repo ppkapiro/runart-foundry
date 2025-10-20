@@ -1,0 +1,129 @@
+name: Verify Menus
+
+on:
+  workflow_dispatch: {}
+  schedule:
+    - cron: "0 */12 * * *" # cada 12 horas
+
+jobs:
+  verify:
+    name: Verify Menus
+    runs-on: ubuntu-latest
+    env:
+      BASE_URL: ${{ vars.WP_BASE_URL }}
+      WP_USER: ${{ secrets.WP_USER }}
+      WP_APP_PASSWORD: ${{ secrets.WP_APP_PASSWORD }}
+      SUMMARY_FILE: verify-menus_summary.txt
+      AREA_LABEL: area:menus
+      MANIFEST_PATH: content/menus/menus.json
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Auth fail-fast (users/me)
+        id: auth
+        run: |
+          AUTH=KO
+          CODE="NA"
+          if [ -n "${BASE_URL}" ] && [ -n "${WP_USER}" ] && [ -n "${WP_APP_PASSWORD}" ]; then
+            CODE=$(curl -sS -o /dev/null -w "%{http_code}" -u "$WP_USER:$WP_APP_PASSWORD" "$BASE_URL/wp-json/wp/v2/users/me") || true
+            if [ "$CODE" = "200" ]; then AUTH=OK; fi
+          fi
+          echo "AUTH=$AUTH" >> $GITHUB_OUTPUT
+          echo "AUTH_CODE=$CODE" >> $GITHUB_OUTPUT
+
+      - name: Read manifest and hash (tolerante)
+        id: manifest
+        run: |
+          HASH="none"; EXIST="no"; COUNT="0"
+          if [ -f "$MANIFEST_PATH" ]; then
+            EXIST="yes"
+            HASH=$(sha256sum "$MANIFEST_PATH" | awk '{print $1}')
+            COUNT=$(jq 'length' "$MANIFEST_PATH" 2>/dev/null || echo 0)
+          fi
+          echo "HASH=$HASH" >> $GITHUB_OUTPUT
+          echo "EXIST=$EXIST" >> $GITHUB_OUTPUT
+          echo "COUNT=$COUNT" >> $GITHUB_OUTPUT
+
+      - name: Fetch menus (ES/EN) and locations
+        id: menus
+        run: |
+          fetch_count() {
+            local url="$1"
+            if [ -z "$url" ]; then echo "0"; return; fi
+            curl -sS "$url" | jq '.[0] | if .items then (.items|length) else (length // 0) end' 2>/dev/null || echo 0
+          }
+          ITEMS_ES=0; ITEMS_EN=0; LOCS_ES="?"; LOCS_EN="?"
+          if [ -n "${BASE_URL}" ]; then
+            ITEMS_ES=$(fetch_count "$BASE_URL/wp-json/menus/v1/menus?lang=es" )
+            ITEMS_EN=$(fetch_count "$BASE_URL/wp-json/menus/v1/menus?lang=en" )
+            LOCS_ES=$(curl -sS "$BASE_URL/wp-json/menus/v1/locations?lang=es" 2>/dev/null | jq -c '.' 2>/dev/null || echo "?")
+            LOCS_EN=$(curl -sS "$BASE_URL/wp-json/menus/v1/locations?lang=en" 2>/dev/null | jq -c '.' 2>/dev/null || echo "?")
+          fi
+          echo "ITEMS_ES=$ITEMS_ES" >> $GITHUB_OUTPUT
+          echo "ITEMS_EN=$ITEMS_EN" >> $GITHUB_OUTPUT
+          echo "LOCS_ES=$LOCS_ES" >> $GITHUB_OUTPUT
+          echo "LOCS_EN=$LOCS_EN" >> $GITHUB_OUTPUT
+
+      - name: Compare with manifest and build summary
+        id: summarize
+        run: |
+          ITEMS_ES=${{ steps.menus.outputs.ITEMS_ES }}
+          ITEMS_EN=${{ steps.menus.outputs.ITEMS_EN }}
+          HASH=${{ steps.manifest.outputs.HASH }}
+          MCOUNT=${{ steps.manifest.outputs.COUNT }}
+          DRIFT="No"
+          if [ "${{ steps.manifest.outputs.EXIST }}" = "yes" ]; then
+            if [ "$ITEMS_ES" -eq 0 ] && [ "$ITEMS_EN" -eq 0 ]; then
+              DRIFT="Indeterminado (API menús no disponible)"
+            elif [ "$ITEMS_ES" -ne "$MCOUNT" ] || [ "$ITEMS_EN" -ne "$MCOUNT" ]; then
+              DRIFT="Sí"
+            fi
+          else
+            DRIFT="Indeterminado (sin manifiesto)"
+          fi
+          echo "HASH=$HASH" >> $GITHUB_OUTPUT
+          echo "DRIFT=$DRIFT" >> $GITHUB_OUTPUT
+          printf "IDs ES/EN: n/a; localizaciones: ES=%s EN=%s; items_es=%s items_en=%s; manifest_items=%s; hash=%s; Compliance=%s\n" \
+            "${{ steps.menus.outputs.LOCS_ES }}" "${{ steps.menus.outputs.LOCS_EN }}" "$ITEMS_ES" "$ITEMS_EN" "$MCOUNT" "$HASH" "$DRIFT" | tee "$SUMMARY_FILE"
+
+      - name: Upload summary artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: verify-menus-summary
+          path: ${{ env.SUMMARY_FILE }}
+
+      - name: Create/update/close issue
+        if: always()
+        uses: actions/github-script@v7
+        env:
+          DRIFT: ${{ steps.summarize.outputs.DRIFT }}
+          SUMMARY_FILE: ${{ env.SUMMARY_FILE }}
+          AREA_LABEL: ${{ env.AREA_LABEL }}
+        with:
+          script: |
+            const fs = require('fs');
+            const drift = process.env.DRIFT || 'No';
+            const needs = /Sí|Indeterminado/.test(drift);
+            const areaLabel = process.env.AREA_LABEL;
+            const summary = fs.readFileSync(process.env.SUMMARY_FILE, 'utf8');
+            const now = new Date().toISOString().replace(/\.\d+Z$/, 'Z');
+            const title = `Alerta verificación menus — ${now}`;
+            const { data: issues } = await github.rest.issues.listForRepo({ owner: context.repo.owner, repo: context.repo.repo, state: 'open' });
+            const existing = issues.find(i => i.labels.some(l => l.name === areaLabel));
+            if (needs) {
+              const body = `${summary}\n\nChecklist:\n- [ ] Revisar manifiesto y publicar menús\n- [ ] Re-ejecutar publish-prod-menu`;
+              if (existing) {
+                await github.rest.issues.update({ owner: context.repo.owner, repo: context.repo.repo, issue_number: existing.number, title, body, labels: ['monitoring','incident', areaLabel] });
+              } else {
+                await github.rest.issues.create({ owner: context.repo.owner, repo: context.repo.repo, title, body, labels: ['monitoring','incident', areaLabel] });
+              }
+            } else if (existing) {
+              await github.rest.issues.update({ owner: context.repo.owner, repo: context.repo.repo, issue_number: existing.number, state: 'closed' });
+            }
+
+      - name: Fail if needs attention
+        if: ${{ steps.summarize.outputs.DRIFT != 'No' }}
+        run: |
+          echo "needs-attention: drift detected" >&2
+          exit 1

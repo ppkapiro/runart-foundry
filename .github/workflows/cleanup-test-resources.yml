@@ -1,0 +1,28 @@
+name: Cleanup Test Resources
+
+on:
+  workflow_dispatch: {}
+  schedule:
+    - cron: "30 2 * * *" # diario 02:30 UTC
+
+jobs:
+  cleanup:
+    name: Cleanup Test Resources
+    runs-on: ubuntu-latest
+    env:
+      BASE_URL: ${{ vars.WP_BASE_URL }}
+      WP_USER: ${{ secrets.WP_USER }}
+      WP_APP_PASSWORD: ${{ secrets.WP_APP_PASSWORD }}
+      SUMMARY_FILE: cleanup_summary.txt
+      DAYS: "7"
+    steps:
+      - name: Borrar posts/páginas Auto Test > N días (noop)
+        run: |
+          # Placeholder: implementación real dependerá de endpoints o WP-CLI remoto
+          echo "eliminados: posts=0, pages=0, media=0" | tee "$SUMMARY_FILE"
+
+      - name: Upload summary artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: cleanup-test-resources-summary
+          path: ${{ env.SUMMARY_FILE }}

@@ -1,0 +1,147 @@
+name: Verify Home
+
+on:
+  workflow_dispatch: {}
+  schedule:
+    - cron: "0 */6 * * *" # cada 6 horas
+
+jobs:
+  verify:
+    name: Verify Home
+    runs-on: ubuntu-latest
+    env:
+      BASE_URL: ${{ vars.WP_BASE_URL }}
+      WP_USER: ${{ secrets.WP_USER }}
+      WP_APP_PASSWORD: ${{ secrets.WP_APP_PASSWORD }}
+      SUMMARY_FILE: verify-home_summary.txt
+      AREA_LABEL: area:home
+    outputs:
+      needs_attention: ${{ steps.summarize.outputs.needs_attention }}
+      summary_path: ${{ steps.summarize.outputs.summary_path }}
+    steps:
+      - name: Check base URL configured
+        id: check_base
+        run: |
+          if [ -z "${BASE_URL}" ]; then
+            echo "::warning::WP_BASE_URL (vars.WP_BASE_URL) no configurado. Marcando como needs-attention y omitiendo llamadas a red."
+            echo "BASE=KO" >> $GITHUB_OUTPUT
+          else
+            echo "BASE=OK" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Auth fail-fast (users/me)
+        id: auth
+        run: |
+          AUTH=KO
+          CODE="NA"
+          if [ "${{ steps.check_base.outputs.BASE }}" = "OK" ] && [ -n "${WP_USER}" ] && [ -n "${WP_APP_PASSWORD}" ]; then
+            CODE=$(curl -sS -o /dev/null -w "%{http_code}" -u "$WP_USER:$WP_APP_PASSWORD" "$BASE_URL/wp-json/wp/v2/users/me") || true
+            if [ "$CODE" = "200" ]; then AUTH=OK; fi
+          fi
+          echo "AUTH=$AUTH" >> $GITHUB_OUTPUT
+          echo "AUTH_CODE=$CODE" >> $GITHUB_OUTPUT
+
+      - name: Fetch settings (optional)
+        id: settings
+        run: |
+          SOF="?"
+          POF="?"
+          SETTINGS_CODE="NA"
+          if [ "${{ steps.check_base.outputs.BASE }}" = "OK" ]; then
+            # Algunos sitios requieren auth para settings; intentamos con y sin credenciales.
+            TMP=$(mktemp)
+            if [ "${{ steps.auth.outputs.AUTH }}" = "OK" ]; then
+              SETTINGS_CODE=$(curl -sS -u "$WP_USER:$WP_APP_PASSWORD" -o "$TMP" -w "%{http_code}" "$BASE_URL/wp-json/wp/v2/settings" || true)
+            else
+              SETTINGS_CODE=$(curl -sS -o "$TMP" -w "%{http_code}" "$BASE_URL/wp-json/wp/v2/settings" || true)
+            fi
+            if [ "$SETTINGS_CODE" = "200" ]; then
+              SOF=$(jq -r '.show_on_front // "?"' "$TMP" 2>/dev/null || echo "?")
+              POF=$(jq -r '.page_on_front // "?"' "$TMP" 2>/dev/null || echo "?")
+            fi
+            rm -f "$TMP"
+          fi
+          echo "SOF=$SOF" >> $GITHUB_OUTPUT
+          echo "POF=$POF" >> $GITHUB_OUTPUT
+          echo "SETTINGS_CODE=$SETTINGS_CODE" >> $GITHUB_OUTPUT
+
+      - name: Resolve front page existence (optional)
+        id: front_exists
+        run: |
+          EXISTS="unknown"
+          if [ "${{ steps.check_base.outputs.BASE }}" = "OK" ] && [ "${{ steps.settings.outputs.SETTINGS_CODE }}" = "200" ]; then
+            POF="${{ steps.settings.outputs.POF }}"
+            if echo "$POF" | grep -Eq '^[0-9]+$' && [ "$POF" -gt 0 ]; then
+              CODE=$(curl -sS -o /dev/null -w "%{http_code}" "$BASE_URL/wp-json/wp/v2/pages/$POF" || true)
+              if [ "$CODE" = "200" ]; then EXISTS="yes"; else EXISTS="no"; fi
+            fi
+          fi
+          echo "EXISTS=$EXISTS" >> $GITHUB_OUTPUT
+
+      - name: Check frontpages ES/EN (no HTML)
+        id: fronts
+        run: |
+          ES="NA"; EN="NA"
+          if [ "${{ steps.check_base.outputs.BASE }}" = "OK" ]; then
+            ES=$(curl -sSI --max-redirs 3 -o /dev/null -w "%{http_code}" "$BASE_URL/" || true)
+            EN=$(curl -sSI --max-redirs 3 -o /dev/null -w "%{http_code}" "$BASE_URL/en/" || true)
+          fi
+          echo "ES=$ES" >> $GITHUB_OUTPUT
+          echo "EN=$EN" >> $GITHUB_OUTPUT
+
+      - name: Build summary and outputs
+        id: summarize
+        run: |
+          AUTH="${{ steps.auth.outputs.AUTH }}"; SOF="${{ steps.settings.outputs.SOF }}"; POF="${{ steps.settings.outputs.POF }}"; EXISTS="${{ steps.front_exists.outputs.EXISTS }}"; ES="${{ steps.fronts.outputs.ES }}"; EN="${{ steps.fronts.outputs.EN }}";
+          NEEDS="false"
+          # Invariantes: show_on_front==page; page_on_front>0 y existe; Home ES/EN 200
+          if [ "$SOF" != "page" ]; then NEEDS="true"; fi
+          if ! echo "$POF" | grep -Eq '^[0-9]+$'; then NEEDS="true"; fi
+          if [ "$EXISTS" = "no" ]; then NEEDS="true"; fi
+          if [ "$ES" != "200" ]; then NEEDS="true"; fi
+          if [ "$EN" != "200" ]; then NEEDS="true"; fi
+          printf "Auth=%s; show_on_front=%s; page_on_front=%s; front_exists=%s; FrontES=%s; FrontEN=%s\n" "$AUTH" "$SOF" "$POF" "$EXISTS" "$ES" "$EN" | tee "$SUMMARY_FILE"
+          echo "needs_attention=$NEEDS" >> $GITHUB_OUTPUT
+          echo "summary_path=$SUMMARY_FILE" >> $GITHUB_OUTPUT
+
+      - name: Upload summary artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: verify-home-summary
+          path: ${{ env.SUMMARY_FILE }}
+
+      - name: Create/update/close issue
+        if: always()
+        uses: actions/github-script@v7
+        env:
+          NEEDS_ATTENTION: ${{ steps.summarize.outputs.needs_attention }}
+          SUMMARY_PATH: ${{ steps.summarize.outputs.summary_path }}
+          AREA_LABEL: ${{ env.AREA_LABEL }}
+        with:
+          script: |
+            const fs = require('fs');
+            const needs = process.env.NEEDS_ATTENTION === 'true';
+            const areaLabel = process.env.AREA_LABEL;
+            const summaryPath = process.env.SUMMARY_PATH;
+            const summary = fs.existsSync(summaryPath) ? fs.readFileSync(summaryPath, 'utf8') : '(sin resumen)';
+            const now = new Date().toISOString().replace(/\.\d+Z$/, 'Z');
+            const title = `Alerta verificación home — ${now}`;
+            // Buscar issue abierto por área (con etiqueta específica)
+            const { data: issues } = await github.rest.issues.listForRepo({ owner: context.repo.owner, repo: context.repo.repo, state: 'open' });
+            const existing = issues.find(i => i.labels.some(l => l.name === areaLabel));
+            if (needs) {
+              const body = `${summary}\n\nChecklist:\n- [ ] Revisar settings (show_on_front/page_on_front)\n- [ ] Verificar Home ES/EN en producción`;
+              if (existing) {
+                await github.rest.issues.update({ owner: context.repo.owner, repo: context.repo.repo, issue_number: existing.number, title, body, labels: ['monitoring','incident', areaLabel] });
+              } else {
+                await github.rest.issues.create({ owner: context.repo.owner, repo: context.repo.repo, title, body, labels: ['monitoring','incident', areaLabel] });
+              }
+            } else if (existing) {
+              await github.rest.issues.update({ owner: context.repo.owner, repo: context.repo.repo, issue_number: existing.number, state: 'closed' });
+            }
+
+      - name: Fail if needs attention
+        if: ${{ steps.summarize.outputs.needs_attention == 'true' }}
+        run: |
+          echo "needs-attention" >&2
+          exit 1
