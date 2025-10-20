@@ -6,6 +6,9 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) 
 
 ## [Unreleased]
 
+*No hay cambios pendientes.*
+
+## [Released — 2025-10-20] (ops)
 ### Added (2025-10-20)
 - **Pages Functions — Hardening Preview:**
   - Tests unitarios para RNG determinista: `tests/unit/log_policy.test.js` (10 casos) y `tests/unit/event_keys.test.js` (7 casos). Total: 17 tests con Vitest.

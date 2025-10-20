@@ -17,6 +17,7 @@
 | `tools/*` | 🟡 | Guardias Docs Lint/Env Report validadas en local; migración de scripts y smoke Access programados para Fase 6. |
 
 ## Últimos hitos
+- 2025-10-20 — Release automático registrado en CHANGELOG (ops).
 - 2025-10-15 — Release automático registrado en CHANGELOG (ops).
 - 2025-10-13 — Release automático registrado en CHANGELOG (ops).
 - 2025-10-08 — Fase 5 cerrada (reporte v1.0, backlog diferido registrado en STATUS/NEXT).
