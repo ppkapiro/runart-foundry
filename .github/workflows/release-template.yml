@@ -1,0 +1,32 @@
+name: release-template
+on:
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: "Versión (ej: v1.0.0)"
+        required: true
+jobs:
+  build-and-release:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+      - name: Package template
+        run: |
+          bash tools/package_template.sh
+          echo "PKG=$(ls -1t _dist/runart-foundry-template_v1.0_*.tar.gz | head -n1)" >> $GITHUB_ENV
+      - name: Create tag
+        run: |
+          git tag "${{ github.event.inputs.tag }}"
+          git push origin "${{ github.event.inputs.tag }}"
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ github.event.inputs.tag }}
+          name: "RunArt Foundry Template ${{ github.event.inputs.tag }}"
+          draft: false
+          prerelease: false
+          files: |
+            ${{ env.PKG }}
+            ${{ env.PKG }}.sha256
