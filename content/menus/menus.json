@@ -1,0 +1,14 @@
+{
+  "es": {
+    "primary": [
+      {"title": "Inicio", "url": "/"},
+      {"title": "Taller", "url": "/taller/"}
+    ]
+  },
+  "en": {
+    "primary": [
+      {"title": "Home", "url": "/en/"},
+      {"title": "Studio", "url": "/en/studio/"}
+    ]
+  }
+}
