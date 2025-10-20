@@ -48,11 +48,85 @@ Address: 2607:f1c0:100f:f000::200
 - MVP publish_mvp_staging.sh preparado
 
 ## Inicio Fase 10 — Publicación Externa y Replicación (2025-10-20)
-- Paquete plantilla creado: runart-foundry-template_v1.0_20251020_184726.tar.gz (742M)
+- Paquete plantilla creado: runart-foundry-template_v1.0_20251020_184726.tar.gz (742M local)
 - SHA256: b26a97c9186134b56e3c27d12a4cc22d00acbd66e9c2448bd2c45d53cd17ec9f
 - Workflow release-template.yml disponible (dispatch con 'tag')
 - Repo marcado como Template ✓
 - Script publish_template_page_staging.sh listo (requiere IONOS_SSH_HOST para ejecución)
+
+## Bloque — Cierre Fase 10 (2025-10-20 22:53 UTC)
+
+### ✅ Criterios de éxito cumplidos
+
+1. **Plantilla empaquetada y publicada**
+   - Paquete .tar.gz creado con exclusiones estrictas (sin secretos, logs, artefactos)
+   - Release v1.0.1 creado en GitHub
+   - Artefactos: runart-foundry-template_v1.0_20251020_225310.tar.gz (1.54 MiB) + SHA256
+   - URL: https://github.com/RunArtFoundry/runart-foundry/releases/tag/v1.0.1
+
+2. **Repositorio como Template**
+   - Repositorio RunArtFoundry/runart-foundry marcado como Template ✓
+   - Disponible para crear nuevos repos desde plantilla en GitHub UI
+   - Botón "Use this template" visible
+
+3. **Workflow de Release**
+   - release-template.yml operativo
+   - Ejecución exitosa: Run ID 18667126471
+   - Tag v1.0.1 creado y pusheado
+   - Artefactos subidos a GitHub Release
+
+4. **Scripts de publicación**
+   - package_template.sh: empaqueta con exclusiones + SHA256
+   - publish_template_page_staging.sh: publica página en STAGING (requiere SSH)
+   - Ambos ejecutables y documentados
+
+5. **Documentación completa**
+   - docs/ci/phase10_template/090_plan_fase10_template.md
+   - docs/ci/phase10_template/091_runbook_template_usage.md
+   - Bitácora 082 actualizada con inicio, progreso y cierre
+   - README_TEMPLATE.md incluido en paquete
+
+6. **Seguridad y Gobernanza**
+   - Exclusiones verificadas: .env*, secrets/, logs, _reports/*, mirror/raw/*
+   - _dist/ añadido a .gitignore
+   - Pre-commit hook valida todo correctamente
+   - Sin credenciales ni datos sensibles en paquete
+
+### 🎯 Resultados
+
+- **Release**: v1.0.1 publicado con 2 artefactos
+- **Tamaño**: 1.54 MiB (optimizado, sin mirror/raw ni node_modules)
+- **Template**: Repositorio GitHub marcado como plantilla
+- **PR**: #52 creado y mergeado a main
+- **Commits**: 1 commit (feat inicial de F10)
+- **Estado**: Fase 10 COMPLETADA ✅
+
+### 📋 Contenido de la plantilla
+
+- **Workflows**: verify-home/settings/menus/media, monitor-verify-status, audit-and-remediate, rotate-app-password, publish-mvp-rest, release-template
+- **Auditoría IA**: rules/audit_rules.yml, audit_engine.py, scoring red/yellow/green
+- **Auto-remediación**: remediate.sh, rotate_wp_app_password.sh, sync placeholders
+- **Documentación**: Bitácora 082 como ejemplo, docs 085-091, runbooks
+- **Scripts**: Empaquetado, publicación, verificación, staging
+
+### 🚀 Uso de la plantilla
+
+Los usuarios pueden:
+1. Hacer clic en "Use this template" en GitHub
+2. Crear nuevo repo desde plantilla
+3. Configurar Variables (WP_BASE_URL) y Secrets (WP_USER, WP_APP_PASSWORD)
+4. Ejecutar workflows verify-* y audit-and-remediate
+5. Adaptar audit_rules.yml a su proyecto
+6. Publicar MVP en staging con scripts incluidos
+7. Monitorear salud continua con scoring automático
+
+### 📝 Próximos pasos sugeridos
+
+1. Publicar página de presentación en STAGING (con credenciales SSH)
+2. Crear documentación de usuario más detallada
+3. Añadir ejemplos de uso en README principal
+4. Considerar releases automatizados en CI/CD
+5. Ampliar reglas de auditoría según casos de uso
 
 ## F10 — Publicación y Replicación (2025-10-20)
 
