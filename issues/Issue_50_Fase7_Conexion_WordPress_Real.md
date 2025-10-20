@@ -125,7 +125,114 @@ Esta fase continúa directamente desde la Fase 6 (documentada en `082_reestructu
 
 ---
 
-## 📋 Resumen de ítems del checklist
+## � Verificación de Accesos — Fase 7 (Sin secretos)
+
+**Ubicación:** `apps/briefing/docs/internal/briefing_system/integrations/wp_real/`
+
+Esta sección documenta la **verificación integral** del estado actual antes de cargar credenciales reales. Todas las evidencias se recopilan **sin exponer secretos**.
+
+### Estado de Verificación
+
+#### Evidencias a recopilar por el Owner
+
+- [ ] **Repo Access:** `git remote -v` output → `_templates/evidencia_repo_remotes.txt`
+  - Remotes configurados (origin, upstream)
+  - Branch actual
+  - Workflows activos detectados
+
+- [ ] **Local Mirror:** Árbol de `mirror/` directory → `_templates/` (referencia)
+  - Qué activos se descargaron (DB dump, wp-content, etc.)
+  - Checksums (si aplica)
+  - Tamaño aproximado
+
+- [ ] **SSH Connectivity:** Salidas sanitizadas del servidor → `_templates/evidencia_server_versions.txt`
+  - `uname -a` (SO, kernel)
+  - `php -v` (versión PHP, mínimo 7.4)
+  - `nginx -v` o `apachectl -v` (servidor web)
+  - `mysql --version` o `mariadb --version` (base de datos)
+
+- [ ] **WP REST Readiness:** Información pública de WordPress → `_templates/evidencia_wp_cli_info.txt`
+  - WordPress version (confirmar 5.6+ para Application Passwords)
+  - Plugins instalados (nombre/versión)
+  - Tema activo
+  - Estado de Application Passwords
+
+- [ ] **REST API Accesibilidad:** Validación de endpoints públicos → `_templates/evidencia_rest_sample.txt`
+  - `/wp-json/` → HTTP 200 OK (REST API habilitado)
+  - `/wp-json/wp/v2/users/me` → HTTP 401 sin auth (correcto)
+  - `/wp-json/wp/v2/pages`, `/wp/v2/posts` → accesibles (públicos)
+  - SSL certificate válido (HTTPS)
+
+#### Documentos de referencia para el Owner
+
+1. **`README.md`** (en carpeta wp_real)
+   - Índice de documentos y flujo de uso
+   - Checklist de completitud
+
+2. **`000_state_snapshot_checklist.md`** (Central)
+   - Qué evidencias se necesitan (resumen)
+   - Matriz de accesos
+   - Hallazgos consolidados (se rellena tras recibir evidencias)
+
+3. **`010_repo_access_inventory.md`**
+   - Qué datos esperar de `git remote -v`
+   - Estructura de workflows
+   - Variables/Secrets en GitHub
+
+4. **`020_local_mirror_inventory.md`**
+   - Qué se descargó del servidor
+   - Tipos de activos (DB, uploads, temas, plugins)
+
+5. **`030_ssh_connectivity_and_server_facts.md`**
+   - Cómo capturar información del servidor (sanitizada)
+   - Versiones mínimas recomendadas
+   - Hardening checklist
+
+6. **`040_wp_rest_and_authn_readiness.md`**
+   - Endpoints a validar (sin credenciales)
+   - Compatibilidad con Application Passwords
+   - Notas de seguridad
+
+7. **`050_decision_record_styling_vs_preview.md`** (ADR)
+   - **3 opciones evaluadas:**
+     - Opción 1: Styling Primero (~1 semana, riesgo 🟡 Medio-Alto)
+     - Opción 2: Preview Primero (~2 semanas, riesgo 🟢 **BAJO — RECOMENDADA**)
+     - Opción 3: Mixto Coordinado (~1.5 semanas, riesgo 🟡 Medio)
+   - Owner debe elegir una opción
+
+8. **`060_risk_register_fase7.md`** (Riesgos)
+   - 10 riesgos identificados con matriz
+   - R1 (Credenciales expuestas) — **YA MITIGADO**
+   - R2-R10 (Otros riesgos y mitigaciones)
+   - Checklist pre/durante/post ejecución
+
+### Guía de Seguridad para Aportar Evidencias
+
+**⚠️ NUNCA pegar en evidencias:**
+- ❌ Contraseñas, tokens, Application Passwords
+- ❌ Claves privadas (SSH, SSL)
+- ❌ Datos de wp-config.php
+- ❌ Authorization headers con credenciales
+
+**✅ PUEDES pegar:**
+- ✅ Output de `git remote -v` (sin credenciales)
+- ✅ Output de `wp --version` (solo versión)
+- ✅ Output de `uname -a`, `php -v` (solo versiones)
+- ✅ Status HTTP y headers de `/wp-json/` (sin tokens)
+
+Cada template en `_templates/evidencia_*.txt` incluye ejemplos de ✅ CORRECTO vs ❌ NO HAGAS.
+
+### Acciones Copilot (después de recibir evidencias)
+
+1. Revisar evidencias en `_templates/`
+2. Consolidar hallazgos en `000_state_snapshot_checklist.md`
+3. Validar estado de riesgos (actualizar `060_risk_register_fase7.md`)
+4. Proponer decisión final en `050_decision_record_styling_vs_preview.md` con semáforo 🔴/🟡/🟢
+5. Generar Plan de Siguiente Fase
+
+---
+
+
 
 Total de tareas: **16 ítems**
 
