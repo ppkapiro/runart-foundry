@@ -776,3 +776,12 @@ Hash: [Se generará en commit]
 ---
 
 _Esta bitácora es el registro histórico oficial de Fase 7. Todas las actualizaciones futuras se añadirán incrementalmente a este mismo archivo._
+
+## Bloque 2025-10-20 18:12 — Verificación HTTP + corrección redirecciones (staging)
+- Host: staging.runartfoundry.com
+- Docroot: /homepages/7/d958591985/htdocs/staging
+- HTTP Location final:  <sin redirección>
+- HTTPS Location final: <sin redirección>
+- WP-CLI: sí
+
+Log: staging_http_fix_20251020_181148.log

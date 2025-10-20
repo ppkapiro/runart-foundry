@@ -1,0 +1,5 @@
+- Host: staging.runartfoundry.com
+- Docroot: /homepages/7/d958591985/htdocs/staging
+- HTTP Location final:  <sin redirección>
+- HTTPS Location final: <sin redirección>
+- WP-CLI: sí
