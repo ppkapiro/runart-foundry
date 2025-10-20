@@ -210,13 +210,22 @@ async function main() {
       testEmail: DEFAULT_EMAILS.owner,
       expectStatus: IS_PREVIEW ? 200 : 200,
       protected: true,
-      validateJSON(json) {
+      validateJSON(json, response) {
         if (!json) throw new Error("Respuesta vacía en whoami-owner");
         const role = json.role;
         if (IS_PREVIEW) {
           // En preview aceptamos 'owner' o 'admin' como equivalentes
           if (role !== "owner" && role !== "admin") {
             throw new Error(`Role inesperado en preview: ${role}`);
+          }
+          // Validar headers canary en preview
+          const canary = response.headers.get("X-RunArt-Canary");
+          if (canary !== "preview") {
+            throw new Error(`X-RunArt-Canary esperado 'preview' pero se obtuvo: ${canary}`);
+          }
+          const resolver = response.headers.get("X-RunArt-Resolver");
+          if (resolver !== "utils") {
+            throw new Error(`X-RunArt-Resolver esperado 'utils' pero se obtuvo: ${resolver}`);
           }
         } else if (role !== "owner") {
           throw new Error(`Role inesperado: ${role}`);
@@ -230,13 +239,18 @@ async function main() {
       testEmail: DEFAULT_EMAILS.team,
       expectStatus: IS_PREVIEW ? 200 : 200,
       protected: true,
-      validateJSON(json) {
+      validateJSON(json, response) {
         if (!json) throw new Error("Respuesta vacía en whoami-team");
         const role = json.role;
         if (IS_PREVIEW) {
           // En preview aceptamos que todo responda como 'admin' por configuración reducida
           if (role !== "team" && role !== "admin") {
             throw new Error(`Role team inesperado en preview: ${role}`);
+          }
+          // Validar headers canary
+          const canary = response.headers.get("X-RunArt-Canary");
+          if (canary !== "preview") {
+            throw new Error(`X-RunArt-Canary esperado 'preview' pero se obtuvo: ${canary}`);
           }
         } else if (role !== "team") {
           throw new Error(`Role team inesperado: ${role}`);
@@ -250,12 +264,17 @@ async function main() {
       testEmail: DEFAULT_EMAILS.client_admin,
       expectStatus: IS_PREVIEW ? 200 : 200,
       protected: true,
-      validateJSON(json) {
+      validateJSON(json, response) {
         if (!json) throw new Error("Respuesta vacía en whoami-client_admin");
         const role = json.role;
         if (IS_PREVIEW) {
           if (role !== "client_admin" && role !== "admin") {
             throw new Error(`Role client_admin inesperado en preview: ${role}`);
+          }
+          // Validar headers canary
+          const canary = response.headers.get("X-RunArt-Canary");
+          if (canary !== "preview") {
+            throw new Error(`X-RunArt-Canary esperado 'preview' pero se obtuvo: ${canary}`);
           }
         } else if (role !== "client_admin") {
           throw new Error(`Role client_admin inesperado: ${role}`);
@@ -267,12 +286,17 @@ async function main() {
       route: "/api/whoami",
       expectStatus: IS_PREVIEW ? 200 : 200,
       protected: true,
-      validateJSON(json) {
+      validateJSON(json, response) {
         if (!json) throw new Error("Respuesta vacía en whoami-visitor");
         const role = json.role;
         if (IS_PREVIEW) {
           if (role !== "visitor" && role !== "admin") {
             throw new Error(`Role visitante inesperado en preview: ${role}`);
+          }
+          // Validar headers canary
+          const canary = response.headers.get("X-RunArt-Canary");
+          if (canary !== "preview") {
+            throw new Error(`X-RunArt-Canary esperado 'preview' pero se obtuvo: ${canary}`);
           }
         } else if (role !== "visitor") {
           throw new Error(`Role visitante inesperado: ${role}`);

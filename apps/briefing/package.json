@@ -10,6 +10,10 @@
     "test:setup": "node --unhandled-rejections=strict --no-warnings tests/scripts/setup-mocks.mjs",
     "test:unit": "node --test --test-timeout=30000 tests/unit/*.mjs",
     "test:unit:smoke": "node --test --test-timeout=30000 tests/unit/smoke-imports.mjs",
+    "test:vitest": "vitest run",
+    "test:vitest:watch": "vitest watch",
+    "lint": "eslint functions/**/*.js",
+    "lint:fix": "eslint functions/**/*.js --fix",
     "test:e2e": "node tests/scripts/run-smokes.mjs",
     "verify:access:preview": "node ../../tools/diagnostics/verify_access_service_token.mjs",
     "canary:post": "bash ../../tools/diagnostics/postprocess_canary_summary.sh",
@@ -22,6 +26,7 @@
   },
   "devDependencies": {
     "@cloudflare/workers-types": "^4.20251004.0",
+    "eslint": "^8.57.0",
     "miniflare": "^4.20251004.0",
     "msw": "^2.3.1",
     "nock": "^14.0.0",
