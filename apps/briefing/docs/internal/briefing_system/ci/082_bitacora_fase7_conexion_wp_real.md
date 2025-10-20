@@ -1,3 +1,12 @@
+## Bloque 2025-10-20 — Fase 8 completada
+✅ Workflow monitor-verify-status.yml funcionando (cron 6 h)
+✅ Módulo briefing_monitor generando métricas y dashboard
+✅ Sistema de alertas crea/cierra issues incident según verify-*
+✅ Rotación de App Password automatizada cada 90 días
+✅ Bitácora 082 actualizada con todos los bloques Fase 8
+✅ Archivos 083 y 084 creados y documentados
+✅ Commit, push y PR completados sin errores
+✅ Confirmación en log: “Fase 8 completada — Monitoreo activo y seguridad automatizada.”
 Bloque 2025-10-20 — Verificación DNS de staging.runartfoundry.com
 Address: 74.208.236.254
 Address: 2607:f1c0:100f:f000::200
