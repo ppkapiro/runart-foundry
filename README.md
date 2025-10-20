@@ -45,6 +45,37 @@ Este es un **monorepo** que contiene múltiples módulos:
 - Documentación actualizada: `mkdocs.yml`, `README_briefing.md` y bitácora `082` para reflejar la separación Cliente/Equipo.
 - Check suite revalidada (`tools/lint_docs.py`, `scripts/validate_structure.sh`, `tools/check_env.py --mode config`, `mkdocs build --strict`).
 
+## Verificaciones Programadas y Alertas
+
+Este proyecto implementa **verificaciones automatizadas** de infraestructura, alertas por Issues y reparación rápida. Ver [`docs/DEPLOY_RUNBOOK.md`](docs/DEPLOY_RUNBOOK.md) para el manual completo de operaciones.
+
+### Workflows de Verificación (Cron + Manual)
+
+| Workflow | Trigger | Checks |
+|----------|---------|--------|
+| **Verify Home** | Cada 6h + manual | Auth, show_on_front, page_on_front, Home ES/EN (200) |
+| **Verify Menus** | Cada 12h + manual | Auth, manifesto menus.json, menús en WP, drift detection |
+| **Verify Media** | Diario + manual | Auth, manifesto media_manifest.json, existencia en WP, asignaciones |
+| **Verify Settings** | Cada 24h + manual | Auth, timezone, permalink_structure, start_of_week |
+
+### Alertas Automáticas
+
+- Cada verificación crea/actualiza/cierra un **Issue único por área** con etiqueta `area:*` y `monitoring`.
+- **Título:** `Alerta verificación <área> — YYYY-MM-DDTHH:MMZ`
+- **Cuerpo:** Resumen + checklist de acciones.
+- **Cierre automático:** Cuando la verificación vuelve a OK.
+
+### Run Repair (Reparación Rápida)
+
+Workflow `run-repair.yml` con inputs `area` (home/menus/media/settings) y `mode` (plan/apply) para reparar rápidamente problemas detectados.
+
+### Documentación Operativa
+
+- **[DEPLOY_RUNBOOK.md](docs/DEPLOY_RUNBOOK.md)**: Guía completa de operaciones (verificaciones, alertas, run-repair, rotación de password, limpieza)
+- **[CIERRE_AUTOMATIZACION_TOTAL.md](docs/CIERRE_AUTOMATIZACION_TOTAL.md)**: Resumen técnico, mapeos, seguridad, lecciones aprendidas
+
+---
+
 ## Guardarraíles de Gobernanza
 
 Este proyecto implementa **validaciones automáticas** para mantener la organización del repositorio según las reglas definidas en [`docs/proyecto_estructura_y_gobernanza.md`](docs/proyecto_estructura_y_gobernanza.md).
