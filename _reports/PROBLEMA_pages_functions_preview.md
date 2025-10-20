@@ -373,6 +373,17 @@ npm run test:vitest
 6. `apps/briefing/functions/api/decisiones.js` — +comentarios TEMPORAL
 7. `apps/briefing/wrangler.toml` — +KV namespaces env.preview
 
+### 2025-10-20T15:26 — Ajuste despliegue preview ✅
+
+**Contexto:** Primer intento de `Deploy Preview (Cloudflare)` falló (`run 18656823234`). Error:
+`KV namespace '17937e5c45fa49ec83b4d275f1714d44' not found` al publicar Functions.
+
+**Acción:**
+- Ajustado `apps/briefing/wrangler.toml` → en `[[env.preview.kv_namespaces]]` usamos `preview_id` en lugar de `id` para que Wrangler resuelva correctamente los namespaces heredados.
+- Reintentar CI tras push (`wrangler` ya no busca IDs inexistentes en cuenta principal).
+
+**Resultado esperado:** Deploy preview sin errores de KV.
+
 ### 2025-10-20T11:15 — Preparación PR y Cierre ✅
 
 **Reporte actualizado:**
