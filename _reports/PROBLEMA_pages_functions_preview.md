@@ -13,7 +13,7 @@
 - ✅ Error "Disallowed operation in global scope" resuelto
 - ✅ `/api/whoami` responde 200 con headers canary en preview
 - ✅ Deploy production operativo (run 18545936306)
-- ⚠️  Pendiente: KV namespaces warning en preview
+- ⚠️  Pendiente: Deploy preview en CI (wrangler valida bindings)
 - ⚠️  Pendiente: Tests unitarios para RNG determinista
 - ⚠️  Pendiente: Regla ESLint anti-global-scope
 - ⚠️  Pendiente: Contrato de headers canary en smokes
@@ -373,16 +373,26 @@ npm run test:vitest
 6. `apps/briefing/functions/api/decisiones.js` — +comentarios TEMPORAL
 7. `apps/briefing/wrangler.toml` — +KV namespaces env.preview
 
-### 2025-10-20T15:26 — Ajuste despliegue preview ✅
+### 2025-10-20T15:26 — Ajuste despliegue preview (Intento 1)
 
 **Contexto:** Primer intento de `Deploy Preview (Cloudflare)` falló (`run 18656823234`). Error:
 `KV namespace '17937e5c45fa49ec83b4d275f1714d44' not found` al publicar Functions.
 
 **Acción:**
-- Ajustado `apps/briefing/wrangler.toml` → en `[[env.preview.kv_namespaces]]` usamos `preview_id` en lugar de `id` para que Wrangler resuelva correctamente los namespaces heredados.
-- Reintentar CI tras push (`wrangler` ya no busca IDs inexistentes en cuenta principal).
+- Ajustado `apps/briefing/wrangler.toml` → en `[[env.preview.kv_namespaces]]` se dejó explícito `preview_id` para evitar búsquedas del namespace de producción en preview.
+- Reintentar CI tras push.
 
-**Resultado esperado:** Deploy preview sin errores de KV.
+**Resultado:** Wrangler ahora valida esquema y exige campo `id` dentro de `env.preview.kv_namespaces`. Nuevo run `18656989736` falla en validación de configuración.
+
+### 2025-10-20T15:33 — Ajuste despliegue preview (Intento 2)
+
+**Contexto:** Run `18656989736` falla con: `"env.preview.kv_namespaces[0]" bindings should have a string "id" field`.
+
+**Acción:**
+- `apps/briefing/wrangler.toml`: cada bloque `[[env.preview.kv_namespaces]]` ahora define `id` con el namespace de preview (mismo valor que antes estaba en `preview_id`).
+- Se mantiene `preview_id` en el bloque top-level para `wrangler dev`, pero el override de entorno usa `id` requerido por CLI.
+
+**Resultado esperado:** Wrangler acepta bindings en preview; siguiente rerun debe avanzar a publicación.
 
 ### 2025-10-20T11:15 — Preparación PR y Cierre ✅
 

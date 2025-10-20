@@ -38,15 +38,15 @@ ACCESS_DEV_OVERRIDE = "0"
 # KV bindings explícitos para preview (silencia warnings de herencia)
 [[env.preview.kv_namespaces]]
 binding = "DECISIONES"
-preview_id = "e68d7a05dce645478e25c397d4c34c08"
+id = "e68d7a05dce645478e25c397d4c34c08"
 
 [[env.preview.kv_namespaces]]
 binding = "LOG_EVENTS"
-preview_id = "17937e5c45fa49ec83b4d275f1714d44"
+id = "17937e5c45fa49ec83b4d275f1714d44"
 
 [[env.preview.kv_namespaces]]
 binding = "RUNART_ROLES"
-preview_id = "7d80b07de98e4d9b9d5fd85516901ef6"
+id = "7d80b07de98e4d9b9d5fd85516901ef6"
 
 
 [env.production.vars]
