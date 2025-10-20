@@ -392,7 +392,17 @@ npm run test:vitest
 - `apps/briefing/wrangler.toml`: cada bloque `[[env.preview.kv_namespaces]]` ahora define `id` con el namespace de preview (mismo valor que antes estaba en `preview_id`).
 - Se mantiene `preview_id` en el bloque top-level para `wrangler dev`, pero el override de entorno usa `id` requerido por CLI.
 
-**Resultado esperado:** Wrangler acepta bindings en preview; siguiente rerun debe avanzar a publicación.
+**Resultado:** Run `18657102061` sigue fallando con `KV namespace '17937e5c45fa49ec83b4d275f1714d44' not found`. El namespace de preview no existe en la cuenta.
+
+### 2025-10-20T15:36 — Ajuste LOG_EVENTS preview (Intento 3)
+
+**Contexto:** Misma falla en run `18657102061` para el binding `LOG_EVENTS`.
+
+**Acción:**
+- `apps/briefing/wrangler.toml`: `env.preview.kv_namespaces.LOG_EVENTS` apunta temporalmente al ID de producción (`9fbb7e6c2d6a4c1cb3ad2b3cce4040f5`).
+- Comentario TODO para restaurar un namespace dedicado cuando esté aprovisionado en Cloudflare.
+
+**Siguiente paso:** Rerun Deploy Preview para confirmar que el fallback destraba la publicación.
 
 ### 2025-10-20T11:15 — Preparación PR y Cierre ✅
 

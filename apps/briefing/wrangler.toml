@@ -42,7 +42,8 @@ id = "e68d7a05dce645478e25c397d4c34c08"
 
 [[env.preview.kv_namespaces]]
 binding = "LOG_EVENTS"
-id = "17937e5c45fa49ec83b4d275f1714d44"
+id = "9fbb7e6c2d6a4c1cb3ad2b3cce4040f5"
+# TODO: restaurar namespace dedicado cuando el ID 17937e5c45fa49ec83b4d275f1714d44 exista en la cuenta
 
 [[env.preview.kv_namespaces]]
 binding = "RUNART_ROLES"
