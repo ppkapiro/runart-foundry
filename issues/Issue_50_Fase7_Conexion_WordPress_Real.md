@@ -12,11 +12,19 @@
 **Inicio de ejecución:** 2025-10-20 14:16 UTC  
 **Responsable:** GitHub Copilot (preparación) → Owner (credenciales reales)
 
+### 📊 Estado de Documentación (2025-10-20)
+- ✅ RUNBOOK_FASE7_PREVIEW_PRIMERO.md (1,400+ líneas, 7 fases, comandos exactos)
+- ✅ CHECKLIST_EJECUTIVA_FASE7.md (500 líneas, 8 partes, cajas ☐)
+- ✅ QUICK_REFERENCE_FASE7.md (tarjeta de referencia, imprimible)
+- ✅ FLOWCHART_FASE7.md (diagrama visual Mermaid + timeline)
+- ✅ Automation scripts (fase7_collect_evidence.sh + fase7_process_evidence.py)
+- ✅ Issue #50 referencias agregadas
+
 ### Status de la ejecución
-1. ✅ **Rama creada:** `feat/fase7-wp-connection`
+1. ✅ **Rama creada:** `feat/fase7-wp-connection` → `feat/fase7-evidencias-auto` (rebase)
 2. ✅ **Preparación de variables/secrets:** Completada
 3. ✅ **Ajuste de workflows:** Completada (mode=placeholder|real añadido)
-4. ✅ **Documentación:** Completada (README.md sección Fase 7)
+4. ✅ **Documentación operacional:** Completada (4 documentos + 1 flowchart)
 5. ⏳ **PR abierto:** Pendiente (crear via GitHub UI o gh CLI)
 6. ⏳ **Carga de credenciales (Owner):** **PENDIENTE**
 7. ⏳ **Ejecución de verify-*:** **PENDIENTE CREDENCIALES**
@@ -58,6 +66,46 @@ Esta fase continúa directamente desde la Fase 6 (documentada en `082_reestructu
 - [PROBLEMA_pages_functions_preview.md](../_reports/PROBLEMA_pages_functions_preview.md)
 - [Bitácora 082 — Reestructuración Local](../apps/briefing/docs/internal/briefing_system/ci/082_reestructuracion_local.md)
 - [📋 Reporte de Ejecución Fase 7](../_reports/FASE7_EJECUCION_CONEXION_WP_REAL_20251020.md)
+
+### 📚 GUÍAS OPERACIONALES NUEVA (2025-10-20)
+**¡Lee esto ANTES de ejecutar Fase 7!**
+- **[🎯 QUICK REFERENCE — FASE 7 PREVIEW PRIMERO](../docs/QUICK_REFERENCE_FASE7.md)** ← **IMPRIME ESTO**
+  * Comandos esenciales (SSH, DNS, BD, secrets, workflows)
+  * Quick troubleshooting (tabla de errores/fix)
+  * Timeline: 3.5-4.5 horas
+  * Definition of Done (20+ items)
+  
+- **[📖 RUNBOOK OPERACIONAL COMPLETO — FASE 7 PREVIEW PRIMERO](../docs/RUNBOOK_FASE7_PREVIEW_PRIMERO.md)**
+  * 7 Fases detalladas (Crear Staging → Validar → Promover → Cierre)
+  * Fase 1: Crear Staging (45 min: DNS, HTTPS, Archivos, BD, Config, Usuario)
+  * Fase 2: Cargar Secrets GitHub (5 min)
+  * Fase 3: Ejecutar verify-* STAGING (20 min)
+  * Fase 4: Documentar Staging (10 min)
+  * Fase 5: Promover a PRODUCCIÓN (10 min) ⚠️
+  * Fase 6: Validar PROD (20 min)
+  * Fase 7: Cierre + Merge (20 min)
+  * Rollback Plan (si falla staging o prod)
+  * Troubleshooting tabla completa
+  
+- **[✅ CHECKLIST EJECUTIVA — FASE 7](../docs/CHECKLIST_EJECUTIVA_FASE7.md)**
+  * 8 Partes con cajas ☐ verificables
+  * Parte A: Preparación (10 min)
+  * Parte B: Crear Staging (45 min, 7 subsecciones con comandos exactos)
+  * Parte C: Cargar Secrets (5 min)
+  * Parte D: Validar Staging (20 min)
+  * Parte E: Documentar (10 min)
+  * Parte F: Promover a PROD (10 min, triple checklist)
+  * Parte G: Validar PROD (20 min)
+  * Parte H: Cierre Documental (20 min)
+  * Criterio de Éxito (20+ items verificables)
+  * Troubleshooting rápido
+  
+- **[🔀 FLOWCHART VISUAL — FASE 7](../docs/FLOWCHART_FASE7.md)**
+  * Diagrama Mermaid del flujo completo
+  * Happy path vs error paths
+  * Decision points (rollback triggers)
+  * Timeline visual
+  * Definition of Done
 
 ---
 
