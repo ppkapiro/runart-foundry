@@ -1,3 +1,6 @@
+Bloque 2025-10-20 — Verificación DNS de staging.runartfoundry.com
+Address: 74.208.236.254
+Address: 2607:f1c0:100f:f000::200
 ## Automatización de entorno STAGING en IONOS (20/10/2025)
 
 **Resumen de acciones ejecutadas:**
