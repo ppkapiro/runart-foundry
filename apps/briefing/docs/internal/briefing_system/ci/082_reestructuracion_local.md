@@ -784,3 +784,38 @@ x-runart-resolver: utils
 
 ---
 
+### Fase 6 — Verificación Integral en Modo Local (2025-10-20T17:54Z)
+
+**Objetivo:** Cerrar Fase 6 (verificación de home/settings/menus/media) ejecutando workflows en modo placeholder, consolidar documentación y validar que el sistema está listo para conexión con WordPress real en Fase 7.
+
+**Configuración placeholder:**
+- Variable: `WP_BASE_URL=https://placeholder.local`
+- Secrets: `WP_USER=dummy`, `WP_APP_PASSWORD=dummy`
+
+**Ejecución de verificaciones (2025-10-20T17:54Z):**
+
+| Workflow | Run ID | Estado | Auth | Artifact | Summary |
+|----------|--------|--------|------|----------|---------|
+| verify-home | 18660477895 | completed | KO | ✅ | `Auth=KO; show_on_front=?; page_on_front=?; front_exists=unknown; FrontES=000; FrontEN=000` |
+| verify-settings | 18660478866 | completed | KO | ✅ | `timezone=?; permalink=?; start_of_week=?; Compliance=Drift` |
+| verify-menus | 18660480292 | completed | KO | ✅ | `manifest_items=4; hash=1d225960143bef6172859aedec00cf52a27d557f9e1710...` |
+| verify-media | 18660480810 | completed | KO | ✅ | `subidos=4, reusados=0, asignacionesOK=4, faltantes=0` |
+
+**Resultados:**
+- ✅ Todos los workflows completaron exitosamente (failure esperado con credenciales placeholder).
+- ✅ Artifacts *_summary.txt generados correctamente en cada run.
+- ✅ Los workflows manejan tolerantemente la ausencia de credenciales reales.
+- 🔍 GitHub token permisos insuficientes para crear Issues (HTTP 403), pero workflows no abortan.
+
+**Documentación actualizada:**
+- `_reports/PROBLEMA_pages_functions_preview.md` — Nueva sección de cierre Fase 6 con resultados.
+- `apps/briefing/docs/internal/briefing_system/ci/082_reestructuracion_local.md` — Sección Fase 6 integrada.
+- `docs/CIERRE_AUTOMATIZACION_TOTAL.md` — Próximas fases (Fase 7) documentadas.
+
+**Próxima fase (Fase 7):**
+- Configurar sitio WordPress real (local, staging o remoto).
+- Reemplazar placeholders con credenciales reales.
+- Re-ejecutar verificaciones esperando Auth=OK.
+- Activar creación automática de Issues y alertas.
+- Validar cierre automático de Issues al resolver problemas.
+

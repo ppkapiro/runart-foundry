@@ -258,6 +258,80 @@ IDs ES/EN: n/a; localizaciones: ES={...} EN={...}; items_es=3 items_en=3; manife
 
 ---
 
+## Próxima Etapa: Configuración y Conexión del Nuevo Sitio WordPress
+
+### Objetivo Fase 7
+- Levantar una instancia de WordPress (local, staging o remoto).
+- Habilitar REST API en la instancia WP.
+- Generar Application Password en WP-Admin.
+- Conectar variables/secrets reales del repositorio.
+- Validar que todas las verificaciones transicionen de **Auth=KO** a **Auth=OK**.
+- Activar alertas automáticas y observabilidad.
+
+### Checklist Inicial Fase 7
+
+- [ ] **Instancia WordPress:**
+  - [ ] Crear sitio WP nuevo (vacío o con contenido demo).
+  - [ ] Registradores: `https://<dominio-wp>` o `http://localhost:8000` (local).
+  - [ ] Instalación de plugins: ninguno requerido (REST API es estándar desde WP 4.7+).
+
+- [ ] **REST API:**
+  - [ ] Verificar habilitación: `curl https://<dominio-wp>/wp-json/wp/v2/users/me` (debe retornar 200 con auth, 401 sin).
+  - [ ] Crear usuario con permisos de lectura/escritura (ej. `reader`).
+  - [ ] Documentar credenciales en un archivo privado (no versionado).
+
+- [ ] **Application Password:**
+  - [ ] Navegar a WP-Admin → Users → [usuario] → Application Passwords.
+  - [ ] Generar new password para "GitHub Actions".
+  - [ ] Copiar la contraseña (aparece una sola vez).
+  - [ ] Guardar el par [usuario, contraseña] de forma segura.
+
+- [ ] **Configuración GitHub:**
+  - [ ] Actualizar `WP_BASE_URL` en **Settings → Secrets and variables → Actions → Variables** con la URL real.
+  - [ ] Actualizar `WP_USER` en **Settings → Secrets and variables → Actions → Secrets** con el usuario.
+  - [ ] Actualizar `WP_APP_PASSWORD` en **Settings → Secrets and variables → Actions → Secrets** con la contraseña.
+
+- [ ] **Validación conectividad:**
+  - [ ] Ejecutar **Actions → verify-home (manual)** y verificar que `Auth=OK` en el artifact.
+  - [ ] Si `Auth=OK`, proceder con las otras verificaciones (settings, menus, media).
+  - [ ] Si `Auth=KO`, revisar:
+     - URL de base (debe ser accesible desde runner de GitHub).
+     - Usuario/contraseña (credenciales correctas).
+     - Permisos REST API (usuario debe tener acceso a `/wp-json/wp/v2/users/me`).
+
+- [ ] **Activación de alertas:**
+  - [ ] Revisar que los Issues se creen/cierren automáticamente al ejecutar verificaciones.
+  - [ ] Configurar escalamiento (si aplica): Slack, Email, etc.
+
+- [ ] **Documentación de cambios:**
+  - [ ] Actualizar esta sección con la fecha de paso a Fase 7.
+  - [ ] Documentar la URL/dominio del sitio WP en `README.md` (sin exponer credenciales).
+  - [ ] Actualizar CHANGELOG.md con la entrada de "Fase 7 — Conexión WordPress".
+
+### Roles/Usuarios Recomendados en WordPress
+
+Para máxima seguridad, crear usuarios específicos por responsabilidad:
+
+| Usuario | Rol | Permisos REST API | Propósito |
+|---------|-----|-------------------|----------|
+| `github-actions` | Editor | read (users/me, posts, pages, media), read (menus, settings) | Verificaciones, monitoreo |
+| `wordpress-admin` | Administrator | full | Mantenimiento manual |
+| (opcional) `runart-briefing` | Editor | read (menus, media, users) | Futuras integraciones |
+
+### URLs de Referencia
+
+- **Documentación REST API:** https://developer.wordpress.org/rest-api/
+- **Application Passwords:** https://developer.wordpress.org/rest-api/using-the-rest-api/authentication/
+- **Debugging REST:** https://developer.wordpress.org/rest-api/recipes/
+
+### Notas Operativas
+
+- **Credenciales seguras:** Nunca exponer `WP_APP_PASSWORD` en logs, commits o comunicaciones. GitHub Secrets maneja el enmascaramiento automáticamente.
+- **Prueba de conectividad local:** Si usas WordPress local, verifica que el runner de GitHub pueda acceder (puede requerir tunneling con ngrok o exposición temporal).
+- **Rollback:** Si algo falla, revertir a placeholders (`WP_BASE_URL=placeholder.local`) es trivial. Los workflows tolerarán `Auth=KO` indefinidamente.
+
+---
+
 ## Próximos Pasos Recomendados
 
 1. **Monitoreo de métricas:** Agregar métrica de "Issues abiertos por área" para dashboard.
@@ -270,3 +344,5 @@ IDs ES/EN: n/a; localizaciones: ES={...} EN={...}; items_es=3 items_en=3; manife
 **Responsable:** GitHub Automation System  
 **Última revisión:** 2025-10-20  
 **Próxima revisión recomendada:** 2026-01-20
+
+```
