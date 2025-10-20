@@ -715,5 +715,46 @@ x-runart-resolver: utils
 - `apps/briefing/overrides/roles.js` ahora parte de `role: "visitor"` para evitar sesgos de vista demo.
 - `apps/briefing/overrides/main.html` reconoce roles normalizados (`owner`, `team`, `client_admin`) para el autolog.
 - Reporte `082_overlay_deploy_final.md` actualizado con la nueva evidencias (payloads actualizados, higiene KV y gobernanza).
+
+### [2025-10-20] — Hardening Pages Functions Preview
+
+**Objetivo:** Cerrar gaps de calidad en preview: tests RNG determinista, ESLint anti-global-scope, validación headers canary, docs temporales.
+
+**Cambios implementados:**
+1. **Tests unitarios (Vitest):**
+   - `tests/unit/log_policy.test.js` — 10 casos para `sampleHit`, `isAllowed`, FNV-1a
+   - `tests/unit/event_keys.test.js` — 7 casos para `hash6` determinista
+   - Total: 17 tests PASS (592ms)
+   - Scripts: `npm run test:vitest`, `test:vitest:watch`
+
+2. **ESLint anti-global-scope:**
+   - `.eslintrc.json` con reglas `no-restricted-syntax`
+   - Prohibido en ámbito global: `Math.random()`, `Date.now()`, `new Response()`, `crypto.*`
+   - Scripts: `npm run lint`, `lint:fix`
+   - Validación: 0 errores, 4 warnings pre-existentes
+
+3. **Headers canary en smokes:**
+   - `run-smokes.mjs` actualizado para validar `X-RunArt-Canary: preview` y `X-RunArt-Resolver: utils`
+   - 4 escenarios whoami con validación explícita
+   - Solo activo cuando `IS_PREVIEW === true`
+
+4. **Wrangler config:**
+   - KV namespaces explícitos en `[env.preview.kv_namespaces]`
+   - Elimina warning de herencia de configuración
+
+5. **Documentación inline:**
+   - `api/inbox.js` y `api/decisiones.js` con comentarios TEMPORAL
+   - Plan de reversión: 404/405 → 403/401 cuando Access Service Token esté configurado
+
+**Evidencias:**
+- Commit: `d8a6328` — feat(pages-functions): preview hardening
+- Tests: 17/17 PASS, Lint: 0 errors
+- Reporte: `_reports/PROBLEMA_pages_functions_preview.md`
+
+**Próximos pasos:**
+- Configurar Access Service Token (secrets GitHub)
+- Revertir códigos temporales a definitivos
+- Activar smokes de autenticación
+
 ---
 

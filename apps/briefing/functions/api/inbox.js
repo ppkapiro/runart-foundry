@@ -20,7 +20,10 @@ export async function onRequestGet(context) {
     });
   }
 
-  // Para smokes públicos, respondemos 404 en lugar de 403 para ocultar el recurso
+  // TEMPORAL (preview sin Access Service Token configurado):
+  // Para smokes públicos, respondemos 404 en lugar de 403 para ocultar el recurso.
+  // TODO: Cuando Access Service Token esté configurado, revertir a 403 (Forbidden)
+  // y reactivar smoke tests para validar permisos correctamente.
   return new Response(JSON.stringify({ ok: false, status: 404, role }), {
     status: 404,
     headers: JSON_HEADERS

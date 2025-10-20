@@ -11,7 +11,7 @@ preview_id = "e68d7a05dce645478e25c397d4c34c08"
 [[kv_namespaces]]
 binding = "LOG_EVENTS"
 id = "9fbb7e6c2d6a4c1cb3ad2b3cce4040f5"
-preview_id = "17937e5c45fa49ec83b4d275f1714d44"
+preview_id = "5c809442ad5a4a5cb4bcca714c70fabf"
 
 [[kv_namespaces]]
 binding = "RUNART_ROLES"
@@ -35,11 +35,18 @@ ACCESS_ADMINS = "ppcapiro@gmail.com"
 ACCESS_EQUIPO_DOMAINS = "runart.com,studio.com"
 ACCESS_DEV_OVERRIDE = "0"
 
-# Note: KV bindings are declared at the top-level for Pages Functions.
-# Wrangler advierte que no se heredan automáticamente a entornos; sin embargo,
-# para Pages el binding se respeta desde la configuración del proyecto.
-# Si fuera necesario aislar namespaces por entorno, duplicar bloques [[kv_namespaces]]
-# debajo de [env.preview] con preview_id correspondiente.
+# KV bindings explícitos para preview (silencia warnings de herencia)
+[[env.preview.kv_namespaces]]
+binding = "DECISIONES"
+id = "e68d7a05dce645478e25c397d4c34c08"
+
+[[env.preview.kv_namespaces]]
+binding = "LOG_EVENTS"
+id = "5c809442ad5a4a5cb4bcca714c70fabf"
+
+[[env.preview.kv_namespaces]]
+binding = "RUNART_ROLES"
+id = "7d80b07de98e4d9b9d5fd85516901ef6"
 
 
 [env.production.vars]
