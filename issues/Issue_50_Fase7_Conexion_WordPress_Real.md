@@ -246,7 +246,94 @@ Total de tareas: **16 ítems**
 
 ---
 
-## 📌 Próximos pasos
+## � Resultado Verificación de Accesos (Consolidado 2025-10-20)
+
+**Status:** 🟡 **PENDIENTE EVIDENCIAS** (owner aún no ha aportado datos)
+
+### Matriz de Estado
+
+| Punto | Status | Evidencia | Siguiente Paso |
+|------|--------|-----------|-----------------|
+| **Repo (GitHub)** | ⏳ PENDIENTE | `evidencia_repo_remotes.txt` (vacío) | Owner pega `git remote -v` |
+| **Local (Mirror)** | ⏳ PENDIENTE | Árbol de directorio | Owner describe descarga local |
+| **SSH (Servidor)** | ⏳ PENDIENTE | `evidencia_server_versions.txt` (vacío) | Owner pega `uname -a`, `php -v`, `nginx -v` |
+| **REST API** | 🔴 **CRÍTICO** | `evidencia_rest_sample.txt` (vacío) | Owner valida `/wp-json/` accesible |
+
+### Interpretación Provisional
+
+**Basado en contexto del proyecto (sin evidencias aún):**
+
+- ✅ **Repo:** Enriquecido con modo detection, workflows listos
+- ✅ **Local:** Mirror descargado (según arquitectura)
+- ✅ **SSH:** Presumiblemente operativo
+- ⏳ **REST API:** **BLOQUEADOR CRÍTICO** — Requiere validación real
+
+### Decisión Recomendada
+
+**🟢 ADR: OPCIÓN 2 — Preview Primero**
+
+Razones:
+1. Valida workflows contra WordPress real SIN exposición de prod
+2. Riesgo BAJO: Staging es entorno "seguro"
+3. Precedente: Buenas prácticas (Staging → Prod)
+4. Reversible: Si falla, prod no se ve afectado
+
+**Plan operativo:** Ver `070_preview_staging_plan.md`
+
+### Inputs del Owner para Avanzar
+
+**Acción 1: Validar REST API (INMEDIATO)**
+```bash
+# Desde navegador o terminal:
+curl -i https://runalfondry.com/wp-json/
+# Esperar: HTTP 200 OK o 401 (no 404 o 403)
+```
+- ✅ Si 200/401 → OK, continuar
+- ❌ Si 404 → BLOQUEADOR, habilitар REST en WP-Admin
+- ⚠️ Si 403 → Contactar admin, revisar WAF
+
+**Acción 2: Preparar Staging (SI ELIGE OPCIÓN 2)**
+- [ ] Hostname de staging: `https://<staging-hostname>` (ej: `staging.runalfondry.com`)
+- [ ] Usuario WP técnico: `github-actions` (o similar)
+- [ ] BD fresca importada
+- [ ] `wp-content/` replicado (uploads, temas, plugins)
+- [ ] REST API accesible en staging también
+
+**Acción 3: Confirmar Decisión**
+- [ ] ADR Opción elegida: **Preview primero** / Styling primero / Mixto
+- [ ] Comentar en este Issue o en el PR
+
+### Checklists Próximos
+
+#### Owner — Hoy/Mañana
+- [ ] Validar REST API (`curl /wp-json/`)
+- [ ] Pegar evidencias en `_templates/evidencia_*.txt`
+- [ ] Marcar checkboxes en sección "Evidencias" (arriba)
+- [ ] Revisar ADR (`050_decision_record_styling_vs_preview.md`)
+- [ ] Confirmar decisión (Preview / Styling / Mixto)
+
+#### Si Opción 2 (Preview Primero) — Owner
+- [ ] Preparar subdominio staging
+- [ ] Copiar BD fresca
+- [ ] Replicar archivos (wp-content)
+- [ ] Crear usuario + Application Password en staging
+
+#### Copilot — Post-Evidencias y Staging
+- [ ] Ejecutar `verify-home` en staging (manual)
+- [ ] Ejecutar `verify-settings` en staging
+- [ ] Ejecutar `verify-menus` en staging
+- [ ] Ejecutar `verify-media` en staging
+- [ ] Adjuntar artifacts *_summary.txt en Issue
+- [ ] Cambiar variables a producción
+- [ ] Ejecutar workflows en producción
+- [ ] Adjuntar artifacts finales
+- [ ] ✅ Fase 7 COMPLETADA
+
+---
+
+## �📌 Próximos pasos
+
+
 
 1. **Implementación:** Proceder con los pasos 1-5 del checklist en orden secuencial.
 2. **Validación:** Ejecutar todas las verificaciones y documentar resultados.

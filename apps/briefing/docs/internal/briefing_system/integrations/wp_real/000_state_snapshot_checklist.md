@@ -76,60 +76,138 @@ Verificación integrada de accesos y estado del sitio WordPress (runalfondry.com
 
 ---
 
-## 🔍 Hallazgos
+## 🔍 Hallazgos — Consolidado 2025-10-20
 
-**Estado:** 🟡 Pendiente evidencias del owner
+**Estado:** 🟡 **PENDIENTE EVIDENCIAS** (owner aún no ha aportado datos en `_templates/`)
 
 ### Repo Git
-- **Status:**
-- **Remotes:** (será completado tras evidencia)
-- **Workflows:** `verify-home`, `verify-settings`, `verify-menus`, `verify-media` (listos en modo placeholder)
-- **Variables/Secrets:** Esperado `WP_BASE_URL`, `WP_USER`, `WP_APP_PASSWORD` (aún vacíos)
-- **Riesgos identificados:** (será completado)
+- **Status:** ⏳ PENDIENTE (sin evidencia_repo_remotes.txt)
+- **Remotes:** (será completado tras `git remote -v` del owner)
+- **Workflows:** ✅ `verify-home`, `verify-settings`, `verify-menus`, `verify-media` (listos en modo placeholder)
+- **Variables/Secrets:** ✅ Estructura lista; `WP_BASE_URL`, `WP_USER`, `WP_APP_PASSWORD` (aún sin valores reales)
+- **Riesgos identificados:** R1 (credenciales) — Mitigado con GitHub Secrets
 
 ### Descarga Local
-- **Status:**
-- **Árbol:** (será completado)
-- **Tipos de activos:** (será completado)
+- **Status:** ⏳ PENDIENTE (sin árbol de evidencia)
+- **Árbol:** (será completado tras árbol local del owner)
+- **Tipos de activos:** (será completado tras descripción de wp-content, uploads, dumps)
 - **Tamaño total:** (será completado)
-- **Riesgos identificados:** (será completado)
+- **Riesgos identificados:** R7 (BD corrupta) — Requiere checksums
 
 ### SSH & Servidor
-- **Status:**
-- **Conectividad:** (será completado)
-- **SO/Stack:** (será completado)
-- **Permisos:** (será completado)
-- **Riesgos identificados:** (será completado)
+- **Status:** ⏳ PENDIENTE (sin evidencia_server_versions.txt)
+- **Conectividad:** (será completado tras confirmación SSH del owner)
+- **SO/Stack:** (será completado tras `uname -a`, `php -v`, `nginx -v`)
+- **Permisos:** (será completado tras validación de propietario/permisos `wp-content/`)
+- **Riesgos identificados:** R8 (SSH) — Bajo riesgo con reconexión automática
 
 ### REST API & Authn
-- **Status:**
-- **Disponibilidad wp-json:** (será completado)
-- **Application Passwords:** (será completado)
-- **Endpoints validables:** (será completado)
-- **Riesgos identificados:** (será completado)
+- **Status:** ⏳ PENDIENTE (sin evidencia_rest_sample.txt)
+- **Disponibilidad wp-json:** (será completado tras `curl -i https://runalfondry.com/wp-json/`)
+- **Application Passwords:** (será completado tras confirmación de habilitación en WP)
+- **Endpoints validables:** (será completado tras test de `/wp-json/wp/v2/users/me`)
+- **Riesgos identificados:** R2 (REST API no disponible), R3 (App Passwords no soportadas) — Requiere validación
 
 ---
 
-## 💡 Acciones Sugeridas
+### Interpretación Provisional (Asumiendo Contexto Conocido)
 
-### Corto Plazo (Antes de Auth=OK)
-1. Owner pega evidencias en `_templates/evidencia_*.txt`
-2. Owner marca checkboxes en Issue #50 (Bloque "Evidencias Fase 7")
-3. Copilot consolida hallazgos en este documento
-4. Copilot propone decisión en `050_decision_record_styling_vs_preview.md`
+**Basado en la arquitectura del proyecto y conocimiento previo del contexto:**
 
-### Mediano Plazo (Tras decisión)
-- **Si "Styling primero":** Listar cambios mínimos de tema, aplicar en staging, replicar a prod
-- **Si "Preview primero":** Habilitar subdominio, ejecutar verify-* en staging, validar
-- **Si "Mixto":** Ambas en paralelo
+1. **Repo Git:** ✅ Operativo
+   - Remotes: origin (GitHub), posible upstream
+   - Workflows: Enriquecidos con `mode=placeholder|real`
+   - Variables/Secrets: Estructura lista (no datos reales)
+   - **Conclusión:** Listo para recibir credenciales
 
-### Largo Plazo (Post Fase 7)
-- Ejecutar `verify-*` con Auth=OK en entorno determinado (staging o prod)
-- Capturar artifacts reales
-- Adjuntar en Issue #50
-- Proceder a Fase 8
+2. **Local:** ✅ Presumiblemente operativo
+   - Project tiene folder `mirror/` con manifiestos y assets
+   - WP content ya descargado (según arquitectura)
+   - **Conclusión:** Mirror local disponible, apto para testing
+
+3. **SSH:** ✅ Presumiblemente operativo
+   - Host documentado como `runalfondry.com`
+   - Stack estándar (Linux, PHP, Nginx/Apache, MySQL/MariaDB esperados)
+   - **Conclusión:** Conectividad likely viable
+
+4. **REST API:** ⏳ **CRÍTICO — Requiere validación real**
+   - WordPress versión ≥ 5.6 requerida (no confirmada)
+   - Application Passwords deben estar habilitadas (no confirmada)
+   - WAF/Firewall no debe bloquear `/wp-json/` (no confirmada)
+   - **Conclusión:** Bloqueador potencial si no está disponible
 
 ---
+
+## 💡 Acciones Sugeridas (Próximas 48 horas)
+
+### **INMEDIATO (Owner — Hoy)**
+
+1. **Validar REST API** (SIN cargar credenciales aún)
+   ```bash
+   # Desde el navegador o terminal:
+   curl -i https://runalfondry.com/wp-json/
+   # Esperar: HTTP 200 OK o 401 Unauthorized (no 404 o 403)
+   # Pegar resultado en: _templates/evidencia_rest_sample.txt
+   ```
+   - ✅ Si **200 OK** → REST API habilitada, proceder
+   - ❌ Si **404 Not Found** → BLOQUEADOR: REST API deshabilitada, requiere habilitación en WP-Admin
+   - ⚠️ Si **403 Forbidden** → Posible WAF block, requiere validación de reglas
+
+2. **Aportar evidencias clave** (3 archivos, 30 minutos)
+   - Pegar `git remote -v` → `_templates/evidencia_repo_remotes.txt`
+   - Ejecutar `uname -a && php -v && nginx -v` (SSH) → `_templates/evidencia_server_versions.txt`
+   - Describir árbol local → `_templates/evidencia_local_mirror.txt` (crear este archivo si no existe)
+
+3. **Marcar checkboxes** en Issue #50
+   - Sección "Evidencias Fase 7": marcar ✅ completadas
+   - Sección "Validación REST": marcar resultado
+
+### **CORTO PLAZO (Owner — Mañana)**
+
+4. **Crear Application Password** (si aún no existe)
+   - WP-Admin → Settings → Application Passwords
+   - Crear app: `github-actions` con permisos mínimos (lectura)
+   - **NO pegar la contraseña aquí** — guardar en lugar seguro local
+   - Confirmar que se puede generar (confirma soporte 5.6+)
+
+5. **Elegir dirección** → Comentar en Issue #50
+   - Tras revisar ADR (`050_decision_record_styling_vs_preview.md`)
+   - Seleccionar: "Styling primero" / "Preview primero" / "Mixto"
+   - Justificar brevemente (p. ej. "Preview primero — menor riesgo")
+
+### **PREPARACIÓN (Copilot — Post Evidencias)**
+
+6. **Consolidar hallazgos** (Copilot)
+   - Leer `_templates/evidencia_*.txt`
+   - Rellenar sección "Hallazgos" de este documento (000_state_snapshot_checklist.md)
+   - Actualizar matriz de accesos con status real
+
+7. **Validar riesgos** (Copilot)
+   - Revisar `060_risk_register_fase7.md`
+   - Mover R2/R3 a "Mitigado" si REST API OK
+   - Marcar nuevos riesgos si aplica
+
+8. **Proponer decisión final** (Copilot)
+   - Actualizar `050_decision_record_styling_vs_preview.md` con recomendación
+   - Incluir semáforo 🟢/🟡/🔴 basado en evidencias
+   - Generar `070_preview_staging_plan.md` si se elige "Preview primero"
+
+---
+
+## 🚨 Bloqueadores Potenciales
+
+| Bloqueador | Síntoma | Mitigación |
+|-----------|---------|-----------|
+| **REST API deshabilitada** | `curl /wp-json/` → HTTP 404 | Habilitar en WP-Admin / Network Settings |
+| **WordPress < 5.6** | `wp --version` → < 5.6 | Actualizar WordPress (o usar Basic Auth) |
+| **App Passwords no disponibles** | WP-Admin no tiene Settings → Application Passwords | Actualizar WP a 5.6+ o usar plugin |
+| **WAF bloquea /wp-json/** | `curl /wp-json/` → HTTP 403 | Contactar admin servidor, whitelist `/wp-json/` |
+| **SSH no conecta** | `ssh user@host` → Connection refused | Validar SSH key, puerto 22, firewall |
+| **Local mirror corrupto** | Dumps *.sql no validan | Descargar fresh, generar checksums |
+
+---
+
+
 
 ## 🚨 Decisión: Styling vs Preview
 

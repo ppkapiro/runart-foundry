@@ -211,38 +211,46 @@ Toda opción elegida debe cumplir:
 
 ---
 
-## 💡 Recomendación
+## 💡 Recomendación — Consolidado 2025-10-20
 
-**🟢 PROPONER: OPCIÓN 2 — Preview Primero**
+**🟢 RECOMENDACIÓN FINAL: OPCIÓN 2 — Preview Primero**
 
-**Justificación:**
-1. **Riesgo MÍNIMO:** No toca producción hasta validar técnicamente
-2. **Fase 7 es crítica:** Primera exposición de credenciales reales; mejor ser conservadores
-3. **Workflows son código:** Se valida el código contra sitio real sin riesgo
-4. **Duración razonable:** 2 semanas es aceptable para transición segura
-5. **Precedente:** Seguir buenas prácticas (Staging → Prod)
+**Justificación (Post-Verificación de Evidencias):**
+1. ✅ **REST API validable:** Verificación REST requiere entorno con credenciales sin exposición de prod
+2. ✅ **Riesgo MÍNIMO:** No toca producción hasta validar técnicamente todo
+3. ✅ **Fase 7 es crítica:** Primera exposición de credenciales reales; mejor ser conservadores
+4. ✅ **Workflows son código:** Se valida el código contra sitio real sin riesgo de breakage
+5. ✅ **Duración razonable:** 2 semanas es aceptable para transición segura
+6. ✅ **Precedente:** Seguir buenas prácticas (Staging → Prod)
+7. ✅ **Reversible:** Si falla, sin impacto en producción
 
-**Siguiente paso:**
-- Owner valida esta recomendación
-- Si aprueeba → Proceder a habilitar staging
-- Si rechaza → Evaluar Opción 1 (Styling primero) o Opción 3 (Mixto)
+**Riesgo del ADR:** 🟢 **BAJO** (Recomendada)
+
+**Próxima acción:**
+- Owner valida o rechaza esta recomendación (comentar en Issue #50)
+- Si aprueba → Proceder a plan de staging (ver `070_preview_staging_plan.md`)
+- Si rechaza → Documentar razones, considerar Opción 1 o 3
 
 ---
 
 ## 🎯 Next Steps (Por Opción)
 
-### Si se elige Opción 2 (Preview Primero) ✅
+### ✅ Si se elige Opción 2 (Preview Primero) — RECOMENDADA
 1. [ ] Owner habilita subdominio/staging (ej: `staging.runalfondry.com`)
-2. [ ] Owner copia BD + archivos de prod a staging
-3. [ ] Owner carga `WP_BASE_URL` = staging en GitHub (temporalmente)
-4. [ ] Copilot ejecuta `verify-home` en Actions (contra staging)
-5. [ ] Si Auth=OK → Proceder con `verify-settings`, `verify-menus`, `verify-media`
-6. [ ] Adjuntar artifacts en Issue #50
-7. [ ] Owner cambia `WP_BASE_URL` a producción
-8. [ ] Ejecutar workflows en prod (validación final)
-9. [ ] ✅ Fase 7 Completada
+2. [ ] Owner copia BD + archivos frescos de prod a staging
+3. [ ] Owner carga `WP_BASE_URL` = https://staging.runalfondry.com en GitHub (temporalmente)
+4. [ ] Owner crea Application Password en WP-staging
+5. [ ] Owner carga `WP_USER` + `WP_APP_PASSWORD` en GitHub Secrets (temporales, apuntando a staging)
+6. [ ] Copilot ejecuta `verify-home` en Actions (contra staging)
+7. [ ] Si Auth=OK ✓ → Proceder con `verify-settings`, `verify-menus`, `verify-media`
+8. [ ] Adjuntar artifacts *_summary.txt en Issue #50
+9. [ ] Owner cambia `WP_BASE_URL` a https://runalfondry.com (prod)
+10. [ ] Owner crea Application Password en WP-prod
+11. [ ] Owner actualiza `WP_APP_PASSWORD` en GitHub Secrets
+12. [ ] Ejecutar workflows en prod (validación final)
+13. [ ] ✅ Fase 7 Completada
 
-### Si se elige Opción 1 (Styling Primero) ⚠️
+### ⚠️ Si se elige Opción 1 (Styling Primero)
 1. [ ] Owner carga credenciales (prod)
 2. [ ] Copilot ejecuta verify-home manual
 3. [ ] Owner identifica cambios de tema necesarios
@@ -251,7 +259,7 @@ Toda opción elegida debe cumplir:
 6. [ ] Ejecutar verify-* en prod
 7. [ ] ✅ Fase 7 Completada (más labor manual)
 
-### Si se elige Opción 3 (Mixto) ⚠️
+### ⚠️ Si se elige Opción 3 (Mixto)
 1. [ ] Owner habilita staging
 2. [ ] Owner copia BD + archivos
 3. [ ] Owner carga credenciales (staging + prod)
@@ -262,14 +270,14 @@ Toda opción elegida debe cumplir:
 
 ---
 
-## 📋 Decisión Final (A COMPLETAR POR OWNER)
+## 📋 Decisión Final — Owner Confirma
 
-**Estado:** 🟡 PENDING OWNER DECISION
+**Estado:** 🟡 **AWAITING OWNER DECISION** (Copilot recomienda Opción 2)
 
-### Owner confirma:
-- [ ] **Opción 1 — Styling Primero**
-- [ ] **Opción 2 — Preview Primero** (RECOMENDADA)
-- [ ] **Opción 3 — Mixto (Paralelo)**
+### Owner marca UNA:
+- [ ] **Opción 1 — Styling Primero** (riesgo 🟡 MEDIO-ALTO)
+- [ ] **Opción 2 — Preview Primero** (riesgo 🟢 **BAJO** — RECOMENDADA)
+- [ ] **Opción 3 — Mixto (Paralelo)** (riesgo 🟡 MEDIO)
 
 **Decisión tomada por:** __________ **Fecha:** __________
 
@@ -283,11 +291,12 @@ Toda opción elegida debe cumplir:
 ## 🔗 Referencias
 
 - Documento central: `000_state_snapshot_checklist.md`
+- Plan de staging: `070_preview_staging_plan.md` (si se elige Opción 2)
 - README: `README.md` (en esta carpeta)
 - Issue #50: `issues/Issue_50_Fase7_Conexion_WordPress_Real.md`
 
 ---
 
-**Estado:** 🟡 PROPOSED (Esperando decisión del owner)  
-**Próxima revisión:** Tras feedback del owner  
-**Última actualización:** 2025-10-20
+**Estado:** 🟡 PROPOSED (Recomendada Opción 2 — Copilot; Esperando confirmación owner)  
+**Próxima revisión:** Tras feedback del owner en Issue #50  
+**Última actualización:** 2025-10-20 14:35 UTC
