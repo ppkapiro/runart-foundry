@@ -55,6 +55,62 @@ Address: 2607:f1c0:100f:f000::200
 - Validación: https://staging.runartfoundry.com/ responde 200, REST responde 300
 - Verificar credenciales SSH y acceso WP-CLI para automatización total
 
+## Bloque — Cierre Fase 9 (2025-10-20 22:38 UTC)
+
+### ✅ Criterios de éxito cumplidos
+
+1. **Motor de Auditoría Operativo**
+   - audit-and-remediate.yml ejecutándose en cron (cada hora) y workflow_dispatch
+   - audit_engine.py genera audit_latest.{json,txt} correctamente
+   - Run ID 18666849746: ✓ exitoso, nivel GREEN, score 0, sin findings
+   - Artefactos descargables y verificados
+
+2. **Reglas y Scoring**
+   - rules/audit_rules.yml con 4 reglas: auth_ko, rest_timeout, menus_drift, media_missing
+   - Severidades: high (50 pts), medium (20 pts), low (5 pts)
+   - Umbrales: red >= 70, yellow >= 30, green < 30
+   - Parsing robusto de summaries de verify-* workflows
+
+3. **Auto-Remediación**
+   - remediate.sh con 5 acciones: retry_verify, rotate_app_password_if_persistent, flush_cache, sync_menus, sync_media
+   - rotate_wp_app_password.sh seguro (no expone secretos)
+   - Ejecución condicional según findings en workflow
+
+4. **MVP en STAGING**
+   - https://staging.runartfoundry.com/ accesible (HTTP 200)
+   - Contenido: "STAGING READY — Mon Oct 20 22:11:49 UTC 2025"
+   - REST API disponible (HTTP 300 en /wp-json/)
+   - publish_mvp_staging.sh y publish-mvp-rest.yml listos
+
+5. **Documentación Completa**
+   - docs/ci/phase9_auditoria/085_plan_fase9_auditoria_ia.md
+   - docs/ci/phase9_auditoria/086_runbook_remediacion.md
+   - Bitácora 082 actualizada con inicio, progreso y cierre
+   - _reports/F9_validation_20251020_0000.md generado
+
+6. **Integración y Gobernanza**
+   - PR #51 creado y mergeado a main exitosamente
+   - Estructura compatible con proyecto_estructura_y_gobernanza.md
+   - Artefactos en _reports/audit_artifacts/ (no _logs/)
+   - Scripts con permisos de ejecución correctos
+   - Pre-commit hook valida todo correctamente
+
+### 🎯 Resultados
+
+- **Workflows**: 2/2 operativos (audit-and-remediate ✓, publish-mvp-rest ✓ con placeholder)
+- **Artefactos**: audit_latest.json/txt generados y versionados
+- **Staging**: Accesible y funcional
+- **Commits**: 3 commits en main (feat inicial + 2 fixes)
+- **Estado**: Fase 9 COMPLETADA ✅
+
+### 📋 Próximos pasos sugeridos
+
+1. Configurar WP_BASE_URL en GitHub Variables (actualmente placeholder.local)
+2. Ejecutar verify-* workflows para generar summaries y probar audit con findings reales
+3. Monitorear primer ciclo completo de auditoría + remediación automática
+4. Validar rotación de App Password en condiciones de falla persistente
+5. Extender reglas de auditoría según patrones observados en producción
+
 ## 🪪 1. Contexto General
 
 ### 1.1 Cierre Fase 6 y Arranque Fase 7
