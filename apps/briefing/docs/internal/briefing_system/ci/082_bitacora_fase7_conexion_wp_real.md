@@ -1,3 +1,22 @@
+## Automatización de entorno STAGING en IONOS (20/10/2025)
+
+**Resumen de acciones ejecutadas:**
+- Adaptación y ejecución de script de automatización para entorno staging en IONOS.
+- Confirmación de ruta de trabajo real: `/homepages/7/d958591985/htdocs`.
+- Creación y verificación de carpeta `staging`.
+- Copia manual de los directorios principales de WordPress (`wp-admin`, `wp-content`, `wp-includes`) y archivo `wp-config.php` a `staging`.
+- Verificación de permisos y funcionalidad de la carpeta `staging`.
+- Prueba de acceso HTTP y DNS al subdominio `staging.runalfondry.com` y dominio principal, ambos sin resolución DNS.
+
+**Incidencias encontradas:**
+- El script original falló por permisos y rutas incorrectas, se adaptó a las restricciones del hosting compartido.
+- No se pudo realizar la clonación completa con `cp -r *` por limitaciones del entorno; se realizó copia manual de los componentes críticos.
+- El subdominio `staging.runalfondry.com` no resuelve en DNS, por lo que no es accesible vía HTTP ni ping.
+
+**Siguientes pasos recomendados:**
+- Revisar configuración DNS y alta del subdominio `staging.runalfondry.com` en el panel de IONOS.
+- Verificar que el subdominio apunte a la carpeta `staging` y que el hosting lo tenga habilitado.
+- Una vez resuelto el DNS, continuar con pruebas de acceso y automatización de base de datos y usuarios WordPress.
 # 🧾 Bitácora Fase 7 — Conexión WordPress Real
 
 **Fecha de creación:** 2025-10-20  
