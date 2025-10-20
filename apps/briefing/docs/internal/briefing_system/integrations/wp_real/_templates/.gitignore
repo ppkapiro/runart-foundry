@@ -1,0 +1,35 @@
+# .gitignore — Evidencias sin secretos (read-only)
+# Esta carpeta contiene PLANTILLAS Y EJEMPLOS SOLO
+# NO VERSIONAR archivos con credenciales reales
+
+# Bloquear archivos completados (si owner copia a este directorio)
+*.log
+*.sql
+*.json
+*.env
+*.key
+*.pem
+
+# Bloqueadores específicos de credenciales
+wp-config*
+config.php
+secrets*
+credentials*
+password*
+token*
+
+# Archivos temporales
+.DS_Store
+*.tmp
+*.swp
+*.bak
+~*
+
+# NOTA PARA OWNER:
+# ================
+# Si necesitas guardar evidencias REALES con credenciales:
+# 1. NO las guardes en la carpeta _templates/ del repo
+# 2. Usa un archivo local FUERA del repo (ej: ~/evidence_private/)
+# 3. O pasa por comentarios privados en Issue #50 (no en PR)
+#
+# Esta carpeta es PÚBLICA (en el repo) — solo para PLANTILLAS

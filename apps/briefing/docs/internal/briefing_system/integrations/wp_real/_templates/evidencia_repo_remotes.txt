@@ -1,0 +1,63 @@
+EVIDENCIA: Git Remotes y Configuración de Rama
+================================================
+Fecha de captura: [COMPLETAR: 2025-10-20]
+Capturado por: [COMPLETAR: Owner name]
+
+INSTRUCCIONES:
+1. Abre terminal en la carpeta del repo
+2. Ejecuta EXACTAMENTE esto (sin cambios):
+   
+   git remote -v
+   
+3. Copia TODO el output (incluyendo blank lines)
+4. Pégalo AQUÍ (entre las líneas ===)
+
+=== INICIA OUTPUT DE GIT REMOTE -V ===
+
+[PEGA TU OUTPUT AQUÍ]
+
+=== FIN OUTPUT ===
+
+---
+
+EJEMPLO CORRECTO (para referencia):
+===================================
+
+origin  https://github.com/RunArtFoundry/runart-foundry.git (fetch)
+origin  https://github.com/RunArtFoundry/runart-foundry.git (push)
+upstream https://github.com/upstream-user/runart-foundry.git (fetch)
+upstream https://github.com/upstream-user/runart-foundry.git (push)
+
+(Si solo ves "origin" 2 veces, eso está bien — significa no hay upstream)
+
+---
+
+VALIDACIÓN POSTERIOR (Copilot completa esto):
+==============================================
+
+☑ Output contiene "origin" (fetch + push):     [ ]
+☑ URLs son válidas (https://github.com/...):   [ ]
+☑ NO hay expuesta credenciales:                [ ]
+☑ Branch actual indicado explícitamente:       [ ]
+
+HALLAZGO: [Copilot rellena tras revisar]
+- Remotes encontrados: _______
+- Estado de rama: _______
+- Riesgos identificados: _______
+
+---
+
+INFORMACIÓN ADICIONAL (Opcional):
+==================================
+
+Si quieres, también puedes capturar la rama actual:
+   git branch -v | grep "\*"
+
+Y el último commit:
+   git log -1 --oneline
+
+=== INICIA OUTPUT (OPCIONAL) ===
+
+[PEGA AQUÍ SI QUIERES]
+
+=== FIN OUTPUT ===

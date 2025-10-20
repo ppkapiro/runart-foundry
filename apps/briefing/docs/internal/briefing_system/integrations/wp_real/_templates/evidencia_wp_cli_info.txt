@@ -1,0 +1,135 @@
+EVIDENCIA: WP-CLI Info (Plugins, Temas, Versión)
+===============================================
+Fecha de captura: [COMPLETAR: 2025-10-20]
+Capturado por: [COMPLETAR: Owner name]
+Método: SSH o Admin Panel
+
+INSTRUCCIONES VÍA SSH:
+=====================
+
+Accede al servidor vía SSH y ejecuta EXACTAMENTE estos comandos:
+
+1. VERSIÓN DE WORDPRESS:
+   wp --version
+
+2. LISTA DE PLUGINS:
+   wp plugin list --format=table
+
+3. LISTA DE TEMAS:
+   wp theme list --format=table
+
+4. USUARIOS CON ROL ADMIN:
+   wp user list --role=administrator --format=table
+
+5. ESTADO DE APPLICATION PASSWORDS:
+   wp option get authenticate_rest
+
+Copia CADA output y pégalo en las secciones correspondientes abajo.
+
+---
+
+=== INICIA OUTPUT: WP VERSION ===
+
+[PEGA OUTPUT DE: wp --version]
+
+=== FIN OUTPUT ===
+
+Ejemplo esperado:
+  WordPress 6.2 (o 6.3, 6.4 — cualquier 5.6+)
+
+---
+
+=== INICIA OUTPUT: PLUGINS ===
+
+[PEGA OUTPUT DE: wp plugin list --format=table]
+
+=== FIN OUTPUT ===
+
+Ejemplo esperado:
+
+| name                    | status | update | version |
+|-------------------------|--------|--------|---------|
+| woocommerce             | active | none   | 8.0.1   |
+| hello-dolly             | active | none   | 1.7.2   |
+| runart-custom-plugin    | active | none   | 1.0.0   |
+
+---
+
+=== INICIA OUTPUT: TEMAS ===
+
+[PEGA OUTPUT DE: wp theme list --format=table]
+
+=== FIN OUTPUT ===
+
+Ejemplo esperado:
+
+| name              | status   | update | version |
+|-------------------|----------|--------|---------|
+| twentytwenty-four | inactive | none   | 1.0     |
+| runart-theme      | active   | none   | 2.5.1   |
+| twentytwenty      | inactive | none   | 2.1     |
+
+---
+
+=== INICIA OUTPUT: USUARIOS ADMIN ===
+
+[PEGA OUTPUT DE: wp user list --role=administrator --format=table]
+
+=== FIN OUTPUT ===
+
+Ejemplo esperado:
+
+| ID | user_login | display_name | user_email                | roles         |
+|----|-----------|--------------|--------------------------|---------------|
+| 1  | owner      | Owner Name   | owner@runalfoundry.com   | administrator |
+
+---
+
+=== INICIA OUTPUT: APPLICATION PASSWORDS ===
+
+[PEGA OUTPUT DE: wp option get authenticate_rest]
+
+=== FIN OUTPUT ===
+
+Ejemplo esperado:
+  1
+  (significa: habilitado; si sale "0" o blank, no está habilitado)
+
+---
+
+ALTERNATIVA VÍA ADMIN PANEL (Sin SSH):
+======================================
+
+Si no tienes acceso SSH, puedes obtener la información vía WordPress Admin:
+
+1. Ve a: https://runalfondry.com/wp-admin/
+2. Plugins → Plugins Instalados (toma screenshot o copia lista)
+3. Apariencia → Temas (toma screenshot)
+4. Usuarios → Todos los Usuarios (verifica que exista usuario con credenciales)
+5. Configuración → Escritura (busca Application Passwords)
+
+Pega los datos en las secciones correspondientes.
+
+---
+
+VALIDACIÓN POSTERIOR (Copilot completa):
+========================================
+
+☑ WordPress 5.6 o superior:             [ ]
+☑ Application Passwords = 1 (habilitado):[ ]
+☑ Plugins cargan sin errores:            [ ]
+☑ NO hay datos sensibles (IPs, tokens): [ ]
+☑ Usuario Admin identificado:            [ ]
+
+HALLAZGO: [Copilot rellena]
+- WordPress version: _______
+- Plugins activos: _______ (cantidad)
+- Application Passwords: _______ (enabled/disabled)
+- Riesgos identificados: _______
+
+---
+
+⚠️  IMPORTANTE:
+NO pegues contraseñas, tokens, o datos sensibles.
+Solo información pública/administrativa.
+
