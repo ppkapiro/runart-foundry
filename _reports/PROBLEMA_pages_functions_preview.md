@@ -13,7 +13,7 @@
 - ✅ Error "Disallowed operation in global scope" resuelto
 - ✅ `/api/whoami` responde 200 con headers canary en preview
 - ✅ Deploy production operativo (run 18545936306)
-- ⚠️  Pendiente: Deploy preview en CI (wrangler valida bindings)
+- ✅ Deploy preview en CI — run 18657545446 (`feat/pages-functions-preview-hardening`)
 - ⚠️  Pendiente: Tests unitarios para RNG determinista
 - ⚠️  Pendiente: Regla ESLint anti-global-scope
 - ⚠️  Pendiente: Contrato de headers canary en smokes
@@ -37,6 +37,14 @@
 **Branch:** main  
 **Conclusión:** ✅ SUCCESS  
 **Workflow:** CI — Briefing
+
+### 1bis. Deploy Preview CI (branch)
+**Run ID:** 18657545446  
+**Fecha:** 2025-10-20T15:52:20Z  
+**Branch:** feat/pages-functions-preview-hardening  
+**Conclusión:** ✅ SUCCESS  
+**Preview URL:** https://ba5d21df.runart-foundry.pages.dev  
+**Alias:** https://feat-pages-functions-preview.runart-foundry.pages.dev
 
 ### 2. Commit de Merge a Main
 ```
@@ -118,7 +126,7 @@ preview_id = "7d80b07de98e4d9b9d5fd85516901ef6"
 
 **Riesgo:** Ninguno - solo clarifica configuración existente
 
-**Estado:** PENDIENTE (este PR)
+**Estado:** ✅ COMPLETADO (validado en run 18657545446)
 
 ---
 
@@ -255,9 +263,9 @@ preview_id = "7d80b07de98e4d9b9d5fd85516901ef6"
 - [ ] CHANGELOG.md actualizado (pendiente)
 
 ### Deploy
-- [ ] Preview continúa funcionando (validar en CI)
+- [x] Preview continúa funcionando (run 18657545446)
 - [ ] No regresiones en producción (validar en CI)
-- [ ] CI checks pasan (validar en PR)
+- [x] CI checks pasan (run 18657545446)
 
 ---
 
@@ -414,6 +422,18 @@ npm run test:vitest
 
 **Resultado preliminar:** Rerun manual `18657210249` (antes de subir el cambio) vuelve a usar el ID viejo (`9fbb…`) y falla. Se necesita push + rerun para validar la corrección.
 
+### 2025-10-20T15:52 — Deploy preview exitoso (Intento 5)
+
+**Contexto:** Tras hacer push con la corrección del namespace `LOG_EVENTS`, se reejecutó el workflow `Build & Deploy Preview`.
+
+**Acción:**
+- Workflow `18657545446` publica `feat/pages-functions-preview-hardening` con `wrangler pages publish` desde `apps/briefing/site`.
+- Paso `Extract preview URL` expone la URL base `https://ba5d21df.runart-foundry.pages.dev` y alias `https://feat-pages-functions-preview.runart-foundry.pages.dev`.
+- Smokes públicos (`make test-smoke-prod`) ejecutados contra la URL del deploy y marcados como PASS (Access sin credenciales sigue redirigiendo 30x correctamente).
+- Artefactos `smokes_preview_20251020T155220Z` subidos con evidencias HTML/logs.
+
+**Resultado:** ✅ Deployment preview exitoso. Las variables `PREVIEW_BASE_URL` y `SMOKES_TS` quedaron exportadas para pasos posteriores y la documentación 082 se actualizó con los resultados de smokes.
+
 ### 2025-10-20T11:15 — Preparación PR y Cierre ✅
 
 **Reporte actualizado:**
@@ -430,4 +450,4 @@ npm run test:vitest
 ---
 
 **Estado:** ✅ LISTO PARA PR  
-**Última actualización:** 2025-10-20T11:15Z
+**Última actualización:** 2025-10-20T15:52Z
