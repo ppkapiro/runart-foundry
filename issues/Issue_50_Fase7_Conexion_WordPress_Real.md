@@ -14,10 +14,10 @@
 
 ### Status de la ejecución
 1. ✅ **Rama creada:** `feat/fase7-wp-connection`
-2. ⏳ **Preparación de variables/secrets:** En progreso
-3. ⏳ **Ajuste de workflows:** En progreso
-4. ⏳ **Documentación:** En progreso
-5. ⏳ **PR abierto:** Pendiente
+2. ✅ **Preparación de variables/secrets:** Completada
+3. ✅ **Ajuste de workflows:** Completada (mode=placeholder|real añadido)
+4. ✅ **Documentación:** Completada (README.md sección Fase 7)
+5. ⏳ **PR abierto:** Pendiente (crear via GitHub UI o gh CLI)
 6. ⏳ **Carga de credenciales (Owner):** **PENDIENTE**
 7. ⏳ **Ejecución de verify-*:** **PENDIENTE CREDENCIALES**
 8. ⏳ **Cierre y merge:** Pendiente
@@ -57,6 +57,7 @@ Esta fase continúa directamente desde la Fase 6 (documentada en `082_reestructu
 - [DEPLOY_RUNBOOK.md](../docs/DEPLOY_RUNBOOK.md)
 - [PROBLEMA_pages_functions_preview.md](../_reports/PROBLEMA_pages_functions_preview.md)
 - [Bitácora 082 — Reestructuración Local](../apps/briefing/docs/internal/briefing_system/ci/082_reestructuracion_local.md)
+- [📋 Reporte de Ejecución Fase 7](../_reports/FASE7_EJECUCION_CONEXION_WP_REAL_20251020.md)
 
 ---
 
