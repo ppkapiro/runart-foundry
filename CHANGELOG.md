@@ -6,7 +6,30 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) 
 
 ## [Unreleased]
 
-*No hay cambios pendientes.*
+### Added (2025-10-20)
+- **Pages Functions — Hardening Preview:**
+  - Tests unitarios para RNG determinista: `tests/unit/log_policy.test.js` (10 casos) y `tests/unit/event_keys.test.js` (7 casos). Total: 17 tests con Vitest.
+  - Regla ESLint anti-global-scope en `.eslintrc.json` para prevenir regresiones: prohibe `Math.random()`, `Date.now()`, `new Response()`, `crypto.*` en ámbito global.
+  - Validación de headers canary en smokes (`run-smokes.mjs`): 4 escenarios whoami verifican `X-RunArt-Canary: preview` y `X-RunArt-Resolver: utils`.
+  - Configuración Vitest (`vitest.config.js`) y scripts npm: `test:vitest`, `test:vitest:watch`, `lint`, `lint:fix`.
+
+### Changed (2025-10-20)
+- **Wrangler config:** KV namespaces explícitos en `[env.preview.kv_namespaces]` eliminan warning de herencia.
+- **Documentación inline:** Comentarios TEMPORAL en `api/inbox.js` y `api/decisiones.js` indican plan de reversión (404/405 → 403/401) cuando Access Service Token esté configurado.
+
+### Validated (2025-10-20)
+- **Tests locales:** 17/17 tests unitarios PASS (592ms).
+- **Lint:** 0 errores, 4 warnings pre-existentes (unused vars, ignored files).
+- **Reporte completo:** `_reports/PROBLEMA_pages_functions_preview.md` actualizado a estado LISTO PARA PR.
+
+### Pending
+- Integración de Access Service Token para activar smokes de autenticación.
+- Reversión de códigos temporales 404/405 a definitivos 403/401.
+- Actualización de bitácora 082 y validación CI del PR.
+
+---
+
+*No hay otros cambios pendientes.*
 
 ## [Released — 2025-10-15] (ops)
 ### Fixed (2025-10-15)

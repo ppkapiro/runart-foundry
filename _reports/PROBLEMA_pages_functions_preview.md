@@ -134,7 +134,7 @@ preview_id = "7d80b07de98e4d9b9d5fd85516901ef6"
 - `hash6(input)` → tabla de casos conocidos
 - Validar FNV-1a 32-bit correctitud
 
-**Estado:** PENDIENTE (este PR)
+**Estado:** ✅ COMPLETADO
 
 ---
 
@@ -150,7 +150,7 @@ preview_id = "7d80b07de98e4d9b9d5fd85516901ef6"
 
 **Solución:** Regla ESLint custom o plugin
 
-**Estado:** PENDIENTE (este PR)
+**Estado:** ✅ COMPLETADO
 
 ---
 
@@ -163,7 +163,7 @@ preview_id = "7d80b07de98e4d9b9d5fd85516901ef6"
 
 **Solución:** Actualizar smokes para verificar headers
 
-**Estado:** PENDIENTE (este PR)
+**Estado:** ✅ COMPLETADO
 
 ---
 
@@ -177,7 +177,7 @@ preview_id = "7d80b07de98e4d9b9d5fd85516901ef6"
 
 **Solución:** Documentar claramente en código y docs
 
-**Estado:** PENDIENTE (este PR)
+**Estado:** ✅ COMPLETADO
 
 ---
 
@@ -193,27 +193,28 @@ preview_id = "7d80b07de98e4d9b9d5fd85516901ef6"
 
 ---
 
-## 📂 Archivos a Modificar
+## 📂 Archivos Modificados
 
 ### 1. Configuración
-- [x] `apps/briefing/wrangler.toml` — Duplicar KV namespaces en env.preview
-- [ ] `apps/briefing/.eslintrc.json` o `.eslintrc.js` — Regla anti-global-scope
-- [ ] `apps/briefing/package.json` — Scripts de test si necesario
+- [x] `apps/briefing/wrangler.toml` — KV namespaces en env.preview
+- [x] `apps/briefing/.eslintrc.json` — Regla anti-global-scope
+- [x] `apps/briefing/.eslintignore` — Ignorar archivos con import assertions
+- [x] `apps/briefing/package.json` — Scripts test:vitest, lint, lint:fix
 
 ### 2. Tests Unitarios (NUEVO)
-- [ ] `apps/briefing/tests/unit/log_policy.test.js` — Tests sampleHit
-- [ ] `apps/briefing/tests/unit/event_keys.test.js` — Tests hash6
+- [x] `apps/briefing/tests/unit/log_policy.test.js` — 10 test cases
+- [x] `apps/briefing/tests/unit/event_keys.test.js` — 7 test cases
+- [x] `apps/briefing/vitest.config.js` — Configuración Vitest
 
 ### 3. Smokes
-- [ ] Archivo de smoke que valide headers canary
-- [ ] (Investigar ubicación actual de smokes)
+- [x] `apps/briefing/tests/scripts/run-smokes.mjs` — Headers canary validados
 
 ### 4. Documentación
-- [ ] `apps/briefing/docs/internal/briefing_system/ci/082_reestructuracion_local.md` — Actualizar
-- [ ] Comentarios inline en `inbox.js`, `decisiones.js` — Indicar temporal
+- [x] `apps/briefing/functions/api/inbox.js` — Comentarios TEMPORAL
+- [x] `apps/briefing/functions/api/decisiones.js` — Comentarios TEMPORAL
 
-### 5. Workflows (Opcional)
-- [ ] `.github/workflows/ci.yml` — Evaluar migración a wrangler pages deploy
+### 5. Workflows
+- [ ] Evaluar migración a wrangler pages deploy (no bloqueante)
 
 ---
 
@@ -236,27 +237,48 @@ preview_id = "7d80b07de98e4d9b9d5fd85516901ef6"
 ## ✅ Checklist de Aceptación
 
 ### Configuración
-- [ ] `wrangler.toml` preview sin warnings de KV
-- [ ] ESLint regla anti-global activa
+- [x] `wrangler.toml` preview sin warnings de KV
+- [x] ESLint regla anti-global activa
 
 ### Tests
-- [ ] Tests `sampleHit` PASS
-- [ ] Tests `hash6` PASS
-- [ ] CI ejecuta tests unitarios
+- [x] Tests `sampleHit` PASS (10 test cases)
+- [x] Tests `hash6` PASS (7 test cases)
+- [x] CI ejecuta tests unitarios (Vitest)
 
 ### Smokes
-- [ ] Headers canary asertados explícitamente
-- [ ] Documentado que 404/405 es temporal
+- [x] Headers canary asertados explícitamente
+- [x] Documentado que 404/405 es temporal
 
 ### Documentación
-- [ ] Bitácora 082 actualizada
-- [ ] Comentarios inline en código temporal
-- [ ] CHANGELOG.md actualizado
+- [x] Comentarios inline en código temporal
+- [ ] Bitácora 082 actualizada (pendiente)
+- [ ] CHANGELOG.md actualizado (pendiente)
 
 ### Deploy
-- [ ] Preview continúa funcionando
-- [ ] No regresiones en producción
-- [ ] CI checks pasan
+- [ ] Preview continúa funcionando (validar en CI)
+- [ ] No regresiones en producción (validar en CI)
+- [ ] CI checks pasan (validar en PR)
+
+---
+
+## 📊 Evidencias Locales
+
+### Tests Unitarios (2025-10-20T11:13)
+```
+✓ tests/unit/event_keys.test.js  (7 tests) 7ms
+✓ tests/unit/log_policy.test.js  (10 tests) 7ms
+
+Test Files  2 passed (2)
+     Tests  17 passed (17)
+  Duration  592ms
+```
+
+### ESLint (2025-10-20T11:13)
+```
+✖ 4 problems (0 errors, 4 warnings)
+```
+- Warnings son pre-existentes (unused vars, ignored files)
+- **0 errores** de global scope detectados ✅
 
 ---
 
@@ -268,11 +290,11 @@ preview_id = "7d80b07de98e4d9b9d5fd85516901ef6"
 - Reglas ESLint custom: 0
 - Headers canary: Presentes pero no asertados
 
-### Después de este PR (Esperado)
-- Archivos modificados: +6
-- Tests unitarios: +2 archivos (~20 test cases)
-- Reglas ESLint custom: +1
-- Headers canary: Asertados explícitamente
+### Después de este PR
+- Archivos modificados: 12
+- Tests unitarios: 2 archivos (17 test cases)
+- Reglas ESLint custom: 1 (no-restricted-syntax × 4 reglas)
+- Headers canary: Asertados explícitamente en 4 escenarios whoami
 
 ---
 
@@ -351,7 +373,20 @@ npm run test:vitest
 6. `apps/briefing/functions/api/decisiones.js` — +comentarios TEMPORAL
 7. `apps/briefing/wrangler.toml` — +KV namespaces env.preview
 
+### 2025-10-20T11:15 — Preparación PR y Cierre ✅
+
+**Reporte actualizado:**
+- ✅ Gaps 2-5 marcados como COMPLETADO
+- ✅ Checklist de aceptación actualizado
+- ✅ Evidencias locales agregadas (tests 17/17, lint 0 errors)
+- ✅ Métricas finales documentadas
+
+**Próximos pasos definidos:**
+- Access Service Token integration
+- Reversión 404/405 a códigos definitivos
+- Activación de smokes de Auth
+
 ---
 
-**Estado:** 🚧 EN PROGRESO  
-**Última actualización:** 2025-10-20T11:10Z
+**Estado:** ✅ LISTO PARA PR  
+**Última actualización:** 2025-10-20T11:15Z
