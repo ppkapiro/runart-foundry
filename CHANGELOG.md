@@ -9,30 +9,37 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) 
 *No hay cambios pendientes.*
 
 ## [Released — 2025-10-20] (ops)
-### Added (2025-10-20)
-- **Pages Functions — Hardening Preview:**
-  - Tests unitarios para RNG determinista: `tests/unit/log_policy.test.js` (10 casos) y `tests/unit/event_keys.test.js` (7 casos). Total: 17 tests con Vitest.
-  - Regla ESLint anti-global-scope en `.eslintrc.json` para prevenir regresiones: prohibe `Math.random()`, `Date.now()`, `new Response()`, `crypto.*` en ámbito global.
-  - Validación de headers canary en smokes (`run-smokes.mjs`): 4 escenarios whoami verifican `X-RunArt-Canary: preview` y `X-RunArt-Resolver: utils`.
-  - Configuración Vitest (`vitest.config.js`) y scripts npm: `test:vitest`, `test:vitest:watch`, `lint`, `lint:fix`.
+### Fixed (2025-10-20)
+- **Pages Functions — Hardening en producción:** Promoción completada tras el merge de `docs/pages-functions-prod-close`; el workflow `Deploy Production` (`run 18657958933`) publicó los cambios y mantuvo la protección de Access para visitantes.
 
-### Changed (2025-10-20)
-- **Wrangler config:** KV namespaces explícitos en `[env.preview.kv_namespaces]` eliminan warning de herencia.
-- **Documentación inline:** Comentarios TEMPORAL en `api/inbox.js` y `api/decisiones.js` indican plan de reversión (404/405 → 403/401) cuando Access Service Token esté configurado.
+### Added (2025-10-20)
+- **Smokes de producción (no-auth):** Nueva suite de smoke tests Node.js (`apps/briefing/tests/scripts/run-smokes-prod.mjs`) para validar producción sin autenticación:
+  - Scripts npm: `smokes:prod` y `smokes:prod:auth` (preparado para Access Service Token).
+  - Makefile targets: `smokes-prod` y `smokes-prod-auth`.
+  - Integración CI: workflow `pages-prod.yml` ejecuta smokes post-deploy y sube artefactos.
+  - Helper compartido: `apps/briefing/tests/scripts/lib/http.js` con fetch timeout y utilidades de logging.
 
 ### Validated (2025-10-20)
-- **Tests locales:** 17/17 tests unitarios PASS (592ms).
-- **Lint:** 0 errores, 4 warnings pre-existentes (unused vars, ignored files).
-- **Reporte completo:** `_reports/PROBLEMA_pages_functions_preview.md` actualizado a estado LISTO PARA PR.
+- **Deploy Production:** Run `18657958933` en GitHub Actions (workflow `deploy-production.yml`) finalizó en ✅ SUCCESS y registró URL oficial `https://runart-foundry.pages.dev`.
+- **Smokes manuales producción (bash):** `make test-smoke-prod` (timestamp `20251020T160949Z`) verificó 5/5 endpoints con redirección 302 a `runart-briefing-pages.cloudflareaccess.com`; evidencias almacenadas en `apps/briefing/_reports/smokes_prod_20251020T160949Z/`.
+- **Smokes Node.js producción (no-auth):** Ejecutados localmente (timestamp `20251020T163744Z`) contra `https://runart-foundry.pages.dev` con resultados:
+  - A: GET `/` → 302 (Access) ✅
+  - B: GET `/api/whoami` → 302 (Access) ✅
+  - C: HEAD `/robots.txt` → 302 (Access) ✅
+  - Resumen: PASS=3 FAIL=0 TOTAL=3
+  - Artefactos: `apps/briefing/_reports/tests/smokes_prod_20251020T163744/log.txt`
+
+### Docs (2025-10-20)
+- Bitácora 082 actualizada con:
+  - Sección "Smokes de producción (no-auth)" con resultados, artefactos y criterios de éxito.
+  - Sección "Smokes de producción (auth)" marcada como pendiente con requisitos y scripts disponibles.
+- `_reports/PROBLEMA_pages_functions_preview.md` actualizado con:
+  - Estado "COMPLETADO EN PRODUCCIÓN".
+  - Bloque "Promoción a Prod — Evidencias Smokes" con tabla de resultados, artefactos y referencias al workflow CI.
+- Nuevo seguimiento `reports/2025-10-20_access_service_token_followup.md` para la integración del Access Service Token.
 
 ### Pending
-- Integración de Access Service Token para activar smokes de autenticación.
-- Reversión de códigos temporales 404/405 a definitivos 403/401.
-- Actualización de bitácora 082 y validación CI del PR.
-
----
-
-*No hay otros cambios pendientes.*
+- Completar la integración del Access Service Token para habilitar smokes autenticados y revertir códigos temporales en `/api/inbox` y `/api/decisiones` (ver `reports/2025-10-20_access_service_token_followup.md`).
 
 ## [Released — 2025-10-15] (ops)
 ### Fixed (2025-10-15)

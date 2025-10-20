@@ -1,5 +1,7 @@
 # Pages Functions Preview — Hardening y Cierre de Gap
 
+# Pages Functions Preview — Hardening y Cierre de Gap
+
 **Fecha:** 2025-10-20  
 **Rama:** `feat/pages-functions-preview-hardening`  
 **Objetivo:** Cerrar el gap hacia main con solución sólida para Pages Functions en preview
@@ -8,15 +10,13 @@
 
 ## 📋 Resumen Ejecutivo
 
-### Estado Actual (2025-10-20)
-- ✅ Pages Functions desplegadas en preview (desde 2025-10-15)
-- ✅ Error "Disallowed operation in global scope" resuelto
-- ✅ `/api/whoami` responde 200 con headers canary en preview
-- ✅ Deploy production operativo (run 18545936306)
+### Estado Actual (2025-10-20T16:12Z)
+- ✅ Pages Functions desplegadas en preview y producción tras merge a `main`
 - ✅ Deploy preview en CI — run 18657545446 (`feat/pages-functions-preview-hardening`)
-- ⚠️  Pendiente: Tests unitarios para RNG determinista
-- ⚠️  Pendiente: Regla ESLint anti-global-scope
-- ⚠️  Pendiente: Contrato de headers canary en smokes
+- ✅ Deploy production en GitHub Actions — run 18657958933 (`Deploy Production`)
+- ✅ Smokes manuales en producción PASS (302 hacia Cloudflare Access) — artefactos `apps/briefing/_reports/smokes_prod_20251020T160949Z/`
+- ✅ Documentación cerrada (Bitácora 082, CHANGELOG, PROBLEMA)
+- 🔄  Seguimiento: Integrar Access Service Token y reactivar smokes autenticados (`reports/2025-10-20_access_service_token_followup.md`)
 
 ### Cambios Aplicados (2025-10-15)
 **PR #45:** `fix(pages-functions): resolver global scope + deploy preview operativo`
@@ -32,11 +32,12 @@
 ## 🔍 Evidencias del Estado Actual
 
 ### 1. Último Deploy Exitoso
-**Run ID:** 18545936306  
-**Fecha:** 2025-10-15T23:58:14Z  
+**Run ID:** 18657958933  
+**Fecha:** 2025-10-20T16:05:00Z  
 **Branch:** main  
 **Conclusión:** ✅ SUCCESS  
-**Workflow:** CI — Briefing
+**Workflow:** Deploy Production (Cloudflare Pages)  
+**Producción:** https://runart-foundry.pages.dev
 
 ### 1bis. Deploy Preview CI (branch)
 **Run ID:** 18657545446  
@@ -259,17 +260,17 @@ preview_id = "7d80b07de98e4d9b9d5fd85516901ef6"
 
 ### Documentación
 - [x] Comentarios inline en código temporal
-- [ ] Bitácora 082 actualizada (pendiente)
-- [ ] CHANGELOG.md actualizado (pendiente)
+- [x] Bitácora 082 actualizada con cierre de producción
+- [x] CHANGELOG.md actualizado con release 2025-10-20
 
 ### Deploy
 - [x] Preview continúa funcionando (run 18657545446)
-- [ ] No regresiones en producción (validar en CI)
+- [x] No regresiones en producción (run 18657958933 + smokes manuales)
 - [x] CI checks pasan (run 18657545446)
 
 ---
 
-## 📊 Evidencias Locales
+## � Evidencias Locales
 
 ### Tests Unitarios (2025-10-20T11:13)
 ```
@@ -290,7 +291,7 @@ Test Files  2 passed (2)
 
 ---
 
-## 📊 Métricas
+## � Métricas
 
 ### Antes de este PR
 - Archivos modificados (PR #45): 10
@@ -306,7 +307,7 @@ Test Files  2 passed (2)
 
 ---
 
-## 🔜 Próximos Pasos (Post-Merge)
+## � Próximos Pasos (Post-Merge)
 
 1. **Access Service Token Integration**
    - Configurar secrets en GitHub
@@ -434,6 +435,20 @@ npm run test:vitest
 
 **Resultado:** ✅ Deployment preview exitoso. Las variables `PREVIEW_BASE_URL` y `SMOKES_TS` quedaron exportadas para pasos posteriores y la documentación 082 se actualizó con los resultados de smokes.
 
+### 2025-10-20T16:09 — Deploy producción + smokes finales ✅
+
+**Contexto:** Tras el merge vía squash de PR #47, se monitoreó el workflow `Deploy Production` para confirmar que la configuración de KV y Access quedara alineada en el entorno principal.
+
+**Acción:**
+- Workflow `Deploy Production` (`run 18657958933`) ejecutado en `main`; el log registra build de Pages + publicación de Functions sin alertas de namespaces.
+- Se revisó el log de publicación para capturar URL final (`https://runart-foundry.pages.dev`) y confirmar ausencia de warnings de Wrangler.
+- Se corrió `make test-smoke-prod` (`20251020T160949Z`) desde `apps/briefing/`, enfocándose en validar que la protección Access se mantenga activa en producción.
+- Evidencias archivadas en `apps/briefing/_reports/smokes_prod_20251020T160949Z/` (stdout, headers, cuerpo, resumen).
+
+**Resultado:** ✅ 5/5 pruebas PASS con respuesta 302 hacia `runart-briefing-pages.cloudflareaccess.com`; el flujo confirma que los endpoints `/`, `/api/whoami`, `/api/inbox` y `/api/decisiones` están detrás de Access cuando no hay sesión. El Deploy Production quedó marcado como SUCCESS y se documentó el cierre en Bitácora 082 y CHANGELOG.
+
+**Pendiente asociado:** Completar el follow-up `reports/2025-10-20_access_service_token_followup.md` para habilitar smokes autenticados y revertir códigos temporales 404/405 cuando el token esté disponible.
+
 ### 2025-10-20T11:15 — Preparación PR y Cierre ✅
 
 **Reporte actualizado:**
@@ -449,5 +464,53 @@ npm run test:vitest
 
 ---
 
+## 🎯 Promoción a Prod — Evidencias Smokes
+
+### Smokes de producción (no-auth) — 2025-10-20T16:37:44Z
+
+**Contexto:**
+- Nueva suite de smokes Node.js (`run-smokes-prod.mjs`) diseñada específicamente para validar producción con y sin autenticación.
+- Ejecutada localmente contra `https://runart-foundry.pages.dev` para verificar protección de Cloudflare Access.
+
+**Resultados:**
+
+| Check | Endpoint | Método | Status | Location Host | Resultado |
+|-------|----------|--------|--------|---------------|-----------|
+| A | `/` | GET | 302 | `runart-briefing-pages.cloudflareaccess.com` | ✅ PASS |
+| B | `/api/whoami` | GET | 302 | `runart-briefing-pages.cloudflareaccess.com` | ✅ PASS |
+| C | `/robots.txt` | HEAD | 302 | `runart-briefing-pages.cloudflareaccess.com` | ✅ PASS |
+
+**Resumen:** PASS=3 FAIL=0 TOTAL=3
+
+**Artefactos:**
+- Carpeta: `apps/briefing/_reports/tests/smokes_prod_20251020T163744/`
+- Log completo: `log.txt` (incluye headers Cf-RAY, location completa con JWT meta)
+- Headers capturados: `date`, `server`, `cf-ray`, `location`
+
+**Validaciones adicionales:**
+- Todos los endpoints protegidos redirigen correctamente a la URL de login de Access.
+- El matcher de Access (`/cdn-cgi/access/login`) funciona correctamente.
+- Headers de Cloudflare presentes (`cf-ray`, `server: cloudflare`).
+
+**Workflow CI:**
+- Integrado en `.github/workflows/pages-prod.yml`:
+  - Paso "Run Prod Smokes (No-Auth)" ejecuta `npm run smokes:prod`.
+  - Paso "Upload Prod Smokes Artifacts" sube artefactos automáticamente.
+- Deploy Production run: `18657958933` (SUCCESS).
+
+**Smokes AUTH:**
+- Estado: Preparados pero desactivados.
+- Requisitos: `ACCESS_SERVICE_TOKEN` + `RUN_AUTH_SMOKES=1`.
+- Script disponible: `npm run smokes:prod:auth`.
+- Próxima fase: Integrar Access Service Token según `reports/2025-10-20_access_service_token_followup.md`.
+
+---
+
+**Estado:** ✅ COMPLETADO EN PRODUCCIÓN  
+**Última actualización:** 2025-10-20T16:37:44Z
+**Estado:** ✅ COMPLETADO EN PRODUCCIÓN  
+**Última actualización:** 2025-10-20T16:37:44Z
+=======
 **Estado:** ✅ LISTO PARA PR  
 **Última actualización:** 2025-10-20T15:52Z
+>>>>>>> origin/main

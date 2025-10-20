@@ -75,6 +75,20 @@ test-smoke-wrapper:
 	@echo "Ejecutando smoke tests avanzados vía Node.js (manejo automático de Access)"
 	@bash scripts/smoke_wrapper.sh "$$PROD_URL"
 
+smokes-prod:
+	@if [ -z "$$PROD_BASE_URL" ]; then \
+		echo "Set PROD_BASE_URL=https://<production-domain> before running make smokes-prod"; \
+		exit 1; \
+	fi
+	npm run --silent --prefix . smokes:prod
+
+smokes-prod-auth:
+	@if [ -z "$$PROD_BASE_URL" ]; then \
+		echo "Set PROD_BASE_URL=https://<production-domain> before running make smokes-prod-auth"; \
+		exit 1; \
+	fi
+	RUN_AUTH_SMOKES=1 npm run --silent --prefix . smokes:prod
+
 test-logs:
 	@if [ -f scripts/test_logs.mjs ]; then \
 		node scripts/test_logs.mjs; \

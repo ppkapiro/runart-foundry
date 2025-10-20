@@ -15,6 +15,8 @@
     "lint": "eslint functions/**/*.js",
     "lint:fix": "eslint functions/**/*.js --fix",
     "test:e2e": "node tests/scripts/run-smokes.mjs",
+    "smokes:prod": "node ./tests/scripts/run-smokes-prod.mjs",
+    "smokes:prod:auth": "RUN_AUTH_SMOKES=1 node ./tests/scripts/run-smokes-prod.mjs",
     "verify:access:preview": "node ../../tools/diagnostics/verify_access_service_token.mjs",
     "canary:post": "bash ../../tools/diagnostics/postprocess_canary_summary.sh",
     "access:deepcheck": "node ../../tools/diagnostics/access_deepcheck.mjs",

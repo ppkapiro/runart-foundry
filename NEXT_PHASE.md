@@ -21,6 +21,7 @@ Activar datos reales y sesiones "Ver como" sobre la base consolidada de Fase 5, 
 | T+5 | `packages/env-banner` 0.1.0 liberado y scripts migrados | Plataforma | README del paquete + registro en `plans/releases.md` |
 
 ## Próximos entregables inmediatos (T+7 días)
+- [ ] Completar follow-up Access Service Token (`reports/2025-10-20_access_service_token_followup.md`).
 - [ ] Ejecutar sesión "Ver como" (owner) y completar plantilla correspondiente.
 - [ ] Registrar primera corrida programada de `docs-lint` + `status-update` en `_reports/qa_runs/`.
 - [ ] Anexar log de prueba de alertas `LOG_EVENTS` en `ops/observabilidad.md`.

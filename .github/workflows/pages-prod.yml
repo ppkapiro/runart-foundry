@@ -28,8 +28,6 @@ jobs:
       CF_PROJECT_NAME: runart-foundry
       TARGET_BRANCH: main
       RUNART_ENV: production
-      ACCESS_CLIENT_ID: ${{ secrets.ACCESS_CLIENT_ID }}
-      ACCESS_CLIENT_SECRET: ${{ secrets.ACCESS_CLIENT_SECRET }}
       AUS_XMOC: "1"
       SMOKES_NONBLOCKING: "1"
     steps:
@@ -113,15 +111,20 @@ jobs:
           done
           echo "HTTP OK"
 
-      - name: Run HTTP smokes against Production (gate)
+      - name: Run Prod Smokes (No-Auth)
         env:
-          PROD_URL: https://runart-foundry.pages.dev/
-          SMOKES_RETRIES: 3
-          SMOKES_RETRY_DELAY_MS: 1500
-          SMOKES_ALLOW_302: "1"
+          PROD_BASE_URL: https://runart-foundry.pages.dev/
         run: |
-          node apps/briefing/tests/scripts/run-smokes.mjs --base-url "$PROD_URL" --allow-302 --no-follow
+          npm --prefix apps/briefing run smokes:prod
         # Si los smokes fallan, se detiene el pipeline (exit code distinto de cero)
+
+      - name: Upload Prod Smokes Artifacts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: prod-smokes-${{ github.run_id }}
+          path: apps/briefing/_reports/tests/smokes_prod_*/
+          if-no-files-found: ignore
 
       - name: Preflight Cloudflare API token (Pages)
         run: |
@@ -156,48 +159,10 @@ jobs:
           branch: ${{ env.TARGET_BRANCH }}
           wranglerVersion: '3'
 
-      - name: Auth smoke (AUS_XMOC, post-deploy, non-blocking)
-        env:
-          PROD_URL: https://runart-foundry.pages.dev/
-          ACCESS_CLIENT_ID: ${{ secrets.ACCESS_CLIENT_ID }}
-          ACCESS_CLIENT_SECRET: ${{ secrets.ACCESS_CLIENT_SECRET }}
-          AUS_XMOC: "1"
-          SMOKES_NONBLOCKING: "1"
-        run: |
-          set -e
-          TS=$(date -u +%Y%m%dT%H%M%SZ)
-          DEST="apps/briefing/_reports/tests/T4_prod_smokes/$TS"
-          mkdir -p "$DEST"
-          STATUS="SKIPPED"
-          if [ "${AUS_XMOC}" = "1" ] && [ -n "${ACCESS_CLIENT_ID}" ] && [ -n "${ACCESS_CLIENT_SECRET}" ]; then
-            STATUS="NONBLOCKING-FAIL"
-            curl -sS https://runart-foundry.pages.dev/api/health | tee "$DEST/health_prod.json" | jq -e '.env=="production" and .ok==true' && OK_HEALTH=1 || OK_HEALTH=0
-            curl -sS -H "CF-Access-Client-Id: ${ACCESS_CLIENT_ID}" -H "CF-Access-Client-Secret: ${ACCESS_CLIENT_SECRET}" \
-              https://runart-foundry.pages.dev/api/whoami | tee "$DEST/whoami_prod.json" | jq -e '.env=="production"' && OK_AUTH=1 || OK_AUTH=0
-
-            if [ "$OK_HEALTH" = "1" ] && [ "$OK_AUTH" = "1" ]; then
-              STATUS="PASS"
-            fi
-          fi
-
-          printf "# T4 Producción (auth-smoke)\n\n- Fecha (UTC): %s\n- SMOKES_STATUS: %s\n" "$TS" "$STATUS" > "$DEST/README.md"
-          echo "SMOKES_STATUS=$STATUS" >> $GITHUB_ENV
-
-          # no bloquear el pipeline si SMOKES_NONBLOCKING=1
-          if [ "${SMOKES_NONBLOCKING}" != "1" ] && [ "$STATUS" != "PASS" ]; then
-            echo "Auth-smoke FAIL y bloqueante"; exit 1
-          fi
-
-      - name: Auth smoke (Prod SKIPPED — missing secrets)
-        if: ${{ ! (env.ACCESS_CLIENT_ID != '' && env.ACCESS_CLIENT_SECRET != '' ) }}
-        run: |
-          echo "Auth smoke Prod SKIPPED: falta ACCESS_CLIENT_ID/ACCESS_CLIENT_SECRET"
-
-      - name: Update 082 (Prod, auth)
+      - name: Update 082 (Prod, auth placeholder)
         run: |
           TS=$(date -u +%Y%m%dT%H%M%SZ)
-          REPORT="_reports/smokes_prod_${TS}/"
           FILE="apps/briefing/docs/internal/briefing_system/ci/082_reestructuracion_local.md"
           { echo "## Smokes Producción (auth) — ${TS}";
-            echo "- Autenticado (Service Token): PASS|SKIPPED|FAIL";
-            echo "- Evidencias: ${REPORT}"; } >> "$FILE"
+            echo "- Autenticado (Service Token): SKIPPED";
+            echo "- Evidencias: —"; } >> "$FILE"

@@ -159,6 +159,32 @@ Bitácora para coordinar la separación "Cliente vs Equipo" en la documentación
 - Estado: auto-PR creado y mergeado tras checks (open-pr + Cloudflare Pages; guardias adicionales en curso de verificación)
 - Nota: flujo end-to-end estable; se mantiene RUNART_ENV conforme a entorno
 
+#### Cierre Pages Functions Hardening — Producción (2025-10-20T16:12Z)
+- **Objetivos cumplidos:** Deploy Production (`run 18657958933`) completado sin errores; verificación manual confirma que `https://runart-foundry.pages.dev` y `/api/*` redirigen 302 a Cloudflare Access sin sesión.
+- **Documentos relacionados:** `_reports/PROBLEMA_pages_functions_preview.md`, `apps/briefing/_reports/smokes_prod_20251020T160949Z/`, `reports/2025-10-20_access_service_token_followup.md`.
+- **Validaciones:** Workflow `Deploy Production` en verde; `make test-smoke-prod` (5/5 PASS) con evidencias archivadas (`smokes_stdout_prod.txt`, capturas de headers). Además, script Node `npm run smokes:prod` disponible para CI (no-auth), artefactos `apps/briefing/_reports/tests/smokes_prod_<ts>/`.
+- **Resultados técnicos:** SIN Access token activo → smokes autenticados saltados; headers capturados muestran `Cf-RAY` y `Location` apuntando a `runart-briefing-pages.cloudflareaccess.com`, confirmando blindaje Access.
+- **Observaciones:** Mantener códigos temporales 404/405 en Functions hasta completar el follow-up del Access Service Token; actualizar Runbook y smokes cuando el token exista.
+- **Próxima fase:** Integrar Access Service Token y restaurar smokes autenticados (`reports/2025-10-20_access_service_token_followup.md`).
+
+### Smokes de producción (no-auth) — 2025-10-20T16:37:44Z
+- **Fecha/hora de ejecución:** 2025-10-20T16:37:44Z
+- **Resultados:**
+  - A: GET `/` → **302** (Access redirect a `runart-briefing-pages.cloudflareaccess.com`) ✅
+  - B: GET `/api/whoami` → **302** (Access redirect a `runart-briefing-pages.cloudflareaccess.com`) ✅
+  - C: HEAD `/robots.txt` → **302** (Access redirect a `runart-briefing-pages.cloudflareaccess.com`) ✅
+- **Artefactos:** `apps/briefing/_reports/tests/smokes_prod_20251020T163744/log.txt`
+- **Resumen:** PASS=3 FAIL=0 TOTAL=3
+- **Criterios de éxito:** Todos los endpoints redirigen correctamente a Cloudflare Access (302) cuando no hay sesión autenticada, confirmando la protección activa en producción.
+
+### Smokes de producción (auth) — Pendiente
+- **Estado:** Preparado pero desactivado hasta disponibilidad del Access Service Token.
+- **Requisitos:**
+  - `ACCESS_SERVICE_TOKEN` configurado en GitHub Secrets y entorno local.
+  - `RUN_AUTH_SMOKES=1` para habilitar.
+  - Endpoints esperados: `/api/whoami` → 200 con `env:"production"`, `/api/inbox` → 200/403 según rol, `/api/decisiones` → 200/401/403 según credenciales.
+- **Scripts disponibles:** `npm run smokes:prod:auth` y `make smokes-prod-auth`.
+
 ## Actualización Fase A · Access (2025-10-11)
 
 - Rama activa: `feature/access-login-tabs` (derivada de `main` tras merge de `deploy/apu-briefing-test-triggers`).
