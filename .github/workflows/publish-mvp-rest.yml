@@ -1,0 +1,18 @@
+name: publish-mvp-rest
+on: { workflow_dispatch: {} }
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Publish MVP via REST
+        env:
+          WP_BASE_URL: ${{ vars.WP_BASE_URL }}
+          WP_USER: ${{ secrets.WP_USER }}
+          WP_APP_PASSWORD: ${{ secrets.WP_APP_PASSWORD }}
+        run: |
+          AUTH=$(printf "%s:%s" "$WP_USER" "$WP_APP_PASSWORD" | base64)
+          DATA='{"title":"RunArt Foundry — Preview","content":"<h1>RunArt Foundry</h1><p>Staging listo. Auditoría F9 activa.</p>","status":"publish"}'
+          curl -sS -X POST "$WP_BASE_URL/wp-json/wp/v2/pages" \
+            -H "Authorization: Basic $AUTH" -H "Content-Type: application/json" \
+            -d "$DATA" | sed -E 's/(password|cookie|set-cookie).*/***REDACTED***/Ig'

@@ -39,6 +39,22 @@ Address: 2607:f1c0:100f:f000::200
 
 ---
 
+## Inicio Fase 9 — Auditoría Inteligente y Auto-Remediación (2025-10-20)
+- Documentos 085/086 creados
+- rules/audit_rules.yml activo
+- Motor audit_engine.py implementado
+- Scripts remediate.sh y rotate_wp_app_password.sh listos
+- Workflow audit-and-remediate.yml configurado
+- MVP publish_mvp_staging.sh preparado
+
+## F9 — Auditoría IA y Auto-Remediación (2025-10-20)
+- audit-and-remediate.yml creado (cron/dispatch, pendiente de activar en Actions)
+- rules/audit_rules.yml activo; scoring con thresholds red/yellow/green
+- scripts de remediación disponibles (retry, flush, rotate selectiva, sync placeholders)
+- MVP publicado en STAGING (CLI o REST) — ver /
+- Validación: https://staging.runartfoundry.com/ responde 200, REST responde 300
+- Verificar credenciales SSH y acceso WP-CLI para automatización total
+
 ## 🪪 1. Contexto General
 
 ### 1.1 Cierre Fase 6 y Arranque Fase 7
