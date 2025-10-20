@@ -89,6 +89,15 @@ Registro de riesgos en tabla con análisis profundo:
 ### 8. **README.md** (este archivo)
 Índice y guía de uso de la carpeta.
 
+### 9. **070_preview_staging_plan.md** ✅
+Plan operativo para validación en staging:
+- Setup de infraestructura (subdominio, BD, archivos, credenciales)
+- Checklist de 3 fases (infraestructura, credenciales, GitHub)
+- Validación secuencial de 4 workflows (verify-home → settings → menus → media)
+- Transición a producción (cambio de variables, validación final)
+- Rollback plan (revertir a staging o placeholder si falla)
+- Timeline estimado: ~4-5 horas total
+
 ---
 
 ## 🎯 Flujo de Uso
@@ -192,36 +201,38 @@ HTTP/1.1 401 Unauthorized
 
 ### Documentación ✅
 - [x] README.md (índice y guía de uso)
-- [x] 000_state_snapshot_checklist.md (verificación central)
+- [x] 000_state_snapshot_checklist.md (verificación central — consolidado con hallazgos e interpretación)
 - [x] 010_repo_access_inventory.md (inventario Git)
 - [x] 020_local_mirror_inventory.md (activos locales)
 - [x] 030_ssh_connectivity_and_server_facts.md (servidor)
 - [x] 040_wp_rest_and_authn_readiness.md (REST/Auth)
-- [x] 050_decision_record_styling_vs_preview.md (ADR con opciones)
+- [x] 050_decision_record_styling_vs_preview.md (ADR — 🟢 Opción 2 recomendada)
 - [x] 060_risk_register_fase7.md (riesgos + matriz)
+- [x] 070_preview_staging_plan.md (plan operativo staging — nuevo)
 - [x] _templates/ con 4 archivos de ejemplo (sin secretos)
 - [x] .gitignore (proteger carpeta de secretos)
 
-### Owner Actions ⏳
-- [ ] Revisar `000_state_snapshot_checklist.md` y documentos 01X-04X
-- [ ] Pegar evidencias en `_templates/evidencia_*.txt` (texto plano, SIN secretos)
-- [ ] Marcar checkboxes en Issue #50 (Bloque "Evidencias Fase 7")
-- [ ] Revisar `050_decision_record_styling_vs_preview.md` (3 opciones + riesgo)
-- [ ] Confirmar decisión: "Styling primero" / "Preview primero" / "Mixto"
+### Consolidación de Evidencias ⏳
+- [ ] Owner pega `git remote -v` en `_templates/evidencia_repo_remotes.txt`
+- [ ] Owner pega árbol local en `_templates/evidencia_local_mirror.txt` (crear)
+- [ ] Owner pega `uname -a`, `php -v`, `nginx -v` en `_templates/evidencia_server_versions.txt`
+- [ ] Owner pega `curl -i /wp-json/` en `_templates/evidencia_rest_sample.txt`
 
-### Copilot Actions ⏳ (después de owner)
-- [ ] Leer evidencias en `_templates/`
-- [ ] Consolidar hallazgos en `000_state_snapshot_checklist.md`
-- [ ] Validar riesgos (confirmar/actualizar `060_risk_register_fase7.md`)
-- [ ] Proponer decisión final basada en riesgos
-- [ ] Generar Next Steps según decisión elegida
+### ADR & Decisión ⏳
+- [ ] Owner revisar ADR (`050_decision_record_styling_vs_preview.md`)
+- [ ] Owner confirmar decisión: Preview / Styling / Mixto en Issue #50
+- [ ] Copilot recibe confirmación y procede con plan elegido
 
-### Fase 4: Implementación ⏳
-- [ ] Se procede acorde a la decisión (Styling / Preview / Mixto)
-- [ ] Cargar credenciales reales en GitHub (WP_USER, WP_APP_PASSWORD)
-- [ ] Ejecutar verify-* workflows
-- [ ] Validar Auth=OK en todos los workflows
-- [ ] Markdowncheck de resultados
+### Implementación (Si se elige Preview Primero) ⏳
+- [ ] Owner prepara staging (hostname, BD, archivos)
+- [ ] Owner crea credenciales en WP-staging
+- [ ] Owner carga variables/secrets en GitHub (apuntando a staging)
+- [ ] Copilot ejecuta verify-* en staging (4 workflows)
+- [ ] Adjuntar artifacts staging en Issue #50
+- [ ] Owner cambia variables a producción
+- [ ] Copilot ejecuta verify-* en producción (4 workflows)
+- [ ] Adjuntar artifacts producción en Issue #50
+- [ ] ✅ Fase 7 COMPLETADA
 
 ---
 
@@ -244,10 +255,11 @@ HTTP/1.1 401 Unauthorized
 
 | Ítem | Cantidad | Estado |
 |------|----------|--------|
-| Documentos Markdown | 8 | ✅ Completo |
-| Templates de Evidencia | 4 | ✅ Completo (+ .gitignore) |
-| Secciones Documentadas | ~50 | ✅ Completo |
-| Líneas de documentación | ~2,500 | ✅ Completo |
+| Documentos Markdown | 9 | ✅ Completo (incl. 070_preview_staging_plan.md) |
+| Templates de Evidencia | 4 | ⏳ Vacíos (esperando owner) |
+| Secciones Documentadas | ~60 | ✅ Completo |
+| Líneas de documentación | ~3,200 | ✅ Completo |
 | Riesgos Identificados | 10 | ✅ Con matriz |
-| Opciones de Decisión | 3 | ✅ Con análisis |
-| Ejemplos Incluidos | 30+ | ✅ Correcto/Incorrecto |
+| Opciones de Decisión | 3 | ✅ Con análisis + recomendación |
+| Ejemplos Incluidos | 35+ | ✅ Correcto/Incorrecto |
+| Plan operativo (staging) | 1 | ✅ Detallado |
