@@ -7,7 +7,23 @@
 set -euo pipefail
 
 DATE=$(date +%Y%m%d_%H%M%S)
-REPORT_DIR="_reports/repair_final"
+
+# Permitir configurar rutas base vía variables de entorno
+# BASE_PATH: raíz donde vive WordPress de producción (por defecto /)
+# STAGING_SUBDIR: subdirectorio de staging relativo a BASE_PATH (por defecto staging)
+BASE_PATH=${BASE_PATH:-/}
+STAGING_SUBDIR=${STAGING_SUBDIR:-staging}
+
+# Determinar carpeta de reportes (prioridad: REPORT_DIR env -> repo root -> cwd)
+if [ -n "${REPORT_DIR:-}" ]; then
+    REPORT_DIR="$REPORT_DIR"
+else
+    if git_root=$(git rev-parse --show-toplevel 2>/dev/null); then
+        REPORT_DIR="$git_root/_reports/repair_final"
+    else
+        REPORT_DIR="$(pwd)/_reports/repair_final"
+    fi
+fi
 mkdir -p "$REPORT_DIR"
 
 echo "=== 🔍 INICIANDO REPARACIÓN FINAL — ESTRUCTURA RAÍZ DETECTADA ==="
@@ -18,8 +34,13 @@ echo "=== 🔍 INICIANDO REPARACIÓN FINAL — ESTRUCTURA RAÍZ DETECTADA ==="
 
 echo "→ Validando estructura de archivos..."
 
-PROD_WP="/wp-config.php"
-STAGING_WP="/staging/wp-config.php"
+# Normalizar BASE_PATH (quitar trailing slash excepto si es /)
+if [ "$BASE_PATH" != "/" ]; then
+    BASE_PATH="${BASE_PATH%/}"
+fi
+
+PROD_WP="$BASE_PATH/wp-config.php"
+STAGING_WP="$BASE_PATH/$STAGING_SUBDIR/wp-config.php"
 
 # Detectar si estamos en entorno local o servidor real
 if [ ! -f "$PROD_WP" ] && [ ! -f "$STAGING_WP" ]; then
@@ -122,12 +143,12 @@ if [ "$SAFE_MODE" = false ] && [ -f "$PROD_WP" ]; then
             echo "✅ .htaccess sin redirecciones a staging."
         fi
     else
-        echo "ℹ️ Archivo .htaccess no encontrado en raíz"
+        echo "ℹ️ Archivo .htaccess no encontrado en $BASE_PATH"
     fi
     
     # Limpiar caché producción
-    if [ -d "/wp-content/cache" ]; then
-        rm -rf /wp-content/cache/* 2>/dev/null || true
+    if [ -d "$BASE_PATH/wp-content/cache" ]; then
+        rm -rf "$BASE_PATH/wp-content/cache"/* 2>/dev/null || true
         echo "✅ Caché local de producción limpiada."
     else
         echo "ℹ️ No se encontró caché local en producción."
@@ -176,8 +197,8 @@ if [ "$SAFE_MODE" = false ] && [ -f "$STAGING_WP" ]; then
     echo "✅ URLs fijas agregadas en wp-config.php de staging."
     
     # Limpiar caché de staging
-    if [ -d "/staging/wp-content/cache" ]; then
-        rm -rf /staging/wp-content/cache/* 2>/dev/null || true
+    if [ -d "$BASE_PATH/$STAGING_SUBDIR/wp-content/cache" ]; then
+        rm -rf "$BASE_PATH/$STAGING_SUBDIR/wp-content/cache"/* 2>/dev/null || true
         echo "✅ Caché local de staging limpiada."
     else
         echo "ℹ️ No se encontró caché local en staging."
@@ -210,7 +231,7 @@ else
 fi
 
 # Verificar carpeta uploads de staging
-UPLOADS="/staging/wp-content/uploads"
+UPLOADS="$BASE_PATH/$STAGING_SUBDIR/wp-content/uploads"
 if [ -e "$UPLOADS" ]; then
     if [ -L "$UPLOADS" ]; then
         echo "⚠️ uploads en staging es un enlace simbólico a producción."
@@ -218,8 +239,8 @@ if [ -e "$UPLOADS" ]; then
             echo "🔧 Corrigiendo enlace simbólico..."
             mv "$UPLOADS" "${UPLOADS}_backup_symlink_${DATE}" 2>/dev/null || true
             mkdir -p "$UPLOADS"
-            if [ -d "/wp-content/uploads" ]; then
-                cp -R /wp-content/uploads/* "$UPLOADS" 2>/dev/null || echo "⚠️ Copia parcial de imágenes, verificar permisos."
+            if [ -d "$BASE_PATH/wp-content/uploads" ]; then
+                cp -R "$BASE_PATH/wp-content/uploads"/* "$UPLOADS" 2>/dev/null || echo "⚠️ Copia parcial de imágenes, verificar permisos."
                 echo "✅ uploads de staging ahora es carpeta física independiente."
             else
                 echo "⚠️ Directorio uploads de producción no encontrado para copiar"
@@ -323,7 +344,7 @@ echo "🧾 Generando reporte final..."
         echo "- ✅ URLs corregidas en wp-config.php"
         echo "- ✅ Caché local procesada"
         echo "- $([ -f "$REPORT_DIR/staging_urls_before.txt" ] && echo "✅ URLs en BD verificadas" || echo "⚠️ BD no accesible")"
-        echo "- $([ -L "/staging/wp-content/uploads" ] && echo "🔧 Enlace simbólico de uploads corregido" || echo "✅ Uploads independientes")"
+    echo "- $([ -L "$BASE_PATH/$STAGING_SUBDIR/wp-content/uploads" ] && echo "🔧 Enlace simbólico de uploads corregido" || echo "✅ Uploads independientes")"
         echo "- $([ -n "${WP_USER:-}" ] && echo "✅ Permalinks regenerados" || echo "⚠️ Permalinks no regenerados")"
     else
         echo "- ⚠️ Reparaciones saltadas (modo seguro o archivos no encontrados)"
