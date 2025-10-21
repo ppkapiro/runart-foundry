@@ -36,11 +36,17 @@ jobs:
           RUN_ID: ${{ github.event.inputs.run_id }}
           WP_ADMIN_USER: ${{ secrets.WP_ADMIN_USER }}
           WP_ADMIN_PASS: ${{ secrets.WP_ADMIN_PASS }}
+          RUNART_ADMIN_USER: ${{ secrets.RUNART_ADMIN_USER }}
+          RUNART_ADMIN_PASS: ${{ secrets.RUNART_ADMIN_PASS }}
+          ADMIN_USER: ${{ secrets.ADMIN_USER }}
+          ADMIN_PASS: ${{ secrets.ADMIN_PASS }}
           GH_TOKEN: ${{ github.token }}
         run: |
           set -euo pipefail
-          if [ -n "${WP_ADMIN_USER:-}" ] && [ -n "${WP_ADMIN_PASS:-}" ]; then
-            USER="$WP_ADMIN_USER"; PASS="$WP_ADMIN_PASS"
+          USER="${WP_ADMIN_USER:-}"; [ -z "$USER" ] && USER="${RUNART_ADMIN_USER:-}"; [ -z "$USER" ] && USER="${ADMIN_USER:-}"
+          PASS="${WP_ADMIN_PASS:-}"; [ -z "$PASS" ] && PASS="${RUNART_ADMIN_PASS:-}"; [ -z "$PASS" ] && PASS="${ADMIN_PASS:-}"
+          if [ -n "$USER" ] && [ -n "$PASS" ]; then
+            : # Secrets presentes
             echo "Usando credenciales desde Secrets (WP_ADMIN_USER)"
           else
             mkdir -p /tmp/creds
