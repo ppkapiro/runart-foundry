@@ -1,0 +1,123 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "Fase7: Collect Evidence",
+      "type": "shell",
+      "command": "bash",
+      "args": ["tools/fase7_collect_evidence.sh"],
+      "options": {
+        "cwd": "${workspaceFolder}"
+      },
+      "presentation": {
+        "reveal": "always",
+        "panel": "new"
+      },
+      "isBackground": false,
+      "problemMatcher": [],
+      "group": {
+        "kind": "build",
+        "isDefault": false
+      }
+    },
+    {
+      "label": "Fase7: Process Evidence",
+      "type": "shell",
+      "command": "python",
+      "args": ["tools/fase7_process_evidence.py"],
+      "options": {
+        "cwd": "${workspaceFolder}"
+      },
+      "presentation": {
+        "reveal": "always",
+        "panel": "new"
+      },
+      "isBackground": false,
+      "problemMatcher": [],
+      "group": {
+        "kind": "build",
+        "isDefault": false
+      }
+    }
+    ,
+    {
+      "label": "IONOS: Create Staging",
+      "type": "shell",
+      "command": "bash tools/ionos_create_staging.sh",
+      "isBackground": false,
+      "problemMatcher": []
+    },
+    {
+      "label": "Auditoría Aislamiento Staging",
+      "type": "shell",
+      "command": "./tools/staging_isolation_audit.sh",
+      "options": {
+        "cwd": "${workspaceFolder}"
+      },
+      "presentation": {
+        "reveal": "always",
+        "panel": "new"
+      },
+      "isBackground": false,
+      "problemMatcher": [],
+      "group": {
+        "kind": "test",
+        "isDefault": false
+      }
+    },
+    {
+      "label": "Reparación Automática Prod/Staging",
+      "type": "shell",
+      "command": "./tools/repair_auto_prod_staging.sh",
+      "options": {
+        "cwd": "${workspaceFolder}"
+      },
+      "presentation": {
+        "reveal": "always",
+        "panel": "new"
+      },
+      "isBackground": false,
+      "problemMatcher": [],
+      "group": {
+        "kind": "build",
+        "isDefault": false
+      }
+      },
+      {
+        "label": "Reparación Final Prod/Staging (Raíz)",
+        "type": "shell",
+        "command": "./tools/repair_final_prod_staging.sh",
+        "options": {
+          "cwd": "${workspaceFolder}"
+        },
+        "presentation": {
+          "reveal": "always",
+          "panel": "new"
+        },
+        "isBackground": false,
+        "problemMatcher": [],
+        "group": {
+          "kind": "build",
+          "isDefault": false
+        }
+    },
+    {
+      "label": "🧩 Reparación AUTO-DETECT (IONOS/raíz)",
+      "type": "shell",
+      "command": "./tools/repair_autodetect_prod_staging.sh",
+      "options": {
+        "cwd": "${workspaceFolder}"
+      },
+      "presentation": {
+        "reveal": "always",
+        "panel": "new"
+      },
+      "isBackground": false,
+      "problemMatcher": [],
+      "group": {
+        "kind": "build",
+        "isDefault": true
+      }
+    }
+  ]
+}
