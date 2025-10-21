@@ -1,3 +1,65 @@
+[OK] Métricas exportadas a _reports/metrics_runs.tsv
+096	Verify Home	completed	success	27
+18690905544	Deploy Production (Cloudflare)	completed	success	70
+18690905538	Docs Lint	completed	success	35
+18690905534	Status & Changelog Update	completed	success	17
+18690905523	Pages Deploy Fallback	completed	failure	32
+18690905514	Guard - Require Cloudflare Pages Preview	completed	skipped	3
+18690905507	Structure & Governance Guard	completed	success	19
+18690850237	Verify Media	completed	success	18
+18690849940	Verify Menus	completed	failure	24
+18690849050	Verify Home	completed	failure	22
+18690846158	Status & Changelog Update	completed	success	22
+18690846150	Guard - Require Cloudflare Pages Preview	completed	skipped	1
+18690846148	Deploy Production (Cloudflare)	completed	success	69
+18690846146	Pages Deploy Fallback	completed	failure	27
+18690846137	Structure & Governance Guard	completed	success	17
+18690846127	Docs Lint	completed	success	28
+18690783136	Verify Media	completed	failure	17
+18690782620	Verify Menus	completed	failure	20
+18690782104	Verify Home	completed	failure	22
+18690761794	Verify Settings	completed	success	18
+18690758548	Docs Lint	completed	success	29
+18690758543	Pages Deploy Fallback	completed	failure	303
+18690758533	Guard - Require Cloudflare Pages Preview	completed	skipped	1
+18690758522	Status & Changelog Update	completed	success	19
+18690758516	Deploy Production (Cloudflare)	completed	success	76
+18690758505	Structure & Governance Guard	completed	success	21
+18690700764	Verify Settings	completed	failure	19
+18690696830	Pages Deploy Fallback	completed	failure	32
+18690696821	Deploy Production (Cloudflare)	completed	success	74
+18690696817	Docs Lint	completed	success	30
+18690696814	Guard - Require Cloudflare Pages Preview	completed	skipped	1
+18690696805	Status & Changelog Update	completed	success	16
+18690696794	Structure & Governance Guard	completed	success	29
+18690602480	Debug Auth	completed	success	16
+18690599954	Status & Changelog Update	completed	success	20
+18690599915	Docs Lint	completed	success	41
+18690599861	Pages Deploy Fallback	completed	failure	30
+18690599860	Guard - Require Cloudflare Pages Preview	completed	skipped	1
+18690599858	Deploy Production (Cloudflare)	completed	success	66
+18690599847	Structure & Governance Guard	completed	success	15
+18690565304	Verify Settings	completed	failure	16
+18690542854	audit-and-remediate	completed	success	41
+18690517073	Verify Media	completed	failure	21
+18690516546	Verify Menus	completed	failure	19
+18690516012	Verify Settings	completed	failure	16
+18690515528	Verify Home	completed	failure	22
+18690389345	Verify Media	completed	failure	17
+18690387879	Verify Menus	completed	failure	24
+18690386364	Verify Settings	completed	failure	19
+18690385007	Verify Home	completed	failure	18
+18690284426	Verify Media	completed	failure	21
+18690282983	Verify Menus	completed	failure	27
+18690281524	Verify Settings	completed	failure	16
+18690279934	Verify Home	completed	failure	20
+18690024761	Healthcheck API	completed	failure	13
+18689950017	Pages Deploy Fallback	completed	failure	33
+18689950015	Deploy Production (Cloudflare)	completed	success	64
+18689950009	Status & Changelog Update	completed	success	17
+18689950007	Structure & Governance Guard	completed	success	13
+18689950005	Guard - Require Cloudflare Pages Preview	completed	skipped	1
+18689950003	Docs Lint	completed	success	30
 18689571294	Guard - Require Cloudflare Pages Preview	completed	skipped	1
 18689571286	Deploy Production (Cloudflare)	completed	success	77
 18689571279	Structure & Governance Guard	completed	success	17
