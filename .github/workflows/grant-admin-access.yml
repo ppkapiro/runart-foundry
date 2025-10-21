@@ -50,15 +50,12 @@ jobs:
           USERNAME="${{ inputs.username }}"
           AUTH="$AUTH"
           BASE="$BASE_URL"
-          PASS="$PASS"
-          # Buscar usuario por login
+          # Buscar usuario por login (slug)
           TMP=$(mktemp)
           CODE=$(curl -sS -o "$TMP" -w "%{http_code}" -H "Authorization: Basic $AUTH" "$BASE/wp-json/wp/v2/users?search=$USERNAME" || true)
           ID=""
           if [ "$CODE" = "200" ]; then
-            ID=$(jq -r 
-              ".[ ] | map(select(.slug==\"$USERNAME\" or .name==\"$USERNAME\" or .username==\"$USERNAME\")) | .[0].id // \"\"" \
-              "$TMP" 2>/dev/null || echo "")
+            ID=$(jq -r '[.[] | select(.slug=="'$USERNAME'") ] | .[0].id // ""' "$TMP" 2>/dev/null || echo "")
           fi
           rm -f "$TMP"
           if [ -n "$ID" ]; then
@@ -69,7 +66,7 @@ jobs:
           fi
 
       - name: Crear usuario si no existe
-        if: steps.ensure_user.outputs.exists == 'false'
+        if: ${{ steps.ensure_user.outputs.exists != 'true' }}
         id: create_user
         run: |
           set -euo pipefail
