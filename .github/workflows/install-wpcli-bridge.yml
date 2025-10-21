@@ -16,6 +16,11 @@ env:
 
 jobs:
   install:
+    # Nota: si los secretos de admin están guardados como "Environment secrets",
+    # declara aquí el environment correspondiente (p.ej. "staging") para habilitarlos.
+    # Si no existe, GitHub creará el environment vacío y los secretos seguirán ausentes.
+    environment:
+      name: staging
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -30,40 +35,38 @@ jobs:
           zip -r "/tmp/${ZIP_NAME}" . -x "*.DS_Store"
           echo "zip_path=/tmp/${ZIP_NAME}" >> $GITHUB_OUTPUT
 
-      - name: Determinar credenciales admin (secrets o artifact)
+      - name: Determinar credenciales admin (solo secrets)
         id: creds
         env:
-          RUN_ID: ${{ github.event.inputs.run_id }}
-          WP_ADMIN_USER: ${{ secrets.WP_ADMIN_USER }}
+          WP_ADMIN_USER: ${{ secrets['WP_ADMIN_USER'] }}
           WP_ADMIN_PASS: ${{ secrets.WP_ADMIN_PASS }}
+          WP_ADMIN_USERNAME: ${{ secrets.WP_ADMIN_USERNAME }}
           RUNART_ADMIN_USER: ${{ secrets.RUNART_ADMIN_USER }}
           RUNART_ADMIN_PASS: ${{ secrets.RUNART_ADMIN_PASS }}
+          RUNART_ADMIN_PASSWORD: ${{ secrets.RUNART_ADMIN_PASSWORD }}
           ADMIN_USER: ${{ secrets.ADMIN_USER }}
           ADMIN_PASS: ${{ secrets.ADMIN_PASS }}
-          GH_TOKEN: ${{ github.token }}
         run: |
           set -euo pipefail
-          USER="${WP_ADMIN_USER:-}"; [ -z "$USER" ] && USER="${RUNART_ADMIN_USER:-}"; [ -z "$USER" ] && USER="${ADMIN_USER:-}"
-          PASS="${WP_ADMIN_PASS:-}"; [ -z "$PASS" ] && PASS="${RUNART_ADMIN_PASS:-}"; [ -z "$PASS" ] && PASS="${ADMIN_PASS:-}"
+          FOUND_USER_KEY=""; FOUND_PASS_KEY=""
+          if [ -n "${WP_ADMIN_USER:-}" ]; then USER="$WP_ADMIN_USER"; FOUND_USER_KEY="WP_ADMIN_USER";
+          elif [ -n "${WP_ADMIN_USERNAME:-}" ]; then USER="$WP_ADMIN_USERNAME"; FOUND_USER_KEY="WP_ADMIN_USERNAME";
+          elif [ -n "${RUNART_ADMIN_USER:-}" ]; then USER="$RUNART_ADMIN_USER"; FOUND_USER_KEY="RUNART_ADMIN_USER";
+          elif [ -n "${ADMIN_USER:-}" ]; then USER="$ADMIN_USER"; FOUND_USER_KEY="ADMIN_USER"; else USER=""; fi
+
+          if [ -n "${WP_ADMIN_PASS:-}" ]; then PASS="$WP_ADMIN_PASS"; FOUND_PASS_KEY="WP_ADMIN_PASS";
+          elif [ -n "${RUNART_ADMIN_PASS:-}" ]; then PASS="$RUNART_ADMIN_PASS"; FOUND_PASS_KEY="RUNART_ADMIN_PASS";
+          elif [ -n "${RUNART_ADMIN_PASSWORD:-}" ]; then PASS="$RUNART_ADMIN_PASSWORD"; FOUND_PASS_KEY="RUNART_ADMIN_PASSWORD";
+          elif [ -n "${ADMIN_PASS:-}" ]; then PASS="$ADMIN_PASS"; FOUND_PASS_KEY="ADMIN_PASS";
+          elif [ -n "${ADMIN_PASSWORD:-}" ]; then PASS="$ADMIN_PASSWORD"; FOUND_PASS_KEY="ADMIN_PASSWORD"; else PASS=""; fi
+
           if [ -n "$USER" ] && [ -n "$PASS" ]; then
-            : # Secrets presentes
-            echo "Usando credenciales desde Secrets (WP_ADMIN_USER)"
+            echo "Usando credenciales desde Secrets ($FOUND_USER_KEY/$FOUND_PASS_KEY)"
           else
-            mkdir -p /tmp/creds
-            echo "Descargando artifact desde run $RUN_ID"
-            gh run download "$RUN_ID" -D /tmp/creds
-            CREDS_FILE=$(grep -rilE "runart-admin|username|user:" /tmp/creds || true)
-            if [ -z "$CREDS_FILE" ]; then
-              echo "No se encontró archivo de credenciales en artifacts" >&2
-              exit 2
-            fi
-            echo "Archivo de credenciales: $CREDS_FILE"
-            USER=$(grep -iE "^(username|user)\s*[:=]" "$CREDS_FILE" | head -1 | sed -E 's/^[^:]*[:=]\s*//')
-            PASS=$(grep -iE "^(password|pass|pwd)\s*[:=]" "$CREDS_FILE" | head -1 | sed -E 's/^[^:]*[:=]\s*//')
-            if [ -z "$USER" ] || [ -z "$PASS" ]; then
-              echo "No se pudieron parsear USER/PASS del archivo de credenciales" >&2
-              exit 3
-            fi
+            echo "No se encontraron credenciales admin en secrets." >&2
+            echo "Configure secretos: WP_ADMIN_USER y WP_ADMIN_PASS (o variantes RUNART_ADMIN_USER/RUNART_ADMIN_PASS, ADMIN_USER/ADMIN_PASS)." >&2
+            echo "Si están guardados como Environment secrets, asegúrese de usar el environment 'staging' o ajuste el nombre del environment en este workflow." >&2
+            exit 11
           fi
           echo "::add-mask::$USER"
           echo "::add-mask::$PASS"

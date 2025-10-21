@@ -55,6 +55,40 @@ Este índice organiza todos los reportes generados durante la Fase 10 del proyec
 
 ---
 
+## 🧪 Smoke Tests
+
+### Validación Automática de Contenido
+- **[smokes/smoke_20251021_1625.md](smokes/smoke_20251021_1625.md)**  
+  Smoke tests automatizados (home ES/EN, menus, media manifest)
+
+*Nota: Los smoke tests se ejecutan diariamente y validan la disponibilidad de contenido crítico.*
+
+---
+
+## 🔗 WP-CLI Bridge
+
+### Bridge Reports
+- **[bridge/bridge_20251021_1540_health.md](bridge/bridge_20251021_1540_health.md)**  
+  Ejecución manual del comando health del bridge
+
+### Installer Status
+- **[BRIDGE_INSTALLER_PENDIENTE.md](BRIDGE_INSTALLER_PENDIENTE.md)** ⚠️  
+  Documentación completa del instalador automático y su estado bloqueado (falta secretos admin)
+
+*Nota: El bridge funciona manualmente/cron. La instalación automática está bloqueada por secretos; workaround es instalación manual del plugin.*
+
+---
+
+## 📊 Métricas
+
+### Dashboard
+- **[metrics/README.md](metrics/README.md)**  
+  Instrucciones para generar dashboard ASCII de métricas con SLAs
+
+*Nota: Dashboard se genera vía `scripts/generate_metrics_dashboard.sh`.*
+
+---
+
 ## 📋 Auditorías y Changelogs
 
 ### Auditorías Archivadas
@@ -65,7 +99,7 @@ Este índice organiza todos los reportes generados durante la Fase 10 del proyec
 
 ## 🔧 Workflows y CI/CD
 
-### Workflows Activos (6)
+### Workflows Activos (11+)
 
 1. **verify-settings.yml** — Validación de configuración WordPress  
    - Verifica timezone, permalink_structure, start_of_week
@@ -89,8 +123,39 @@ Este índice organiza todos los reportes generados durante la Fase 10 del proyec
 
 6. **verify-staging.yml** ⭐ — Health check diario automático  
    - Ejecuta diariamente a las 9am Miami (13:00 UTC)
-   - Verifica HTTP 200 en /wp-json/
+   - Verifica HTTP 200 en /wp-json/ con métricas de tiempo de respuesta
    - Commitea resultado a _reports/health/
+
+7. **smoke-tests.yml** ⭐ — Tests de contenido diarios  
+   - Valida home ES/EN, menus, media manifest
+   - Tolerante a manifest ausente (WARN en lugar de FAIL)
+   - Commitea resultado a _reports/smokes/
+
+8. **change-password.yml** — Rotación manual de passwords  
+   - Genera Application Password seguro
+   - Artifact cifrado con credenciales
+
+9. **build-wpcli-bridge.yml** — Empaqueta plugin bridge  
+   - Crea ZIP del plugin desde tools/wpcli-bridge-plugin/
+   - Artifact disponible para instalación
+
+10. **wpcli-bridge.yml** — Comandos WP-CLI vía REST  
+    - Ejecuta: health, cache_flush, rewrite_flush, users_list, plugins_list
+    - Manual + cron 9:45am Miami (lunes-viernes)
+    - Tolerante a plugin ausente; genera reportes WARN/FAIL
+
+11. **wpcli-bridge-maintenance.yml** — Mantenimiento cache semanal  
+    - Viernes 10:00am Miami (14:00 UTC)
+    - Ejecuta cache_flush automático
+
+12. **wpcli-bridge-rewrite-maintenance.yml** — Mantenimiento rewrite semanal  
+    - Viernes 10:05am Miami (14:05 UTC)
+    - Ejecuta rewrite_flush automático
+
+13. **install-wpcli-bridge.yml** ⚠️ — Instalador automático del bridge  
+    - BLOQUEADO por falta de secretos admin (ver BRIDGE_INSTALLER_PENDIENTE.md)
+    - Requiere WP_ADMIN_USER/WP_ADMIN_PASS
+    - Workaround: instalación manual del plugin
 
 ### Ejecuciones Recientes
 
@@ -111,20 +176,29 @@ Este índice organiza todos los reportes generados durante la Fase 10 del proyec
 |-----|--------|-------|-------------|
 | `release/staging-demo-v1.0` | 84eb706 | 2025-10-21 | Release inicial post-validación |
 | `release/staging-demo-v1.0-final` | e74e26b | 2025-10-21 | Cierre oficial Fase 10 con monitoreo ⭐ |
+| `release/staging-demo-v1.0-closed` | e55950e | 2025-10-21 | Cierre Fase 10 + Bridge workflows activos (installer pendiente) |
+
+*Nota: El tag `staging-demo-v1.0-closed` incluye todos los workflows de bridge y mantenimiento. El instalador automático queda documentado como pendiente en BRIDGE_INSTALLER_PENDIENTE.md.*
 
 ---
 
 ## 📊 Métricas Generales
 
 ### Estado de Workflows
-- Total workflows activos: **6**
-- Workflows en verde: **6** (100%)
-- Última ejecución fallida: Ninguna
+- Total workflows activos: **13** (11 operativos + 1 bloqueado + 1 legacy)
+- Workflows en verde: **11** (85%)
+- Workflows bloqueados: **1** (install-wpcli-bridge — no crítico)
+- Última ejecución fallida: Ninguna (workflows tolerantes generan WARN en lugar de fallar)
 
 ### Health Checks
 - Frecuencia: Diario (9am Miami / 13:00 UTC)
-- Checks ejecutados: 1
+- Checks ejecutados: Múltiples
 - Tasa de éxito: 100%
+
+### Bridge Status
+- Comandos bridge: OPERATIVOS (manual + cron)
+- Mantenimiento semanal: PROGRAMADO (viernes)
+- Instalador automático: BLOQUEADO (workaround: instalación manual)
 
 ### Seguridad
 - Passwords expuestos: **0** (rotación tras primer incidente)
@@ -153,22 +227,34 @@ Este índice organiza todos los reportes generados durante la Fase 10 del proyec
 
 ## 🚀 Próximos Pasos
 
-### Fase 11 (Planificada)
+### Fase 11 (En Progreso) ⚡
 
-1. **Corto plazo**
-   - [ ] Validar acceso humano con runart-admin
-   - [ ] Cambiar password tras primer login
-   - [ ] Monitorear health checks durante una semana
+**Estado:** ✅ OPERATIVO (con 1 bloqueador no-crítico)  
+**Última actualización:** 2025-10-21
 
-2. **Mediano plazo**
-   - [ ] Implementar bridge HTTP para WP-CLI (opcional)
-   - [ ] Ampliar smoke tests de contenido
-   - [ ] Crear dashboards de métricas
+#### Completado ✅
+- [x] Daily health check automático (verify-staging.yml)
+- [x] Content smoke tests (smoke-tests.yml)
+- [x] Automated password rotation (change-password.yml)
+- [x] Metrics dashboard generation
+- [x] WP-CLI Bridge commands (manual + cron)
+- [x] Weekly maintenance workflows (cache_flush + rewrite_flush)
 
-3. **Largo plazo**
-   - [ ] Migrar staging → producción
-   - [ ] Pipeline completo con tests y rollback
-   - [ ] Sincronización continua de contenido
+#### En Progreso / Bloqueado ⚠️
+- [ ] **Bridge installer automático** — BLOQUEADO  
+  Ver: [BRIDGE_INSTALLER_PENDIENTE.md](./BRIDGE_INSTALLER_PENDIENTE.md)  
+  Causa: Faltan secretos WP_ADMIN_USER/WP_ADMIN_PASS  
+  Workaround: Bridge funciona manualmente; instalación del plugin puede hacerse manual una sola vez
+
+#### Planificado (Mediano plazo)
+- [ ] Dashboards de métricas visuales
+- [ ] Smoke tests ampliados (más contenido)
+- [ ] Alerting automático vía Issues
+
+#### Largo plazo
+- [ ] Migrar staging → producción
+- [ ] Pipeline completo con tests y rollback
+- [ ] Sincronización continua de contenido
 
 ---
 
