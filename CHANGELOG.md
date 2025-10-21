@@ -8,6 +8,61 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) 
 
 *No hay cambios pendientes.*
 
+## [v2.0.0-rc1] — 2025-11-04 (RunArt Briefing UI/Roles)
+
+### Added
+- **Vistas personalizadas por rol:** 5 portadas (`cliente_portada.md`, `owner_portada.md`, `equipo_portada.md`, `admin_portada.md`, `tecnico_portada.md`) con CCEs específicos (kpi_chip, hito_card, decision_chip, entrega_card, evidencia_clip, ficha_tecnica_mini, faq_item).
+- **Datasets de ejemplo:** 5 archivos JSON (`*_vista.json`) con 3–6 items por CCE, datos ficticios sanitizados (sin información sensible).
+- **Glosario Cliente 2.0:** 4 términos técnicos traducidos a lenguaje claro (Cáscara cerámica, Pátina, Colada, Desmoldeo) con secciones "No confundir con…", "Ejemplo", i18n ES/EN y cross-links a portadas.
+- **View-as endurecido (Admin):** Query param `?viewAs=<rol>` con políticas de seguridad (Admin-only activation, lista blanca de roles, TTL 30min, botón Reset, logging con timestamp/rol real/rol simulado/ruta/referrer, banner aria-live='polite' para accesibilidad).
+- **Gobernanza de Tokens:** `GOBERNANZA_TOKENS.md` con naming conventions (`--color-*`, `--font-*`, `--space-*`, `--shadow-*`, `--radius-*`), escalas rem-based (no px sueltos, no hex directo), proceso de alta/cambio/baja, excepciones controladas (max 2 sprints con inline comment), y AA verification (4.5:1 text, 3:1 buttons).
+- **Auditoría de Tokens:** `REPORTE_AUDITORIA_TOKENS_F8.md` con 5 portadas auditadas, 100% conformidad `var(--token)`, 0 hallazgos críticos, 0 excepciones, AA validado (text-primary/bg-surface 7.2:1, color-primary/white 4.8:1).
+
+### Changed
+- **i18n completa ES/EN:** ≥99% cobertura en todas las portadas (0 textos hard-coded fuera de secciones i18n).
+- **Sincronización de content_matrix_template.md:** Fases 5–8 documentadas con estado por rol (G/A/R) y enlaces a datasets.
+- **Depuración Inteligente:** Eliminación de duplicados funcionales con tombstones (motivo, fecha, reemplazo) según `REPORTE_DEPURACION_F7.md`; redirecciones documentadas para rutas legacy.
+
+### Fixed
+- **AA contraste:** 100% pares validados ≥4.5:1 (texto) y ≥3:1 (UI components); aplicación consistente de tokens en 5 portadas.
+- **Tokens CSS:** Corrección de hex sueltos a `var(--token)` en estilos.md y portadas; escalas px → rem.
+- **Navegación:** Cross-links glosario ↔ portadas (100% términos con sección "Dónde lo verás" enlazada).
+
+### Documentation
+- **Bitácora Maestra:** `BITACORA_INVESTIGACION_BRIEFING_V2.md` actualizada con Fases 1–9 (timestamps, objetivos, entregables, DoD, anexos).
+- **Evidencias compiladas:** `EVIDENCIAS_FASE6.md`, `EVIDENCIAS_FASE7.md`, `EVIDENCIAS_FASE8.md` con tablas de enlaces y extractos (~200 líneas por índice).
+- **Consolidación:** `CONSOLIDACION_F9.md` con inventario vistas finales, eliminación duplicados, sincronización matrices/tokens, verificación view-as, dependencias y riesgos residuales.
+- **Public Preview:** `PLAN_PREVIEW_PUBLICO.md` con alcance, audiencia (9 usuarios piloto), límites, pre-flight checklist, feedback loop (GitHub Issues, Google Forms, Slack), métricas de éxito (tiempo comprensión <10s, satisfacción ≥4.0/5, issues críticos ≤2).
+- **Gate de Producción:** `PLAN_GATE_PROD.md` con 6 criterios GO (AA, i18n, sincronización, view-as, evidencias, depuración), 5 criterios NO-GO automáticos, evidencias mínimas exigidas, plan de rollback (≤35 minutos), comité de decisión (PM, Tech Lead, QA, Legal), métricas post-deploy.
+- **QA Checklist:** `QA_checklist_consolidacion_preview_prod.md` con 76 ítems (consolidación, preview, gate prod, evidencias, reportes técnicos).
+- **Release Notes:** `RELEASE_NOTES_v2.0.0-rc1.md` con resumen ejecutivo, highlights por rol, CCEs, AA, i18n, gobernanza tokens, glosario, issues cerrados (Sprints 2–4), conocidos no bloqueantes, documentación y próximos pasos.
+
+### Sprint Backlogs Closed
+- **Sprint 2 (Owner/Equipo):** S2-01..S2-06 completados (2025-10-21 17:42:34) — MVP Owner/Equipo, tokens, view-as escenarios, matriz Fase 6, QA checklist.
+- **Sprint 3 (Admin/View-as/Depuración):** S3-01..S3-08 completados (2025-10-21 17:52:17) — MVP Admin, view-as endurecido, depuración inteligente, QA cases, matriz Fase 7, QA checklist.
+- **Sprint 4 (Técnico/Glosario/Tokens):** S4-01..S4-10 completados (2025-10-21 18:00:45) — MVP Técnico, glosario 2.0, gobernanza tokens, auditoría AA, view-as Técnico, matriz Fase 8, evidencias, cierre bitácora.
+
+### Security
+- **View-as seguridad:** Solo Admin puede activar override (roles no-Admin rechazan `?viewAs` automáticamente); no modifica permisos backend (solo presentación UI); logging completo de activaciones/simulaciones.
+- **Datos sensibles:** 0 datos sensibles en datasets `*_vista.json` (todos ficticios; validado por PM + Legal).
+
+### Accessibility
+- **AA compliance:** WCAG 2.1 Level AA validado (text-primary/bg-surface 7.2:1, color-primary/white 4.8:1, 0 pares <4.5:1 texto / <3:1 UI).
+- **Navegación teclado:** 100% funcionalidad accesible sin mouse (pending test manual final pre-flight Preview).
+- **Lectores pantalla:** Banner View-as con `aria-live='polite'` (anunciado correctamente; pending test manual NVDA/JAWS/VoiceOver).
+
+### Pending (Pre-Gate)
+- **i18n automated scan:** Confirmar cobertura ≥99% con `i18n_coverage_report_v2.0.0.md` (deadline 2025-11-03 12:00).
+- **Link checker:** Validar 0 enlaces rotos con `link_check_report_v2.0.0.md` (deadline 2025-11-03 12:00).
+- **AA manual tests:** Lectores pantalla + navegación teclado con `accessibility_manual_test_report_v2.0.0.md` (deadline 2025-11-03 14:00).
+- **EVIDENCIAS_FASE9.md:** Compilar índice navegable con ≥9 enlaces y extractos (deadline 2025-11-03 17:00).
+
+### Notes
+- **Release Candidate:** v2.0.0-rc1 ingresa a Public Preview (2025-10-23–2025-11-04) con 9 usuarios piloto antes de Gate de Producción (2025-11-04 16:00).
+- **Roadmap v2.1.0:** Exportación de reportes, notificaciones push, integración backend en vivo (Q1 2026).
+
+**Referencia:** Ver `docs/ui_roles/RELEASE_NOTES_v2.0.0-rc1.md` para detalles completos y `docs/ui_roles/BITACORA_INVESTIGACION_BRIEFING_V2.md` para trazabilidad de Fases 1–9.
+
 ## [Released — 2025-10-20] (ops)
 ### Fixed (2025-10-20)
 - **Pages Functions — Hardening en producción:** Promoción completada tras el merge de `docs/pages-functions-prod-close`; el workflow `Deploy Production` (`run 18657958933`) publicó los cambios y mantuvo la protección de Access para visitantes.

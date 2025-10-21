@@ -1,0 +1,21 @@
+{
+  "kpis": [
+    {"label": "Tareas completadas", "value": "30"},
+    {"label": "Bloqueos", "value": "1"}
+  ],
+  "hitos": [
+    {"fecha": "2025-10-19", "titulo": "Integración de componentes"},
+    {"fecha": "2025-10-22", "titulo": "Pruebas internas"}
+  ],
+  "decisiones": [
+    {"fecha": "2025-10-18", "asunto": "Priorización de entregable E-102"}
+  ],
+  "entregables": [
+    {"id": "E-201", "titulo": "Guía de estilo final"},
+    {"id": "E-202", "titulo": "Checklist de QA"}
+  ],
+  "evidencias": [
+    {"id": "EV-E-1", "tipo": "imagen", "url": "./evidencias/tablero_kanban.png"},
+    {"id": "EV-E-2", "tipo": "doc", "url": "./evidencias/reporte_semana.docx"}
+  ]
+}

@@ -1,0 +1,38 @@
+# Sprint 2 — Backlog (actualizado 2025-10-21 17:42:34)
+
+- S2-01 — MVP Owner (maquetado + dataset)
+  - Objetivo: Entregar portada Owner con CCEs e i18n
+  - DoD: Owner_portada.md + owner_vista.json listos
+  - Dependencias: S1-07, S1-08
+  - Evidencia: docs/ui_roles/owner_portada.md
+  - Responsable: Owner/UX
+- S2-02 — MVP Equipo (maquetado + dataset)
+  - Objetivo: Entregar portada Equipo con CCEs e i18n
+  - DoD: equipo_portada.md + equipo_vista.json listos
+  - Dependencias: S1-07, S1-08
+  - Evidencia: docs/ui_roles/equipo_portada.md
+  - Responsable: UX/Equipo
+- S2-03 — Contraste AA Owner/Equipo (crítico)
+  - Objetivo: Verificar AA en headers/chips/botones
+  - DoD: Tabla AA en TOKENS_UI.md
+  - Dependencias: S2-01, S2-02
+  - Evidencia: TOKENS_UI.md sección Owner/Equipo
+  - Responsable: UX
+- S2-04 — View-as Owner/Equipo
+  - Objetivo: Documentar escenarios ?viewAs y reglas
+  - DoD: Sección escenarios en view_as_spec.md
+  - Dependencias: S2-01, S2-02
+  - Evidencia: view_as_spec.md
+  - Responsable: PM
+- S2-05 — Tokens/i18n aplicados y documentados
+  - Objetivo: Alinear tokens e i18n
+  - DoD: Correspondencia aplicada en TOKENS_UI.md
+  - Dependencias: S2-01, S2-02
+  - Evidencia: TOKENS_UI.md
+  - Responsable: Tech Lead
+- S2-06 — QA unificado Owner/Equipo
+  - Objetivo: Checklist y pruebas <10s + evidencias
+  - DoD: QA_checklist_owner_equipo.md completo
+  - Dependencias: S2-01..S2-05
+  - Evidencia: QA_checklist_owner_equipo.md
+  - Responsable: QA

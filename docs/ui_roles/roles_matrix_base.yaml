@@ -1,0 +1,25 @@
+roles:
+  - id: admin
+    label: Admin
+  - id: cliente
+    label: Cliente
+  - id: owner_interno
+    label: Owner Interno
+  - id: equipo
+    label: Equipo
+  - id: tecnico
+    label: Técnico
+cces:
+  - id: kpi_chip
+  - id: hito_card
+  - id: decision_chip
+  - id: entrega_card
+  - id: evidencia_clip
+  - id: ficha_tecnica_mini
+  - id: faq_item
+visibility:
+  admin: [kpi_chip, hito_card, decision_chip, entrega_card, evidencia_clip, ficha_tecnica_mini, faq_item]
+  cliente: [kpi_chip, hito_card, decision_chip, entrega_card, evidencia_clip, faq_item]
+  owner_interno: [kpi_chip, hito_card, entrega_card, evidencia_clip]
+  equipo: [hito_card, entrega_card, evidencia_clip, ficha_tecnica_mini]
+  tecnico: []

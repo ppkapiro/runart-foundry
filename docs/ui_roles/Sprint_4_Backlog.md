@@ -1,0 +1,62 @@
+# Sprint 4 — Backlog (actualizado 2025-10-21 18:00:45)
+
+- S4-01 — MVP Técnico (maquetado + dataset + mapa CCE↔campos)
+  - Objetivo: Entregar portada Técnico con CCEs e i18n
+  - DoD: tecnico_portada.md + tecnico_vista.json listos
+  - Dependencias: S3-08
+  - Evidencia: docs/ui_roles/tecnico_portada.md
+  - Responsable: Tech Lead/UX
+- S4-02 — Glosario Cliente 2.0 (estructura, i18n, enlaces cruzados)
+  - Objetivo: Ampliar glosario con ejemplos y enlaces
+  - DoD: glosario_cliente_2_0.md completo
+  - Dependencias: S3-08
+  - Evidencia: docs/ui_roles/glosario_cliente_2_0.md
+  - Responsable: PM/UX
+- S4-03 — Gobernanza de Tokens (normativa completa)
+  - Objetivo: Definir política de tokens
+  - DoD: GOBERNANZA_TOKENS.md aprobado
+  - Dependencias: S3-07
+  - Evidencia: docs/ui_roles/GOBERNANZA_TOKENS.md
+  - Responsable: UX/Tech Lead
+- S4-04 — Auditoría de Tokens y reporte F8
+  - Objetivo: Auditar uso de tokens en vistas
+  - DoD: REPORTE_AUDITORIA_TOKENS_F8.md sin críticos
+  - Dependencias: S4-03
+  - Evidencia: docs/ui_roles/REPORTE_AUDITORIA_TOKENS_F8.md
+  - Responsable: QA/UX
+- S4-05 — Ajustes AA derivados de la auditoría
+  - Objetivo: Corregir hallazgos AA si existen
+  - DoD: AA validado en REPORTE_AUDITORIA_TOKENS_F8.md
+  - Dependencias: S4-04
+  - Evidencia: docs/ui_roles/REPORTE_AUDITORIA_TOKENS_F8.md
+  - Responsable: UX
+- S4-06 — View-as Técnico (escenarios + deep-links)
+  - Objetivo: Documentar escenarios técnico
+  - DoD: view_as_spec.md actualizado
+  - Dependencias: S4-01
+  - Evidencia: docs/ui_roles/view_as_spec.md
+  - Responsable: PM
+- S4-07 — Actualización Matriz (Técnico/Glosario)
+  - Objetivo: Añadir filas técnico y glosario
+  - DoD: content_matrix_template.md actualizado
+  - Dependencias: S4-01, S4-02
+  - Evidencia: docs/ui_roles/content_matrix_template.md
+  - Responsable: PM/UX
+- S4-08 — QA Técnico + Glosario + Tokens
+  - Objetivo: Ejecutar checklist unificado
+  - DoD: QA_checklist_tecnico_glosario_tokens.md completo
+  - Dependencias: S4-01..S4-07
+  - Evidencia: docs/ui_roles/QA_checklist_tecnico_glosario_tokens.md
+  - Responsable: QA
+- S4-09 — Evidencias Fase 8
+  - Objetivo: Compilar evidencias navegables
+  - DoD: EVIDENCIAS_FASE8.md completo
+  - Dependencias: S4-01..S4-08
+  - Evidencia: docs/ui_roles/EVIDENCIAS_FASE8.md
+  - Responsable: PM
+- S4-10 — Cierre de Bitácora Fase 8
+  - Objetivo: Actualizar bitácora con cierre
+  - DoD: Bitácora con línea de cierre exacta
+  - Dependencias: S4-09
+  - Evidencia: docs/ui_roles/BITACORA_INVESTIGACION_BRIEFING_V2.md
+  - Responsable: PM

@@ -1,0 +1,19 @@
+{
+  "kpis": [
+    {"label": "ROI", "value": "18%"},
+    {"label": "Presupuesto", "value": "82%"},
+    {"label": "Satisfacción", "value": "Alto"}
+  ],
+  "hitos": [
+    {"fecha": "2025-10-10", "titulo": "Aprobación de diseño final"},
+    {"fecha": "2025-10-18", "titulo": "Validación de materiales"}
+  ],
+  "evidencias": [
+    {"id": "EV-O-1", "tipo": "pdf", "url": "./evidencias/contrato.pdf"},
+    {"id": "EV-O-2", "tipo": "imagen", "url": "./evidencias/fabricacion_1.jpg"}
+  ],
+  "faq": [
+    {"q": "¿Cuándo finaliza la fase actual?", "a": "En 7 días hábiles."},
+    {"q": "¿Cuál es el siguiente hito?", "a": "Entrega de prototipo."}
+  ]
+}

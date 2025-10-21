@@ -1,0 +1,23 @@
+{
+  "kpis": [
+    {"label": "Publicaciones activas", "value": "12"},
+    {"label": "Usuarios activos (30d)", "value": "87"},
+    {"label": "Tareas pendientes", "value": "3"}
+  ],
+  "hitos": [
+    {"fecha": "2025-10-20", "titulo": "Fase 6 completada"},
+    {"fecha": "2025-10-21", "titulo": "Fase 7 en curso"}
+  ],
+  "decisiones": [
+    {"fecha": "2025-10-20", "asunto": "Aprobación Fase 6"},
+    {"fecha": "2025-10-21", "asunto": "Inicio Depuración Inteligente"}
+  ],
+  "evidencias": [
+    {"id": "EV-A-1", "tipo": "doc", "url": "./evidencias/EVIDENCIAS_FASE6.md"},
+    {"id": "EV-A-2", "tipo": "imagen", "url": "./evidencias/matriz_fase6.png"}
+  ],
+  "faq": [
+    {"q": "¿Cómo activar View-as?", "a": "Solo Admin puede activar con ?viewAs=<rol>."},
+    {"q": "¿Dónde ver el backlog?", "a": "Ver Sprint_3_Backlog.md."}
+  ]
+}
