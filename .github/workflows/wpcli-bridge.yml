@@ -95,11 +95,15 @@ jobs:
 
       - name: Generar reporte
         run: |
-          set -euo pipefail
+          set +e
+          set -u -o pipefail
           mkdir -p _reports/bridge
           TS=$(date -u +"%Y%m%d_%H%M")
           CMD="${{ steps.ep.outputs.cmd }}"
-          STATUS=$(jq -r '.ok | if . then "PASS" else "FAIL" end' bridge.json)
+          if [ ! -s bridge.json ]; then
+            echo '{"ok": false, "error": "empty_bridge", "meta": {"note": "bridge.json vacío o no generado"}}' > bridge.json
+          fi
+          STATUS=$(jq -r 'try (.ok | if . then "PASS" else "FAIL" end) catch "WARN"' bridge.json)
           {
             echo "# 🔗 WP-CLI Bridge Report"
             echo "**Fecha:** $(date -u)"
