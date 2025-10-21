@@ -1,0 +1,35 @@
+name: Verify Staging (daily health check)
+on:
+  schedule:
+    - cron: '0 13 * * *'  # Ejecuta diariamente a las 9am Miami (13 UTC)
+  workflow_dispatch:
+
+jobs:
+  healthcheck:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Verify HTTP/REST API status
+        run: |
+          BASE_URL="https://staging.runartfoundry.com"
+          echo "Verificando disponibilidad de $BASE_URL"
+          CODE=$(curl -s -o /dev/null -w "%{http_code}" "$BASE_URL/wp-json/")
+          if [ "$CODE" = "200" ]; then
+            STATUS="OK"
+          else
+            STATUS="FAIL ($CODE)"
+          fi
+          mkdir -p _reports/health
+          DATE=$(date +%Y%m%d_%H%M)
+          echo "# 🌐 Health Check — Staging RUN Art Foundry" > "_reports/health/health_${DATE}.md"
+          echo "**Fecha:** $(date)" >> "_reports/health/health_${DATE}.md"
+          echo "**HTTP:** $STATUS" >> "_reports/health/health_${DATE}.md"
+          echo "**Workflow:** verify-staging.yml" >> "_reports/health/health_${DATE}.md"
+          echo "Resultado: $STATUS"
+          git config user.name "github-actions"
+          git config user.email "actions@github.com"
+          git add _reports/health/health_${DATE}.md
+          git commit -m "Health check staging ${DATE}: ${STATUS}" || echo "Sin cambios"
+          git push origin main || true
