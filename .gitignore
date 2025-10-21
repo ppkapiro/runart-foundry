@@ -1,6 +1,7 @@
 # Sensibles / entorno
 .env
 .env.*
+.env.staging.local
 .dev.vars
 **/.dev.vars
 secrets/
@@ -69,3 +70,4 @@ ENV/
 # Lighthouse/Axe: Excluir reportes JSON grandes (opcional)
 audits/lighthouse/*.json
 audits/axe/*.json
+logs/*.txt
