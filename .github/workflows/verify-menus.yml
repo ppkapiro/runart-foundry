@@ -5,6 +5,11 @@ on:
   schedule:
     - cron: "0 */12 * * *" # cada 12 horas
 
+permissions:
+  contents: read
+  actions: read
+  issues: write
+
 jobs:
   verify:
     name: Verify Menus
