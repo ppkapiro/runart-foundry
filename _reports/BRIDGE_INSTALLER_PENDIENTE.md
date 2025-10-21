@@ -264,3 +264,38 @@ gh workflow run wpcli-bridge.yml --repo RunArtFoundry/runart-foundry -f command=
 
 **Nota para el siguiente agente/sesión:**  
 Este documento contiene TODO el contexto necesario para retomar el instalador del bridge. Los workflows de bridge y mantenimiento **YA ESTÁN FUNCIONANDO** en modo tolerante (generan reportes WARN si el plugin no está instalado). El único componente pendiente es la **instalación automática** del plugin, bloqueada por falta de secretos admin WordPress. Si los secretos no se pueden configurar, la alternativa es instalación manual una sola vez y documentar que el instalador automático queda deshabilitado.
+
+---
+
+## 🧩 AUDITORÍA DE AISLAMIENTO STAGING vs PRODUCCIÓN
+
+**Nueva herramienta disponible:** Se ha creado el script `tools/staging_isolation_audit.sh` para verificar y corregir el aislamiento entre entornos staging y producción.
+
+**Reportes generados:**
+- `_reports/isolation/isolacion_staging_20251021_153636.md` — Resultado de auditoría
+- `_reports/isolation/RESUMEN_EJECUTIVO_AISLAMIENTO.md` — Análisis ejecutivo completo
+
+**Script características:**
+- ✅ **Protección total de producción** (cero modificaciones destructivas)
+- ✅ **Verificación de bases de datos independientes**
+- ✅ **Detección de enlaces simbólicos problemáticos**
+- ✅ **Corrección automática de URLs de staging**
+- ✅ **Limpieza de cachés solo en staging**
+- ✅ **Reportes detallados con próximos pasos**
+
+**Para ejecutar en servidor real:**
+```bash
+# Configurar variables de entorno necesarias
+export DB_USER="usuario_bd"
+export DB_PASSWORD="password_bd" 
+export DB_HOST="host_bd"
+export WP_USER="admin_wp"
+export WP_APP_PASSWORD="app_password"
+export CLOUDFLARE_API_TOKEN="token_cf"
+export CF_ZONE_ID="zone_id"
+
+# Ejecutar auditoría
+./tools/staging_isolation_audit.sh
+```
+
+**Estado actual:** Script operativo y seguro, listo para ejecución en servidor de hosting con credenciales reales.
