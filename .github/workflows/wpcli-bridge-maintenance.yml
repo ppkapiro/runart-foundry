@@ -1,0 +1,73 @@
+name: wpcli-bridge-maintenance
+
+on:
+  schedule:
+    # Viernes 10:00 Miami (14:00 UTC)
+    - cron: '0 14 * * 5'
+
+permissions:
+  contents: write
+
+env:
+  WP_BASE_URL: ${{ vars.WP_BASE_URL }}
+  WP_USER: ${{ secrets.WP_USER }}
+  WP_APP_PASSWORD: ${{ secrets.WP_APP_PASSWORD }}
+
+jobs:
+  cache-flush:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Ejecutar cache_flush vía Bridge (tolerante)
+        run: |
+          set +e
+          set -u -o pipefail
+          URL="${WP_BASE_URL}/wp-json/runart/v1/bridge/cache/flush"
+          AUTH="${WP_USER}:${WP_APP_PASSWORD}"
+          TMP_BODY=$(mktemp)
+          HTTP_CODE=$(curl -sS -o "$TMP_BODY" -w "%{http_code}" -X POST -u "$AUTH" -H 'Content-Type: application/json' "$URL" || echo 000)
+          BODY=$(cat "$TMP_BODY")
+          rm -f "$TMP_BODY"
+          if echo "$BODY" | jq -e . >/dev/null 2>&1; then
+            OK=$(echo "$BODY" | jq -r '.ok // empty')
+            if [ -z "$OK" ]; then
+              if [ "$HTTP_CODE" = "200" ]; then OK=true; else OK=false; fi
+              echo "$BODY" | jq -c ". as $$. | {ok: $OK, data: $$, meta: {http_code: $HTTP_CODE}}" > bridge.json
+            else
+              echo "$BODY" | jq -c ". as $$. | .meta = ((.meta // {}) + {http_code: $HTTP_CODE})" > bridge.json
+            fi
+          else
+            PREVIEW=$(printf "%s" "$BODY" | head -c 400 | sed 's/"/\\"/g')
+            if [ "$HTTP_CODE" = "200" ]; then OK=true; else OK=false; fi
+            echo "{\"ok\": $OK, \"error\": \"non_json_body\", \"meta\": {\"http_code\": $HTTP_CODE, \"body_preview\": \"$PREVIEW\"}}" > bridge.json
+          fi
+
+      - name: Generar reporte
+        run: |
+          set -euo pipefail
+          mkdir -p _reports/bridge
+          TS=$(date -u +"%Y%m%d_%H%M")
+          STATUS=$(jq -r 'try (.ok | if . then "PASS" else "FAIL" end) catch "WARN"' bridge.json)
+          {
+            echo "# 🔗 WP-CLI Bridge Maintenance"
+            echo "**Fecha:** $(date -u)"
+            echo "**Comando:** cache_flush"
+            echo "**Estado:** $STATUS"
+            echo
+            echo "## Resultado"
+            echo '```json'
+            cat bridge.json
+            echo '```'
+          } > "_reports/bridge/maintenance_${TS}_cache_flush.md"
+
+      - name: Commit & Push report
+        if: always()
+        run: |
+          set -euo pipefail
+          git config user.name "github-actions"
+          git config user.email "github-actions@users.noreply.github.com"
+          git add _reports/bridge/
+          git commit -m "Bridge maintenance: cache_flush" || echo "Nada que commitear"
+          git push

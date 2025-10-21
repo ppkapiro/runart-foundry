@@ -2,6 +2,7 @@
 [![Verify Staging](https://github.com/RunArtFoundry/runart-foundry/actions/workflows/verify-staging.yml/badge.svg)](https://github.com/RunArtFoundry/runart-foundry/actions/workflows/verify-staging.yml)
 [![Smoke Tests](https://github.com/RunArtFoundry/runart-foundry/actions/workflows/smoke-tests.yml/badge.svg)](https://github.com/RunArtFoundry/runart-foundry/actions/workflows/smoke-tests.yml)
 [![WP-CLI Bridge](https://github.com/RunArtFoundry/runart-foundry/actions/workflows/wpcli-bridge.yml/badge.svg)](https://github.com/RunArtFoundry/runart-foundry/actions/workflows/wpcli-bridge.yml)
+[![Bridge Maintenance](https://github.com/RunArtFoundry/runart-foundry/actions/workflows/wpcli-bridge-maintenance.yml/badge.svg)](https://github.com/RunArtFoundry/runart-foundry/actions/workflows/wpcli-bridge-maintenance.yml)
 
 # RUN Art Foundry — Proyecto Local
 
