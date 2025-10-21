@@ -1,16 +1,19 @@
-# Evidencias — Fase 9 — Consolidación, Public Preview y Gate de Producción
+# Evidencias — Fase 9 — Consolidación, Public Preview y Gate de Producción ✅ PUBLICADO
 **Fecha:** 2025-10-21 19:15:00  
-**Responsable:** PM + Tech Lead + QA
+**Responsable:** PM + Tech Lead + QA  
+**Deployment:** 2025-10-21 22:38 UTC  
+**Production URL:** https://runart-foundry.pages.dev/  
+**Tag:** v2.0.0-rc1 (commit 6f1a905)
 
 ---
 
 ## Resumen
 
-Fase 9 consolida Fases 1–8, prepara Public Preview controlada y diseña Gate de Producción con criterios GO/NO-GO objetivos, evidencias mínimas y plan de rollback. Estado: **GO — Consolidación completa; matrices sincronizadas; tokens bajo gobernanza AA 100%; preview documentado; gate preparado.**
+Fase 9 consolidada y **PUBLICADA EN PRODUCCIÓN**. Estado: **GO — Consolidación completa; matrices sincronizadas; tokens bajo gobernanza AA 100%; preview documentado; gate preparado; 51 artifacts UI/Roles desplegados.**
 
 **Tabla de enlaces:** 11 artefactos clave con anclas navegables.  
 **Extractos:** ~250 líneas de evidencias críticas (AA, i18n, criterios GO/NO-GO, rollback, métricas).  
-**Fecha de corte propuesta:** 2025-10-24 (UTC-4) — Release Candidate v2.0.0-rc1.
+**Fecha de corte ejecutada:** 2025-10-21 (adelantada 3 días por deployment exitoso).
 
 ---
 

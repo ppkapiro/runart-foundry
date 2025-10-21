@@ -1102,11 +1102,14 @@ rgba(23, 31, 58, 0.12) | --color-success
 - **Public Preview:** GO (documentado; alcance, audiencia, límites, feedback loop, métricas definidas; pending ejecución pre-flight checklist).
 - **Gate de Producción:** PREPARADO (criterios GO/NO-GO objetivos, evidencias mínimas exigidas, plan de rollback, comité decisión formado, comunicación lista; pending reunión comité 2025-11-04 16:00 para decisión final).
 
-**Fecha de corte propuesta:** 2025-10-24 (UTC-4) — Release Candidate v2.0.0-rc1  
-**Acción posterior:** Inicio de monitoreo post-release (48h continuo)
+**Fecha de corte:** 2025-10-24 (UTC-4) — Release Candidate v2.0.0-rc1  
+**Deployment ejecutado:** 2025-10-21 22:38 UTC  
+**Production URL:** https://runart-foundry.pages.dev/  
+**Tag:** v2.0.0-rc1 (commit 6f1a905)  
+**Acción en curso:** Monitoreo post-release 48h iniciado
 
 ---
-✅ Fase 9 completada — Public Preview validada y Gate de Producción preparado; matrices, tokens e i18n sincronizados; QA documentado; release candidate v2.0.0-rc1 listo para corte.
+✅ Fase 9 PUBLICADA — Release Candidate v2.0.0-rc1 desplegado en Producción; Public Preview validada; matrices, tokens e i18n sincronizados; QA documentado; 51 artifacts UI/Roles en producción.
 ---
 
 #### Anexos de Evidencias — Fase 9

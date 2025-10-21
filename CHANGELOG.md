@@ -8,7 +8,12 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) 
 
 *No hay cambios pendientes.*
 
-## [v2.0.0-rc1] — 2025-11-04 (RunArt Briefing UI/Roles)
+## [v2.0.0-rc1] — 2025-10-21 (RunArt Briefing UI/Roles) ✅ PUBLICADO
+
+**Deployment:** https://runart-foundry.pages.dev/  
+**Tag:** v2.0.0-rc1 (commit 6f1a905)  
+**Build:** MkDocs 1.6.1 + Material 9.6.21  
+**Deployed:** 2025-10-21 22:38 UTC
 
 ### Added
 - **Vistas personalizadas por rol:** 5 portadas (`cliente_portada.md`, `owner_portada.md`, `equipo_portada.md`, `admin_portada.md`, `tecnico_portada.md`) con CCEs específicos (kpi_chip, hito_card, decision_chip, entrega_card, evidencia_clip, ficha_tecnica_mini, faq_item).

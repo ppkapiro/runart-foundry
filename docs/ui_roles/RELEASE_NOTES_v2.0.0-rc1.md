@@ -1,7 +1,10 @@
 # Release Notes — RunArt Briefing v2.0.0-rc1
-**Fecha de lanzamiento:** 2025-11-04  
+**Fecha de lanzamiento:** 2025-10-21  
 **Versión:** v2.0.0-rc1 (Release Candidate 1)  
-**Estado:** Public Preview → Producción (pending Gate decisión 2025-11-04 16:00)
+**Estado:** ✅ Publicado en Producción  
+**Deployment:** https://runart-foundry.pages.dev/  
+**Tag:** v2.0.0-rc1  
+**Commit:** 6f1a905
 
 ---
 
