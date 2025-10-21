@@ -5,6 +5,12 @@ on:
   schedule:
     - cron: "0 0 */1 * *" # cada 24 horas
 
+# Requiere actualizar/crear issues
+permissions:
+  contents: read
+  actions: read
+  issues: write
+
 jobs:
   verify:
     name: Verify Settings
