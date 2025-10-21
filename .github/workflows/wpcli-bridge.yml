@@ -63,7 +63,9 @@ jobs:
       - name: Ejecutar comando vía Bridge (tolerante)
         id: call
         run: |
-          set -euo pipefail
+          # Modo tolerante: no abortar ante errores de red/parseo
+          set +e
+          set -u -o pipefail
           URL="${WP_BASE_URL}${{ steps.ep.outputs.endpoint }}"
           AUTH="${WP_USER}:${WP_APP_PASSWORD}"
           TMP_BODY=$(mktemp)
