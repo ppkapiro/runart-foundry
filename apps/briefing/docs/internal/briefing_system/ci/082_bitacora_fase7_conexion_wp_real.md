@@ -989,3 +989,135 @@ _Esta bitácora es el registro histórico oficial de Fase 7. Todas las actualiza
 - WP-CLI: sí
 
 Log: staging_http_fix_20251020_181148.log
+
+---
+
+## 📦 FASE 10 — CIERRE OPERATIVO (Continuación)
+
+### 2025-10-21 — Herramienta de Configuración de Credenciales
+
+**Contexto**: Los workflows `verify-*` requieren credenciales de STAGING configuradas en GitHub para ejecutarse en la rama `main`.
+
+#### Artefactos Creados
+
+1. **Script de Configuración**: `tools/load_staging_credentials.sh`
+   - **Propósito**: Cargar credenciales de WordPress STAGING en GitHub vía gh CLI
+   - **Funcionalidad**:
+     - Configuración interactiva segura (entrada oculta para passwords)
+     - Validación de autenticación gh CLI
+     - Verificación de acceso al repositorio
+     - Configuración de variables y secrets:
+       - `WP_BASE_URL` (variable): https://staging.runartfoundry.com
+       - `WP_USER` (secret): Usuario técnico de WordPress
+       - `WP_APP_PASSWORD` (secret): App Password generada
+       - `WP_ENV` (variable): staging
+     - Verificación post-configuración sin revelar valores
+     - Logging sin secrets en `logs/gh_credentials_setup_staging_*.log`
+   - **Requisitos**:
+     - gh CLI autenticado (`gh auth status`)
+     - Permisos de administrador/mantenedor en el repositorio
+     - Credenciales de WordPress STAGING disponibles
+
+2. **Documentación Operativa**: `docs/ops/load_staging_credentials.md`
+   - **Contenido**:
+     - Propósito y objetivo del script
+     - Pre-requisitos detallados con validaciones
+     - Guía de uso paso a paso (3 opciones de invocación)
+     - Proceso interactivo documentado con ejemplos
+     - Instrucciones para ejecutar workflows post-configuración
+     - Verificación manual de variables y secrets
+     - Troubleshooting exhaustivo
+     - Buenas prácticas de seguridad
+     - Procedimiento de actualización de credenciales
+   - **Secciones clave**:
+     - ✅ Pre-requisitos checklist
+     - 🔧 Uso del script (3 opciones)
+     - 📝 Proceso interactivo (6 pasos)
+     - 🚀 Ejecutar workflows (UI + CLI)
+     - 🔍 Verificación manual
+     - ⚠️ Troubleshooting (5 escenarios comunes)
+     - 🔒 Seguridad (buenas prácticas)
+
+3. **Actualización de README**: `tools/README.md`
+   - Añadida sección "Scripts de Configuración"
+   - Documentado `load_staging_credentials.sh` con todos los detalles
+   - Actualizada tabla de workflows que usan tools
+   - Añadido troubleshooting específico de gh CLI
+   - Templates de scripts para contribuciones futuras
+
+4. **Reporte de Cierre Completo**: `_reports/closing/FASE10_CIERRE_COMPLETO_20251020.md`
+   - Resumen ejecutivo de Fase 10
+   - Criterios de éxito con evidencias
+   - Artefactos creados (workflows, scripts, reportes, docs)
+   - Validaciones realizadas (release, audit, verify-*)
+   - Próximos pasos manuales opcionales
+   - Métricas finales (PRs, archivos, workflows, etc.)
+   - Referencias completas
+
+#### Beneficios
+
+| Beneficio | Descripción | Impacto |
+|-----------|-------------|---------|
+| **Automatización** | Configuración guiada sin tocar UI de GitHub | Alto |
+| **Seguridad** | Entrada oculta, sin logging de secrets | Crítico |
+| **Validación** | Verificación automática de requisitos y resultado | Alto |
+| **Documentación** | HOWTO completo con troubleshooting | Medio |
+| **Reproducibilidad** | Script reutilizable para futuros entornos | Alto |
+| **Trazabilidad** | Logs sin secrets para auditoría | Medio |
+
+#### Uso Post-Configuración
+
+Una vez ejecutado el script:
+
+```bash
+# Ejecutar workflows manualmente
+gh workflow run verify-home.yml
+gh workflow run verify-settings.yml
+gh workflow run verify-menus.yml
+gh workflow run verify-media.yml
+
+# Verificar ejecuciones
+gh run list --workflow=verify-home.yml --limit 5
+```
+
+#### Integración con Fase 10
+
+Este script complementa el cierre operativo de Fase 10 al:
+
+1. **Resolver el pendiente de verify-*** workflows en main
+2. **Facilitar la configuración** de credenciales sin exponer secrets
+3. **Documentar el proceso** para futuros operadores
+4. **Validar la configuración** automáticamente
+5. **Generar trazabilidad** con logs seguros
+
+#### Commit
+
+```
+feat(tools): script para cargar credenciales STAGING en GitHub
+
+- Nuevo script load_staging_credentials.sh para configurar WP_BASE_URL, WP_USER y WP_APP_PASSWORD
+- Entrada interactiva segura (oculta passwords)
+- Validaciones de gh CLI, repo y permisos
+- Logs sin secrets en logs/gh_credentials_setup_staging_*.log
+- Documentación completa en docs/ops/load_staging_credentials.md
+- Actualizado tools/README.md con sección de configuración
+- Reporte de cierre completo Fase 10 en _reports/closing/
+
+Permite ejecutar workflows verify-* en main con credenciales de STAGING.
+Ref: Fase 10 Closeout - Configuración post-release
+```
+
+**Hash**: 83700fe  
+**Files**: 4 changed, 1085 insertions(+), 7 deletions(-)
+
+#### Estado
+
+✅ **Script operativo y documentado**  
+✅ **Listo para uso por operadores**  
+✅ **Integrado en tools/ con permisos correctos**  
+✅ **Documentación en docs/ops/ accesible**  
+✅ **Pre-commit validation passed (4/4 checks)**
+
+---
+
+**Próximo paso**: Ejecutar el script para habilitar workflows verify-* en main (requiere credenciales de STAGING).
