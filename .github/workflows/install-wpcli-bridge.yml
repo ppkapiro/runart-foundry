@@ -30,27 +30,34 @@ jobs:
           zip -r "/tmp/${ZIP_NAME}" . -x "*.DS_Store"
           echo "zip_path=/tmp/${ZIP_NAME}" >> $GITHUB_OUTPUT
 
-      - name: Descargar artifact de credenciales (run_id)
+      - name: Determinar credenciales admin (secrets o artifact)
         id: creds
         env:
           RUN_ID: ${{ github.event.inputs.run_id }}
+          WP_ADMIN_USER: ${{ secrets.WP_ADMIN_USER }}
+          WP_ADMIN_PASS: ${{ secrets.WP_ADMIN_PASS }}
+          GH_TOKEN: ${{ github.token }}
         run: |
           set -euo pipefail
-          mkdir -p /tmp/creds
-          echo "Descargando artifact desde run $RUN_ID"
-          gh run download "$RUN_ID" -D /tmp/creds
-          # Buscar archivo con credenciales
-          CREDS_FILE=$(grep -rilE "runart-admin|username|user:" /tmp/creds || true)
-          if [ -z "$CREDS_FILE" ]; then
-            echo "No se encontró archivo de credenciales en artifacts" >&2
-            exit 2
-          fi
-          echo "Archivo de credenciales: $CREDS_FILE"
-          USER=$(grep -iE "^(username|user)\s*[:=]" "$CREDS_FILE" | head -1 | sed -E 's/^[^:]*[:=]\s*//')
-          PASS=$(grep -iE "^(password|pass|pwd)\s*[:=]" "$CREDS_FILE" | head -1 | sed -E 's/^[^:]*[:=]\s*//')
-          if [ -z "$USER" ] || [ -z "$PASS" ]; then
-            echo "No se pudieron parsear USER/PASS del archivo de credenciales" >&2
-            exit 3
+          if [ -n "${WP_ADMIN_USER:-}" ] && [ -n "${WP_ADMIN_PASS:-}" ]; then
+            USER="$WP_ADMIN_USER"; PASS="$WP_ADMIN_PASS"
+            echo "Usando credenciales desde Secrets (WP_ADMIN_USER)"
+          else
+            mkdir -p /tmp/creds
+            echo "Descargando artifact desde run $RUN_ID"
+            gh run download "$RUN_ID" -D /tmp/creds
+            CREDS_FILE=$(grep -rilE "runart-admin|username|user:" /tmp/creds || true)
+            if [ -z "$CREDS_FILE" ]; then
+              echo "No se encontró archivo de credenciales en artifacts" >&2
+              exit 2
+            fi
+            echo "Archivo de credenciales: $CREDS_FILE"
+            USER=$(grep -iE "^(username|user)\s*[:=]" "$CREDS_FILE" | head -1 | sed -E 's/^[^:]*[:=]\s*//')
+            PASS=$(grep -iE "^(password|pass|pwd)\s*[:=]" "$CREDS_FILE" | head -1 | sed -E 's/^[^:]*[:=]\s*//')
+            if [ -z "$USER" ] || [ -z "$PASS" ]; then
+              echo "No se pudieron parsear USER/PASS del archivo de credenciales" >&2
+              exit 3
+            fi
           fi
           echo "::add-mask::$USER"
           echo "::add-mask::$PASS"
