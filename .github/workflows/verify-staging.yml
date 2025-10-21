@@ -4,6 +4,9 @@ on:
     - cron: '0 13 * * *'  # Ejecuta diariamente a las 9am Miami (13 UTC)
   workflow_dispatch:
 
+permissions:
+  contents: write
+
 jobs:
   healthcheck:
     runs-on: ubuntu-latest
