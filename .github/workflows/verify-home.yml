@@ -88,8 +88,8 @@ jobs:
         run: |
           ES="NA"; EN="NA"
           if [ "${{ steps.check_base.outputs.BASE }}" = "OK" ]; then
-            ES=$(curl -sSI --max-redirs 3 -o /dev/null -w "%{http_code}" "$BASE_URL/" || true)
-            EN=$(curl -sSI --max-redirs 3 -o /dev/null -w "%{http_code}" "$BASE_URL/en/" || true)
+            ES=$(curl -sSIL --max-redirs 3 -o /dev/null -w "%{http_code}" "$BASE_URL/" || true)
+            EN=$(curl -sSIL --max-redirs 3 -o /dev/null -w "%{http_code}" "$BASE_URL/en/" || true)
           fi
           echo "ES=$ES" >> $GITHUB_OUTPUT
           echo "EN=$EN" >> $GITHUB_OUTPUT

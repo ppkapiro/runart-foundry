@@ -131,7 +131,7 @@ jobs:
             }
 
       - name: Fail if needs attention
-        if: ${{ steps.summarize.outputs.DRIFT != 'No' }}
+        if: ${{ steps.summarize.outputs.DRIFT == 'Sí' }}
         run: |
           echo "needs-attention: drift detected" >&2
           exit 1
