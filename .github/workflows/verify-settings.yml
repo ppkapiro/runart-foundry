@@ -43,8 +43,10 @@ jobs:
               CODE=$(curl -sS -o "$TMP" -w "%{http_code}" "$BASE_URL/wp-json/wp/v2/settings" || true)
             fi
             if [ "$CODE" = "200" ]; then
-              TZ=$(jq -r '.timezone_string // "?"' "$TMP" 2>/dev/null || echo "?")
-              PERMA=$(jq -r '.permalink_structure // "?"' "$TMP" 2>/dev/null || echo "?")
+              # Algunos sitios exponen "timezone" en lugar de "timezone_string"
+              TZ=$(jq -r '.timezone // .timezone_string // "?"' "$TMP" 2>/dev/null || echo "?")
+              # permalink_structure puede no estar expuesto por la API; manejar ausencia con "?"
+              PERMA=$(jq -r 'if has("permalink_structure") then .permalink_structure else "?" end' "$TMP" 2>/dev/null || echo "?")
               SOW=$(jq -r '.start_of_week // "?"' "$TMP" 2>/dev/null || echo "?")
             fi
             rm -f "$TMP"
@@ -62,9 +64,10 @@ jobs:
           # Determinar modo: real si WP_BASE_URL != placeholder.local, placeholder si no
           MODE="placeholder"
           if [ "$BASE_URL" != "placeholder.local" ] && [ -n "$BASE_URL" ]; then MODE="real"; fi
-          [ "$TZ" != "$EXPECTED_TZ" ] && DRIFT="Drift" && NEEDS=1
-          [ "$PERMA" != "$EXPECTED_PERMALINK" ] && DRIFT="Drift" && NEEDS=1
-          [ "$SOW" != "$EXPECTED_START_OF_WEEK" ] && DRIFT="Drift" && NEEDS=1
+          # Solo marcar drift si el valor existe (distinto de "?")
+          if [ "$TZ" != "?" ] && [ "$TZ" != "$EXPECTED_TZ" ]; then DRIFT="Drift"; NEEDS=1; fi
+          if [ "$PERMA" != "?" ] && [ "$PERMA" != "$EXPECTED_PERMALINK" ]; then DRIFT="Drift"; NEEDS=1; fi
+          if [ "$SOW" != "?" ] && [ "$SOW" != "$EXPECTED_START_OF_WEEK" ]; then DRIFT="Drift"; NEEDS=1; fi
           printf "mode=%s; timezone=%s; permalink=%s; start_of_week=%s; Compliance=%s\n" "$MODE" "$TZ" "$PERMA" "$SOW" "$DRIFT" | tee "$SUMMARY_FILE"
           echo "NEEDS=$NEEDS" >> $GITHUB_OUTPUT
 
