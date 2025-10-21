@@ -1,6 +1,6 @@
 # 📊 Dashboard de Métricas — RUN Art Foundry Staging
 
-**Última actualización:** Tue Oct 21 13:55:59 EDT 2025  
+**Última actualización:** Tue Oct 21 14:06:40 EDT 2025  
 **Entorno:** https://staging.runartfoundry.com
 
 ---
@@ -8,13 +8,13 @@
 ## 🩺 Health Checks
 
 ### Resumen
-- **Total ejecutados:** 1
-- **Exitosos (OK):** 1
+- **Total ejecutados:** 2
+- **Exitosos (OK):** 2
 - **Fallidos:** 0
 - **Tasa de éxito:** 100%
 
 ### Disponibilidad
-[██████████████████████████████████████████████████] 1/1
+[██████████████████████████████████████████████████] 2/2
 
 ### Rendimiento
 - **Tiempo de respuesta promedio:** 0ms
@@ -26,13 +26,15 @@
 ## 🧪 Smoke Tests (Content Validation)
 
 ### Resumen
-- **Total ejecutados:** 0
+- **Total ejecutados:** 2
 - **Passed (✅):** 0
-- **Warnings (⚠️):** 0
-- **Failed (❌):** 0
+- **Warnings (⚠️):** 1
+- **Failed (❌):** 1
 
 ### Distribución
-*No hay smoke tests ejecutados todavía*
+- **PASS:** [░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░] 0/2
+- **WARN:** [█████████████████████████░░░░░░░░░░░░░░░░░░░░░░░░░] 1/2
+- **FAIL:** [█████████████████████████░░░░░░░░░░░░░░░░░░░░░░░░░] 1/2
 
 ---
 
@@ -41,10 +43,14 @@
 ### Health Checks (Últimos 7 días)
 ```
 20251021_1740: ✅ OK
+20251021_1801: ✅ OK
 ```
 
 ### Smoke Tests (Últimos 7 días)
-*Smoke tests no configurados todavía*
+```
+20251021_1757: ❌ FAIL
+20251021_1805: ⚠️  WARN
+```
 
 ---
 
@@ -62,7 +68,7 @@
 
 ### Content Validation
 - **Objetivo:** 100% PASS en smoke tests
-- **Actual:** N/A
+- **Actual:** 0% PASS
 - **Estado:** ⚠️  Revisar
 
 ---
@@ -77,4 +83,4 @@
 ---
 
 *Dashboard generado automáticamente por `scripts/generate_metrics_dashboard.sh`*  
-*Última ejecución: Tue Oct 21 13:55:59 EDT 2025*
+*Última ejecución: Tue Oct 21 14:06:40 EDT 2025*
