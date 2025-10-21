@@ -1121,3 +1121,100 @@ Ref: Fase 10 Closeout - Configuración post-release
 ---
 
 **Próximo paso**: Ejecutar el script para habilitar workflows verify-* en main (requiere credenciales de STAGING).
+
+---
+
+### 2025-10-21 12:50 — Ejecución de Workflows verify-* y Diagnóstico
+
+**Contexto**: Credenciales ya estaban configuradas en GitHub desde hace 18 horas. Se ejecutaron workflows manualmente para validar funcionalidad.
+
+#### Credenciales Confirmadas en GitHub
+
+```bash
+$ gh variable list --repo RunArtFoundry/runart-foundry
+WP_BASE_URL  https://staging.runartfoundry.com  ✅
+WP_ENV       staging                            ✅
+
+$ gh secret list --repo RunArtFoundry/runart-foundry
+WP_USER          (configurado hace 18 horas)  ✅
+WP_APP_PASSWORD  (configurado hace 18 horas)  ✅
+```
+
+#### Workflows Ejecutados
+
+```bash
+gh workflow run verify-home.yml      # Run ID: 18684394379
+gh workflow run verify-settings.yml
+gh workflow run verify-menus.yml
+gh workflow run verify-media.yml
+```
+
+#### Resultado: ❌ FALLAN — WordPress No Instalado en STAGING
+
+**Causa Raíz Identificada**:
+
+STAGING solo contiene HTML simple, **no tiene WordPress instalado**:
+
+```bash
+$ curl https://staging.runartfoundry.com/
+STAGING READY — Mon Oct 20 22:11:49 UTC 2025
+
+$ curl https://staging.runartfoundry.com/wp-json/wp/v2/
+HTTP/2 300 Multiple Choices
+Error: /index.php not found (solo existe /index.html)
+```
+
+**Evidencia de Logs**:
+- AUTH=KO, CODE=NA (curl falló porque WordPress REST API no existe)
+- `/wp-json/` devuelve 300 en lugar de 200
+- Servidor busca `index.php` pero solo encuentra `index.html`
+
+#### Análisis
+
+| Componente | Estado | Detalle |
+|------------|--------|---------|
+| Credenciales GitHub | ✅ | Configuradas correctamente |
+| STAGING URL | ✅ | Accesible (200 OK) |
+| WordPress en STAGING | ❌ | **NO INSTALADO** |
+| REST API | ❌ | No disponible (300) |
+| Workflows verify-* | ❌ | Fallan por falta de WordPress |
+
+#### Opciones de Resolución
+
+**Opción 1: Instalar WordPress en STAGING** (RECOMENDADO)
+- ✅ Workflows funcionarían completamente
+- ✅ Testing realista de integraciones
+- ✅ Alineado con objetivo original Fase 7
+- Requisitos: Instalación WordPress + MySQL + App Password
+- Referencia: `docs/CHECKLIST_EJECUTIVA_FASE7.md`
+
+**Opción 2: Adaptar workflows para entorno sin WordPress**
+- ✅ Mantiene STAGING simple
+- ❌ Pierde valor de testing WordPress
+- ❌ Requiere modificar workflows
+
+**Opción 3: Usar producción** (NO RECOMENDADO)
+- ⚠️ ALTO RIESGO contra sitio en vivo
+- ❌ No sigue estrategia "Preview Primero"
+
+#### Recomendación
+
+**INSTALAR WORDPRESS EN STAGING** para habilitar workflows verify-* completamente.
+
+**Próximos pasos**:
+1. Instalar WordPress en `/homepages/7/d958591985/htdocs/staging/`
+2. Configurar MySQL database
+3. Generar App Password para usuario técnico
+4. Actualizar credenciales con `./tools/load_staging_credentials.sh`
+5. Re-ejecutar workflows verify-*
+
+**Reporte completo**: `_reports/closing/DIAGNOSTICO_WORKFLOWS_VERIFY_20251021.md`
+
+#### Estado Final
+
+✅ **Credenciales configuradas correctamente en GitHub**  
+✅ **Script y documentación operativos**  
+✅ **Diagnóstico completo del problema**  
+❌ **WordPress pendiente de instalación en STAGING**
+
+**Handoff**: Instalación de WordPress en STAGING es prerequisito para workflows verify-* funcionales.
