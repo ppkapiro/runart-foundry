@@ -1,0 +1,97 @@
+name: wpcli-bridge
+
+on:
+  workflow_dispatch:
+    inputs:
+      command:
+        description: "Comando a ejecutar (health, cache_flush, rewrite_flush, users_list, plugins_list)"
+        required: true
+        default: "health"
+        type: choice
+        options:
+          - health
+          - cache_flush
+          - rewrite_flush
+          - users_list
+          - plugins_list
+
+permissions:
+  contents: write
+
+env:
+  WP_BASE_URL: ${{ vars.WP_BASE_URL }}
+  WP_USER: ${{ secrets.WP_USER }}
+  WP_APP_PASSWORD: ${{ secrets.WP_APP_PASSWORD }}
+
+jobs:
+  run:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Resolver endpoint
+        id: ep
+        run: |
+          set -euo pipefail
+          CMD="${{ github.event.inputs.command }}"
+          case "$CMD" in
+            health)
+              EP="/wp-json/runart/v1/bridge/health"; METHOD=GET ;;
+            cache_flush)
+              EP="/wp-json/runart/v1/bridge/cache/flush"; METHOD=POST ;;
+            rewrite_flush)
+              EP="/wp-json/runart/v1/bridge/rewrite/flush"; METHOD=POST ;;
+            users_list)
+              EP="/wp-json/runart/v1/bridge/users"; METHOD=GET ;;
+            plugins_list)
+              EP="/wp-json/runart/v1/bridge/plugins"; METHOD=GET ;;
+            *) echo "Comando no soportado: $CMD"; exit 2 ;;
+          esac
+          echo "endpoint=${EP}" >> $GITHUB_OUTPUT
+          echo "method=${METHOD}" >> $GITHUB_OUTPUT
+
+      - name: Ejecutar comando vía Bridge
+        id: call
+        run: |
+          set -euo pipefail
+          URL="${WP_BASE_URL}${{ steps.ep.outputs.endpoint }}"
+          AUTH="${WP_USER}:${WP_APP_PASSWORD}"
+          if [ "${{ steps.ep.outputs.method }}" = "POST" ]; then
+            RESP=$(curl -sS -X POST -u "$AUTH" -H 'Content-Type: application/json' "$URL")
+          else
+            RESP=$(curl -sS -u "$AUTH" -H 'Content-Type: application/json' "$URL")
+          fi
+          echo "$RESP" | jq '.' >/dev/null
+          OK=$(echo "$RESP" | jq -r '.ok // false')
+          echo "ok=$OK" >> $GITHUB_OUTPUT
+          echo "$RESP" > bridge.json
+
+      - name: Generar reporte
+        run: |
+          set -euo pipefail
+          mkdir -p _reports/bridge
+          TS=$(date -u +"%Y%m%d_%H%M")
+          CMD="${{ github.event.inputs.command }}"
+          STATUS=$(jq -r '.ok | if . then "PASS" else "FAIL" end' bridge.json)
+          {
+            echo "# 🔗 WP-CLI Bridge Report"
+            echo "**Fecha:** $(date -u)"
+            echo "**Comando:** $CMD"
+            echo "**Estado:** $STATUS"
+            echo
+            echo "## Resultado"
+            echo '```json'
+            cat bridge.json
+            echo '```'
+          } > "_reports/bridge/bridge_${TS}_${CMD}.md"
+
+      - name: Commit & Push report
+        if: always()
+        run: |
+          set -euo pipefail
+          git config user.name "github-actions"
+          git config user.email "github-actions@users.noreply.github.com"
+          git add _reports/bridge/
+          git commit -m "Bridge report: ${{ github.event.inputs.command }}" || echo "Nada que commitear"
+          git push
