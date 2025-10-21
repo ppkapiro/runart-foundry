@@ -1218,3 +1218,10 @@ Error: /index.php not found (solo existe /index.html)
 ❌ **WordPress pendiente de instalación en STAGING**
 
 **Handoff**: Instalación de WordPress en STAGING es prerequisito para workflows verify-* funcionales.
+
+## 2025-10-21 15:42:11 UTC -- Instalacion de WordPress en STAGING
+- Host: https://staging.runartfoundry.com
+- Docroot: /homepages/7/d958591985/htdocs/staging
+- DB_HOST: db5018851417.hosting-data.io (guardado en wp-config.php)
+- Usuario tecnico: github-actions (App Password regenerada en GitHub)
+- Workflows verify-* ejecutados (ver /home/pepe/work/runartfoundry/_reports/VALIDACION_STAGING_20251021.md)
