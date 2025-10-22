@@ -4,7 +4,7 @@
 **Entorno local:** `/home/pepe/work/runartfoundry`  
 **Rama activa:** `feature/wp-staging-lite-integration`  
 **Commit base:** `bd35b23d83e0ec4db1f400010995088abb8d7a87`  
-**Estado:** 🟡 En progreso
+**Estado:** � Cerrando (Fases A–E completadas)
 
 ---
 
@@ -13,10 +13,10 @@
 | Fase | Descripción | Estado | Evidencia |
 |------|-------------|--------|-----------|
 | **A** | Crear entorno y rama local | ✅ COMPLETADA | docs/integration_wp_staging_lite/ creado |
-| **B** | Integrar MU-plugin y endpoints REST | 🟡 EN PROGRESO | Preparación de estructura MU-plugin |
-| **C** | Integrar workflows GitHub Actions | ⬜ Pendiente | - |
-| **D** | Pruebas locales end-to-end | ⬜ Pendiente | - |
-| **E** | Validación final y rollback | ⬜ Pendiente | - |
+| **B** | Integrar MU-plugin y endpoints REST | ✅ COMPLETADA | Plugin operativo + shortcode |
+| **C** | Integrar workflows GitHub Actions | ✅ COMPLETADA | receive_repository_dispatch.yml, post_build_status.yml |
+| **D** | Pruebas locales end-to-end | ✅ COMPLETADA | Simulaciones WP↔Workflows |
+| **E** | Validación final y rollback | ✅ COMPLETADA | Seguridad + Rollback + Paquete |
 
 ---
 
@@ -263,5 +263,29 @@ Fase C completada. Listo para Fase D — pruebas end-to-end con WP (WP→GH y GH
 - Evidencias: `docs/integration_wp_staging_lite/TESTS_E2E_LOCAL.md`
 
 ✅ Fase D COMPLETADA
+
+### 2025-10-22 — Fase E (Seguridad, Rollback, Entrega)
+
+**18:20:00** - E1 Revisión de seguridad
+- Escaneo repo-wide sin secretos reales; `/trigger` deshabilitado (501); workflows en modo dry-run.
+- Documento: `docs/integration_wp_staging_lite/REVIEW_SEGURIDAD.md`.
+
+**18:30:00** - E2 Plan de Rollback
+- Procedimiento y señales de éxito documentados en `docs/integration_wp_staging_lite/ROLLBACK_PLAN.md`.
+
+**18:40:00** - E3 Paquete de entrega
+- Preparado ZIP con plugin, workflows, scripts y docs — `_dist/wp-staging-lite_delivery_20251022T182542Z.zip`.
+- SHA256: `fd75524f84fac4afff01283b5404344fa9a7b80495022cec8af50c59e5b39f6f`.
+
+**18:45:00** - E4/E5 Actualización de PR y cierre
+- `PR_DRAFT.md` actualizado con Fases D–E, enlaces a seguridad/rollback y paquete de entrega.
+- Orquestador marcado como completado.
+
+**18:50:00** - E4 Resumen ejecutivo y criterios
+- Documentos añadidos:
+  - `EXECUTIVE_SUMMARY.md` (resumen ejecutivo y recomendaciones)
+  - `CRITERIOS_ACEPTACION_FINAL.md` (checklist de aceptación)
+
+✅ Fase E COMPLETADA
 
 Fase D completada. Listo para Fase E — validación final, rollback y paquete de entrega para el equipo del proyecto.
