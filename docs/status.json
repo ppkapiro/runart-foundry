@@ -1,0 +1,8 @@
+{
+  "version": "staging",
+  "last_update": "2025-10-22T17:56:50Z",
+  "health": "OK",
+  "services": [
+    {"name": "web", "state": "OK"}
+  ]
+}

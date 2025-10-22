@@ -252,3 +252,16 @@ Fase B completada. Listo para Fase C — integración de workflows (post_build_s
 ✅ Fase C COMPLETADA
 
 Fase C completada. Listo para Fase D — pruebas end-to-end con WP (WP→GH y GH→WP, si procede) y criterios de aceptación finales.
+
+### 2025-10-22 — Fase D (E2E Local)
+
+**14:06:55** - Inicio Fase D: 🟡 EN PROGRESO
+- Simulación WP→Workflows: `scripts/simulate_repository_dispatch.sh wp_content_published` → log en `docs/ops/logs/run_repository_dispatch_20251022T180655Z.log`
+- Simulación Workflows→WP: `scripts/simulate_post_build_status.sh` → `docs/status.json` generado; copia a `mu-plugins/wp-staging-lite/status.json`
+- Verificación WP: `GET /wp-json/briefing/v1/status` → 200, `last_update` = 2025-10-22T18:06:55Z
+- Verificación shortcode: ruta test OK
+- Evidencias: `docs/integration_wp_staging_lite/TESTS_E2E_LOCAL.md`
+
+✅ Fase D COMPLETADA
+
+Fase D completada. Listo para Fase E — validación final, rollback y paquete de entrega para el equipo del proyecto.
