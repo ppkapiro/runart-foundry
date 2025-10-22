@@ -71,3 +71,10 @@ ENV/
 audits/lighthouse/*.json
 audits/axe/*.json
 logs/*.txt
+
+# Repo-level artifacts y temporales (añadidos por auditoría 2025-10-22)
+_artifacts/
+_tmp/
+ci_artifacts/
+.pytest_cache/
+Thumbs.db
