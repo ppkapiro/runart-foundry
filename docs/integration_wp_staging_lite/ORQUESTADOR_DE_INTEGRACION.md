@@ -353,11 +353,11 @@ Fecha: 2025-10-22
 - Estado: Sincronizada con origen, lista para PR  
 
 **Pull Request (Draft)**:  
-- **Estado**: Preparado para creación manual (CLI/API con restricciones de permisos)  
-- **URL de compare**: https://github.com/RunArtFoundry/runart-foundry/compare/main...ppkapiro:feature/wp-staging-lite-integration?expand=1  
+- **Estado**: ✅ **CREADO EXITOSAMENTE** (PR #57)  
+- **URL**: https://github.com/RunArtFoundry/runart-foundry/pull/57  
 - **Título**: "WP Staging Lite — Integración local validada (Fases B–E)"  
-- **Cuerpo**: Preparado en `PR_BODY_REMOTE.md` con todos los enlaces  
-- **Etiquetas sugeridas**: integration, draft, staging-ready  
+- **Cuerpo**: Aplicado desde `PR_BODY_REMOTE.md` con todos los enlaces  
+- **Estado**: Draft, listo para review  
 
 ### 📦 Artefactos de entrega
 
