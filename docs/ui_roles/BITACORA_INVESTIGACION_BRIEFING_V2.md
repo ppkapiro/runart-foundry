@@ -1114,3 +1114,6 @@ rgba(23, 31, 58, 0.12) | --color-success
 
 #### Anexos de Evidencias — Fase 9
 - Ver: docs/ui_roles/EVIDENCIAS_FASE9.md
+
+#### Anexo — Verificación Visual Final
+- Ver: docs/ui_roles/VERIFICACION_DEPLOY_FINAL.md
