@@ -288,4 +288,26 @@ Fase C completada. Listo para Fase D — pruebas end-to-end con WP (WP→GH y GH
 
 ✅ Fase E COMPLETADA
 
+---
+
+## 🚀 Entrega remota (Push, PR y handoff)
+
+Fecha: 2025-10-22
+
+1) Push de la rama
+- Rama publicada: `feature/wp-staging-lite-integration`
+- URL rama (fork): https://github.com/ppkapiro/runart-foundry/tree/feature/wp-staging-lite-integration
+
+2) Pull Request (Draft)
+- Cuerpo del PR: `docs/integration_wp_staging_lite/PR_BODY_REMOTE.md`
+- Intento con CLI: `gh pr create --draft` (falló por permisos/repositorio movido)
+- Enlace para crear PR manual (upstream):
+  https://github.com/RunArtFoundry/runart-foundry/compare/main...ppkapiro:feature/wp-staging-lite-integration?expand=1
+
+3) Paquete de handoff
+- ZIP: `docs/integration_wp_staging_lite/ENTREGA_RUNART/WP_Staging_Lite_RunArt_v1.0.zip`
+- Documentos: `HANDOFF_MESSAGE.md`, `ACCEPTANCE_TEST_PLAN_STAGING.md`, `TODO_STAGING_TASKS.md`, `SECRETS_REFERENCE.md`
+
+Estado: Listo para pruebas de aceptación en staging (equipo RunArt Foundry). `/trigger` permanece deshabilitado por defecto.
+
 Fase D completada. Listo para Fase E — validación final, rollback y paquete de entrega para el equipo del proyecto.
