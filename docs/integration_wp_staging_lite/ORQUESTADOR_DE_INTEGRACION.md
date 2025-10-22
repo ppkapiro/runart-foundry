@@ -310,4 +310,32 @@ Fecha: 2025-10-22
 
 Estado: Listo para pruebas de aceptación en staging (equipo RunArt Foundry). `/trigger` permanece deshabilitado por defecto.
 
+---
+
+## 🛠️ Troubleshooting y blindaje (post-entrega)
+
+Fecha: 2025-10-22
+
+**Problema reportado**: Sitio Local no accesible (HTTP 301 redirect loop)
+
+**Causa raíz**: URLs incorrectas en la base de datos de WordPress causaban redirección a `http://localhost/` (sin puerto)
+
+**Solución aplicada** (blindaje permanente):
+- Agregadas constantes `WP_HOME` y `WP_SITEURL` en `wp-config.php` del sitio Local
+- Las constantes sobrescriben valores de BD y previenen futuros redirect loops
+- Backups automáticos creados antes de cada modificación
+
+**Herramientas creadas** para prevenir recurrencia:
+1. `TROUBLESHOOTING.md`: documentación completa del problema y soluciones
+2. `tools/fix_local_wp_urls.sh`: script automático para aplicar fix en cualquier sitio Local
+3. `tools/setup_local_wp_config.sh`: setup completo (URLs + plugin + validación)
+
+**Validación post-fix**:
+- ✅ Sitio responde HTTP 200 en `http://localhost:10010/`
+- ✅ Endpoint `/wp-json/briefing/v1/status` funcional
+- ✅ Endpoint `/wp-json/briefing/v1/trigger` responde HTTP 501 (deshabilitado como esperado)
+- ✅ Sin warnings de PHP
+
+**Commit**: `07070ad` - "tools: añade fix automático de URLs y troubleshooting para sitios Local"
+
 Fase D completada. Listo para Fase E — validación final, rollback y paquete de entrega para el equipo del proyecto.
