@@ -1,0 +1,37 @@
+name: "Post-build: Generate status.json"
+on:
+  workflow_run:
+    workflows: ["<NOMBRE_DEL_WORKFLOW_DE_BUILD>"]
+    types: [completed]
+jobs:
+  post_build_status:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Generate status.json
+        shell: bash
+        run: |
+          mkdir -p docs
+          cat > docs/status.json <<'JSON'
+          {
+            "version": "staging",
+            "last_update": "${{ github.event.workflow_run.updated_at }}",
+            "health": "OK",
+            "services": [
+              {"name": "web", "state": "OK"}
+            ]
+          }
+          JSON
+      - name: Log write (dry-run)
+        shell: bash
+        run: |
+          mkdir -p docs/ops/logs
+          ts="$(date -u +%Y%m%dT%H%M%SZ)"
+          echo "wrote=docs/status.json" > "docs/ops/logs/post_build_status_${ts}.log"
+          echo "ts=${ts}" >> "docs/ops/logs/post_build_status_${ts}.log"
+      - name: Upload (if not publishing docs/)
+        if: ${{ env.PUBLISH_DOCS == '' || env.PUBLISH_DOCS == 'false' }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: status-json
+          path: docs/status.json

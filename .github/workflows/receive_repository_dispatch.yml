@@ -1,0 +1,26 @@
+name: "Receive Repository Dispatch (Staging)"
+on:
+  repository_dispatch:
+    types: [wp_content_published, rebuild, sync_menus]
+jobs:
+  handle:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Log event
+        run: |
+          echo "Event type: ${{ github.event.action }}"
+          echo "Payload: ${{ toJson(github.event.client_payload) }}"
+      - name: Touch evidence log (dry-run)
+        shell: bash
+        run: |
+          mkdir -p docs/ops/logs
+          ts="$(date -u +%Y%m%dT%H%M%SZ)"
+          f="docs/ops/logs/run_repository_dispatch_${ts}.log"
+          {
+            echo "event=${{ github.event.action }}"
+            echo "payload=${{ toJson(github.event.client_payload) }}"
+            echo "ts=${ts}"
+          } > "$f"
+          echo "Wrote $f"
