@@ -1,5 +1,11 @@
 # Estado del Proyecto — Octubre 2025
 
+## Fuente canónica de documentación
+- **Documentación activa**: [`docs/live/`](../../docs/live/)
+  - Hubs temáticos: [Arquitectura](../../docs/live/architecture/index.md), [Operaciones](../../docs/live/operations/index.md), [UI/Roles](../../docs/live/ui_roles/index.md)
+  - Estado operativo: [`docs/status.json`](../../docs/status.json) (regenerar con `make status_update`)
+- **Archivo histórico**: [`docs/archive/`](../../docs/archive/)
+
 ## Estado del proyecto
 - [x] **Fase 0 – Diagnóstico** (cerrada)
 - [x] **Fase 1 – Pilotos y estructura base** (cerrada)
