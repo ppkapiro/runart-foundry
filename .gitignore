@@ -78,3 +78,6 @@ _tmp/
 ci_artifacts/
 .pytest_cache/
 Thumbs.db
+
+# Ops logs (no versionar evidencias crudas)
+docs/ops/logs/
