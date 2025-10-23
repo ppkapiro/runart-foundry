@@ -28,4 +28,5 @@ Este es un índice cronológico inicial para la capa "archive". Aquí se conserv
 - Aplicar frontmatter estándar a cada documento.
 
 ## Últimos movimientos archivados
-- (pendiente en este PR) — No se movieron documentos históricos aún. Este índice se actualizará cuando se archiven documentos en `docs/archive/YYYY-MM/`.
+- 2025-10 | internal/security/evidencia/RESUMEN_PREVIEW_20251015_1601.md | Pipeline Canario — Diagnóstico | historical (evidencia)
+- 2025-10 | internal/security/evidencia/DEEP_CHECK_ACCESS_SUMMARY.md | Deep Check Access - Resumen de Diagnóstico | historical (evidencia)

@@ -6,20 +6,22 @@ repo: runart-foundry
 branch: feature/pr-01-briefing-canon
 ---
 
-# Hub — Arquitectura
+# Arquitectura — Índice
 
-## Selección inicial
-- [Overview](../../architecture/000_overview.md) — panorama general de la arquitectura.
-- [Inventory](../../architecture/010_inventory.md) — inventario de artefactos y componentes.
-- [Target structure](../../architecture/020_target_structure.md) — estructura objetivo del proyecto.
-- [Conventions](../../architecture/030_conventions.md) — convenciones y normas.
-- [CI shared](../../architecture/040_ci_shared.md) — consideraciones de CI compartida.
-- [Make targets](../../architecture/050_make_targets.md) — objetivos de Make y automatización.
-- [Migration plan](../../architecture/060_migration_plan.md) — plan de migración.
-- [Switch Pages](../../architecture/065_switch_pages.md) — estrategia de conmutación.
-- [Risks](../../architecture/070_risks.md) — registro de riesgos.
-- [Cleanup Briefing](../../architecture/075_cleanup_briefing.md) — limpieza y compatibilidad.
-- [ADR-0005 Unificación de roles](../../adr/ADR-0005-unificacion-roles.md) — decisión técnica relevante.
+## Documentos (curados)
+- [000_overview](./000_overview.md)
+- [040_ci_shared](./040_ci_shared.md)
+- [050_make_targets](./050_make_targets.md)
+- [060_migration_plan](./060_migration_plan.md)
+- [070_risks](./070_risks.md)
+
+## Enlaces complementarios
+- [Inventory](../../architecture/010_inventory.md)
+- [Target structure](../../architecture/020_target_structure.md)
+- [Conventions](../../architecture/030_conventions.md)
+- [Switch Pages](../../architecture/065_switch_pages.md)
+- [Cleanup Briefing](../../architecture/075_cleanup_briefing.md)
+- [ADR-0005 Unificación de roles](../../adr/ADR-0005-unificacion-roles.md)
 
 ## Criterios de inclusión
 - Documentos estructurales, ADRs y planes técnicos vigentes.
@@ -27,3 +29,4 @@ branch: feature/pr-01-briefing-canon
 ## TODO: curaduría fina
 - Validar vigencia por fecha y referencias internas.
 - Añadir más ADRs y diagramas cuando aplique.
+- Completar migración de docs/architecture/* hacia live/.

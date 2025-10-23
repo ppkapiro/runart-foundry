@@ -14,3 +14,14 @@ proximos_pasos: "Aprobación y merge → PR-04 (validación estricta)"
 - Copiado inicial de documentos activos a `docs/live/` y aplicación de frontmatter estándar.
 - Validador soft añadido (`scripts/validate_docs_soft.py`) y target `make validate:soft`.
 - Índices e instructivo de gobernanza actualizados.
+
+## PR-03.1
+- Fecha: 2025-10-23
+- A live: 6 archivos (arch, ops, ui_roles)
+- A archive: 2 archivos (evidencias 2025-10)
+- Validadores soft: 0 warnings
+- Último commit de lote: (se actualiza tras commit)
+
+## Publicación del PR
+- PR Draft: https://github.com/RunArtFoundry/runart-foundry/pull/63
+- Último commit: 041980f7831019cf20e33fe6a2e213faaa860fc3

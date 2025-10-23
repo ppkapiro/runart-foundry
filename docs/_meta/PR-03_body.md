@@ -29,3 +29,16 @@ branch: feature/pr-03-curaduria-activa
 ## Siguientes pasos
 - Merge de PR-03 tras revisión.
 - Activar validadores en modo “strict” (PR-04).
+
+---
+
+## Cambios añadidos en PR-03.1
+
+- Batch 2 curado a live (6 docs):
+	- architecture: 040_ci_shared, 050_make_targets, 070_risks
+	- operations: DEPLOY_PROD_CHECKLIST
+	- ui_roles: PLAN_GATE_PROD, QA_checklist_consolidacion_preview_prod
+- Archivado por fecha (2 docs):
+	- 2025-10/internal/security/evidencia/{RESUMEN_PREVIEW_20251015_1601.md, DEEP_CHECK_ACCESS_SUMMARY.md}
+- Hubs live actualizados (architecture, operations, ui_roles)
+- Validadores soft: 0 warnings (reporte actualizado)
