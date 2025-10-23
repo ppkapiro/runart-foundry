@@ -10,7 +10,7 @@
 
 ### 1. Briefing + status.json + Auto-posts
 
-**Estado:** ✅ **ACTIVO — Sprint 2 completado**  
+**Estado:** ✅ **ACTIVO — Sprint 3 en curso (Hardening + Observabilidad)**  
 **Fecha inicio:** 2025-10-23  
 **Fecha merge:** 2025-10-23T23:05:00Z  
 **Rama:** `feat/briefing-status-integration-research` (mergeada)  
@@ -29,7 +29,12 @@ Integración automatizada que publica métricas operativas del sistema de docume
 | `gen_status.py` | `scripts/` | Genera `docs/status.json` con métricas operativas |
 | `render_status.py` | `tools/` | Convierte status.json → `apps/briefing/docs/status/index.md` |
 | `commits_to_posts.py` | `tools/` | Extrae commits → genera posts en `apps/briefing/docs/news/` |
+| `render_history.py` | `tools/` | Genera `/status/history` con gráficos Chart.js desde snapshots |
+| `auto_rollback.py` | `tools/` | Rollback automático ante fallos de validación o build |
+| `notify.py` | `tools/` | Notificaciones Slack/Discord (fallos, drift) |
 | `briefing-status-publish.yml` | `.github/workflows/` | Pipeline CI/CD completo (7 steps) |
+| `status-snapshot.yml` | `.github/workflows/` | Snapshots semanales (lunes 07:00 UTC) |
+| `status-audit.yml` | `.github/workflows/` | Auditoría semanal con detección drift (lunes 09:00 UTC) |
 | `STATUS_SCHEMA.md` | `docs/_meta/status_samples/` | Documentación de esquema JSON |
 | `BRIEFING_STATUS_PIPELINE_RUN.md` | `docs/_meta/` | Logs de ejecuciones del workflow |
 
@@ -60,6 +65,8 @@ Integración automatizada que publica métricas operativas del sistema de docume
 - [⚙️ Workflow](../../.github/workflows/briefing-status-publish.yml)
 - [📊 Estado actual](/status/)
 - [📰 Posts recientes](/news/)
+- [📈 Historial & Tendencias](/status/history)
+- [📁 Snapshots semanales](../status_samples/)
 
 #### KPIs de Éxito
 

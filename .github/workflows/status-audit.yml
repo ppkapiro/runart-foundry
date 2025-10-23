@@ -141,6 +141,27 @@ jobs:
               labels: ['scope/automation', 'type/bug', 'priority/medium']
             })
       
+      - name: Send drift alert
+        if: steps.drift_check.outputs.drift_detected == 'true'
+        run: |
+          echo "📢 Enviando alertas de drift..."
+          
+          drift_msg="${{ steps.drift_check.outputs.drift_message }}"
+          
+          python3 tools/notify.py \
+            --channel=slack \
+            --title="Drift Detectado en status.json" \
+            --message="Auditoría semanal: ${drift_msg}" \
+            --level=WARN \
+            || echo "⚠️  Notificación Slack no disponible"
+          
+          python3 tools/notify.py \
+            --channel=discord \
+            --title="Drift Detectado en status.json" \
+            --message="Auditoría semanal: ${drift_msg}" \
+            --level=WARN \
+            || echo "⚠️  Notificación Discord no disponible"
+      
       - name: Summary
         if: always()
         run: |

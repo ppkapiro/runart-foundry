@@ -21,6 +21,7 @@ jobs:
   update-briefing-status:
     name: Update Briefing Status & Posts
     runs-on: ubuntu-latest
+    timeout-minutes: 15  # Hardening: evitar jobs colgados
     # Rate limiting: evitar loops infinitos y ejecuciones concurrentes
     if: |
       github.event.head_commit.author.name != 'github-actions[bot]' &&
@@ -110,6 +111,29 @@ jobs:
           
           echo "✅ Validación de frontmatter completada"
       
+      - name: Step 4.5 — Canary build (MkDocs --strict)
+        id: canary_build
+        run: |
+          echo "🔍 Canary build: verificando que MkDocs pueda compilar..."
+          
+          # Instalar dependencias si es necesario
+          if [ -f apps/briefing/requirements.txt ]; then
+            pip install -r apps/briefing/requirements.txt
+          else
+            pip install mkdocs mkdocs-material
+          fi
+          
+          # Build con --strict (falla si hay warnings)
+          cd apps/briefing
+          mkdocs build --strict
+          
+          if [ $? -eq 0 ]; then
+            echo "✅ Canary build exitoso"
+          else
+            echo "❌ ERROR: MkDocs build falló"
+            exit 1
+          fi
+      
       - name: Step 5 — Commit changes (if any)
         id: commit
         run: |
@@ -182,6 +206,49 @@ jobs:
           git push origin main || true
           
           echo "✅ Ejecución registrada"
+      
+      - name: Auto-Rollback on Failure
+        if: failure()
+        run: |
+          echo "❌ Fallo detectado — Ejecutando auto-rollback..."
+          python3 tools/auto_rollback.py
+          
+          rollback_status=$?
+          if [ $rollback_status -eq 0 ]; then
+            echo "✅ Rollback completado exitosamente"
+            
+            # Push cambios de rollback
+            git config --local user.email "github-actions[bot]@users.noreply.github.com"
+            git config --local user.name "github-actions[bot]"
+            git push origin main || echo "⚠️  No se pudo hacer push del rollback"
+            
+            # Registrar rollback en PIPELINE_RUN.md
+            timestamp=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
+            commit_hash=$(git rev-parse --short HEAD)
+            echo "" >> docs/_meta/BRIEFING_STATUS_PIPELINE_RUN.md
+            echo "**Auto-rollback ejecutado:** OK — ${timestamp} (commit: ${commit_hash})" >> docs/_meta/BRIEFING_STATUS_PIPELINE_RUN.md
+            git add docs/_meta/BRIEFING_STATUS_PIPELINE_RUN.md
+            git commit -m "chore(meta): log auto-rollback [skip ci]" || true
+            git push origin main || true
+          else
+            echo "❌ Rollback fallido (código: ${rollback_status})"
+            echo "**Auto-rollback ejecutado:** FAIL — $(date -u +"%Y-%m-%dT%H:%M:%SZ")" >> docs/_meta/BRIEFING_STATUS_PIPELINE_RUN.md
+          fi
+          
+          # Enviar alerta de fallo
+          python3 tools/notify.py \
+            --channel=slack \
+            --title="Briefing Status Publish Failed" \
+            --message="Auto-rollback ejecutado. Job: ${{ job.status }}" \
+            --level=ERROR \
+            || echo "⚠️  Notificación Slack no disponible"
+          
+          python3 tools/notify.py \
+            --channel=discord \
+            --title="Briefing Status Publish Failed" \
+            --message="Auto-rollback ejecutado. Job: ${{ job.status }}" \
+            --level=ERROR \
+            || echo "⚠️  Notificación Discord no disponible"
       
       - name: Summary
         if: always()

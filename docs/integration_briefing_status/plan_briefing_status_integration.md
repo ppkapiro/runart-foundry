@@ -32,8 +32,54 @@ Automatizar la publicación de métricas operativas del sistema de documentació
 
 - ❌ Integración PaperLang (queda como opt-in para V2)
 - ❌ Gráficos dinámicos con Chart.js (PoC usa Mermaid estático)
+- ✅ Gráficos dinámicos con Chart.js (Sprint 3: /status/history)
 - ❌ Detección automática de endpoints (preview_ok/prod_ok quedan manual)
 - ❌ Dashboard interactivo (solo páginas estáticas Markdown)
+
+---
+
+## Sprint Status
+
+### Sprint 1 — PoC y Pipeline Base
+**Estado:** ✅ **COMPLETADO** (2025-10-23)
+
+- [x] Investigación técnica (3 modelos analizados)
+- [x] Scripts PoC (render_status.py, commits_to_posts.py)
+- [x] Workflow CI/CD básico
+- [x] 14 posts de ejemplo generados
+- [x] Merge a main (hash 10d49f0)
+
+### Sprint 2 — Hardening (Validaciones + Tests + Auditoría)
+**Estado:** ✅ **COMPLETADO** (2025-10-23)
+
+- [x] Validador JSON schema (validate_status_schema.py)
+- [x] Tests unitarios (8/8 PASS, cobertura >80%)
+- [x] Rate limiting en workflow (anti-loop)
+- [x] Auditoría semanal con drift detection
+- [x] Documentación actualizada (INDEX_INTEGRATIONS, PIPELINE_RUN)
+- [x] Reporte Sprint 2 (BRIEFING_STATUS_SPRINT2_REPORT.md)
+
+### Sprint 3 — Hardening + Observabilidad
+**Estado:** 🔄 **EN CURSO** (inicio 2025-10-23)
+
+**Checklist:**
+- [ ] Rollback automático (auto_rollback.py + integración workflow)
+- [ ] Snapshots históricos semanales (status-snapshot.yml + docs/_meta/status_samples/)
+- [ ] Dashboard /status/history con Chart.js (render_history.py)
+- [ ] Alertas Slack/Discord (notify.py + webhooks en workflows)
+- [ ] Endurecimiento pipeline (timeout, canary build, pinning versions)
+- [ ] Gobernanza documentada (governance_briefing_integration.md)
+- [ ] Tests adicionales (auto-rollback, render_history)
+- [ ] Reporte Sprint 3 (BRIEFING_STATUS_SPRINT3_REPORT.md)
+
+**KPIs Objetivo:**
+- Rollback probado (forzar fallo → restauración exitosa)
+- ≥3 snapshots históricos capturados
+- Gráfico Chart.js visible en /status/history
+- Alertas operativas (1 test de cada canal)
+- 0 fallos de build en canary step
+
+**Timeline:** 2-3 semanas (estimado: 2025-11-10)
 
 ---
 
