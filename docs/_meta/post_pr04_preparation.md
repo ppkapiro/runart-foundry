@@ -30,3 +30,9 @@ branch: main
   - Enlaces externos validados (HTTP/HTTPS con timeout)
   - Tags únicos (lowercase, sin duplicados)
   - Duplicados prohibidos en docs/live/
+
+## Merge completado
+- Fecha: 2025-10-23
+- Commit final (squash): c9dd233ff772735e87e804fabedc68ce011a6898
+- CI strict: SUCCESS (validate job)
+- Estado general: CERRADO (validadores strict activos en main)

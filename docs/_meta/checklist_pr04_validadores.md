@@ -14,4 +14,4 @@ audience: internal
 - [x] Tags únicos (lowercase, sin duplicados)
 - [x] Duplicados legacy eliminados
 - [x] Enlaces internos 100% verificados
-- [ ] Merge final aprobado sin warnings
+- [x] Merge final aprobado sin warnings
