@@ -159,3 +159,22 @@ Notas:
 - Este bloque se actualiza automáticamente con el URL de producción y verificación posterior cuando el workflow complete.
 
 - Preflight CF OK: 2025-10-23T23:28:19Z
+
+---
+
+#### Deploy Actions
+
+- Deploy ejecutado: 2025-10-23T23:31:49Z | SHA: d530752 | dir: site
+  URL: https://runart-foundry.pages.dev
+
+---
+
+- Verificación post-deploy OK: 2025-10-23T23:31:49Z
+  Rutas verificadas: /, /status/, /news/, /status/history/
+
+---
+
+#### Cierre manual PR-03
+
+- Confirmación de cierre: 2025-10-23T23:31:49Z | SHA: d530752
+- Observaciones: Consolidación completada; workflows canónicos activos (deploy, verify, monitor, preflight).
