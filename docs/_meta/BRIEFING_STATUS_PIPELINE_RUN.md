@@ -193,3 +193,6 @@ Notas:
 
 - Deploy verificado: 2025-10-23T23:32:30Z | SHA: d530752 | dir: site | PENDING (workflow en ejecución)
 
+
+- Deploy ejecutado: 2025-10-23T23:48:25Z | SHA: 6bfb386 | dir: site
+  URL: https://runart-foundry.pages.dev
