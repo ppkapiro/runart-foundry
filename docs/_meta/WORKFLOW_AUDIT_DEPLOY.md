@@ -110,3 +110,14 @@ Riesgos detectados:
 
 ---
 SHA base del análisis: HEAD actual en main.
+
+## Estado post-consolidación (ejecutado)
+
+- Canónico (producción): `pages-deploy.yml` — MkDocs `--strict` → `apps/briefing/site` → Cloudflare Pages; concurrency `deploy-prod`; meta con SHA; verify encadenado.
+- Secundarios (contingencia manual):
+  - `pages-prod.yml` — DEPRECATED; `workflow_dispatch` únicamente; usa `CLOUDFLARE_ACCOUNT_ID` desde secrets.
+  - `ci.yml` — Job `deploy` bloqueado salvo `workflow_dispatch` con input `deploy_prod=true`. Build y tests siguen activos en push/PR.
+- Salida unificada: `apps/briefing/site`.
+- Monitor: `monitor-deploys.yml` activo cada 10 minutos, con guardas anti-colisión/anti-carrera y artifacts TSV/JSON.
+
+Generado/actualizado: $(date -u +%FT%TZ)

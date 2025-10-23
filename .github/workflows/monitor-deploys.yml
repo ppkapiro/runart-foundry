@@ -39,6 +39,16 @@ jobs:
           jq -r '.[] | select(.name|test("Deploy to Cloudflare Pages")) | [.name,.status,.conclusion,.createdAt,.updatedAt] | @tsv' tmp_runs.json > tmp_deploys.tsv
           jq -r '.[] | select(.name|test("Verify Production")) | [.name,.status,.conclusion,.createdAt,.updatedAt] | @tsv' tmp_runs.json > tmp_verify.tsv
 
+          # Resumen de últimos 10 (OK/FAIL)
+          DEP_OK=$(awk -F '\t' '$3=="success"{c++} END{print c+0}' tmp_deploys.tsv)
+          DEP_KO=$(awk -F '\t' '$3!="success"{c++} END{print c+0}' tmp_deploys.tsv)
+          VER_OK=$(awk -F '\t' '$3=="success"{c++} END{print c+0}' tmp_verify.tsv)
+          VER_KO=$(awk -F '\t' '$3!="success"{c++} END{print c+0}' tmp_verify.tsv)
+          echo "DEP_OK=$DEP_OK"   >> $GITHUB_ENV
+          echo "DEP_KO=$DEP_KO"    >> $GITHUB_ENV
+          echo "VER_OK=$VER_OK"    >> $GITHUB_ENV
+          echo "VER_KO=$VER_KO"    >> $GITHUB_ENV
+
       - name: Registrar resultados en meta-log
         run: |
           set -euo pipefail
@@ -46,6 +56,8 @@ jobs:
           {
             echo "\n---";
             echo "### Monitoreo ${TS}";
+            echo "";
+            echo "Resumen: Deploy OK=${DEP_OK:-0} FAIL=${DEP_KO:-0} | Verify OK=${VER_OK:-0} FAIL=${VER_KO:-0} (últimos 10)";
             echo "";
             echo "#### Deploy Actions";
             if [ -s tmp_deploys.tsv ]; then
@@ -61,6 +73,15 @@ jobs:
               echo "(sin datos)";
             fi
           } >> docs/_meta/BRIEFING_STATUS_PIPELINE_RUN.md
+
+      - name: Subir artefactos de monitoreo
+        uses: actions/upload-artifact@v4
+        with:
+          name: monitor-evidence-${{ github.run_id }}
+          path: |
+            tmp_runs.json
+            tmp_deploys.tsv
+            tmp_verify.tsv
 
       - name: Commit meta-log update
         run: |
@@ -98,6 +119,25 @@ jobs:
           set -euo pipefail
           LATEST_SHA=$(git rev-parse HEAD)
           LAST_RUN=$(tail -n 200 docs/_meta/BRIEFING_STATUS_PIPELINE_RUN.md | grep -E "^#### Deploy Actions|Deploy ejecutado|Deploy a Cloudflare Pages — inicio" | tail -n1 || true)
+          # Ventana anti-colisión: si hay runs en progreso/cola en últimos 15 min, no disparar
+          NOW_SECS=$(date -u +%s)
+          BUSY=$(jq -r '.[] | select(.name|test("Deploy to Cloudflare Pages")) | select(.status=="in_progress" or .status=="queued") | .updatedAt' tmp_runs.json | \
+                 xargs -I{} date -u -d {} +%s 2>/dev/null | awk -v now="$NOW_SECS" '{ if (now-$1 < 900) { print 1; exit } }')
+          if [ "$BUSY" = "1" ]; then
+            echo "Saltado: deploy en progreso/cola (ventana 15m)." >> docs/_meta/BRIEFING_STATUS_PIPELINE_RUN.md
+            exit 0
+          fi
+
+          # Ventana anti-carrera: si el último deploy success terminó hace <5m, no disparar
+          LAST_OK_END=$(jq -r '.[] | select(.name|test("Deploy to Cloudflare Pages")) | select(.conclusion=="success") | .updatedAt' tmp_runs.json | head -n1)
+          if [ -n "$LAST_OK_END" ]; then
+            LAST_OK_SECS=$(date -u -d "$LAST_OK_END" +%s || echo 0)
+            if [ $(( NOW_SECS - LAST_OK_SECS )) -lt 300 ]; then
+              echo "Saltado: ventana anti-carrera (<5m desde último success)." >> docs/_meta/BRIEFING_STATUS_PIPELINE_RUN.md
+              exit 0
+            fi
+          fi
+
           if ! echo "$LAST_RUN" | grep -q "$LATEST_SHA"; then
             echo "Nuevo commit detectado: $LATEST_SHA — ejecutando deploy."
             gh workflow run "Deploy to Cloudflare Pages (Briefing)" || true

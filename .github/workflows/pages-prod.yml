@@ -1,8 +1,8 @@
-name: Deploy Production (Cloudflare)
+name: Deploy Production (Cloudflare) — DEPRECATED (use pages-deploy.yml)
 
 on:
-  push:
-    branches: [ main ]
+  # DEPRECATED for prod; use pages-deploy.yml (canónico).
+  # Este workflow queda SOLO para uso manual de contingencia.
   workflow_dispatch:
     inputs:
       collect_evidence:
@@ -21,10 +21,7 @@ jobs:
       statuses: write
     env:
       CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
-      # Usar el Account ID verificado por el orquestador. Si prefieres usar un secret, reemplaza esta línea por
-      #   CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
-      # Nota: el Account ID no es sensible; el token sí.
-      CLOUDFLARE_ACCOUNT_ID: a2c7fc66f00eab69373e448193ae7201
+      CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
       CF_PROJECT_NAME: runart-foundry
       TARGET_BRANCH: main
       RUNART_ENV: production

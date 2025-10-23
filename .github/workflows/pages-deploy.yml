@@ -16,6 +16,9 @@ jobs:
   deploy:
     runs-on: ubuntu-latest
     timeout-minutes: 20
+    concurrency:
+      group: deploy-prod
+      cancel-in-progress: true
 
     steps:
       - uses: actions/checkout@v4
@@ -36,8 +39,13 @@ jobs:
       - name: Build MkDocs (Briefing app)
         working-directory: apps/briefing
         run: |
-          mkdocs build --strict -d dist
-          test -d dist && test -f dist/index.html
+          mkdocs build --strict -d site
+          test -d site && test -f site/index.html
+
+      - name: Registrar SHA para correlación
+        id: sha
+        run: |
+          echo "short=$(git rev-parse --short HEAD)" >> $GITHUB_OUTPUT
 
       - name: Deploy to Cloudflare Pages
         uses: cloudflare/pages-action@v1
@@ -45,7 +53,7 @@ jobs:
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
           projectName: runart-foundry
-          directory: apps/briefing/dist
+          directory: apps/briefing/site
           gitHubToken: ${{ secrets.GITHUB_TOKEN }}
           branch: main
 
@@ -57,7 +65,7 @@ jobs:
       - name: Append deploy note to meta
         run: |
           echo "" >> docs/_meta/BRIEFING_STATUS_PIPELINE_RUN.md
-          echo "- Deploy ejecutado: $(date -u +%FT%TZ)" >> docs/_meta/BRIEFING_STATUS_PIPELINE_RUN.md
+          echo "- Deploy ejecutado: $(date -u +%FT%TZ) | SHA: ${{ steps.sha.outputs.short }} | dir: site" >> docs/_meta/BRIEFING_STATUS_PIPELINE_RUN.md
           echo "  URL: https://runart-foundry.pages.dev" >> docs/_meta/BRIEFING_STATUS_PIPELINE_RUN.md
 
       - name: Commit meta log
@@ -68,14 +76,4 @@ jobs:
           git commit -m "docs(meta): log deploy Pages [skip ci]" || true
           git push || true
 
-      - name: Purge Cloudflare Cache (optional)
-        if: always()
-        run: |
-          if [ -n "${{ secrets.CF_ZONE_ID }}" ] && [ -n "${{ secrets.CLOUDFLARE_API_TOKEN }}" ]; then
-            curl -sS -X POST "https://api.cloudflare.com/client/v4/zones/${{ secrets.CF_ZONE_ID }}/purge_cache" \
-              -H "Authorization: Bearer ${{ secrets.CLOUDFLARE_API_TOKEN }}" \
-              -H "Content-Type: application/json" \
-              --data '{"purge_everything":true}' || true
-          else
-            echo "CF purge omitido (sin CF_ZONE_ID o token)"
-          fi
+      # Purge Cloudflare Cache (optional): paso omitido para evitar dependencia de secretos no garantizados (CF_ZONE_ID)
