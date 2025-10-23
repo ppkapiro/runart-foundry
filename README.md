@@ -1,3 +1,26 @@
+---
+title: "README — RUN Art Foundry"
+roles:
+  - owner
+  - equipo
+  - cliente
+meta:
+  pr: PR-02.1 (Root Alignment Applied)
+  fecha: 2025-10-23
+  fuente: docs/_meta/plan_pr02_root_alignment.md
+crosslinks:
+  - STATUS.md
+  - NEXT_PHASE.md
+  - CHANGELOG.md
+  - docs/_meta/plan_pr02_root_alignment.md
+  - docs/_meta/checklist_pr02_root_alignment.md
+  - docs/_meta/mapa_impacto_pr02.md
+---
+<!--
+Bloque canónico añadido por PR-02.1 (Root Alignment Applied)
+Ver documentación y meta en docs/_meta/plan_pr02_root_alignment.md
+-->
+
 ![Pages Prod](https://github.com/ppkapiro/runart-foundry/actions/workflows/pages-prod.yml/badge.svg)
 [![Verify Staging](https://github.com/RunArtFoundry/runart-foundry/actions/workflows/verify-staging.yml/badge.svg)](https://github.com/RunArtFoundry/runart-foundry/actions/workflows/verify-staging.yml)
 [![Smoke Tests](https://github.com/RunArtFoundry/runart-foundry/actions/workflows/smoke-tests.yml/badge.svg)](https://github.com/RunArtFoundry/runart-foundry/actions/workflows/smoke-tests.yml)

@@ -1,5 +1,10 @@
 # RUN Art Foundry — Briefing Privado
 
+# RUN Art Foundry — Briefing Privado
+
+<!-- canonical-crosslink: pr-01 -->
+> Fuente canónica de Briefing: ver `docs/live/` → [Índice](../../../docs/live/index.md) · Hubs: [Arquitectura](../../../docs/live/architecture/index.md), [Operaciones](../../../docs/live/operations/index.md), [UI/Roles](../../../docs/live/ui_roles/index.md).
+
 ## Estado del proyecto
 Fase ARQ cerrada y ARQ+ v1 completada: navegación limpia dentro de `docs/`, exportaciones JSONL/CSV/ZIP operativas y herramientas listas para QA continuo.
 
