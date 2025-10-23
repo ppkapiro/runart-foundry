@@ -42,3 +42,4 @@ Campos mínimos: `status`, `owner`, `updated`, `audience`, `tags`.
 - Completar RACI de documentación.
 - Definir etiquetas/boards para flujos de revisión.
 - Integrar validaciones en CI (lint de frontmatter, enlaces, orfandad).
+ - Documentar proceso de “Curaduría Activa” (PR-03): consolidación en `docs/live/`, archivado en `docs/archive/` y validadores en modo soft.

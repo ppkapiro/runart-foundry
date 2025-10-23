@@ -14,6 +14,7 @@ branch: feature/pr-01-briefing-canon
 - Cuerpo del PR: `docs/_meta/PR-01_body.md`
 - Checklist: `docs/_meta/checklist_pr01.md`
 - Linkmap: `docs/_meta/linkmap_briefing.md`
+- Etiquetas aplicadas: area/docs, type/chore, status/draft, scope/briefing-canon (asignar manualmente en web; CLI falló por Projects API)
 
 ## Conteos rápidos
 - Hubs creados: 3 (Arquitectura, Operaciones, UI/Roles)

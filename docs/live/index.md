@@ -1,20 +1,30 @@
-# Índice (capa live)
+---
+generated_by: copilot
+phase: pr-01-briefing-canon
+date: 2025-10-23T15:10:00-04:00
+repo: runart-foundry
+branch: feature/pr-01-briefing-canon
+---
 
-Este es un índice temático inicial para la capa "live". Aquí vivirán documentos vigentes y de uso operativo/actual.
+# Briefing (Fuente Canónica)
 
-> Placeholder inicial — Fase 1 (preparar terreno)
+- Propósito: este índice agrupa la documentación activa y canónica del micrositio Briefing.
 
-## Propósito
-- Centralizar documentación vigente y curada.
-- Referenciar guías, runbooks, checklists activos.
+## Hubs
+- [Arquitectura](./architecture/index.md)
+- [Operaciones](./operations/index.md)
+- [UI/Roles](./ui_roles/index.md)
 
-## Estructura propuesta (borrador)
-- Arquitectura y ADRs (vigentes)
-- Operaciones y Runbooks
-- Integraciones activas
-- I18N y SEO en producción
+## Documentos recientemente curados
+- [Arquitectura — Overview](./architecture/000_overview.md)
+- [Arquitectura — Plan de Migración](./architecture/060_migration_plan.md)
+- [Operaciones — Integración Operativa](./operations/integracion_operativa.md)
+- [Operaciones — Deploy Runbook](./operations/DEPLOY_RUNBOOK.md)
+- [Gobernanza — Estructura y Gobernanza](./governance/proyecto_estructura_y_gobernanza.md)
+- [UI/Roles — Release Notes v2.0.0-rc1](./ui_roles/RELEASE_NOTES_v2.0.0-rc1.md)
 
-## TODO (próximas fases)
-- Definir taxonomía de secciones y enlaces canónicos.
-- Migrar documentos desde `docs/` a esta capa según gobernanza.
-- Aplicar frontmatter estándar a cada documento.
+## Historial
+- Ver archivo: [Archive index](../archive/index.md)
+
+## Estado operativo
+- [Status overview](./operations/status_overview.md)

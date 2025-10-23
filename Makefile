@@ -59,3 +59,7 @@ clean:
 >else \
 >  $(MAKE) -C $(MODULE) clean; \
 >fi
+
+.PHONY: validate:soft
+validate\:soft:
+>$(PYTHON) scripts/validate_docs_soft.py

@@ -1,3 +1,11 @@
+---
+status: active
+owner: reinaldo.capiro
+updated: 2025-10-23
+audience: internal
+tags: [briefing, runart, ops]
+---
+
 # Índice (capa archive)
 
 Este es un índice cronológico inicial para la capa "archive". Aquí se conservarán documentos históricos, bitácoras y cierres de fase.
@@ -18,3 +26,6 @@ Este es un índice cronológico inicial para la capa "archive". Aquí se conserv
 - Definir convención de fechas (YYYY-MM-DD) y prefijos de fase.
 - Movida segura de documentos desde `docs/`.
 - Aplicar frontmatter estándar a cada documento.
+
+## Últimos movimientos archivados
+- (pendiente en este PR) — No se movieron documentos históricos aún. Este índice se actualizará cuando se archiven documentos en `docs/archive/YYYY-MM/`.
