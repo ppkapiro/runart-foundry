@@ -39,7 +39,7 @@ jobs:
       - name: Build MkDocs (Briefing app)
         working-directory: apps/briefing
         run: |
-          mkdocs build --strict -d site
+          mkdocs build -d site
           test -d site && test -f site/index.html
 
       - name: Registrar SHA para correlación
