@@ -1,6 +1,6 @@
 ---
 title: "Estado Operativo — RunArt Foundry"
-updated: "2025-10-23T21:58:56.920849+00:00"
+updated: "2025-10-23T22:27:28.635367+00:00"
 tags: ["automation", "metrics", "operational"]
 status: "active"
 owner: "github-actions[bot]"
@@ -9,8 +9,8 @@ audience: "internal"
 
 # Estado Operativo
 
-**Última actualización:** 2025-10-23T21:58:56.920849+00:00  
-**Commit referencia:** `3ec7926a`
+**Última actualización:** 2025-10-23T22:27:28.635367+00:00  
+**Commit referencia:** `10d49f0d`
 
 ---
 
@@ -37,9 +37,9 @@ audience: "internal"
 
 | Servicio | Estado | Última Verificación |
 |----------|--------|---------------------|
-| **Preview** | ✅ Operativo | 2025-10-23T21:58:56.920849+00:00 |
-| **Producción** | ✅ Operativo | 2025-10-23T21:58:56.920849+00:00 |
-| **CI/CD** | ✅ Verde | Commit `3ec7926a` |
+| **Preview** | ✅ Operativo | 2025-10-23T22:27:28.635367+00:00 |
+| **Producción** | ✅ Operativo | 2025-10-23T22:27:28.635367+00:00 |
+| **CI/CD** | ✅ Verde | Commit `10d49f0d` |
 
 ---
 
@@ -91,6 +91,6 @@ docs/
 
 ---
 
-**Generado:** 2025-10-23T22:02:49.509129+00:00  
-**Hash commit:** `3ec7926a`  
+**Generado:** 2025-10-23T22:27:28.725847+00:00  
+**Hash commit:** `10d49f0d`  
 **Autor:** `render_status.py` (automated)
