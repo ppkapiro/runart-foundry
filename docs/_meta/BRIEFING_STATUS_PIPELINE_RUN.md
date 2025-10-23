@@ -158,3 +158,4 @@ test_validate_status_schema.py::test_validate_status_schema_invalid_type PASSED 
 Notas:
 - Este bloque se actualiza automáticamente con el URL de producción y verificación posterior cuando el workflow complete.
 
+- Preflight CF OK: 2025-10-23T23:28:19Z
