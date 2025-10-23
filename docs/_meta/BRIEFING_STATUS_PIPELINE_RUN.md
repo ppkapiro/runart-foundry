@@ -187,3 +187,9 @@ Notas:
 - Acción: Forzar redeploy canónico (relajar build sin --strict) para publicar apps/briefing/site
 - Evidencias: docs/_meta/_verify_prod/*.txt, .cf_projects.json, .cf_deploys.json
 
+- Issue abierto: https://github.com/RunArtFoundry/runart-foundry/issues/68
+
+---
+
+- Deploy verificado: 2025-10-23T23:32:30Z | SHA: d530752 | dir: site | PENDING (workflow en ejecución)
+
