@@ -18,4 +18,6 @@ branch: main
 ## Estado PR-04
 - Rama creada/publicada: `feature/pr-04-validadores-strict`.
 - CI (workflow docs-validate-strict) agregado para PRs → main.
-- PR (Draft): https://github.com/RunArtFoundry/runart-foundry/pull/new/feature/pr-04-validadores-strict
+- PR creado (Draft): https://github.com/RunArtFoundry/runart-foundry/pull/64
+- Etiquetas aplicadas: area/docs, type/chore, status/draft, scope/validators
+- Estado CI: pendiente/ejecutándose
