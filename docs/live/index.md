@@ -30,6 +30,16 @@ branch: feature/pr-01-briefing-canon
 - [Operaciones — Checklist PROD](./operations/DEPLOY_PROD_CHECKLIST.md)
 - [UI/Roles — Plan Gate Prod](./ui_roles/PLAN_GATE_PROD.md)
 - [UI/Roles — Checklist Consolidación Preview→Prod](./ui_roles/QA_checklist_consolidacion_preview_prod.md)
+ - [Arquitectura — Inventory](./architecture/010_inventory.md)
+ - [Arquitectura — Target Structure](./architecture/020_target_structure.md)
+ - [Arquitectura — Conventions](./architecture/030_conventions.md)
+ - [Arquitectura — Switch Pages](./architecture/065_switch_pages.md)
+ - [Arquitectura — Cleanup Briefing](./architecture/075_cleanup_briefing.md)
+ - [Operaciones — Integración final (resumen PR)](./operations/PR_INTEGRATION_FINAL.md)
+ - [Operaciones — Cargar credenciales de staging](./operations/load_staging_credentials.md)
+ - [UI/Roles — Content Matrix Template](./ui_roles/content_matrix_template.md)
+ - [UI/Roles — Tokens UI](./ui_roles/TOKENS_UI.md)
+ - [UI/Roles — Gobernanza de Tokens](./ui_roles/GOBERNANZA_TOKENS.md)
 
 ## Historial
 - Ver archivo: [Archive index](../archive/index.md)

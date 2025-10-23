@@ -12,10 +12,10 @@ branch: feature/pr-01-briefing-canon
 - [Deploy Runbook](./DEPLOY_RUNBOOK.md)
 - [Checklist PROD](./DEPLOY_PROD_CHECKLIST.md)
 - [Integración operativa](./integracion_operativa.md)
+ - [Integración final (resumen PR)](./PR_INTEGRATION_FINAL.md)
 
 ## Enlaces complementarios
-- [Integración final (resumen PR)](../../PR_INTEGRATION_FINAL.md)
-- [Cargar credenciales de staging](../../ops/load_staging_credentials.md) — procedimiento seguro.
+- [Cargar credenciales de staging](./load_staging_credentials.md) — procedimiento seguro.
 - [Staging Lite: README MU-Plugin](../../integration_wp_staging_lite/README_MU_PLUGIN.md) — integración WP Staging Lite.
 - [Staging Lite: Orquestador](../../integration_wp_staging_lite/ORQUESTADOR_DE_INTEGRACION.md) — flujo y orquestación.
 - [Staging Lite: Troubleshooting](../../integration_wp_staging_lite/TROUBLESHOOTING.md) — resolución de problemas.

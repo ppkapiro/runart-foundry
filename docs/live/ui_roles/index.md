@@ -12,6 +12,9 @@ branch: feature/pr-01-briefing-canon
 - [Release Notes v2.0.0-rc1](./RELEASE_NOTES_v2.0.0-rc1.md)
 - [Plan Gate Prod](./PLAN_GATE_PROD.md)
 - [Checklist Consolidación Preview→Prod](./QA_checklist_consolidacion_preview_prod.md)
+ - [Content Matrix Template](./content_matrix_template.md)
+ - [Tokens UI](./TOKENS_UI.md)
+ - [Gobernanza de Tokens](./GOBERNANZA_TOKENS.md)
 
 ## Enlaces complementarios
 - [Inventario UI](../../ui_roles/ui_inventory.md)

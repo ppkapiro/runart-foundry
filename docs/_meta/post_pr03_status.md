@@ -20,7 +20,7 @@ proximos_pasos: "Aprobación y merge → PR-04 (validación estricta)"
 - A live: 6 archivos (arch, ops, ui_roles)
 - A archive: 2 archivos (evidencias 2025-10)
 - Validadores soft: 0 warnings
-- Último commit de lote: (se actualiza tras commit)
+- Último commit de lote: 6fc3d8038b2c8e0bbf23c5da1e7b1b3e5b8f8caa
 
 ## Publicación del PR
 - PR Draft: https://github.com/RunArtFoundry/runart-foundry/pull/63
