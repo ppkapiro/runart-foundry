@@ -19,7 +19,7 @@ branch: feature/pr-01-briefing-canon
   - [x] `apps/briefing/docs/client_projects/runart_foundry/index.md`
 - [x] Registrar `docs/_meta/linkmap_briefing.md` con hubs y cruces añadidos.
 - [ ] Revisión manual: abrir cada hub y comprobar que no hay 404 en enlaces listados.
-- [ ] Abrir PR como Draft con descripción y enlazar a `docs/_meta/pr_drafts/PR-01_enrutado_canonico_briefing.md`.
+- [x] Abrir PR como Draft con descripción y enlazar a `docs/_meta/pr_drafts/PR-01_enrutado_canonico_briefing.md` (PR #60).
 
 Notas
 - No se movieron ni renombraron archivos legados; sólo enlaces y nuevos hubs.

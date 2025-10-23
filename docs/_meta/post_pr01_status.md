@@ -10,7 +10,7 @@ branch: feature/pr-01-briefing-canon
 
 ## Enlaces
 - Rama: `feature/pr-01-briefing-canon`
-- Borrador de PR: https://github.com/RunArtFoundry/runart-foundry/pull/new/feature/pr-01-briefing-canon
+- PR-01 (Draft): https://github.com/RunArtFoundry/runart-foundry/pull/60
 - Cuerpo del PR: `docs/_meta/PR-01_body.md`
 - Checklist: `docs/_meta/checklist_pr01.md`
 - Linkmap: `docs/_meta/linkmap_briefing.md`
