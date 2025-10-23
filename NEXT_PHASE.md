@@ -1,3 +1,26 @@
+---
+title: "NEXT_PHASE — RUN Art Foundry"
+roles:
+  - owner
+  - equipo
+  - cliente
+meta:
+  pr: PR-02.1 (Root Alignment Applied)
+  fecha: 2025-10-23
+  fuente: docs/_meta/plan_pr02_root_alignment.md
+crosslinks:
+  - README.md
+  - STATUS.md
+  - CHANGELOG.md
+  - docs/_meta/plan_pr02_root_alignment.md
+  - docs/_meta/checklist_pr02_root_alignment.md
+  - docs/_meta/mapa_impacto_pr02.md
+---
+<!--
+Bloque canónico añadido por PR-02.1 (Root Alignment Applied)
+Ver documentación y meta en docs/_meta/plan_pr02_root_alignment.md
+-->
+
 # Próxima etapa — Fase 6 (preparación)
 
 ## Objetivo general
