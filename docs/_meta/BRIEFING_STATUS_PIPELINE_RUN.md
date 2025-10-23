@@ -193,6 +193,27 @@ Notas:
 
 - Deploy verificado: 2025-10-23T23:32:30Z | SHA: d530752 | dir: site | PENDING (workflow en ejecución)
 
-
 - Deploy ejecutado: 2025-10-23T23:48:25Z | SHA: 6bfb386 | dir: site
   URL: https://runart-foundry.pages.dev
+
+---
+
+## Diagnóstico Cloudflare Access (2025-10-23T23:52Z)
+
+### Problema identificado
+- **Run 18765083542**: ✓ Deploy exitoso tras añadir `permissions.deployments=write`
+- **Verificación producción**: BLOQUEADA por Cloudflare Access (HTTP 302 → login)
+- **Causa**: Política de acceso activa en proyecto `runart-foundry` requiere autenticación
+- **Impacto**: Imposible verificar contenido público vía curl; sitio NO es público
+
+### Acción requerida (MANUAL)
+**Desactivar Cloudflare Access para hacer el sitio público:**
+1. Ir a: https://dash.cloudflare.com/ → Pages → runart-foundry → Settings → Access
+2. Remover o deshabilitar la política de acceso `runart-briefing-pages`
+3. Guardar cambios
+4. Re-verificar: `curl -I https://runart-foundry.pages.dev/` debe retornar `HTTP/2 200`
+
+### Deploy actual
+- SHA: ef6c9e8
+- Status: Publicado con éxito a Cloudflare Pages
+- Verificación: PENDIENTE hasta remover Access policy
