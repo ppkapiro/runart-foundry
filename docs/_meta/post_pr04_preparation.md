@@ -21,3 +21,12 @@ branch: main
 - PR creado (Draft): https://github.com/RunArtFoundry/runart-foundry/pull/64
 - Etiquetas aplicadas: area/docs, type/chore, status/draft, scope/validators
 - Estado CI: pendiente/ejecutándose
+
+## Validación strict final (local)
+- **PASS**: 0 errores
+- Reglas finales integradas:
+  - Frontmatter obligatorio (status, owner, updated, audience, tags)
+  - Enlaces internos verificados
+  - Enlaces externos validados (HTTP/HTTPS con timeout)
+  - Tags únicos (lowercase, sin duplicados)
+  - Duplicados prohibidos en docs/live/

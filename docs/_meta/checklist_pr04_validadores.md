@@ -10,6 +10,8 @@ audience: internal
 - [x] plan_pr04_validadores_strict.md creado
 - [x] scripts/validate_docs_strict.py listo
 - [x] CI configurado con target validate_strict
-- [ ] Duplicados legacy eliminados
-- [ ] Enlaces internos 100% verificados
+- [x] Enlaces externos validados (HTTP/HTTPS con timeout)
+- [x] Tags únicos (lowercase, sin duplicados)
+- [x] Duplicados legacy eliminados
+- [x] Enlaces internos 100% verificados
 - [ ] Merge final aprobado sin warnings
