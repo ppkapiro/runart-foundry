@@ -146,3 +146,15 @@ test_validate_status_schema.py::test_validate_status_schema_invalid_type PASSED 
 - Step 4 (validate): success
 - Step 5 (commit): success
 
+
+---
+
+## Deploy a Cloudflare Pages — inicio
+
+**Fecha:** 2025-10-23T22:50:00Z  
+**Commit (HEAD):** `d530752`  
+**Acción:** Se inicia workflow "Deploy to Cloudflare Pages (Briefing)" para publicar `apps/briefing/dist` en Cloudflare Pages.
+
+Notas:
+- Este bloque se actualiza automáticamente con el URL de producción y verificación posterior cuando el workflow complete.
+
