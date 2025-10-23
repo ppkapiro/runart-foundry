@@ -1,0 +1,72 @@
+name: Docs Stale Dry-Run
+
+on:
+  schedule:
+    - cron: "0 9 * * 1"  # Lunes 09:00 UTC
+  workflow_dispatch:      # Permitir ejecución manual
+
+jobs:
+  stale:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.x'
+      
+      - name: Detect stale docs (>90d sin updated en frontmatter)
+        run: |
+          python3 -c "
+          from pathlib import Path
+          from datetime import datetime, timedelta
+          import re
+          
+          ROOT = Path('.')
+          LIVE = ROOT / 'docs' / 'live'
+          STALE_THRESHOLD = timedelta(days=90)
+          NOW = datetime.now()
+          
+          stale_candidates = []
+          
+          FRONTMATTER_RE = re.compile(r'^---\n(.*?)\n---\n', re.DOTALL)
+          
+          for p in LIVE.rglob('*.md'):
+              text = p.read_text(encoding='utf-8')
+              m = FRONTMATTER_RE.match(text)
+              if not m:
+                  continue
+              
+              # Extract 'updated' field
+              for line in m.group(1).splitlines():
+                  if line.strip().startswith('updated:'):
+                      updated_str = line.split(':', 1)[1].strip()
+                      try:
+                          updated_date = datetime.fromisoformat(updated_str)
+                          age = NOW - updated_date
+                          if age > STALE_THRESHOLD:
+                              stale_candidates.append((str(p.relative_to(ROOT)), updated_str, age.days))
+                      except Exception:
+                          pass
+          
+          # Generate report
+          report_path = ROOT / 'docs' / '_meta' / 'stale_candidates.md'
+          report_path.parent.mkdir(parents=True, exist_ok=True)
+          
+          with report_path.open('w', encoding='utf-8') as f:
+              f.write('# Documentos con >90 días sin actualización\n\n')
+              f.write(f'Generado: {NOW.isoformat()}\n\n')
+              f.write('| Archivo | Última actualización | Días | Acción sugerida |\n')
+              f.write('| --- | --- | --- | --- |\n')
+              for path, updated, days in sorted(stale_candidates, key=lambda x: x[2], reverse=True):
+                  f.write(f'| {path} | {updated} | {days} | Revisar y actualizar o archivar |\n')
+          
+          print(f'Stale candidates report generated: {report_path}')
+          print(f'Total stale: {len(stale_candidates)}')
+          "
+      
+      - name: Upload report artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: stale_candidates
+          path: docs/_meta/stale_candidates.md

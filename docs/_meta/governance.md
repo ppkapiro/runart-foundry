@@ -25,20 +25,36 @@ Todos los documentos deben incluir el frontmatter definido en `_meta/frontmatter
 
 Campos mínimos: `status`, `owner`, `updated`, `audience`, `tags`.
 
-## Ciclo de vida documental (borrador)
-- Draft → Active → Stale → Archived/Deprecated.
-- Revisión mínima trimestral de `live/`.
-- Movimiento a `archive/` tras cierre de fase o desuso.
+## Ciclo de vida documental
+1. **Draft**: documento en creación, no activo
+2. **Active**: vigente y operativo (en `docs/live/`)
+3. **Stale**: sin actualización >90 días (candidato a revisión o archivado)
+4. **Archived**: movido a `docs/archive/` por cierre de fase o desuso
+
+### Detección automática de stale
+- Cada lunes a las 09:00 UTC, el workflow `docs-stale-dryrun.yml` detecta documentos con `updated` >90 días
+- Se genera reporte `docs/_meta/stale_candidates.md` (dry-run, sin commits automáticos)
+- El owner del documento debe revisar y decidir: actualizar `updated`, archivar o marcar como evergreen
+
+### Archivado
+- Movimiento manual a `docs/archive/YYYY-MM/<tema>/`
+- Actualizar enlaces entrantes desde `live/` (eliminar o redirigir a nueva versión)
+- Aplicar frontmatter con `status: archived`
 
 ## Audiencias
 - `internal`: equipo técnico/ops.
 - `external`: stakeholders externos (si aplica).
 
 ## Roles y responsabilidades
-- Owner por documento (campo `owner`).
-- PR de cambios en docs debe asignar revisor de gobernanza.
+- **Owner por documento** (campo `owner`): responsable de actualizar y mantener el contenido
+- **Owners por carpeta**:
+  - `docs/live/architecture/`: reinaldo.capiro
+  - `docs/live/operations/`: reinaldo.capiro
+  - `docs/live/ui_roles/`: reinaldo.capiro
+  - `docs/_meta/`: reinaldo.capiro
+- PR de cambios en docs debe asignar revisor de gobernanza (owner de carpeta o designado)
 
 ## TODO
-- Completar RACI de documentación.
-- Definir etiquetas/boards para flujos de revisión.
-- Integrar validaciones en CI (lint de frontmatter, enlaces, orfandad).
+- Completar RACI de documentación
+- Integrar validación de antigüedad (>90d) en workflow semanal (HECHO: docs-stale-dryrun.yml)
+- Evaluar badges de freshness en índices live/
