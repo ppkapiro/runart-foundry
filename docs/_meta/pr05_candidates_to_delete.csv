@@ -1,0 +1,6 @@
+ruta_original,ruta_archivada,motivo,referencias_entrantes,decisión
+# PR-05: Análisis de duplicados legacy
+# Resultado: No hay archivos duplicados físicos detectados (PR-03 solo creó tombstones semánticos)
+# Los archivos originales en docs/architecture/, docs/ui_roles/, _reports/ son enlazados desde docs/live/**
+# Decisión: NO eliminar ningún archivo; todos están referenciados activamente desde hubs live/
+# Estado: PR-05 cerrado como "sin acciones de borrado necesarias"
