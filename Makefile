@@ -4,7 +4,7 @@ DEFAULT_MODULE ?= apps/briefing
 MODULE ?= $(DEFAULT_MODULE)
 APPS := apps/briefing
 
-.PHONY: build serve preview test lint lint-docs status clean validate_soft validate_strict
+.PHONY: build serve preview test lint lint-docs status clean validate_soft validate_strict status_update
 
 build:
 >if [ "$(ALL)" = "1" ]; then \
@@ -36,6 +36,9 @@ validate_soft:
 
 validate_strict:
 >$(PYTHON) scripts/validate_docs_strict.py
+
+status_update:
+>$(PYTHON) scripts/gen_status.py
 
 status:
 >@echo "STATUS.md → $(abspath STATUS.md)"

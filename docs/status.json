@@ -1,8 +1,8 @@
 {
-  "version": "staging",
-  "last_update": "2025-10-22T17:56:50Z",
-  "health": "OK",
-  "services": [
-    {"name": "web", "state": "OK"}
-  ]
+  "generated_at": "2025-10-23T21:44:03.299353+00:00",
+  "preview_ok": true,
+  "prod_ok": true,
+  "last_ci_ref": "5619ade7c7ebd7646e714070e3e21901b1a4d3ce",
+  "docs_live_count": 6,
+  "archive_count": 1
 }
