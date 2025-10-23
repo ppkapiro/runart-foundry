@@ -120,4 +120,9 @@ SHA base del análisis: HEAD actual en main.
 - Salida unificada: `apps/briefing/site`.
 - Monitor: `monitor-deploys.yml` activo cada 10 minutos, con guardas anti-colisión/anti-carrera y artifacts TSV/JSON.
 
+### Preflight de secretos
+
+- `preflight-cloudflare-secrets.yml` — Verifica presencia y permisos de `CLOUDFLARE_API_TOKEN` y `CLOUDFLARE_ACCOUNT_ID` contra API de Pages.
+- Si falla, abre Issue automáticamente; si pasa, registra en meta.
+
 Generado/actualizado: $(date -u +%FT%TZ)

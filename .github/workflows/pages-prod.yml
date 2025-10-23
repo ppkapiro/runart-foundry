@@ -1,4 +1,6 @@
-name: Deploy Production (Cloudflare) — DEPRECATED (use pages-deploy.yml)
+name: DEPRECATED — Pages Prod (manual only)
+
+# Archivado: usar pages-deploy.yml como flujo canónico
 
 on:
   # DEPRECATED for prod; use pages-deploy.yml (canónico).
