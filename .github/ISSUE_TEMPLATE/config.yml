@@ -1,0 +1,5 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Guía Deploy Producción
+    url: https://github.com/RunArtFoundry/runart-foundry/blob/main/docs/DEPLOY_PROD_CHECKLIST.md
+    about: Sigue esta guía para desplegar a producción.
