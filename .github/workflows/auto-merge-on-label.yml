@@ -10,7 +10,8 @@ permissions:
 
 jobs:
   enable-auto-merge:
-    if: contains(github.event.pull_request.labels.*.name, 'auto-merge')
+    # Auto-merge si el PR tiene cualquiera de estas etiquetas
+    if: contains(github.event.pull_request.labels.*.name, 'auto-merge') || contains(github.event.pull_request.labels.*.name, 'ready-for-production')
     runs-on: ubuntu-latest
     steps:
       - name: Enable auto-merge (squash)
