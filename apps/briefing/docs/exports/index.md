@@ -7,6 +7,9 @@ access:
 
 # Exportaciones (MF) {.interno}
 
+<!-- canonical-crosslink: pr-01 -->
+> Fuente canónica de Briefing: ver `docs/live/` → [Índice](../../../../docs/live/index.md) · Hubs: [Arquitectura](../../../../docs/live/architecture/index.md), [Operaciones](../../../../docs/live/operations/index.md), [UI/Roles](../../../../docs/live/ui_roles/index.md).
+
 Descarga fichas **aceptadas** como **JSONL** o **CSV** en un rango de fechas.
 
 <form id="exp-form">

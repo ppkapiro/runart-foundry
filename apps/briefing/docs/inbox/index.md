@@ -1,5 +1,8 @@
 # Inbox — Decisiones recientes
 
+<!-- canonical-crosslink: pr-01 -->
+> Fuente canónica de Briefing: ver `docs/live/` → [Índice](../../../../docs/live/index.md) · Hubs: [Arquitectura](../../../../docs/live/architecture/index.md), [Operaciones](../../../../docs/live/operations/index.md), [UI/Roles](../../../../docs/live/ui_roles/index.md).
+
 Las entradas más recientes aparecen primero. Los envíos realizados desde el editor muestran la insignia “editor_v1”. Solo el equipo autenticado puede moderar usando los controles de esta bandeja.
 
 <!-- interno:start -->
