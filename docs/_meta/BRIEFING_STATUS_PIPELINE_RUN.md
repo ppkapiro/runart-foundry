@@ -178,3 +178,12 @@ Notas:
 
 - Confirmación de cierre: 2025-10-23T23:31:49Z | SHA: d530752
 - Observaciones: Consolidación completada; workflows canónicos activos (deploy, verify, monitor, preflight).
+
+---
+
+#### Diagnóstico producción — 2025-10-23
+
+- Verificación inicial de producción: NO_MATCH (KPIs/Chart no presentes en /status y /status/history)
+- Acción: Forzar redeploy canónico (relajar build sin --strict) para publicar apps/briefing/site
+- Evidencias: docs/_meta/_verify_prod/*.txt, .cf_projects.json, .cf_deploys.json
+
