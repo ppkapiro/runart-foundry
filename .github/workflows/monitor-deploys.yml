@@ -1,0 +1,127 @@
+name: Monitor Deploys (Copilot)
+
+on:
+  schedule:
+    - cron: '*/10 * * * *'  # cada 10 minutos
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  actions: read
+
+concurrency:
+  group: monitor-deploys
+  cancel-in-progress: true
+
+jobs:
+  monitor:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Python 3.11 (para rollback/notifier)
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Instalar GitHub CLI
+        uses: actions/gh-actions/install-gh-cli@v2
+
+      - name: Verificar últimos runs de deploy
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          set -euo pipefail
+          echo "=== Monitoreo Deploys ==="
+          gh run list --limit 20 --json name,headBranch,status,conclusion,createdAt,updatedAt,workflowDatabaseId,databaseId > tmp_runs.json
+          jq -r '.[] | select(.name|test("Deploy to Cloudflare Pages")) | [.name,.status,.conclusion,.createdAt,.updatedAt] | @tsv' tmp_runs.json > tmp_deploys.tsv
+          jq -r '.[] | select(.name|test("Verify Production")) | [.name,.status,.conclusion,.createdAt,.updatedAt] | @tsv' tmp_runs.json > tmp_verify.tsv
+
+      - name: Registrar resultados en meta-log
+        run: |
+          set -euo pipefail
+          TS=$(date -u +%FT%TZ)
+          {
+            echo "\n---";
+            echo "### Monitoreo ${TS}";
+            echo "";
+            echo "#### Deploy Actions";
+            if [ -s tmp_deploys.tsv ]; then
+              awk 'BEGIN{FS="\t"; OFS=" | "; print "name | status | conclusion | createdAt | updatedAt"} {print $1,$2,$3,$4,$5}' tmp_deploys.tsv;
+            else
+              echo "(sin datos)";
+            fi
+            echo "";
+            echo "#### Verify Actions";
+            if [ -s tmp_verify.tsv ]; then
+              awk 'BEGIN{FS="\t"; OFS=" | "; print "name | status | conclusion | createdAt | updatedAt"} {print $1,$2,$3,$4,$5}' tmp_verify.tsv;
+            else
+              echo "(sin datos)";
+            fi
+          } >> docs/_meta/BRIEFING_STATUS_PIPELINE_RUN.md
+
+      - name: Commit meta-log update
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add docs/_meta/BRIEFING_STATUS_PIPELINE_RUN.md
+          git commit -m "docs(meta): update deploy monitor [skip ci]" || true
+          git push || true
+
+      - name: Detectar fallo o deploy pendiente
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          set -euo pipefail
+          DEPLOY_FAIL=$(grep -E "\tfailure\t|\tcancelled\t" tmp_deploys.tsv || true)
+          VERIFY_FAIL=$(grep -E "\tfailure\t|\tcancelled\t" tmp_verify.tsv || true)
+          if [ -n "$DEPLOY_FAIL" ] || [ -n "$VERIFY_FAIL" ]; then
+            echo "⚠️ Falla detectada en deploy o verificación. Ejecutando rollback y alerta…"
+            echo "$(date -u +%FT%TZ) — Deploy FAIL detectado" >> docs/_meta/BRIEFING_STATUS_PIPELINE_RUN.md
+            python3 tools/auto_rollback.py || true
+            # Notificaciones tolerantes a falta de secrets
+            python3 tools/notify.py --channel=slack   --title="Deploy FAILED" --message="Falló un deploy o verify. Se aplicó rollback automático." --level=ERROR || true
+            python3 tools/notify.py --channel=discord --title="Deploy FAILED" --message="Falló un deploy o verify. Se aplicó rollback automático." --level=ERROR || true
+            git add docs/_meta/BRIEFING_STATUS_PIPELINE_RUN.md || true
+            git commit -m "rollback: deploy fail [skip ci]" || true
+            git push || true
+          else
+            echo "✅ Todos los workflows de deploy/verificación OK."
+          fi
+
+      - name: Auto-trigger si hay cambio reciente en main
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          set -euo pipefail
+          LATEST_SHA=$(git rev-parse HEAD)
+          LAST_RUN=$(tail -n 200 docs/_meta/BRIEFING_STATUS_PIPELINE_RUN.md | grep -E "^#### Deploy Actions|Deploy ejecutado|Deploy a Cloudflare Pages — inicio" | tail -n1 || true)
+          if ! echo "$LAST_RUN" | grep -q "$LATEST_SHA"; then
+            echo "Nuevo commit detectado: $LATEST_SHA — ejecutando deploy."
+            gh workflow run "Deploy to Cloudflare Pages (Briefing)" || true
+          fi
+
+      - name: Resumen diario (23:50 UTC)
+        run: |
+          set -euo pipefail
+          HMS=$(date -u +%H%M)
+          if [ "$HMS" = "2350" ]; then
+            OK_DEP=$(grep -c "\tsuccess\t" tmp_deploys.tsv || true)
+            KO_DEP=$(grep -E "\tfailure\t|\tcancelled\t" tmp_deploys.tsv | wc -l || true)
+            OK_VER=$(grep -c "\tsuccess\t" tmp_verify.tsv || true)
+            KO_VER=$(grep -E "\tfailure\t|\tcancelled\t" tmp_verify.tsv | wc -l || true)
+            {
+              echo "\n#### Resumen diario (UTC)";
+              echo "Deploy OK=${OK_DEP} | FAIL=${KO_DEP}";
+              echo "Verify OK=${OK_VER} | FAIL=${KO_VER}";
+            } >> docs/_meta/BRIEFING_STATUS_PIPELINE_RUN.md
+            git config user.name "github-actions[bot]"
+            git config user.email "github-actions[bot]@users.noreply.github.com"
+            git add docs/_meta/BRIEFING_STATUS_PIPELINE_RUN.md
+            git commit -m "docs(meta): resumen diario monitor deploys [skip ci]" || true
+            git push || true
+          else
+            echo "No es ventana de resumen diario (23:50 UTC)."
+          fi
