@@ -1,3 +1,11 @@
+---
+status: active
+owner: reinaldo.capiro
+updated: 2025-10-23
+audience: internal
+tags: [briefing, runart, live]
+---
+
 # Índice (capa live)
 
 Este es un índice temático inicial para la capa "live". Aquí vivirán documentos vigentes y de uso operativo/actual.

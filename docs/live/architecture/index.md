@@ -4,6 +4,11 @@ phase: pr-01-briefing-canon
 date: 2025-10-23T15:10:00-04:00
 repo: runart-foundry
 branch: feature/pr-01-briefing-canon
+status: active
+owner: reinaldo.capiro
+updated: 2025-10-23
+audience: internal
+tags: [briefing, runart, architecture]
 ---
 
 # Hub — Arquitectura
