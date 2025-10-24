@@ -1,0 +1,27 @@
+{
+  "decision": "non_identity",
+  "exclude": [],
+  "include": [
+    {
+      "service_token": {
+        "token_id": "26112c8f-1dda-4480-8436-f1b3e5b38ce8"
+      }
+    }
+  ],
+  "name": "Allow CI RunArt Production (Direct)",
+  "require": [],
+  "session_duration": "24h",
+  "reusable": true,
+  "precedence": 1,
+  "conditions": {
+    "request": {
+      "domains": [
+        "runart-briefing-direct.pages.dev"
+      ],
+      "paths": [
+        "/"
+      ]
+    }
+  },
+  "purpose_justification_prompt": false
+}

@@ -1,1 +1,4 @@
-{"error":"missing_policy_or_token_id"}
+{
+  "error": "policy_put_failed",
+  "http": "400"
+}
