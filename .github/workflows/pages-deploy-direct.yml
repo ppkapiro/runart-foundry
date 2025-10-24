@@ -49,8 +49,8 @@ jobs:
         run: |
           cd apps/briefing
           npm ci
-          # Build without strict mode for migration
-          npx mkdocs build -d site
+          # Build with MkDocs (Python tool, not npm)
+          mkdocs build -d site
         env:
           NODE_ENV: production
       
