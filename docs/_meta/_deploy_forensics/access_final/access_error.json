@@ -1,4 +1,1 @@
-{
-  "error": "policy_patch_failed",
-  "http": "405"
-}
+{"error":"missing_policy_or_client_id"}

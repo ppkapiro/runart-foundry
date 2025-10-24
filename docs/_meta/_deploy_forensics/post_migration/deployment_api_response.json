@@ -1,6 +1,80 @@
 {
   "result": [
     {
+      "id": "56847da1-de25-4e93-a603-637f66520bfa",
+      "short_id": "56847da1",
+      "project_id": "147b8030-5bc4-45f9-8d59-c0779556aa20",
+      "project_name": "runart-briefing-direct",
+      "environment": "production",
+      "url": "https://56847da1.runart-briefing-direct.pages.dev",
+      "created_on": "2025-10-24T22:30:55.22912Z",
+      "modified_on": "2025-10-24T22:30:57.516936Z",
+      "latest_stage": {
+        "name": "deploy",
+        "started_on": null,
+        "ended_on": "2025-10-24T22:30:57.516936Z",
+        "status": "success"
+      },
+      "deployment_trigger": {
+        "type": "ad_hoc",
+        "metadata": {
+          "branch": "production",
+          "commit_hash": "b1f48acbb373f22b6e2b03caa4c3e9900406da3f",
+          "commit_message": "direct-upload:b1f48acbb373f22b6e2b03caa4c3e9900406da3f",
+          "commit_dirty": true
+        }
+      },
+      "stages": [
+        {
+          "name": "queued",
+          "started_on": "2025-10-24T22:30:55.22912Z",
+          "ended_on": null,
+          "status": "active"
+        },
+        {
+          "name": "initialize",
+          "started_on": null,
+          "ended_on": null,
+          "status": "idle"
+        },
+        {
+          "name": "clone_repo",
+          "started_on": null,
+          "ended_on": null,
+          "status": "idle"
+        },
+        {
+          "name": "build",
+          "started_on": null,
+          "ended_on": null,
+          "status": "idle"
+        },
+        {
+          "name": "deploy",
+          "started_on": null,
+          "ended_on": "2025-10-24T22:30:57.516936Z",
+          "status": "success"
+        }
+      ],
+      "build_config": {
+        "build_command": null,
+        "destination_dir": null,
+        "build_caching": null,
+        "root_dir": null,
+        "web_analytics_tag": null,
+        "web_analytics_token": null
+      },
+      "env_vars": {},
+      "compatibility_date": "2025-10-24",
+      "compatibility_flags": [],
+      "build_image_major_version": 3,
+      "usage_model": null,
+      "aliases": null,
+      "is_skipped": false,
+      "production_branch": "production",
+      "uses_functions": false
+    },
+    {
       "id": "9abcb74c-fe32-449c-8e56-1adce042eb82",
       "short_id": "9abcb74c",
       "project_id": "147b8030-5bc4-45f9-8d59-c0779556aa20",
@@ -451,8 +525,8 @@
   "result_info": {
     "page": 1,
     "per_page": 25,
-    "count": 6,
-    "total_count": 6,
+    "count": 7,
+    "total_count": 7,
     "total_pages": 1
   }
 }
