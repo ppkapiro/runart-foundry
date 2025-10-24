@@ -1,0 +1,236 @@
+name: "Deploy Briefing to Pages (Direct Upload)"
+
+on:
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: 'Target environment'
+        required: true
+        default: 'production'
+        type: choice
+        options:
+          - production
+          - staging
+
+permissions:
+  contents: read
+  id-token: write
+
+jobs:
+  deploy-direct:
+    name: Build & Deploy via Wrangler Direct Upload
+    runs-on: ubuntu-latest
+    environment: ${{ inputs.environment || 'production' }}
+    
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+      
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          cache: 'pip'
+      
+      - name: Install dependencies
+        run: |
+          npm ci
+          pip install -r requirements.txt
+      
+      - name: Build Briefing
+        run: |
+          cd apps/briefing
+          npm run build
+        env:
+          NODE_ENV: production
+      
+      - name: Verify build output
+        run: |
+          echo "=== Build output verification ==="
+          ls -lh apps/briefing/site/
+          echo ""
+          echo "=== index.html preview ==="
+          head -n 20 apps/briefing/site/index.html
+          echo ""
+          echo "=== Build size ==="
+          du -sh apps/briefing/site/
+      
+      - name: Install Wrangler
+        run: npm install -g wrangler
+      
+      - name: Deploy to Cloudflare Pages (Direct Upload)
+        id: deploy
+        run: |
+          set -e
+          
+          PROJECT_NAME="runart-briefing-direct"
+          BRANCH="production"
+          COMMIT_HASH="${{ github.sha }}"
+          COMMIT_MSG="direct-upload:${COMMIT_HASH}"
+          
+          echo "=== Deploying to Cloudflare Pages via Direct Upload ==="
+          echo "Project: $PROJECT_NAME"
+          echo "Branch: $BRANCH"
+          echo "Commit: $COMMIT_HASH"
+          echo ""
+          
+          # Deploy with Wrangler
+          OUTPUT=$(wrangler pages deploy "apps/briefing/site" \
+            --project-name "$PROJECT_NAME" \
+            --branch "$BRANCH" \
+            --commit-hash "$COMMIT_HASH" \
+            --commit-message "$COMMIT_MSG" 2>&1 | tee /tmp/wrangler_output.log)
+          
+          # Extract URL from output
+          DEPLOY_URL=$(echo "$OUTPUT" | grep -oP 'https://[a-z0-9-]+\.runart-briefing-direct\.pages\.dev' | head -1)
+          if [ -z "$DEPLOY_URL" ]; then
+            DEPLOY_URL=$(echo "$OUTPUT" | grep -oP 'https://runart-briefing-direct\.pages\.dev' | head -1)
+          fi
+          
+          echo "DEPLOY_URL=$DEPLOY_URL" >> $GITHUB_OUTPUT
+          echo ""
+          echo "✅ Deploy completed"
+          echo "URL: $DEPLOY_URL"
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CF_API_TOKEN_PAGES }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CF_ACCOUNT_ID }}
+      
+      - name: Query deployment info via Wrangler
+        id: deployment_info
+        run: |
+          set -e
+          
+          PROJECT_NAME="runart-briefing-direct"
+          
+          echo "=== Querying latest deployment ==="
+          wrangler pages deployment list --project-name "$PROJECT_NAME" | head -20 | tee /tmp/deployments.txt
+          
+          # Try to extract deployment ID
+          DEPLOYMENT_ID=$(grep -oP '[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}' /tmp/deployments.txt | head -1 || echo "")
+          
+          echo "DEPLOYMENT_ID=$DEPLOYMENT_ID" >> $GITHUB_OUTPUT
+          echo ""
+          echo "Deployment ID: $DEPLOYMENT_ID"
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CF_API_TOKEN_PAGES }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CF_ACCOUNT_ID }}
+        continue-on-error: true
+      
+      - name: Verify deployment source via API
+        id: verify_source
+        run: |
+          set -e
+          
+          PROJECT_NAME="runart-briefing-direct"
+          ACCOUNT_ID="${{ secrets.CF_ACCOUNT_ID }}"
+          
+          echo "=== Verifying deployment source ==="
+          
+          # Query latest deployment
+          RESPONSE=$(curl -s -X GET \
+            "https://api.cloudflare.com/client/v4/accounts/$ACCOUNT_ID/pages/projects/$PROJECT_NAME/deployments" \
+            -H "Authorization: Bearer ${{ secrets.CF_API_TOKEN_PAGES }}" \
+            -H "Content-Type: application/json")
+          
+          echo "$RESPONSE" | jq '.' > /tmp/deployments_api.json
+          
+          # Extract source type from latest deployment
+          SOURCE=$(echo "$RESPONSE" | jq -r '.result[0].source.type // "unknown"')
+          DEPLOY_ID=$(echo "$RESPONSE" | jq -r '.result[0].id // "unknown"')
+          COMMIT=$(echo "$RESPONSE" | jq -r '.result[0].deployment_trigger.metadata.commit_hash // "unknown"')
+          
+          echo "SOURCE=$SOURCE" >> $GITHUB_OUTPUT
+          echo "DEPLOY_ID=$DEPLOY_ID" >> $GITHUB_OUTPUT
+          echo ""
+          echo "✅ Source verification completed"
+          echo "Source: $SOURCE"
+          echo "Deployment ID: $DEPLOY_ID"
+          echo "Commit: $COMMIT"
+          
+          # Validate source
+          if [ "$SOURCE" != "direct_upload" ]; then
+            echo "❌ ERROR: Expected source=direct_upload, got source=$SOURCE"
+            exit 1
+          fi
+          
+          echo "✅ Source validation PASSED (direct_upload)"
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CF_API_TOKEN_PAGES }}
+      
+      - name: Record deployment evidence
+        run: |
+          mkdir -p docs/_meta/_deploy_forensics/post_migration
+          
+          TIMESTAMP=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
+          
+          cat > docs/_meta/_deploy_forensics/post_migration/pre_cutover.md <<EOF
+          # Migración a Direct Upload — Pre-Cutover Evidence
+          
+          **Fecha**: $TIMESTAMP
+          **Workflow Run**: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+          **Commit**: ${{ github.sha }}
+          
+          ## Deployment Info
+          
+          - **Project Name**: runart-briefing-direct
+          - **Branch**: production
+          - **Deploy URL**: ${{ steps.deploy.outputs.DEPLOY_URL }}
+          - **Deployment ID**: ${{ steps.verify_source.outputs.DEPLOY_ID }}
+          - **Source Type**: ${{ steps.verify_source.outputs.SOURCE }}
+          
+          ## Validation Results
+          
+          - ✅ Build completed successfully
+          - ✅ Wrangler deploy completed
+          - ✅ Source verification: **${{ steps.verify_source.outputs.SOURCE }}**
+          - ⏭️ Access validation: PENDING (requires manual policy setup)
+          - ⏭️ Fingerprint comparison: PENDING
+          
+          ## Next Steps
+          
+          1. Owner must add new hostname to Access app "RUN Briefing"
+          2. Validate Access with Service Token
+          3. Compare fingerprints
+          4. Plan cutover
+          
+          EOF
+          
+          # Copy API response
+          cp /tmp/deployments_api.json docs/_meta/_deploy_forensics/post_migration/deployment_api_response.json || true
+          cp /tmp/wrangler_output.log docs/_meta/_deploy_forensics/post_migration/wrangler_deploy.log || true
+          
+          echo "✅ Evidence recorded in docs/_meta/_deploy_forensics/post_migration/"
+      
+      - name: Commit evidence
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          
+          git add docs/_meta/_deploy_forensics/post_migration/
+          
+          if git diff --staged --quiet; then
+            echo "No changes to commit"
+          else
+            git commit -m "migration: direct upload deployment evidence [skip ci]"
+            git push
+          fi
+        continue-on-error: true
+      
+      - name: Summary
+        run: |
+          echo "## 🚀 Deployment Summary" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**Project**: runart-briefing-direct" >> $GITHUB_STEP_SUMMARY
+          echo "**URL**: ${{ steps.deploy.outputs.DEPLOY_URL }}" >> $GITHUB_STEP_SUMMARY
+          echo "**Source**: ${{ steps.verify_source.outputs.SOURCE }}" >> $GITHUB_STEP_SUMMARY
+          echo "**Deployment ID**: ${{ steps.verify_source.outputs.DEPLOY_ID }}" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "✅ **Status**: Direct Upload deployment successful" >> $GITHUB_STEP_SUMMARY
