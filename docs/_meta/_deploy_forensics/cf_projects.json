@@ -136,33 +136,33 @@
         }
       },
       "latest_deployment": {
-        "id": "2a1dd6a5-2b1c-43ce-9d54-4852fd875efc",
-        "short_id": "2a1dd6a5",
+        "id": "c4dadde7-abcb-4d3f-a7f2-606b3ea248ba",
+        "short_id": "c4dadde7",
         "project_id": "440eb224-2b2a-48ac-a14e-0768769198a2",
         "project_name": "runart-foundry",
         "environment": "production",
-        "url": "https://2a1dd6a5.runart-foundry.pages.dev",
-        "created_on": "2025-10-24T15:16:55.34609Z",
-        "modified_on": "2025-10-24T15:16:57.950157Z",
+        "url": "https://c4dadde7.runart-foundry.pages.dev",
+        "created_on": "2025-10-24T15:26:54.623689Z",
+        "modified_on": "2025-10-24T15:26:57.609979Z",
         "latest_stage": {
           "name": "deploy",
           "started_on": null,
-          "ended_on": "2025-10-24T15:16:57.950157Z",
+          "ended_on": "2025-10-24T15:26:57.609979Z",
           "status": "success"
         },
         "deployment_trigger": {
           "type": "ad_hoc",
           "metadata": {
             "branch": "main",
-            "commit_hash": "a676f6ff4f5dde20e4cc20c692137b1abc41e73c",
-            "commit_message": "forensics: add prod content download with Access auth",
+            "commit_hash": "b53444df896ab70712dd124c381688ef1f9ec2aa",
+            "commit_message": "meta: forensics summary en pipeline log\r\n\r\n- Root cause: Git Integration activo sobreescribiendo Action deploys\r\n- Fingerprint MISMATCH: prod sirve archivos vacíos (Access token PREVIEW no autoriza PROD)\r\n- Issue #70 abierto: disconnect Git Integration (requiere owner Dashboard)\r\n- Evidencias completas en docs/_meta/_deploy_forensics/\r\n- Estado: BLOCKED ON MANUAL ACTIONS",
             "commit_dirty": false
           }
         },
         "stages": [
           {
             "name": "queued",
-            "started_on": "2025-10-24T15:16:55.34609Z",
+            "started_on": "2025-10-24T15:26:54.623689Z",
             "ended_on": null,
             "status": "active"
           },
@@ -187,7 +187,7 @@
           {
             "name": "deploy",
             "started_on": null,
-            "ended_on": "2025-10-24T15:16:57.950157Z",
+            "ended_on": "2025-10-24T15:26:57.609979Z",
             "status": "success"
           }
         ],
@@ -255,33 +255,33 @@
         "uses_functions": false
       },
       "canonical_deployment": {
-        "id": "2a1dd6a5-2b1c-43ce-9d54-4852fd875efc",
-        "short_id": "2a1dd6a5",
+        "id": "c4dadde7-abcb-4d3f-a7f2-606b3ea248ba",
+        "short_id": "c4dadde7",
         "project_id": "440eb224-2b2a-48ac-a14e-0768769198a2",
         "project_name": "runart-foundry",
         "environment": "production",
-        "url": "https://2a1dd6a5.runart-foundry.pages.dev",
-        "created_on": "2025-10-24T15:16:55.34609Z",
-        "modified_on": "2025-10-24T15:16:57.950157Z",
+        "url": "https://c4dadde7.runart-foundry.pages.dev",
+        "created_on": "2025-10-24T15:26:54.623689Z",
+        "modified_on": "2025-10-24T15:26:57.609979Z",
         "latest_stage": {
           "name": "deploy",
           "started_on": null,
-          "ended_on": "2025-10-24T15:16:57.950157Z",
+          "ended_on": "2025-10-24T15:26:57.609979Z",
           "status": "success"
         },
         "deployment_trigger": {
           "type": "ad_hoc",
           "metadata": {
             "branch": "main",
-            "commit_hash": "a676f6ff4f5dde20e4cc20c692137b1abc41e73c",
-            "commit_message": "forensics: add prod content download with Access auth",
+            "commit_hash": "b53444df896ab70712dd124c381688ef1f9ec2aa",
+            "commit_message": "meta: forensics summary en pipeline log\r\n\r\n- Root cause: Git Integration activo sobreescribiendo Action deploys\r\n- Fingerprint MISMATCH: prod sirve archivos vacíos (Access token PREVIEW no autoriza PROD)\r\n- Issue #70 abierto: disconnect Git Integration (requiere owner Dashboard)\r\n- Evidencias completas en docs/_meta/_deploy_forensics/\r\n- Estado: BLOCKED ON MANUAL ACTIONS",
             "commit_dirty": false
           }
         },
         "stages": [
           {
             "name": "queued",
-            "started_on": "2025-10-24T15:16:55.34609Z",
+            "started_on": "2025-10-24T15:26:54.623689Z",
             "ended_on": null,
             "status": "active"
           },
@@ -306,7 +306,7 @@
           {
             "name": "deploy",
             "started_on": null,
-            "ended_on": "2025-10-24T15:16:57.950157Z",
+            "ended_on": "2025-10-24T15:26:57.609979Z",
             "status": "success"
           }
         ],
