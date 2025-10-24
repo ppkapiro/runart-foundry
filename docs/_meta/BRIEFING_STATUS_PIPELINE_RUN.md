@@ -531,3 +531,6 @@ Service Token para preview environment no autoriza `runart-foundry.pages.dev` (p
   url: https://c6f2e1d7.runart-foundry.pages.dev
   latest_stage: success
 - Resultado: FAILED (source != direct_upload)
+
+- Deploy ejecutado: 2025-10-24T18:02:41Z | SHA: a160bf2 | dir: site
+  URL: https://runart-foundry.pages.dev
