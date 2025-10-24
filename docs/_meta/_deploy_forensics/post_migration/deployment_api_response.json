@@ -1,13 +1,88 @@
 {
-  "result": [],
+  "result": [
+    {
+      "id": "1c270697-b300-407d-bed5-e1990d2435e6",
+      "short_id": "1c270697",
+      "project_id": "147b8030-5bc4-45f9-8d59-c0779556aa20",
+      "project_name": "runart-briefing-direct",
+      "environment": "production",
+      "url": "https://1c270697.runart-briefing-direct.pages.dev",
+      "created_on": "2025-10-24T20:38:32.738878Z",
+      "modified_on": "2025-10-24T20:38:35.60083Z",
+      "latest_stage": {
+        "name": "deploy",
+        "started_on": null,
+        "ended_on": "2025-10-24T20:38:35.60083Z",
+        "status": "success"
+      },
+      "deployment_trigger": {
+        "type": "ad_hoc",
+        "metadata": {
+          "branch": "production",
+          "commit_hash": "fa20f86d1337a48c3a438e9d891379952427c213",
+          "commit_message": "direct-upload:fa20f86d1337a48c3a438e9d891379952427c213",
+          "commit_dirty": false
+        }
+      },
+      "stages": [
+        {
+          "name": "queued",
+          "started_on": "2025-10-24T20:38:32.738878Z",
+          "ended_on": null,
+          "status": "active"
+        },
+        {
+          "name": "initialize",
+          "started_on": null,
+          "ended_on": null,
+          "status": "idle"
+        },
+        {
+          "name": "clone_repo",
+          "started_on": null,
+          "ended_on": null,
+          "status": "idle"
+        },
+        {
+          "name": "build",
+          "started_on": null,
+          "ended_on": null,
+          "status": "idle"
+        },
+        {
+          "name": "deploy",
+          "started_on": null,
+          "ended_on": "2025-10-24T20:38:35.60083Z",
+          "status": "success"
+        }
+      ],
+      "build_config": {
+        "build_command": null,
+        "destination_dir": null,
+        "build_caching": null,
+        "root_dir": null,
+        "web_analytics_tag": null,
+        "web_analytics_token": null
+      },
+      "env_vars": {},
+      "compatibility_date": "2025-10-24",
+      "compatibility_flags": [],
+      "build_image_major_version": 3,
+      "usage_model": null,
+      "aliases": null,
+      "is_skipped": false,
+      "production_branch": "production",
+      "uses_functions": false
+    }
+  ],
   "success": true,
   "errors": [],
   "messages": [],
   "result_info": {
     "page": 1,
     "per_page": 25,
-    "count": 0,
-    "total_count": 0,
-    "total_pages": 0
+    "count": 1,
+    "total_count": 1,
+    "total_pages": 1
   }
 }
