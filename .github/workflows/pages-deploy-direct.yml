@@ -151,9 +151,33 @@ jobs:
             echo "✅ Project exists"
             cp /tmp/project_get.json docs/_meta/_deploy_forensics/post_migration/project_get.json
           elif [ "$HTTP_STATUS" = "404" ]; then
-            echo '{"hint":"project will be created by wrangler"}' > /tmp/project_get.json
-            cp /tmp/project_get.json docs/_meta/_deploy_forensics/post_migration/project_get.json
-            echo "ℹ️ Project not found (404). Wrangler will create it during deploy."
+            echo "ℹ️ Project not found (404). Attempting to create project via API..."
+            # Create minimal Direct Upload project: name + production_branch
+            CREATE_PAYLOAD=$(jq -n --arg name "$PROJECT_NAME" --arg branch "production" '{name:$name, production_branch:$branch}')
+            echo "$CREATE_PAYLOAD" > /tmp/project_create_payload.json
+            HTTP_STATUS_CREATE=$(curl -s -o /tmp/project_create.json -w "%{http_code}" \
+              -X POST "https://api.cloudflare.com/client/v4/accounts/$ACCOUNT_ID/pages/projects" \
+              -H "Authorization: Bearer $CLOUDFLARE_API_TOKEN" \
+              -H "Content-Type: application/json" \
+              --data @/tmp/project_create_payload.json)
+            # Persist both request and response
+            cp /tmp/project_create_payload.json docs/_meta/_deploy_forensics/post_migration/project_create_payload.json || true
+            cp /tmp/project_create.json docs/_meta/_deploy_forensics/post_migration/project_create_response.json || true
+            if [ "$HTTP_STATUS_CREATE" = "200" ] || [ "$HTTP_STATUS_CREATE" = "201" ]; then
+              echo "✅ Project created via API"
+              # Re-fetch project to store canonical GET
+              curl -s -X GET "https://api.cloudflare.com/client/v4/accounts/$ACCOUNT_ID/pages/projects/$PROJECT_NAME" \
+                -H "Authorization: Bearer $CLOUDFLARE_API_TOKEN" -H "Content-Type: application/json" \
+                > /tmp/project_get.json
+              cp /tmp/project_get.json docs/_meta/_deploy_forensics/post_migration/project_get.json || true
+            else
+              echo "❌ ERROR: Failed to create project via API (HTTP $HTTP_STATUS_CREATE)."
+              head -c 400 /tmp/project_create.json || true
+              # Save a hint for later steps
+              echo '{"error":"project_create_failed"}' > /tmp/project_get.json
+              cp /tmp/project_get.json docs/_meta/_deploy_forensics/post_migration/project_get.json || true
+              exit 1
+            fi
           else
             echo "❌ ERROR: Invalid account or token scope when querying project (HTTP $HTTP_STATUS)."
             head -c 400 /tmp/project_get.json || true
@@ -181,6 +205,8 @@ jobs:
           echo ""
           
           # Deploy with Wrangler
+          # Ensure log file exists for evidence even if wrangler outputs nothing
+          : > /tmp/wrangler_output.log
           set +e  # Don't exit on error so we can capture it
           wrangler pages deploy "apps/briefing/site" \
             --project-name "$PROJECT_NAME" \
@@ -259,7 +285,7 @@ jobs:
           RETRY=0
           while [ $RETRY -lt $MAX_RETRIES ]; do
             RESPONSE=$(curl -s -X GET \
-              "https://api.cloudflare.com/client/v4/accounts/$ACCOUNT_ID/pages/projects/$PROJECT_NAME/deployments?per_page=1&branch=production" \
+              "https://api.cloudflare.com/client/v4/accounts/$ACCOUNT_ID/pages/projects/$PROJECT_NAME/deployments" \
               -H "Authorization: Bearer $CLOUDFLARE_API_TOKEN" \
               -H "Content-Type: application/json")
             
