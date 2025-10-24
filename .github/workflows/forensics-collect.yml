@@ -53,6 +53,24 @@ jobs:
           curl -sS -H "CF-Access-Client-Id: $CF_CLIENT_ID" -H "CF-Access-Client-Secret: $CF_CLIENT_SECRET" \
             https://runart-foundry.pages.dev/status/history/ | head -n 50 > docs/_meta/_deploy_forensics/history_snippet.html || echo "history_404" > docs/_meta/_deploy_forensics/flag_history.txt
       
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      
+      - name: Build local site for fingerprint comparison
+        run: |
+          cd apps/briefing
+          pip install -q mkdocs-material mkdocs-glightbox
+          mkdocs build -f mkdocs.yml -d site
+      
+      - name: Compare production vs local fingerprints
+        env:
+          CF_CLIENT_ID: ${{ secrets.ACCESS_CLIENT_ID_PREVIEW }}
+          CF_CLIENT_SECRET: ${{ secrets.ACCESS_CLIENT_SECRET_PREVIEW }}
+        run: |
+          ./tools/compare_prod_fingerprints.sh
+      
       - name: Commit forensics data
         run: |
           git config user.name "github-actions[bot]"
