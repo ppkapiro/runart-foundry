@@ -188,3 +188,6 @@ Auditoría completa en `docs/_meta/_deploy_diag/`:
 - `head_*.txt` — headers HTTP raw de todas las rutas (/, /status/, /news/, /status/history/)
 
 Generado/actualizado: 2025-10-24T14:20Z
+\n## Validación Access y Protección Activa
+- Estado: FAILED
+- Ver detalle en docs/_meta/ACCESS_DIAG_BRIEFING.md

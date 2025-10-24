@@ -600,3 +600,6 @@ Contiene instrucciones paso a paso para que Owner configure los secrets faltante
 
 - Verify prod: 2025-10-24T18:20:39Z | auth: with-Access | result: PARTIAL
 - Preflight CF OK: 2025-10-24T19:51:04Z
+\n## Access — Direct Upload: FAILED
+- WITH headers: 302 (expect 200)
+- WITHOUT headers: 302 (expect 302/403)
