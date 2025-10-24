@@ -112,15 +112,16 @@ jobs:
             git push || true
           elif [ -n "$VERIFY_FAIL" ]; then
             # Verificación falló; comprobar si es por Access (sin secrets) o error real
-            # Si el log de meta dice "SKIP (Access protegido)", no alarmar
-            SKIP_ACCESS=$(tail -n 100 docs/_meta/BRIEFING_STATUS_PIPELINE_RUN.md | grep -c "SKIP (Access protegido" || true)
+            # Buscar en meta si dice "auth: no-headers" o "SKIP (Access protegido"
+            SKIP_ACCESS=$(tail -n 100 docs/_meta/BRIEFING_STATUS_PIPELINE_RUN.md | grep -E "SKIP \(Access protegido|auth: no-headers" | wc -l || true)
             if [ "$SKIP_ACCESS" -gt 0 ]; then
-              echo "ℹ️  Verify SKIP detectado (Access protegido, no secrets); no es error real."
+              echo "ℹ️  Verify SKIP/PARTIAL detectado (Access protegido, no secrets); no es error real."
             else
-              echo "⚠️ Verify FAIL real detectado. Ejecutando alerta…"
+              # Verify falló con headers disponibles → problema real
+              echo "⚠️ Verify FAIL real detectado (con headers disponibles). Ejecutando alerta…"
               echo "$(date -u +%FT%TZ) — Verify FAIL detectado" >> docs/_meta/BRIEFING_STATUS_PIPELINE_RUN.md
-              python3 tools/notify.py --channel=slack   --title="Verify FAILED" --message="Falló verificación post-deploy. Revisar logs." --level=WARNING || true
-              python3 tools/notify.py --channel=discord --title="Verify FAILED" --message="Falló verificación post-deploy. Revisar logs." --level=WARNING || true
+              python3 tools/notify.py --channel=slack   --title="Verify FAILED" --message="Falló verificación post-deploy con Access auth. Revisar logs." --level=WARNING || true
+              python3 tools/notify.py --channel=discord --title="Verify FAILED" --message="Falló verificación post-deploy con Access auth. Revisar logs." --level=WARNING || true
               git add docs/_meta/BRIEFING_STATUS_PIPELINE_RUN.md || true
               git commit -m "alert: verify fail [skip ci]" || true
               git push || true
