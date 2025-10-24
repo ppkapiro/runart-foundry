@@ -510,6 +510,67 @@ jobs:
         env:
           CLOUDFLARE_API_TOKEN: ${{ secrets.CF_API_TOKEN_PAGES || secrets.CLOUDFLARE_API_TOKEN || secrets.CF_API_TOKEN }}
 
+      - name: Access Final — Ensure Service Token (OPT-IN)
+        id: access_service_token
+        if: always()
+        continue-on-error: true
+        run: |
+          set -e
+          mkdir -p docs/_meta/_deploy_forensics/access_final
+          ACCOUNT_ID="${{ secrets.CF_ACCOUNT_ID }}"
+          NAME="${{ secrets.ACCESS_SERVICE_TOKEN_NAME }}"
+          S_ID="${{ secrets.CF_ACCESS_CLIENT_ID }}"
+          S_SEC="${{ secrets.CF_ACCESS_CLIENT_SECRET }}"
+
+          # Default: use existing secrets if both present
+          if [ -n "$S_ID" ] && [ -n "$S_SEC" ]; then
+            echo "ACCESS_CLIENT_ID_EFFECTIVE=$S_ID" >> $GITHUB_ENV
+            echo "ACCESS_CLIENT_SECRET_EFFECTIVE=$S_SEC" >> $GITHUB_ENV
+            echo "ACCESS_SERVICE_TOKEN_CREATED=NO" >> $GITHUB_ENV
+            exit 0
+          fi
+
+          # If either missing and we have a name, try to create via API
+          if [ -z "$NAME" ]; then
+            echo '{"error":"service_token_missing_and_no_name"}' > docs/_meta/_deploy_forensics/access_final/access_error.json
+            echo "PENDING_PROTECTION: Missing CF_ACCESS_CLIENT_ID/SECRET and ACCESS_SERVICE_TOKEN_NAME not provided" >> docs/_meta/ACCESS_DIAG_BRIEFING.md
+            echo "ACCESS_SERVICE_TOKEN_CREATED=NO" >> $GITHUB_ENV
+            exit 0
+          fi
+
+          echo "=== Creating Access Service Token (OPT-IN) ==="
+          jq -n --arg name "$NAME" --arg duration "876000h" '{name:$name, duration:$duration}' > /tmp/service_token_payload.json
+          HTTP=$(curl -s -X POST -o docs/_meta/_deploy_forensics/access_final/service_token_create.json -w "%{http_code}" \
+            -H "Authorization: Bearer $CLOUDFLARE_API_TOKEN" -H "Content-Type: application/json" \
+            --data @/tmp/service_token_payload.json \
+            "https://api.cloudflare.com/client/v4/accounts/$ACCOUNT_ID/access/service_tokens")
+          if [ "$HTTP" != "200" ]; then
+            echo '{"error":"service_token_create_failed","http":'"$HTTP"'}' > docs/_meta/_deploy_forensics/access_final/access_error.json
+            echo "PENDING_PROTECTION: Service Token create failed (HTTP $HTTP)" >> docs/_meta/ACCESS_DIAG_BRIEFING.md
+            echo "ACCESS_SERVICE_TOKEN_CREATED=NO" >> $GITHUB_ENV
+            exit 0
+          fi
+          OK=$(jq -r '.success // false' docs/_meta/_deploy_forensics/access_final/service_token_create.json)
+          if [ "$OK" != "true" ]; then
+            echo '{"error":"service_token_create_success_false"}' > docs/_meta/_deploy_forensics/access_final/access_error.json
+            echo "PENDING_PROTECTION: Service Token create returned success=false" >> docs/_meta/ACCESS_DIAG_BRIEFING.md
+            echo "ACCESS_SERVICE_TOKEN_CREATED=NO" >> $GITHUB_ENV
+            exit 0
+          fi
+          NEW_ID=$(jq -r '.result.client_id // empty' docs/_meta/_deploy_forensics/access_final/service_token_create.json)
+          NEW_SECRET=$(jq -r '.result.client_secret // empty' docs/_meta/_deploy_forensics/access_final/service_token_create.json)
+          if [ -z "$NEW_ID" ] || [ -z "$NEW_SECRET" ]; then
+            echo '{"error":"service_token_missing_fields"}' > docs/_meta/_deploy_forensics/access_final/access_error.json
+            echo "PENDING_PROTECTION: Service Token response missing client_id/secret" >> docs/_meta/ACCESS_DIAG_BRIEFING.md
+            echo "ACCESS_SERVICE_TOKEN_CREATED=NO" >> $GITHUB_ENV
+            exit 0
+          fi
+          echo "ACCESS_CLIENT_ID_EFFECTIVE=$NEW_ID" >> $GITHUB_ENV
+          echo "ACCESS_CLIENT_SECRET_EFFECTIVE=$NEW_SECRET" >> $GITHUB_ENV
+          echo "ACCESS_SERVICE_TOKEN_CREATED=YES" >> $GITHUB_ENV
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CF_API_TOKEN_PAGES || secrets.CLOUDFLARE_API_TOKEN || secrets.CF_API_TOKEN }}
+
       - name: Access Final — Patch Service Auth Policy
         id: access_patch_policy
         if: always()
@@ -519,7 +580,7 @@ jobs:
           ACCOUNT_ID="${{ secrets.CF_ACCOUNT_ID }}"
           APP_ID="${{ secrets.ACCESS_APP_ID }}"
           POLICY_ID="${{ secrets.ACCESS_POLICY_ID_PROD }}"
-          CLIENT_ID="${{ secrets.CF_ACCESS_CLIENT_ID }}"
+          CLIENT_ID="${ACCESS_CLIENT_ID_EFFECTIVE:-${{ secrets.CF_ACCESS_CLIENT_ID }}}"
           if [ -z "$ACCOUNT_ID" ] || [ -z "$APP_ID" ] || [ -z "$POLICY_ID" ] || [ -z "$CLIENT_ID" ]; then
             echo '{"error":"missing_policy_or_client_id"}' > docs/_meta/_deploy_forensics/access_final/access_error.json
             echo "PENDING_PROTECTION: Missing ACCESS_POLICY_ID_PROD or CF_ACCESS_CLIENT_ID" >> docs/_meta/ACCESS_DIAG_BRIEFING.md
@@ -530,10 +591,7 @@ jobs:
           jq -n --arg cid "$CLIENT_ID" '
             {
               decision: "allow",
-              include: [
-                { service_token: { id: $cid } },
-                { any_valid_service_token: {} }
-              ],
+              include: [ { service_token: { id: $cid } } ],
               name: "Allow CI RunArt Production (Direct)",
               precedence: 1,
               purpose_justification_prompt: false,
@@ -580,13 +638,20 @@ jobs:
           mkdir -p docs/_meta
           URL="https://runart-briefing-direct.pages.dev/"
           echo "\n# Access — WITH HEADERS (final)" >> docs/_meta/ACCESS_DIAG_BRIEFING.md
+          CID="${ACCESS_CLIENT_ID_EFFECTIVE:-${{ secrets.CF_ACCESS_CLIENT_ID }}}"
+          CSEC="${ACCESS_CLIENT_SECRET_EFFECTIVE:-${{ secrets.CF_ACCESS_CLIENT_SECRET }}}"
+          if [ -z "$CID" ] || [ -z "$CSEC" ]; then
+            echo "PENDING_PROTECTION: Missing effective Service Token for WITH HEADERS test" >> docs/_meta/ACCESS_DIAG_BRIEFING.md
+            echo "ACCESS_WITH_HEADERS_STATUS=0" >> $GITHUB_OUTPUT
+            exit 0
+          fi
           curl -s -i "$URL" \
-            -H "CF-Access-Client-Id: ${{ secrets.CF_ACCESS_CLIENT_ID }}" \
-            -H "CF-Access-Client-Secret: ${{ secrets.CF_ACCESS_CLIENT_SECRET }}" \
+            -H "CF-Access-Client-Id: $CID" \
+            -H "CF-Access-Client-Secret: $CSEC" \
             | tee -a docs/_meta/ACCESS_DIAG_BRIEFING.md >/dev/null
           STATUS=$(curl -s -o /dev/null -w "%{http_code}" "$URL" \
-            -H "CF-Access-Client-Id: ${{ secrets.CF_ACCESS_CLIENT_ID }}" \
-            -H "CF-Access-Client-Secret: ${{ secrets.CF_ACCESS_CLIENT_SECRET }}")
+            -H "CF-Access-Client-Id: $CID" \
+            -H "CF-Access-Client-Secret: $CSEC")
           echo "ACCESS_WITH_HEADERS_STATUS=$STATUS" >> $GITHUB_OUTPUT
 
       - name: Access Final — WITHOUT HEADERS (expect 302/403)
@@ -615,6 +680,7 @@ jobs:
             echo "\n## Access — Direct Upload: $ACCESS_STATE"
             echo "- WITH headers: $OK_WITH (expect 200)"
             echo "- WITHOUT headers: $OK_WITHOUT (expect 302/403)"
+            echo "- OPT-IN Service Token created: ${ACCESS_SERVICE_TOKEN_CREATED:-NO}"
           } >> "$FILE1"
 
           FILE2="docs/_meta/WORKFLOW_AUDIT_DEPLOY.md"
@@ -623,6 +689,7 @@ jobs:
             echo "\n## Validación Access y Protección Activa"
             echo "- Estado: $ACCESS_STATE"
             echo "- Ver detalle en docs/_meta/ACCESS_DIAG_BRIEFING.md"
+            echo "- OPT-IN Service Token creado: ${ACCESS_SERVICE_TOKEN_CREATED:-NO}"
           } >> "$FILE2"
 
           FILE3="docs/_meta/BRIEFING_DEPLOY_HANDOFF.md"
@@ -631,6 +698,7 @@ jobs:
             echo "- URL: https://runart-briefing-direct.pages.dev"
             echo "- Estado: $ACCESS_STATE (200 con headers; 302/403 sin headers)"
             echo "- Próximos pasos: preparar cutover o configurar dominio custom y revalidar"
+            echo "- OPT-IN Service Token creado: ${ACCESS_SERVICE_TOKEN_CREATED:-NO}"
           } >> "$FILE3"
 
       - name: Record deployment evidence
