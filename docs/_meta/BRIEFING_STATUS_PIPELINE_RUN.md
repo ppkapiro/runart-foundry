@@ -497,3 +497,6 @@ Service Token para preview environment no autoriza `runart-foundry.pages.dev` (p
 - Resultado: success
 
 - Verify prod: 2025-10-24T17:03:03Z | auth: with-Access | result: PARTIAL
+
+- Deploy ejecutado: 2025-10-24T17:40:33Z | SHA: 6134ed9 | dir: site
+  URL: https://runart-foundry.pages.dev
