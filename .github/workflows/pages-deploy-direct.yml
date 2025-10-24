@@ -744,8 +744,49 @@ jobs:
         env:
           ACCESS_API_TOKEN: ${{ secrets.CF_API_TOKEN_ACCESS || secrets.CF_API_TOKEN_PAGES || secrets.CLOUDFLARE_API_TOKEN || secrets.CF_API_TOKEN }}
 
-      - name: Access Final — Patch Service Auth Policy
-        id: access_patch_policy
+      - name: Access Final — GET current policy
+        id: access_get_policy
+        if: always()
+        continue-on-error: true
+        run: |
+          set -e
+          mkdir -p docs/_meta/_deploy_forensics/access_final
+          ACCOUNT_ID="$ACCOUNT_ID_EFFECTIVE"
+          APP_ID="${{ secrets.ACCESS_APP_ID }}"
+          [ -z "$APP_ID" ] && APP_ID="$ACCESS_APP_ID_EFFECTIVE"
+          POLICY_ID="${{ secrets.ACCESS_POLICY_ID_PROD }}"
+          [ -z "$POLICY_ID" ] && POLICY_ID="$ACCESS_POLICY_ID_PROD_EFFECTIVE"
+          
+          if [ -z "$ACCOUNT_ID" ] || [ -z "$APP_ID" ] || [ -z "$POLICY_ID" ]; then
+            echo '{"error":"missing_account_app_or_policy_id"}' > docs/_meta/_deploy_forensics/access_final/access_error.json
+            echo "POLICY_GET_SUCCESS=false" >> $GITHUB_ENV
+            exit 0
+          fi
+          
+          URL="https://api.cloudflare.com/client/v4/accounts/$ACCOUNT_ID/access/apps/$APP_ID/policies/$POLICY_ID"
+          HTTP=$(curl -s -o docs/_meta/_deploy_forensics/access_final/policy_before.json -w "%{http_code}" \
+            -H "Authorization: Bearer $ACCESS_API_TOKEN" "$URL")
+          
+          if [ "$HTTP" != "200" ]; then
+            echo '{"error":"policy_get_failed","http":"'"$HTTP"'"}' > docs/_meta/_deploy_forensics/access_final/access_error.json
+            echo "POLICY_GET_SUCCESS=false" >> $GITHUB_ENV
+            exit 0
+          fi
+          
+          OK=$(jq -r '.success // false' docs/_meta/_deploy_forensics/access_final/policy_before.json)
+          if [ "$OK" != "true" ]; then
+            echo '{"error":"policy_get_success_false"}' > docs/_meta/_deploy_forensics/access_final/access_error.json
+            echo "POLICY_GET_SUCCESS=false" >> $GITHUB_ENV
+            exit 0
+          fi
+          
+          echo "POLICY_GET_SUCCESS=true" >> $GITHUB_ENV
+          echo "✅ Policy fetched successfully"
+        env:
+          ACCESS_API_TOKEN: ${{ secrets.CF_API_TOKEN_ACCESS || secrets.CF_API_TOKEN_PAGES || secrets.CLOUDFLARE_API_TOKEN || secrets.CF_API_TOKEN }}
+
+      - name: Access Final — PUT Service Auth Policy (API Token compatible)
+        id: access_put_policy
         if: always()
         continue-on-error: true
         run: |
@@ -756,77 +797,70 @@ jobs:
           POLICY_ID="${{ secrets.ACCESS_POLICY_ID_PROD }}"
           [ -z "$POLICY_ID" ] && POLICY_ID="$ACCESS_POLICY_ID_PROD_EFFECTIVE"
           TOKEN_ID="${ACCESS_TOKEN_ID_EFFECTIVE:-}"
+          
           if [ -z "$ACCOUNT_ID" ] || [ -z "$APP_ID" ] || [ -z "$POLICY_ID" ] || [ -z "$TOKEN_ID" ]; then
-            echo '{"error":"missing_policy_or_client_id"}' > docs/_meta/_deploy_forensics/access_final/access_error.json
-            echo "PENDING_PROTECTION: Missing ACCESS_POLICY_ID_PROD or CF_ACCESS_CLIENT_ID" >> docs/_meta/ACCESS_DIAG_BRIEFING.md
+            echo '{"error":"missing_policy_or_token_id"}' > docs/_meta/_deploy_forensics/access_final/access_error.json
+            echo "PENDING_PROTECTION: Missing ACCESS_POLICY_ID_PROD or SERVICE_TOKEN_ID" >> docs/_meta/ACCESS_DIAG_BRIEFING.md
             echo "ACCESS_FINAL_CONFIGURED=NO" >> $GITHUB_OUTPUT
             exit 0
           fi
           
-          # Body per instrucciones (construido vía jq)
-          jq -n --arg token_id "$TOKEN_ID" '
-            {
-              decision: "non_identity",
-              include: [ { service_token: { token_id: $token_id } } ],
-              name: "Allow CI RunArt Production (Direct)",
-              precedence: 1,
-              purpose_justification_prompt: false,
-              require: [],
-              exclude: [],
-              conditions: {
-                request: {
-                  domains: ["runart-briefing-direct.pages.dev"],
-                  paths: ["/"]
-                }
-              },
-              session_duration: "24h"
-            }
-          ' > /tmp/policy_patch.json
-
-          URL="https://api.cloudflare.com/client/v4/accounts/$ACCOUNT_ID/access/apps/$APP_ID/policies/$POLICY_ID"
-          
-          # Primary attempt: PATCH with Bearer token
-          echo "=== Attempting PATCH with Bearer token ==="
-          HTTP=$(curl -s -X PATCH -o docs/_meta/_deploy_forensics/access_final/policy_patch.json -w "%{http_code}" \
-            -H "Authorization: Bearer $ACCESS_API_TOKEN" -H "Content-Type: application/json" \
-            --data @/tmp/policy_patch.json "$URL")
-          
-          # Check if we need fallback
-          if [ "$HTTP" = "403" ] || [ "$HTTP" = "405" ]; then
-            API_EMAIL="${{ secrets.CF_API_EMAIL }}"
-            API_KEY="${{ secrets.CF_API_GLOBAL_KEY }}"
-            if [ -n "$API_EMAIL" ] && [ -n "$API_KEY" ]; then
-              echo "⚠️ Bearer token failed (HTTP $HTTP). Retrying with Global API Key..."
-              HTTP=$(curl -s -X PATCH -o docs/_meta/_deploy_forensics/access_final/policy_patch_fallback.json -w "%{http_code}" \
-                -H "X-Auth-Email: $API_EMAIL" -H "X-Auth-Key: $API_KEY" -H "Content-Type: application/json" \
-                --data @/tmp/policy_patch.json "$URL")
-              # Use fallback response if successful
-              if [ "$HTTP" = "200" ]; then
-                cp docs/_meta/_deploy_forensics/access_final/policy_patch_fallback.json docs/_meta/_deploy_forensics/access_final/policy_patch.json
-                echo "✅ PATCH succeeded with Global API Key fallback"
-              fi
-            else
-              echo "⚠️ Bearer token failed (HTTP $HTTP) and no CF_API_EMAIL/CF_API_GLOBAL_KEY for fallback"
-            fi
+          if [ "${POLICY_GET_SUCCESS:-false}" != "true" ]; then
+            echo '{"error":"cannot_put_without_get"}' > docs/_meta/_deploy_forensics/access_final/access_error.json
+            echo "PENDING_PROTECTION: Cannot PUT policy without successful GET" >> docs/_meta/ACCESS_DIAG_BRIEFING.md
+            echo "ACCESS_FINAL_CONFIGURED=NO" >> $GITHUB_OUTPUT
+            exit 0
           fi
+          
+          # Merge current policy with required changes
+          jq --arg token_id "$TOKEN_ID" '
+            .result
+            | .decision = "non_identity"
+            | .name = "Allow CI RunArt Production (Direct)"
+            | .precedence = 1
+            | .include = [{ "service_token": { "token_id": $token_id } }]
+            | .exclude = []
+            | .require = []
+            | .conditions = {
+                "request": {
+                  "domains": ["runart-briefing-direct.pages.dev"],
+                  "paths": ["/"]
+                }
+              }
+            | .session_duration = "24h"
+            | .purpose_justification_prompt = false
+            | del(.id, .uid, .created_at, .updated_at)
+          ' docs/_meta/_deploy_forensics/access_final/policy_before.json > /tmp/policy_put_payload.json
+          
+          # Save payload for audit
+          cp /tmp/policy_put_payload.json docs/_meta/_deploy_forensics/access_final/policy_put_payload.json
+          
+          # PUT with API Token
+          URL="https://api.cloudflare.com/client/v4/accounts/$ACCOUNT_ID/access/apps/$APP_ID/policies/$POLICY_ID"
+          echo "=== Executing PUT with API Token ==="
+          HTTP=$(curl -s -X PUT -o docs/_meta/_deploy_forensics/access_final/policy_put.json -w "%{http_code}" \
+            -H "Authorization: Bearer $ACCESS_API_TOKEN" -H "Content-Type: application/json" \
+            --data @/tmp/policy_put_payload.json "$URL")
           
           if [ "$HTTP" != "200" ]; then
-            jq -n --arg http "$HTTP" '{error:"policy_patch_failed", http:$http}' > docs/_meta/_deploy_forensics/access_final/access_error.json
-            echo "PENDING_PROTECTION: Policy PATCH failed (HTTP $HTTP)" >> docs/_meta/ACCESS_DIAG_BRIEFING.md
+            jq -n --arg http "$HTTP" '{error:"policy_put_failed", http:$http}' > docs/_meta/_deploy_forensics/access_final/access_error.json
+            echo "PENDING_PROTECTION: Policy PUT failed (HTTP $HTTP)" >> docs/_meta/ACCESS_DIAG_BRIEFING.md
             echo "ACCESS_FINAL_CONFIGURED=NO" >> $GITHUB_OUTPUT
-            echo "::error::Policy PATCH failed (HTTP $HTTP)"
+            echo "::error::Policy PUT failed (HTTP $HTTP)"
             exit 1
           fi
           
-          OK=$(jq -r '.success // false' docs/_meta/_deploy_forensics/access_final/policy_patch.json)
+          OK=$(jq -r '.success // false' docs/_meta/_deploy_forensics/access_final/policy_put.json)
           if [ "$OK" != "true" ]; then
-            echo '{"error":"policy_patch_success_false"}' > docs/_meta/_deploy_forensics/access_final/access_error.json
-            echo "PENDING_PROTECTION: Policy PATCH returned success=false" >> docs/_meta/ACCESS_DIAG_BRIEFING.md
+            echo '{"error":"policy_put_success_false"}' > docs/_meta/_deploy_forensics/access_final/access_error.json
+            echo "PENDING_PROTECTION: Policy PUT returned success=false" >> docs/_meta/ACCESS_DIAG_BRIEFING.md
             echo "ACCESS_FINAL_CONFIGURED=NO" >> $GITHUB_OUTPUT
-            echo "::error::Policy PATCH returned success=false"
+            echo "::error::Policy PUT returned success=false"
             exit 1
           fi
+          
           echo "ACCESS_FINAL_CONFIGURED=YES" >> $GITHUB_OUTPUT
+          echo "✅ Policy updated successfully via PUT"
         env:
           ACCESS_API_TOKEN: ${{ secrets.CF_API_TOKEN_ACCESS || secrets.CF_API_TOKEN_PAGES || secrets.CLOUDFLARE_API_TOKEN || secrets.CF_API_TOKEN }}
 
