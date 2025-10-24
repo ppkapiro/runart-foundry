@@ -469,6 +469,170 @@ jobs:
         env:
           CLOUDFLARE_API_TOKEN: ${{ secrets.CF_API_TOKEN_PAGES || secrets.CLOUDFLARE_API_TOKEN || secrets.CF_API_TOKEN }}
 
+      - name: Access Final — Create audit folder
+        if: always()
+        run: |
+          mkdir -p docs/_meta/_deploy_forensics/access_final/
+
+      - name: Access Final — Validate API and App
+        id: access_validate_app
+        if: always()
+        continue-on-error: true
+        run: |
+          set -e
+          ACCOUNT_ID="${{ secrets.CF_ACCOUNT_ID }}"
+          APP_ID="${{ secrets.ACCESS_APP_ID }}"
+          if [ -z "$ACCOUNT_ID" ] || [ -z "$APP_ID" ]; then
+            echo '{"error":"missing_account_or_app_id"}' > docs/_meta/_deploy_forensics/access_final/access_error.json
+            echo "PENDING_PROTECTION: Missing CF_ACCOUNT_ID or ACCESS_APP_ID" >> docs/_meta/ACCESS_DIAG_BRIEFING.md
+            echo "ACCESS_FINAL_CONFIGURED=NO" >> $GITHUB_OUTPUT
+            exit 0
+          fi
+          URL="https://api.cloudflare.com/client/v4/accounts/$ACCOUNT_ID/access/apps/$APP_ID"
+          HTTP=$(curl -s -o docs/_meta/_deploy_forensics/access_final/app_before.json -w "%{http_code}" \
+            -H "Authorization: Bearer $CLOUDFLARE_API_TOKEN" "$URL")
+          if [ "$HTTP" != "200" ]; then
+            echo '{"error":"app_get_failed","http":'"$HTTP"'}' > docs/_meta/_deploy_forensics/access_final/access_error.json
+            echo "PENDING_PROTECTION: Access app GET failed (HTTP $HTTP)" >> docs/_meta/ACCESS_DIAG_BRIEFING.md
+            echo "ACCESS_FINAL_CONFIGURED=NO" >> $GITHUB_OUTPUT
+            echo "::error::Access app GET failed (HTTP $HTTP)"
+            exit 1
+          fi
+          OK=$(jq -r '.success // false' docs/_meta/_deploy_forensics/access_final/app_before.json)
+          if [ "$OK" != "true" ]; then
+            echo '{"error":"app_get_success_false"}' > docs/_meta/_deploy_forensics/access_final/access_error.json
+            echo "PENDING_PROTECTION: Access app GET returned success=false" >> docs/_meta/ACCESS_DIAG_BRIEFING.md
+            echo "ACCESS_FINAL_CONFIGURED=NO" >> $GITHUB_OUTPUT
+            echo "::error::Access app GET returned success=false"
+            exit 1
+          fi
+          echo "ACCESS_FINAL_CONFIGURED=UNKNOWN" >> $GITHUB_OUTPUT
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CF_API_TOKEN_PAGES || secrets.CLOUDFLARE_API_TOKEN || secrets.CF_API_TOKEN }}
+
+      - name: Access Final — Patch Service Auth Policy
+        id: access_patch_policy
+        if: always()
+        continue-on-error: true
+        run: |
+          set -e
+          ACCOUNT_ID="${{ secrets.CF_ACCOUNT_ID }}"
+          APP_ID="${{ secrets.ACCESS_APP_ID }}"
+          POLICY_ID="${{ secrets.ACCESS_POLICY_ID_PROD }}"
+          CLIENT_ID="${{ secrets.CF_ACCESS_CLIENT_ID }}"
+          if [ -z "$ACCOUNT_ID" ] || [ -z "$APP_ID" ] || [ -z "$POLICY_ID" ] || [ -z "$CLIENT_ID" ]; then
+            echo '{"error":"missing_policy_or_client_id"}' > docs/_meta/_deploy_forensics/access_final/access_error.json
+            echo "PENDING_PROTECTION: Missing ACCESS_POLICY_ID_PROD or CF_ACCESS_CLIENT_ID" >> docs/_meta/ACCESS_DIAG_BRIEFING.md
+            echo "ACCESS_FINAL_CONFIGURED=NO" >> $GITHUB_OUTPUT
+            exit 0
+          fi
+          # Body per instrucciones (construido vía jq)
+          jq -n --arg cid "$CLIENT_ID" '
+            {
+              decision: "allow",
+              include: [
+                { service_token: { id: $cid } },
+                { any_valid_service_token: {} }
+              ],
+              name: "Allow CI RunArt Production (Direct)",
+              precedence: 1,
+              purpose_justification_prompt: false,
+              require: [],
+              exclude: [],
+              conditions: {
+                request: {
+                  domains: ["runart-briefing-direct.pages.dev"],
+                  paths: ["/"]
+                }
+              },
+              session_duration: "24h"
+            }
+          ' > /tmp/policy_patch.json
+
+          URL="https://api.cloudflare.com/client/v4/accounts/$ACCOUNT_ID/access/apps/$APP_ID/policies/$POLICY_ID"
+          HTTP=$(curl -s -X PATCH -o docs/_meta/_deploy_forensics/access_final/policy_patch.json -w "%{http_code}" \
+            -H "Authorization: Bearer $CLOUDFLARE_API_TOKEN" -H "Content-Type: application/json" \
+            --data @/tmp/policy_patch.json "$URL")
+          if [ "$HTTP" != "200" ]; then
+            jq -n --arg http "$HTTP" '{error:"policy_patch_failed", http:$http}' > docs/_meta/_deploy_forensics/access_final/access_error.json
+            echo "PENDING_PROTECTION: Policy PATCH failed (HTTP $HTTP)" >> docs/_meta/ACCESS_DIAG_BRIEFING.md
+            echo "ACCESS_FINAL_CONFIGURED=NO" >> $GITHUB_OUTPUT
+            echo "::error::Policy PATCH failed (HTTP $HTTP)"
+            exit 1
+          fi
+          OK=$(jq -r '.success // false' docs/_meta/_deploy_forensics/access_final/policy_patch.json)
+          if [ "$OK" != "true" ]; then
+            echo '{"error":"policy_patch_success_false"}' > docs/_meta/_deploy_forensics/access_final/access_error.json
+            echo "PENDING_PROTECTION: Policy PATCH returned success=false" >> docs/_meta/ACCESS_DIAG_BRIEFING.md
+            echo "ACCESS_FINAL_CONFIGURED=NO" >> $GITHUB_OUTPUT
+            echo "::error::Policy PATCH returned success=false"
+            exit 1
+          fi
+          echo "ACCESS_FINAL_CONFIGURED=YES" >> $GITHUB_OUTPUT
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CF_API_TOKEN_PAGES || secrets.CLOUDFLARE_API_TOKEN || secrets.CF_API_TOKEN }}
+
+      - name: Access Final — WITH HEADERS (expect 200)
+        if: always()
+        id: access_test_with
+        run: |
+          set -e
+          mkdir -p docs/_meta
+          URL="https://runart-briefing-direct.pages.dev/"
+          echo "\n# Access — WITH HEADERS (final)" >> docs/_meta/ACCESS_DIAG_BRIEFING.md
+          curl -s -i "$URL" \
+            -H "CF-Access-Client-Id: ${{ secrets.CF_ACCESS_CLIENT_ID }}" \
+            -H "CF-Access-Client-Secret: ${{ secrets.CF_ACCESS_CLIENT_SECRET }}" \
+            | tee -a docs/_meta/ACCESS_DIAG_BRIEFING.md >/dev/null
+          STATUS=$(curl -s -o /dev/null -w "%{http_code}" "$URL" \
+            -H "CF-Access-Client-Id: ${{ secrets.CF_ACCESS_CLIENT_ID }}" \
+            -H "CF-Access-Client-Secret: ${{ secrets.CF_ACCESS_CLIENT_SECRET }}")
+          echo "ACCESS_WITH_HEADERS_STATUS=$STATUS" >> $GITHUB_OUTPUT
+
+      - name: Access Final — WITHOUT HEADERS (expect 302/403)
+        if: always()
+        id: access_test_without
+        run: |
+          set -e
+          mkdir -p docs/_meta
+          URL="https://runart-briefing-direct.pages.dev/"
+          echo "\n# Access — WITHOUT HEADERS (final)" >> docs/_meta/ACCESS_DIAG_BRIEFING.md
+          curl -s -i "$URL" | tee -a docs/_meta/ACCESS_DIAG_BRIEFING.md >/dev/null
+          STATUS=$(curl -s -o /dev/null -w "%{http_code}" "$URL")
+          echo "ACCESS_WITHOUT_HEADERS_STATUS=$STATUS" >> $GITHUB_OUTPUT
+
+      - name: Access Final — Update Reports
+        if: always()
+        run: |
+          set -e
+          FILE1="docs/_meta/BRIEFING_STATUS_PIPELINE_RUN.md"
+          mkdir -p "$(dirname "$FILE1")"
+          OK_WITH=${{ steps.access_test_with.outputs.ACCESS_WITH_HEADERS_STATUS || 0 }}
+          OK_WITHOUT=${{ steps.access_test_without.outputs.ACCESS_WITHOUT_HEADERS_STATUS || 0 }}
+          ACCESS_STATE="FAILED"
+          if [ "$OK_WITH" = "200" ] && { [ "$OK_WITHOUT" = "302" ] || [ "$OK_WITHOUT" = "403" ]; }; then ACCESS_STATE="OK"; fi
+          {
+            echo "\n## Access — Direct Upload: $ACCESS_STATE"
+            echo "- WITH headers: $OK_WITH (expect 200)"
+            echo "- WITHOUT headers: $OK_WITHOUT (expect 302/403)"
+          } >> "$FILE1"
+
+          FILE2="docs/_meta/WORKFLOW_AUDIT_DEPLOY.md"
+          mkdir -p docs/_meta
+          {
+            echo "\n## Validación Access y Protección Activa"
+            echo "- Estado: $ACCESS_STATE"
+            echo "- Ver detalle en docs/_meta/ACCESS_DIAG_BRIEFING.md"
+          } >> "$FILE2"
+
+          FILE3="docs/_meta/BRIEFING_DEPLOY_HANDOFF.md"
+          {
+            echo "\n## Access — Estado Final"
+            echo "- URL: https://runart-briefing-direct.pages.dev"
+            echo "- Estado: $ACCESS_STATE (200 con headers; 302/403 sin headers)"
+            echo "- Próximos pasos: preparar cutover o configurar dominio custom y revalidar"
+          } >> "$FILE3"
+
       - name: Record deployment evidence
         if: always()
         run: |
@@ -666,6 +830,7 @@ jobs:
           git config user.email "github-actions[bot]@users.noreply.github.com"
           
           git add docs/_meta/_deploy_forensics/post_migration/
+          git add docs/_meta/_deploy_forensics/access_final/
           git add docs/_meta/ACCESS_DIAG_BRIEFING.md || true
           git add docs/_meta/BRIEFING_STATUS_PIPELINE_RUN.md || true
           git add docs/_meta/BRIEFING_DEPLOY_HANDOFF.md || true
