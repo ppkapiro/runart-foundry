@@ -76,9 +76,17 @@ jobs:
           mkdir -p docs/_meta/_deploy_forensics/post_migration
 
           echo "=== Resolve Account via wrangler whoami ==="
-          WHOAMI_JSON=$(wrangler whoami --json || echo "{}")
-          echo "$WHOAMI_JSON" | jq '.' > /tmp/whoami.json
-          ACCOUNT_ID_RUNTIME=$(echo "$WHOAMI_JSON" | jq -r '.account_id // empty')
+          # wrangler whoami may not support --json in some versions; parse text output
+          WHOAMI_TXT=$(wrangler whoami 2>&1 || true)
+          echo "$WHOAMI_TXT" > /tmp/whoami.txt
+          # Try to extract 'Account ID:' line
+          ACCOUNT_ID_RUNTIME=$(echo "$WHOAMI_TXT" | sed -n 's/.*[Aa]ccount[[:space:]]\{1,\}ID:[[:space:]]*\([a-zA-Z0-9_-]\{5,\}\).*/\1/p' | head -1 | tr -d '\r\n' )
+          if [ -z "$ACCOUNT_ID_RUNTIME" ]; then
+            echo "wrangler whoami did not yield an Account ID; falling back to API /accounts"
+            ACCTS=$(curl -s -X GET "https://api.cloudflare.com/client/v4/accounts" -H "Authorization: Bearer $CLOUDFLARE_API_TOKEN" -H "Content-Type: application/json")
+            echo "$ACCTS" | jq '.' > docs/_meta/_deploy_forensics/post_migration/accounts_list.json || true
+            ACCOUNT_ID_RUNTIME=$(echo "$ACCTS" | jq -r '.result[0].id // empty')
+          fi
 
           ACCOUNT_ID_ENV="${CLOUDFLARE_ACCOUNT_ID:-}"
           if [ -n "$ACCOUNT_ID_ENV" ] && [ -n "$ACCOUNT_ID_RUNTIME" ] && [ "$ACCOUNT_ID_ENV" != "$ACCOUNT_ID_RUNTIME" ]; then
@@ -531,16 +539,16 @@ jobs:
           FILE="docs/_meta/BRIEFING_DEPLOY_HANDOFF.md"
           mkdir -p docs/_meta
           if [ ! -f "$FILE" ]; then
-            cat > "$FILE" << 'EOF'
-            # Briefing — Cutover Plan (Direct Upload)
-
-            Opciones de corte:
-
-            - Opción 1: Apuntar dominio custom (p.ej. briefing.runartfoundry.com) al proyecto nuevo `runart-briefing-direct` y retirar del antiguo.
-            - Opción 2: Ventana corta; eliminar proyecto viejo y re-crear con `--project-name "runart-foundry"` para conservar subdominio histórico; revalidar Access y bindings.
-
-            Requisitos: Validación API OK, Access (200 con headers, 302/403 sin headers), fingerprints MATCH.
-            EOF
+            {
+              echo "# Briefing — Cutover Plan (Direct Upload)"
+              echo
+              echo "Opciones de corte:"
+              echo
+              echo "- Opción 1: Apuntar dominio custom (p.ej. briefing.runartfoundry.com) al proyecto nuevo \`runart-briefing-direct\` y retirar del antiguo."
+              echo "- Opción 2: Ventana corta; eliminar proyecto viejo y re-crear con \`--project-name \"runart-foundry\"\` para conservar subdominio histórico; revalidar Access y bindings."
+              echo
+              echo "Requisitos: Validación API OK, Access (200 con headers, 302/403 sin headers), fingerprints MATCH."
+            } > "$FILE"
           fi
 
       - name: Append Workflow Audit note
