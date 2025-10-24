@@ -248,6 +248,25 @@ jobs:
             if [ "$SUCCESS" = "true" ] && [ "$NORMALIZED" != "UNKNOWN" ]; then
               break
             fi
+
+            # Si el proyecto no se encuentra en esta cuenta, intentar en otras cuentas accesibles
+            NOT_FOUND_CODE=$(echo "$RESPONSE" | jq -r '.errors[0].code // empty')
+            if [ "$SUCCESS" = "false" ] && { [ "$NOT_FOUND_CODE" = "8000007" ] || [ "$NOT_FOUND_CODE" = "1001" ]; }; then
+              echo "Project not found in account $ACCOUNT_ID. Attempting discovery across accessible accounts..."
+              ACCTS=$(curl -s -X GET "https://api.cloudflare.com/client/v4/accounts" -H "Authorization: Bearer $CLOUDFLARE_API_TOKEN" -H "Content-Type: application/json")
+              IDS=$(echo "$ACCTS" | jq -r '.result[].id')
+              for CAND in $IDS; do
+                echo "Checking project in account $CAND..."
+                ST=$(curl -s -o /tmp/_p.json -w "%{http_code}" -X GET "https://api.cloudflare.com/client/v4/accounts/$CAND/pages/projects/$PROJECT_NAME" -H "Authorization: Bearer $CLOUDFLARE_API_TOKEN" -H "Content-Type: application/json")
+                if [ "$ST" = "200" ]; then
+                  echo "Found project in account $CAND. Updating ACCOUNT_ID to match."
+                  ACCOUNT_ID="$CAND"
+                  echo "ACCOUNT_ID_EFFECTIVE=$ACCOUNT_ID" >> $GITHUB_ENV
+                  break
+                fi
+              done
+              # Reintentar inmediatamente con nueva cuenta (no contar contra backoff actual)
+            fi
             
             RETRY=$((RETRY + 1))
             if [ $RETRY -lt $MAX_RETRIES ]; then
@@ -268,6 +287,7 @@ jobs:
           echo "SOURCE_NORMALIZED=$NORMALIZED" >> $GITHUB_OUTPUT
           echo "CREATED_AT=$CREATED_AT" >> $GITHUB_OUTPUT
           echo "DEPLOY_ID=$DEPLOY_ID" >> $GITHUB_OUTPUT
+          echo "ACCOUNT_ID_USED=$ACCOUNT_ID" >> $GITHUB_OUTPUT
           echo ""
           echo "✅ Source verification completed"
           echo "Source (normalized): $NORMALIZED"
