@@ -845,9 +845,18 @@ jobs:
           # Save payload for audit
           cp /tmp/policy_put_payload.json docs/_meta/_deploy_forensics/access_final/policy_put_payload.json
           
-          # PUT with API Token
-          URL="https://api.cloudflare.com/client/v4/accounts/$ACCOUNT_ID/access/apps/$APP_ID/policies/$POLICY_ID"
-          echo "=== Executing PUT with API Token ==="
+          # Detect if policy is reusable and use appropriate endpoint
+          IS_REUSABLE=$(jq -r '.result.reusable // false' docs/_meta/_deploy_forensics/access_final/policy_before.json)
+          if [ "$IS_REUSABLE" = "true" ]; then
+            # Reusable policies use different endpoint: /accounts/{id}/access/apps/policies/{policy_id}
+            URL="https://api.cloudflare.com/client/v4/accounts/$ACCOUNT_ID/access/apps/policies/$POLICY_ID"
+            echo "=== Executing PUT with API Token (reusable policy endpoint) ==="
+          else
+            # Regular app-specific policies: /accounts/{id}/access/apps/{app_id}/policies/{policy_id}
+            URL="https://api.cloudflare.com/client/v4/accounts/$ACCOUNT_ID/access/apps/$APP_ID/policies/$POLICY_ID"
+            echo "=== Executing PUT with API Token (app-specific policy endpoint) ==="
+          fi
+          
           HTTP=$(curl -s -X PUT -o docs/_meta/_deploy_forensics/access_final/policy_put.json -w "%{http_code}" \
             -H "Authorization: Bearer $ACCESS_API_TOKEN" -H "Content-Type: application/json" \
             --data @/tmp/policy_put_payload.json "$URL")
