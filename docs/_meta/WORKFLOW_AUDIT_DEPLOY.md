@@ -191,3 +191,7 @@ Generado/actualizado: 2025-10-24T14:20Z
 \n## Validación Access y Protección Activa
 - Estado: FAILED
 - Ver detalle en docs/_meta/ACCESS_DIAG_BRIEFING.md
+\n## Validación Access y Protección Activa
+- Estado: FAILED
+- Ver detalle en docs/_meta/ACCESS_DIAG_BRIEFING.md
+- OPT-IN Service Token creado: NO

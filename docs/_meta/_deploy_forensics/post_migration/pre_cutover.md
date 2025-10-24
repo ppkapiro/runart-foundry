@@ -1,20 +1,20 @@
 # Migración a Direct Upload — Pre-Cutover Evidence
 
-**Fecha**: 2025-10-24T21:22:07Z
-**Workflow Run**: https://github.com/RunArtFoundry/runart-foundry/actions/runs/18792453238
-**Commit**: 5fd7f8d6e8603e8f66c002f84518d02b89edfdfc
+**Fecha**: 2025-10-24T21:45:50Z
+**Workflow Run**: https://github.com/RunArtFoundry/runart-foundry/actions/runs/18792899098
+**Commit**: f0fe523b98db10ab44bf19adc998ea79c366c6a3
 
 ## Deployment Info
 
 - **Project Name**: runart-briefing-direct
 - **Account ID Effective**: a2c7fc66f00eab69373e448193ae7201
 - **Branch**: production
-- **Deploy URL**: https://a7b84392.runart-briefing-direct.pages.dev
-- **Deployment ID**: a7b84392-08c9-4b57-b538-a790f95c6d4f
+- **Deploy URL**: https://2136dccd.runart-briefing-direct.pages.dev
+- **Deployment ID**: 2136dccd-f69e-4d5c-9ce9-5fd813a9d40b
 - **Source Type (normalized)**: DIRECT_UPLOAD_OK
 - **Source Type (raw)**: 
 - **Trigger Type**: ad_hoc
-- **Created At**: 2025-10-24T21:21:51.478635Z
+- **Created At**: 2025-10-24T21:45:34.102275Z
 
 ## Validation Results
 

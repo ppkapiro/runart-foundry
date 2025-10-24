@@ -603,3 +603,7 @@ Contiene instrucciones paso a paso para que Owner configure los secrets faltante
 \n## Access — Direct Upload: FAILED
 - WITH headers: 302 (expect 200)
 - WITHOUT headers: 302 (expect 302/403)
+\n## Access — Direct Upload: FAILED
+- WITH headers: 302 (expect 200)
+- WITHOUT headers: 302 (expect 302/403)
+- OPT-IN Service Token created: NO
