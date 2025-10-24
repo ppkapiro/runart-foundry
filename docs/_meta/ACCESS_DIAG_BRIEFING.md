@@ -67,3 +67,40 @@ server: cloudflare
 cf-ray: 993c47b06d6cf096-DFW
 alt-svc: h3=":443"; ma=86400
 
+PENDING_PROTECTION: Missing CF_ZERO_TRUST_TEAM or ACCESS_APP_ID
+PENDING_PROTECTION: Access not configured (opt-in missing or API error)
+\n# Direct Upload — protegido (without headers)
+Root: https://9454f388.runart-briefing-direct.pages.dev
+HTTP/2 200 
+date: Fri, 24 Oct 2025 20:49:25 GMT
+content-type: text/html; charset=utf-8
+access-control-allow-origin: *
+cache-control: public, max-age=0, must-revalidate
+etag: "532bce829f98fa64478a50c949c0593c"
+referrer-policy: strict-origin-when-cross-origin
+x-content-type-options: nosniff
+x-robots-tag: noindex
+vary: accept-encoding
+report-to: {"group":"cf-nel","max_age":604800,"endpoints":[{"url":"https://a.nel.cloudflare.com/report/v4?s=iKUKIDpd3ogcBC9mSbFLPYgFCOU6z3o9LY7iFKwgMT%2BOjdOhAhjiGj8Yr%2F240%2FDq6wHVaR20g7SnRVpnma5%2FbxMymH1qirtpetWRMLB1Juv5fvZoWtzFbVKg0LXLf0RG3IrZrMMC9kmp"}]}
+nel: {"report_to":"cf-nel","success_fraction":0.0,"max_age":604800}
+server: cloudflare
+cf-ray: 993c5734381f152b-SJC
+alt-svc: h3=":443"; ma=86400
+
+\nAsset: https://9454f388.runart-briefing-direct.pages.dev/roles.js
+HTTP/2 200 
+date: Fri, 24 Oct 2025 20:49:25 GMT
+content-type: application/javascript
+access-control-allow-origin: *
+cache-control: public, max-age=0, must-revalidate
+etag: "5ec951b8faaa0337f57b77ee48645836"
+referrer-policy: strict-origin-when-cross-origin
+x-content-type-options: nosniff
+x-robots-tag: noindex
+vary: accept-encoding
+report-to: {"group":"cf-nel","max_age":604800,"endpoints":[{"url":"https://a.nel.cloudflare.com/report/v4?s=CVOWNtq%2BkE8n7V6R%2FjXhnK4KOEcLkldQvQdOsToNZHXgYHi6Gv%2BHy4luRB3mEcQBVy2pSQvZD%2F9%2FYv%2BiG6BqTcqSNE9rdehhEDEMR4bRg9Ju9JMntMElzDK1JtfxxJ3rnPeXrYF136UQ"}]}
+nel: {"report_to":"cf-nel","success_fraction":0.0,"max_age":604800}
+server: cloudflare
+cf-ray: 993c57356f467c03-LAX
+alt-svc: h3=":443"; ma=86400
+
