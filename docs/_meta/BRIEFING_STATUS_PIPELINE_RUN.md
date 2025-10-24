@@ -532,6 +532,64 @@ Service Token para preview environment no autoriza `runart-foundry.pages.dev` (p
   latest_stage: success
 - Resultado: FAILED (source != direct_upload)
 
+---
+## 🚀 MIGRACIÓN A DIRECT UPLOAD (2025-10-24T18:00–18:16Z)
+
+**Objetivo**: Crear nuevo proyecto Cloudflare Pages con Direct Upload (sin Git Integration)
+
+### Fase A — Implementación
+
+1. ✅ **Workflow creado**: `.github/workflows/pages-deploy-direct.yml`
+   - Build: MkDocs en `apps/briefing/site`
+   - Deploy: Wrangler Direct Upload a proyecto `runart-briefing-direct`
+   - Verify: API check `source=direct_upload`
+   - Evidence: Registro en `docs/_meta/_deploy_forensics/post_migration/`
+
+2. ❌ **Intentos de deploy**: 5 runs (18788042230, 18788195823, 18788277470, 18788338797)
+   - Run 1-2: Fallos de dependencias (npm cache, package.json)
+   - Run 3: Build warnings → strict mode
+   - Run 4: Build OK, deploy OK, pero `source=unknown` (timing)
+   - Run 5: Build OK, deploy OK, pero verificación falla: **CF_ACCOUNT_ID vacío**
+
+### 🔴 BLOQUEANTE IDENTIFICADO
+
+**Missing GitHub Secrets**:
+- `CF_ACCOUNT_ID` — ID de cuenta Cloudflare (requerido para API)
+- `CF_API_TOKEN_PAGES` — Token con permisos Pages:Edit (requerido para Wrangler)
+
+**Existentes**:
+- ✅ `CF_ACCESS_CLIENT_ID` (Service Token PROD)
+- ✅ `CF_ACCESS_CLIENT_SECRET` (Service Token PROD)
+
+**Documentación creada**: `docs/_meta/_deploy_forensics/post_migration/SECRETS_REQUIRED.md`  
+Contiene instrucciones paso a paso para que Owner configure los secrets faltantes.
+
+### Estado Actual
+
+**Workflow**: ✅ Implementado y listo  
+**Deploy**: ⏸️ **BLOCKED** — Requiere configuración de secrets por Owner  
+**Evidencia**: Documentada en `post_migration/SECRETS_REQUIRED.md`
+
+### Próximos Pasos (Requiere Owner)
+
+1. **Configurar secrets** (ver `SECRETS_REQUIRED.md`):
+   ```bash
+   gh secret set CF_ACCOUNT_ID --body "<ACCOUNT_ID>"
+   gh secret set CF_API_TOKEN_PAGES --body "<TOKEN>"
+   ```
+
+2. **Re-ejecutar workflow**:
+   ```bash
+   gh workflow run "Deploy Briefing to Pages (Direct Upload)" -f environment=production
+   ```
+
+3. **Continuar Fase B+C** (post-deploy exitoso):
+   - Validación Access pre/post-protección
+   - Comparación fingerprints
+   - Documentación cutover
+
+**Estado final Fase A**: ⏸️ **PENDIENTE** — Bloqueado por configuración de secrets
+
 - Deploy ejecutado: 2025-10-24T18:02:41Z | SHA: a160bf2 | dir: site
   URL: https://runart-foundry.pages.dev
 
