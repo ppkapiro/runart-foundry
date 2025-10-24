@@ -490,15 +490,44 @@ Service Token para preview environment no autoriza `runart-foundry.pages.dev` (p
 - Verify prod: 2025-10-24T16:40:41Z | auth: with-Access | result: PARTIAL
 
 ---
-## Redeploy canónico
+## Redeploy canónico #1
 - Ejecutado: 2025-10-24T17:00:26Z
 - Run URL: https://github.com/RunArtFoundry/runart-foundry/actions/runs/18786159164
 - SHA: 5f287acabc3eb3d86e88424444fcc69704f6ecda
 - Resultado: success
-
+ 
 - Verify prod: 2025-10-24T17:03:03Z | auth: with-Access | result: PARTIAL
+
+### POST-CHECK #1
+- Ejecutado: 2025-10-24T17:03:14Z
+- Último deployment Production (API):
+  id: e8227ed9-155b-4f2f-a42b-7582e9b9b1d5
+  source: github
+  commit: 5f287acabc3eb3d86e88424444fcc69704f6ecda
+  created_at: 2025-10-24T16:40:11.632181Z
+  url: https://e8227ed9.runart-foundry.pages.dev
+  latest_stage: success
+- Resultado: FAILED (source != direct_upload)
+
+---
+## Redeploy canónico #2
+- Ejecutado: 2025-10-24T17:39:36Z
+- Run URL: https://github.com/RunArtFoundry/runart-foundry/actions/runs/18787569004
+- SHA: 6134ed9b9b8acd6ec8e4a648221671bd57dd9ce1
+- Resultado: success
 
 - Deploy ejecutado: 2025-10-24T17:40:33Z | SHA: 6134ed9 | dir: site
   URL: https://runart-foundry.pages.dev
 
 - Verify prod: 2025-10-24T17:41:03Z | auth: with-Access | result: PARTIAL
+
+### POST-CHECK #2
+- Ejecutado: 2025-10-24T17:42Z (forensics mode=post-check)
+- Último deployment Production (API):
+  id: c6f2e1d7-71dd-4d72-a328-f6eceefc55dc
+  source: github
+  commit: 6134ed9b9b8acd6ec8e4a648221671bd57dd9ce1
+  created_at: 2025-10-24T17:40:31.25709Z
+  url: https://c6f2e1d7.runart-foundry.pages.dev
+  latest_stage: success
+- Resultado: FAILED (source != direct_upload)
