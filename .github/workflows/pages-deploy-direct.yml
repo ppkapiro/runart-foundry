@@ -762,6 +762,7 @@ jobs:
             echo "ACCESS_FINAL_CONFIGURED=NO" >> $GITHUB_OUTPUT
             exit 0
           fi
+          
           # Body per instrucciones (construido vía jq)
           jq -n --arg token_id "$TOKEN_ID" '
             {
@@ -783,9 +784,32 @@ jobs:
           ' > /tmp/policy_patch.json
 
           URL="https://api.cloudflare.com/client/v4/accounts/$ACCOUNT_ID/access/apps/$APP_ID/policies/$POLICY_ID"
+          
+          # Primary attempt: PATCH with Bearer token
+          echo "=== Attempting PATCH with Bearer token ==="
           HTTP=$(curl -s -X PATCH -o docs/_meta/_deploy_forensics/access_final/policy_patch.json -w "%{http_code}" \
             -H "Authorization: Bearer $ACCESS_API_TOKEN" -H "Content-Type: application/json" \
             --data @/tmp/policy_patch.json "$URL")
+          
+          # Check if we need fallback
+          if [ "$HTTP" = "403" ] || [ "$HTTP" = "405" ]; then
+            API_EMAIL="${{ secrets.CF_API_EMAIL }}"
+            API_KEY="${{ secrets.CF_API_GLOBAL_KEY }}"
+            if [ -n "$API_EMAIL" ] && [ -n "$API_KEY" ]; then
+              echo "⚠️ Bearer token failed (HTTP $HTTP). Retrying with Global API Key..."
+              HTTP=$(curl -s -X PATCH -o docs/_meta/_deploy_forensics/access_final/policy_patch_fallback.json -w "%{http_code}" \
+                -H "X-Auth-Email: $API_EMAIL" -H "X-Auth-Key: $API_KEY" -H "Content-Type: application/json" \
+                --data @/tmp/policy_patch.json "$URL")
+              # Use fallback response if successful
+              if [ "$HTTP" = "200" ]; then
+                cp docs/_meta/_deploy_forensics/access_final/policy_patch_fallback.json docs/_meta/_deploy_forensics/access_final/policy_patch.json
+                echo "✅ PATCH succeeded with Global API Key fallback"
+              fi
+            else
+              echo "⚠️ Bearer token failed (HTTP $HTTP) and no CF_API_EMAIL/CF_API_GLOBAL_KEY for fallback"
+            fi
+          fi
+          
           if [ "$HTTP" != "200" ]; then
             jq -n --arg http "$HTTP" '{error:"policy_patch_failed", http:$http}' > docs/_meta/_deploy_forensics/access_final/access_error.json
             echo "PENDING_PROTECTION: Policy PATCH failed (HTTP $HTTP)" >> docs/_meta/ACCESS_DIAG_BRIEFING.md
@@ -793,6 +817,7 @@ jobs:
             echo "::error::Policy PATCH failed (HTTP $HTTP)"
             exit 1
           fi
+          
           OK=$(jq -r '.success // false' docs/_meta/_deploy_forensics/access_final/policy_patch.json)
           if [ "$OK" != "true" ]; then
             echo '{"error":"policy_patch_success_false"}' > docs/_meta/_deploy_forensics/access_final/access_error.json
