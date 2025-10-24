@@ -31,6 +31,52 @@ jobs:
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
+
+      - name: Fail fast — required secrets present
+        run: |
+          set -e
+          mkdir -p docs/_meta/_deploy_forensics/access_final
+
+          CF_ACCOUNT_ID_VAL="${{ secrets.CF_ACCOUNT_ID }}"
+          CF_API_TOKEN_PAGES_VAL="${{ secrets.CF_API_TOKEN_PAGES }}"
+          CF_ZERO_TRUST_TEAM_VAL="${{ secrets.CF_ZERO_TRUST_TEAM }}"
+          CF_ACCESS_CLIENT_ID_VAL="${{ secrets.CF_ACCESS_CLIENT_ID }}"
+          CF_ACCESS_CLIENT_SECRET_VAL="${{ secrets.CF_ACCESS_CLIENT_SECRET }}"
+
+          missing=()
+          [ -z "$CF_ACCOUNT_ID_VAL" ] && missing+=("CF_ACCOUNT_ID")
+          [ -z "$CF_API_TOKEN_PAGES_VAL" ] && missing+=("CF_API_TOKEN_PAGES")
+          [ -z "$CF_ZERO_TRUST_TEAM_VAL" ] && missing+=("CF_ZERO_TRUST_TEAM")
+          [ -z "$CF_ACCESS_CLIENT_ID_VAL" ] && missing+=("CF_ACCESS_CLIENT_ID")
+          [ -z "$CF_ACCESS_CLIENT_SECRET_VAL" ] && missing+=("CF_ACCESS_CLIENT_SECRET")
+
+          TS=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
+          {
+            echo '{'
+            echo '  "ts": '"$TS"','
+            echo '  "checks": {'
+            echo '    "CF_ACCOUNT_ID": '"$([ -n "$CF_ACCOUNT_ID_VAL" ] && echo 'present' || echo 'missing')"','
+            echo '    "CF_API_TOKEN_PAGES": '"$([ -n "$CF_API_TOKEN_PAGES_VAL" ] && echo 'present' || echo 'missing')"','
+            echo '    "CF_ZERO_TRUST_TEAM": '"$([ -n "$CF_ZERO_TRUST_TEAM_VAL" ] && echo 'present' || echo 'missing')"','
+            echo '    "CF_ACCESS_CLIENT_ID": '"$([ -n "$CF_ACCESS_CLIENT_ID_VAL" ] && echo 'present' || echo 'missing')"','
+            echo '    "CF_ACCESS_CLIENT_SECRET": '"$([ -n "$CF_ACCESS_CLIENT_SECRET_VAL" ] && echo 'present' || echo 'missing')"'
+            echo '  },'
+            printf '  "missing": ['
+            first=1
+            for k in "${missing[@]}"; do
+              [ $first -eq 1 ] && first=0 || printf ', '
+              printf '"%s"' "$k"
+            done
+            echo '],'
+            echo '  "note": "Presence-only report. Secret values are not stored."
+            echo '}'
+          } > docs/_meta/_deploy_forensics/access_final/secrets_missing.json
+
+          if [ ${#missing[@]} -gt 0 ]; then
+            echo "::error::Missing required secrets: ${missing[*]}"
+            echo "❌ FAIL: Required secrets missing. See docs/_meta/_deploy_forensics/access_final/secrets_missing.json"
+            exit 1
+          fi
       
       - name: Setup Node.js
         uses: actions/setup-node@v4
@@ -386,6 +432,108 @@ jobs:
         env:
           CLOUDFLARE_API_TOKEN: ${{ secrets.CF_API_TOKEN_PAGES || secrets.CLOUDFLARE_API_TOKEN || secrets.CF_API_TOKEN }}
 
+      - name: Access Final — Autodiscover Access App by domain
+        id: access_autodiscover_app
+        run: |
+          set -e
+          mkdir -p docs/_meta/_deploy_forensics/access_final
+          DOMAIN="runart-briefing-direct.pages.dev"
+          ACCOUNT_ID="$ACCOUNT_ID_EFFECTIVE"
+
+          # If ACCESS_APP_ID is already provided as secret, respect it and skip discovery
+          if [ -n "${{ secrets.ACCESS_APP_ID }}" ]; then
+            echo "ACCESS_APP_ID_EFFECTIVE=${{ secrets.ACCESS_APP_ID }}" >> $GITHUB_ENV
+            echo "ACCESS_APP_ID=${{ secrets.ACCESS_APP_ID }}" >> $GITHUB_OUTPUT
+            echo "Skipping autodiscovery: ACCESS_APP_ID provided via secrets."
+            exit 0
+          fi
+
+          echo "=== Listing Access apps (per_page=100) ==="
+          curl -s -H "Authorization: Bearer $CLOUDFLARE_API_TOKEN" \
+            "https://api.cloudflare.com/client/v4/accounts/$ACCOUNT_ID/access/apps?per_page=100" \
+            | tee docs/_meta/_deploy_forensics/access_final/apps_list.json >/dev/null
+
+          # Try multiple selectors to match the app by domain
+          APP_ID=$(jq -r --arg d "$DOMAIN" '
+            .result // []
+            | map(select((.domains // []) | any(. == $d)))
+            | (.[0].id // empty)
+          ' docs/_meta/_deploy_forensics/access_final/apps_list.json)
+
+          if [ -z "$APP_ID" ]; then
+            APP_ID=$(jq -r --arg d "$DOMAIN" '
+              .result // []
+              | map(select(tostring | contains($d)))
+              | (.[0].id // empty)
+            ' docs/_meta/_deploy_forensics/access_final/apps_list.json)
+          fi
+
+          if [ -z "$APP_ID" ]; then
+            echo "::error::Access App for $DOMAIN not found in account $ACCOUNT_ID"
+            echo "❌ FAIL: Access App for $DOMAIN not found. See apps_list.json"
+            exit 1
+          fi
+
+          echo "ACCESS_APP_ID_EFFECTIVE=$APP_ID" >> $GITHUB_ENV
+          echo "ACCESS_APP_ID=$APP_ID" >> $GITHUB_OUTPUT
+          echo "✅ Autodiscovered ACCESS_APP_ID=$APP_ID"
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CF_API_TOKEN_PAGES || secrets.CLOUDFLARE_API_TOKEN || secrets.CF_API_TOKEN }}
+
+      - name: Access Final — Autodiscover Service Auth Policy
+        id: access_autodiscover_policy
+        run: |
+          set -e
+          mkdir -p docs/_meta/_deploy_forensics/access_final
+          ACCOUNT_ID="$ACCOUNT_ID_EFFECTIVE"
+          APP_ID="${{ secrets.ACCESS_APP_ID }}"
+          if [ -z "$APP_ID" ]; then APP_ID="$ACCESS_APP_ID_EFFECTIVE"; fi
+
+          # If policy provided as secret, respect and skip discovery
+          if [ -n "${{ secrets.ACCESS_POLICY_ID_PROD }}" ]; then
+            echo "ACCESS_POLICY_ID_PROD_EFFECTIVE=${{ secrets.ACCESS_POLICY_ID_PROD }}" >> $GITHUB_ENV
+            echo "ACCESS_POLICY_ID_PROD=${{ secrets.ACCESS_POLICY_ID_PROD }}" >> $GITHUB_OUTPUT
+            echo "Skipping autodiscovery: ACCESS_POLICY_ID_PROD provided via secrets."
+            exit 0
+          fi
+
+          if [ -z "$APP_ID" ]; then
+            echo "::error::Cannot autodiscover policy: missing ACCESS_APP_ID (neither secret nor autodiscovered)"
+            exit 1
+          fi
+
+          echo "=== Listing policies for app $APP_ID ==="
+          curl -s -H "Authorization: Bearer $CLOUDFLARE_API_TOKEN" \
+            "https://api.cloudflare.com/client/v4/accounts/$ACCOUNT_ID/access/apps/$APP_ID/policies" \
+            | tee docs/_meta/_deploy_forensics/access_final/policies_list.json >/dev/null
+
+          # Prefer a named policy; else first allow with service_token include
+          PID=$(jq -r '
+            .result // []
+            | map(select(.name == "Allow CI RunArt Production (Direct)"))
+            | (.[0].id // empty)
+          ' docs/_meta/_deploy_forensics/access_final/policies_list.json)
+
+          if [ -z "$PID" ]; then
+            PID=$(jq -r '
+              .result // []
+              | map(select((.decision // "") == "allow" and ((.include // []) | map(has("service_token")) | any)))
+              | (.[0].id // empty)
+            ' docs/_meta/_deploy_forensics/access_final/policies_list.json)
+          fi
+
+          if [ -z "$PID" ]; then
+            echo "::error::Service Auth policy not found in app $APP_ID"
+            echo "❌ FAIL: Service Auth policy not found in app. See policies_list.json"
+            exit 1
+          fi
+
+          echo "ACCESS_POLICY_ID_PROD_EFFECTIVE=$PID" >> $GITHUB_ENV
+          echo "ACCESS_POLICY_ID_PROD=$PID" >> $GITHUB_OUTPUT
+          echo "✅ Autodiscovered ACCESS_POLICY_ID_PROD=$PID"
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CF_API_TOKEN_PAGES || secrets.CLOUDFLARE_API_TOKEN || secrets.CF_API_TOKEN }}
+
       - name: (OPT-IN) Configure Access for new subdomain
         if: always()
         id: access_optin
@@ -402,7 +550,9 @@ jobs:
 
           TEAM="${{ secrets.CF_ZERO_TRUST_TEAM }}"
           APP_ID="${{ secrets.ACCESS_APP_ID }}"
+          [ -z "$APP_ID" ] && APP_ID="$ACCESS_APP_ID_EFFECTIVE"
           POLICY_ID="${{ secrets.ACCESS_POLICY_ID_PROD }}"
+          [ -z "$POLICY_ID" ] && POLICY_ID="$ACCESS_POLICY_ID_PROD_EFFECTIVE"
           if [ -z "$TEAM" ] || [ -z "$APP_ID" ]; then
             echo "PENDING_PROTECTION: Missing CF_ZERO_TRUST_TEAM or ACCESS_APP_ID" >> docs/_meta/ACCESS_DIAG_BRIEFING.md
             echo "ACCESS_CONFIGURED=NO" >> $GITHUB_OUTPUT
@@ -480,8 +630,9 @@ jobs:
         continue-on-error: true
         run: |
           set -e
-          ACCOUNT_ID="${{ secrets.CF_ACCOUNT_ID }}"
+          ACCOUNT_ID="$ACCOUNT_ID_EFFECTIVE"
           APP_ID="${{ secrets.ACCESS_APP_ID }}"
+          if [ -z "$APP_ID" ]; then APP_ID="$ACCESS_APP_ID_EFFECTIVE"; fi
           if [ -z "$ACCOUNT_ID" ] || [ -z "$APP_ID" ]; then
             echo '{"error":"missing_account_or_app_id"}' > docs/_meta/_deploy_forensics/access_final/access_error.json
             echo "PENDING_PROTECTION: Missing CF_ACCOUNT_ID or ACCESS_APP_ID" >> docs/_meta/ACCESS_DIAG_BRIEFING.md
@@ -577,9 +728,11 @@ jobs:
         continue-on-error: true
         run: |
           set -e
-          ACCOUNT_ID="${{ secrets.CF_ACCOUNT_ID }}"
+          ACCOUNT_ID="$ACCOUNT_ID_EFFECTIVE"
           APP_ID="${{ secrets.ACCESS_APP_ID }}"
+          [ -z "$APP_ID" ] && APP_ID="$ACCESS_APP_ID_EFFECTIVE"
           POLICY_ID="${{ secrets.ACCESS_POLICY_ID_PROD }}"
+          [ -z "$POLICY_ID" ] && POLICY_ID="$ACCESS_POLICY_ID_PROD_EFFECTIVE"
           CLIENT_ID="${ACCESS_CLIENT_ID_EFFECTIVE:-${{ secrets.CF_ACCESS_CLIENT_ID }}}"
           if [ -z "$ACCOUNT_ID" ] || [ -z "$APP_ID" ] || [ -z "$POLICY_ID" ] || [ -z "$CLIENT_ID" ]; then
             echo '{"error":"missing_policy_or_client_id"}' > docs/_meta/_deploy_forensics/access_final/access_error.json
@@ -706,28 +859,30 @@ jobs:
         run: |
           mkdir -p docs/_meta/_deploy_forensics/post_migration
           
-          TIMESTAMP=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
-          
-          cat > docs/_meta/_deploy_forensics/post_migration/pre_cutover.md <<EOF
-          # Migración a Direct Upload — Pre-Cutover Evidence
-          
-          **Fecha**: $TIMESTAMP
-          **Workflow Run**: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
-          **Commit**: ${{ github.sha }}
-          
-          ## Deployment Info
-          
-          - **Project Name**: runart-briefing-direct
-          - **Account ID Effective**: $ACCOUNT_ID_EFFECTIVE
-          - **Branch**: production
-          - **Deploy URL**: ${{ steps.deploy.outputs.DEPLOY_URL }}
-          - **Deployment ID**: ${{ steps.verify_source.outputs.DEPLOY_ID }}
-          - **Source Type (normalized)**: ${{ steps.verify_source.outputs.SOURCE_NORMALIZED }}
-          - **Source Type (raw)**: ${{ steps.verify_source.outputs.SOURCE_RAW }}
-          - **Trigger Type**: ${{ steps.verify_source.outputs.TRIGGER_TYPE }}
-          - **Created At**: ${{ steps.verify_source.outputs.CREATED_AT }}
-          
+          TS=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
+          CA_STATUS=$([ -n "$CF_ACCOUNT_ID_VAL" ] && echo present || echo missing)
+          TP_STATUS=$([ -n "$CF_API_TOKEN_PAGES_VAL" ] && echo present || echo missing)
+          TEAM_STATUS=$([ -n "$CF_ZERO_TRUST_TEAM_VAL" ] && echo present || echo missing)
+          CID_STATUS=$([ -n "$CF_ACCESS_CLIENT_ID_VAL" ] && echo present || echo missing)
+          CSEC_STATUS=$([ -n "$CF_ACCESS_CLIENT_SECRET_VAL" ] && echo present || echo missing)
+
+          # Build JSON array of missing keys safely
+          MISSING_JSON=$(printf '%s
           ## Validation Results
+          cat > docs/_meta/_deploy_forensics/access_final/secrets_missing.json <<EOF
+          {
+            "ts": "$TS",
+            "checks": {
+              "CF_ACCOUNT_ID": "$CA_STATUS",
+              "CF_API_TOKEN_PAGES": "$TP_STATUS",
+              "CF_ZERO_TRUST_TEAM": "$TEAM_STATUS",
+              "CF_ACCESS_CLIENT_ID": "$CID_STATUS",
+              "CF_ACCESS_CLIENT_SECRET": "$CSEC_STATUS"
+            },
+            "missing": $MISSING_JSON,
+            "note": "Presence-only report. Secret values are not stored."
+          }
+          EOF
           
           - ✅ Build completed successfully
           - ✅ Wrangler deploy completed
