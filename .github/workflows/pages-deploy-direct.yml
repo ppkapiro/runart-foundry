@@ -135,17 +135,34 @@ jobs:
           ACCOUNT_ID="${{ secrets.CF_ACCOUNT_ID }}"
           
           echo "=== Verifying deployment source ==="
+          echo "Waiting 10 seconds for API to update..."
+          sleep 10
           
-          # Query latest deployment
-          RESPONSE=$(curl -s -X GET \
-            "https://api.cloudflare.com/client/v4/accounts/$ACCOUNT_ID/pages/projects/$PROJECT_NAME/deployments" \
-            -H "Authorization: Bearer ${{ secrets.CF_API_TOKEN_PAGES }}" \
-            -H "Content-Type: application/json")
+          # Query latest deployment (with retry)
+          MAX_RETRIES=3
+          RETRY=0
+          while [ $RETRY -lt $MAX_RETRIES ]; do
+            RESPONSE=$(curl -s -X GET \
+              "https://api.cloudflare.com/client/v4/accounts/$ACCOUNT_ID/pages/projects/$PROJECT_NAME/deployments" \
+              -H "Authorization: Bearer ${{ secrets.CF_API_TOKEN_PAGES }}" \
+              -H "Content-Type: application/json")
+            
+            SOURCE=$(echo "$RESPONSE" | jq -r '.result[0].source.type // "unknown"')
+            
+            if [ "$SOURCE" != "unknown" ]; then
+              break
+            fi
+            
+            RETRY=$((RETRY + 1))
+            if [ $RETRY -lt $MAX_RETRIES ]; then
+              echo "Source still unknown, waiting 10s (attempt $((RETRY + 1))/$MAX_RETRIES)..."
+              sleep 10
+            fi
+          done
           
           echo "$RESPONSE" | jq '.' > /tmp/deployments_api.json
           
-          # Extract source type from latest deployment
-          SOURCE=$(echo "$RESPONSE" | jq -r '.result[0].source.type // "unknown"')
+          # Extract details
           DEPLOY_ID=$(echo "$RESPONSE" | jq -r '.result[0].id // "unknown"')
           COMMIT=$(echo "$RESPONSE" | jq -r '.result[0].deployment_trigger.metadata.commit_hash // "unknown"')
           
@@ -160,6 +177,7 @@ jobs:
           # Validate source
           if [ "$SOURCE" != "direct_upload" ]; then
             echo "❌ ERROR: Expected source=direct_upload, got source=$SOURCE"
+            echo "This may indicate timing issue or Git Integration interference."
             exit 1
           fi
           
