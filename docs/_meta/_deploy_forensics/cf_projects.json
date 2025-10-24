@@ -17,8 +17,8 @@
           "production_branch": "main",
           "pr_comments_enabled": true,
           "deployments_enabled": true,
-          "production_deployments_enabled": true,
-          "preview_deployment_setting": "all",
+          "production_deployments_enabled": false,
+          "preview_deployment_setting": "none",
           "preview_branch_includes": [
             "*"
           ],
@@ -136,33 +136,33 @@
         }
       },
       "latest_deployment": {
-        "id": "c4dadde7-abcb-4d3f-a7f2-606b3ea248ba",
-        "short_id": "c4dadde7",
+        "id": "dcc8345b-dad5-4ce1-b4a1-05d878fb3a12",
+        "short_id": "dcc8345b",
         "project_id": "440eb224-2b2a-48ac-a14e-0768769198a2",
         "project_name": "runart-foundry",
         "environment": "production",
-        "url": "https://c4dadde7.runart-foundry.pages.dev",
-        "created_on": "2025-10-24T15:26:54.623689Z",
-        "modified_on": "2025-10-24T15:26:57.609979Z",
+        "url": "https://dcc8345b.runart-foundry.pages.dev",
+        "created_on": "2025-10-24T16:22:27.888879Z",
+        "modified_on": "2025-10-24T16:22:30.209113Z",
         "latest_stage": {
           "name": "deploy",
           "started_on": null,
-          "ended_on": "2025-10-24T15:26:57.609979Z",
+          "ended_on": "2025-10-24T16:22:30.209113Z",
           "status": "success"
         },
         "deployment_trigger": {
           "type": "ad_hoc",
           "metadata": {
             "branch": "main",
-            "commit_hash": "b53444df896ab70712dd124c381688ef1f9ec2aa",
-            "commit_message": "meta: forensics summary en pipeline log\r\n\r\n- Root cause: Git Integration activo sobreescribiendo Action deploys\r\n- Fingerprint MISMATCH: prod sirve archivos vacíos (Access token PREVIEW no autoriza PROD)\r\n- Issue #70 abierto: disconnect Git Integration (requiere owner Dashboard)\r\n- Evidencias completas en docs/_meta/_deploy_forensics/\r\n- Estado: BLOCKED ON MANUAL ACTIONS",
+            "commit_hash": "cdcb26df543df87c3b92c0940548b5d04b11bc5e",
+            "commit_message": "ops: redeploy canónico BLOCKED — Git Integration aún activo\r\n\r\nPre-check ejecutado (forensics mode=pre-check):\r\n- Último deployment prod: source=github (NOT direct_upload)\r\n- Proyecto Pages: Git Integration config presente\r\n- Issue #70 NO ejecutado por owner\r\n\r\nBLOQUEO CRÍTICO según instrucciones:\r\n- No continuar con deploy mientras source != direct_upload\r\n- Documentado en \n\n[commit_message truncated]",
             "commit_dirty": false
           }
         },
         "stages": [
           {
             "name": "queued",
-            "started_on": "2025-10-24T15:26:54.623689Z",
+            "started_on": "2025-10-24T16:22:27.888879Z",
             "ended_on": null,
             "status": "active"
           },
@@ -187,7 +187,7 @@
           {
             "name": "deploy",
             "started_on": null,
-            "ended_on": "2025-10-24T15:26:57.609979Z",
+            "ended_on": "2025-10-24T16:22:30.209113Z",
             "status": "success"
           }
         ],
@@ -255,33 +255,33 @@
         "uses_functions": false
       },
       "canonical_deployment": {
-        "id": "c4dadde7-abcb-4d3f-a7f2-606b3ea248ba",
-        "short_id": "c4dadde7",
+        "id": "dcc8345b-dad5-4ce1-b4a1-05d878fb3a12",
+        "short_id": "dcc8345b",
         "project_id": "440eb224-2b2a-48ac-a14e-0768769198a2",
         "project_name": "runart-foundry",
         "environment": "production",
-        "url": "https://c4dadde7.runart-foundry.pages.dev",
-        "created_on": "2025-10-24T15:26:54.623689Z",
-        "modified_on": "2025-10-24T15:26:57.609979Z",
+        "url": "https://dcc8345b.runart-foundry.pages.dev",
+        "created_on": "2025-10-24T16:22:27.888879Z",
+        "modified_on": "2025-10-24T16:22:30.209113Z",
         "latest_stage": {
           "name": "deploy",
           "started_on": null,
-          "ended_on": "2025-10-24T15:26:57.609979Z",
+          "ended_on": "2025-10-24T16:22:30.209113Z",
           "status": "success"
         },
         "deployment_trigger": {
           "type": "ad_hoc",
           "metadata": {
             "branch": "main",
-            "commit_hash": "b53444df896ab70712dd124c381688ef1f9ec2aa",
-            "commit_message": "meta: forensics summary en pipeline log\r\n\r\n- Root cause: Git Integration activo sobreescribiendo Action deploys\r\n- Fingerprint MISMATCH: prod sirve archivos vacíos (Access token PREVIEW no autoriza PROD)\r\n- Issue #70 abierto: disconnect Git Integration (requiere owner Dashboard)\r\n- Evidencias completas en docs/_meta/_deploy_forensics/\r\n- Estado: BLOCKED ON MANUAL ACTIONS",
+            "commit_hash": "cdcb26df543df87c3b92c0940548b5d04b11bc5e",
+            "commit_message": "ops: redeploy canónico BLOCKED — Git Integration aún activo\r\n\r\nPre-check ejecutado (forensics mode=pre-check):\r\n- Último deployment prod: source=github (NOT direct_upload)\r\n- Proyecto Pages: Git Integration config presente\r\n- Issue #70 NO ejecutado por owner\r\n\r\nBLOQUEO CRÍTICO según instrucciones:\r\n- No continuar con deploy mientras source != direct_upload\r\n- Documentado en \n\n[commit_message truncated]",
             "commit_dirty": false
           }
         },
         "stages": [
           {
             "name": "queued",
-            "started_on": "2025-10-24T15:26:54.623689Z",
+            "started_on": "2025-10-24T16:22:27.888879Z",
             "ended_on": null,
             "status": "active"
           },
@@ -306,7 +306,7 @@
           {
             "name": "deploy",
             "started_on": null,
-            "ended_on": "2025-10-24T15:26:57.609979Z",
+            "ended_on": "2025-10-24T16:22:30.209113Z",
             "status": "success"
           }
         ],
