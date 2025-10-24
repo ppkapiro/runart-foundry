@@ -796,11 +796,10 @@ jobs:
           [ -z "$APP_ID" ] && APP_ID="$ACCESS_APP_ID_EFFECTIVE"
           POLICY_ID="${{ secrets.ACCESS_POLICY_ID_PROD }}"
           [ -z "$POLICY_ID" ] && POLICY_ID="$ACCESS_POLICY_ID_PROD_EFFECTIVE"
-          TOKEN_ID="${ACCESS_TOKEN_ID_EFFECTIVE:-}"
           
-          if [ -z "$ACCOUNT_ID" ] || [ -z "$APP_ID" ] || [ -z "$POLICY_ID" ] || [ -z "$TOKEN_ID" ]; then
-            echo '{"error":"missing_policy_or_token_id"}' > docs/_meta/_deploy_forensics/access_final/access_error.json
-            echo "PENDING_PROTECTION: Missing ACCESS_POLICY_ID_PROD or SERVICE_TOKEN_ID" >> docs/_meta/ACCESS_DIAG_BRIEFING.md
+          if [ -z "$ACCOUNT_ID" ] || [ -z "$APP_ID" ] || [ -z "$POLICY_ID" ]; then
+            echo '{"error":"missing_policy_or_account"}' > docs/_meta/_deploy_forensics/access_final/access_error.json
+            echo "PENDING_PROTECTION: Missing ACCOUNT_ID, ACCESS_APP_ID or ACCESS_POLICY_ID_PROD" >> docs/_meta/ACCESS_DIAG_BRIEFING.md
             echo "ACCESS_FINAL_CONFIGURED=NO" >> $GITHUB_OUTPUT
             exit 0
           fi
@@ -812,7 +811,18 @@ jobs:
             exit 0
           fi
           
-          # Merge current policy with required changes
+          # Extract existing token_id from current policy (fallback to env if needed)
+          EXISTING_TOKEN_ID=$(jq -r '.result.include[]?.service_token?.token_id // empty' docs/_meta/_deploy_forensics/access_final/policy_before.json | head -1)
+          TOKEN_ID="${EXISTING_TOKEN_ID:-${ACCESS_TOKEN_ID_EFFECTIVE}}"
+          
+          if [ -z "$TOKEN_ID" ]; then
+            echo '{"error":"no_service_token_id_found"}' > docs/_meta/_deploy_forensics/access_final/access_error.json
+            echo "PENDING_PROTECTION: No service token ID found in policy or environment" >> docs/_meta/ACCESS_DIAG_BRIEFING.md
+            echo "ACCESS_FINAL_CONFIGURED=NO" >> $GITHUB_OUTPUT
+            exit 0
+          fi
+          
+          # Merge current policy with required changes (preserving existing token_id)
           jq --arg token_id "$TOKEN_ID" '
             .result
             | .decision = "non_identity"
