@@ -300,7 +300,7 @@ jobs:
             if [ "$ERR_CODE" = "8000007" ]; then
               # Project not found in this account — list projects and fail clearly
               curl -s -H "Authorization: Bearer $CLOUDFLARE_API_TOKEN" \
-                "https://api.cloudflare.com/client/v4/accounts/$ACCOUNT_ID/pages/projects?per_page=100" \
+                "https://api.cloudflare.com/client/v4/accounts/$ACCOUNT_ID/pages/projects" \
                 | tee docs/_meta/_deploy_forensics/post_migration/projects_list.json >/dev/null
               if jq -e --arg name "$PROJECT_NAME" '.result[] | select(.name == $name)' docs/_meta/_deploy_forensics/post_migration/projects_list.json >/dev/null; then
                 echo "❌ ERROR: Project '$PROJECT_NAME' appears in projects list but deployment API returned 8000007. Revisa estado/configuración del proyecto."
