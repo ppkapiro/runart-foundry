@@ -68,6 +68,85 @@ jobs:
       - name: Install Wrangler
         run: npm install -g wrangler
       
+      - name: Resolve Account and Validate Token
+        id: resolve_account
+        run: |
+          set -e
+
+          mkdir -p docs/_meta/_deploy_forensics/post_migration
+
+          echo "=== Resolve Account via wrangler whoami ==="
+          WHOAMI_JSON=$(wrangler whoami --json || echo "{}")
+          echo "$WHOAMI_JSON" | jq '.' > /tmp/whoami.json
+          ACCOUNT_ID_RUNTIME=$(echo "$WHOAMI_JSON" | jq -r '.account_id // empty')
+
+          ACCOUNT_ID_ENV="${CLOUDFLARE_ACCOUNT_ID:-}"
+          if [ -n "$ACCOUNT_ID_ENV" ] && [ -n "$ACCOUNT_ID_RUNTIME" ] && [ "$ACCOUNT_ID_ENV" != "$ACCOUNT_ID_RUNTIME" ]; then
+            echo "⚠️ WARNING: CLOUDFLARE_ACCOUNT_ID != wrangler whoami account_id ($ACCOUNT_ID_ENV vs $ACCOUNT_ID_RUNTIME). Using runtime value."
+          fi
+          ACCOUNT_ID_EFFECTIVE=${ACCOUNT_ID_RUNTIME:-$ACCOUNT_ID_ENV}
+          if [ -z "$ACCOUNT_ID_EFFECTIVE" ]; then
+            echo "❌ ERROR: Unable to resolve Cloudflare Account ID (no env and whoami returned empty)."
+            exit 1
+          fi
+
+          echo "ACCOUNT_ID_EFFECTIVE=$ACCOUNT_ID_EFFECTIVE" >> $GITHUB_ENV
+          echo "ACCOUNT_ID_EFFECTIVE=$ACCOUNT_ID_EFFECTIVE" >> $GITHUB_OUTPUT
+
+          echo "=== Verify Token via API ==="
+          VERIFY=$(curl -s -X GET \
+            "https://api.cloudflare.com/client/v4/user/tokens/verify" \
+            -H "Authorization: Bearer $CLOUDFLARE_API_TOKEN" \
+            -H "Content-Type: application/json")
+          echo "$VERIFY" | jq '.' > docs/_meta/_deploy_forensics/post_migration/token_verify.json
+
+          SUCCESS=$(echo "$VERIFY" | jq -r '.success // false')
+          if [ "$SUCCESS" != "true" ]; then
+            echo "❌ ERROR: Token verification failed (success!=true)."
+            head -c 400 docs/_meta/_deploy_forensics/post_migration/token_verify.json || true
+            exit 1
+          fi
+          HAS_PAGES=$(echo "$VERIFY" | jq -r '. | tostring | test("pages"; "i")')
+          if [ "$HAS_PAGES" != "true" ]; then
+            echo "❌ ERROR: Token does not appear to include Pages permissions (no 'pages' found in verify response)."
+            exit 1
+          fi
+          echo "✅ Token verify OK; Pages permissions likely present."
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CF_API_TOKEN_PAGES || secrets.CLOUDFLARE_API_TOKEN || secrets.CF_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CF_ACCOUNT_ID || secrets.CLOUDFLARE_ACCOUNT_ID }}
+
+      - name: Check or Create Project (API)
+        id: check_project
+        run: |
+          set -e
+          PROJECT_NAME="runart-briefing-direct"
+          ACCOUNT_ID="$ACCOUNT_ID_EFFECTIVE"
+
+          echo "=== Check Project existence (API) ==="
+          HTTP_STATUS=$(curl -s -o /tmp/project_get.json -w "%{http_code}" \
+            -X GET "https://api.cloudflare.com/client/v4/accounts/$ACCOUNT_ID/pages/projects/$PROJECT_NAME" \
+            -H "Authorization: Bearer $CLOUDFLARE_API_TOKEN" \
+            -H "Content-Type: application/json")
+
+          mkdir -p docs/_meta/_deploy_forensics/post_migration
+          if [ "$HTTP_STATUS" = "200" ]; then
+            echo "✅ Project exists"
+            cp /tmp/project_get.json docs/_meta/_deploy_forensics/post_migration/project_get.json
+          elif [ "$HTTP_STATUS" = "404" ]; then
+            echo '{"hint":"project will be created by wrangler"}' > /tmp/project_get.json
+            cp /tmp/project_get.json docs/_meta/_deploy_forensics/post_migration/project_get.json
+            echo "ℹ️ Project not found (404). Wrangler will create it during deploy."
+          else
+            echo "❌ ERROR: Invalid account or token scope when querying project (HTTP $HTTP_STATUS)."
+            head -c 400 /tmp/project_get.json || true
+            # Guardar de todas formas
+            cp /tmp/project_get.json docs/_meta/_deploy_forensics/post_migration/project_get.json || true
+            exit 1
+          fi
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CF_API_TOKEN_PAGES || secrets.CLOUDFLARE_API_TOKEN || secrets.CF_API_TOKEN }}
+
       - name: Deploy to Cloudflare Pages (Direct Upload)
         id: deploy
         run: |
@@ -101,6 +180,8 @@ jobs:
           echo ""
           echo "✅ Deploy completed"
           echo "URL: $DEPLOY_URL"
+          mkdir -p docs/_meta/_deploy_forensics/post_migration
+          cp /tmp/wrangler_output.log docs/_meta/_deploy_forensics/post_migration/wrangler_deploy.log || true
         env:
           # Fallbacks: soportar nombres de secretos existentes
           CLOUDFLARE_API_TOKEN: ${{ secrets.CF_API_TOKEN_PAGES || secrets.CLOUDFLARE_API_TOKEN || secrets.CF_API_TOKEN }}
@@ -133,31 +214,40 @@ jobs:
           set -e
           
           PROJECT_NAME="runart-briefing-direct"
-          # Usar el valor de entorno con fallback (ver env más abajo)
-          ACCOUNT_ID="$CLOUDFLARE_ACCOUNT_ID"
+          ACCOUNT_ID="$ACCOUNT_ID_EFFECTIVE"
           
           echo "=== Verifying deployment source ==="
-          echo "Waiting 10 seconds for API to update..."
+          echo "Waiting up to ~60 seconds for API to update..."
           sleep 10
           
           # Query latest deployment (with retry)
-          MAX_RETRIES=3
+          MAX_RETRIES=5
           RETRY=0
           while [ $RETRY -lt $MAX_RETRIES ]; do
             RESPONSE=$(curl -s -X GET \
-              "https://api.cloudflare.com/client/v4/accounts/$ACCOUNT_ID/pages/projects/$PROJECT_NAME/deployments" \
+              "https://api.cloudflare.com/client/v4/accounts/$ACCOUNT_ID/pages/projects/$PROJECT_NAME/deployments?per_page=1&branch=production" \
               -H "Authorization: Bearer $CLOUDFLARE_API_TOKEN" \
               -H "Content-Type: application/json")
             
-            SOURCE=$(echo "$RESPONSE" | jq -r '.result[0].source.type // "unknown"')
+            SUCCESS=$(echo "$RESPONSE" | jq -r '.success // false')
+            SOURCE=$(echo "$RESPONSE" | jq -r '.result[0].source.type // empty')
+            TRIGGER=$(echo "$RESPONSE" | jq -r '.result[0].deployment_trigger.type // empty')
+            CREATED_AT=$(echo "$RESPONSE" | jq -r '.result[0].created_on // empty')
+            # Normalizar fuente a DIRECT_UPLOAD_OK/UNKNOWN
+            NORMALIZED="UNKNOWN"
+            if [ "$SOURCE" = "direct_upload" ] || [ "$SOURCE" = "api" ] || [ "$SOURCE" = "ad_hoc" ]; then
+              NORMALIZED="DIRECT_UPLOAD_OK"
+            elif [ "$TRIGGER" = "ad_hoc" ] || [ "$TRIGGER" = "api" ]; then
+              NORMALIZED="DIRECT_UPLOAD_OK"
+            fi
             
-            if [ "$SOURCE" != "unknown" ]; then
+            if [ "$SUCCESS" = "true" ] && [ "$NORMALIZED" != "UNKNOWN" ]; then
               break
             fi
             
             RETRY=$((RETRY + 1))
             if [ $RETRY -lt $MAX_RETRIES ]; then
-              echo "Source still unknown, waiting 10s (attempt $((RETRY + 1))/$MAX_RETRIES)..."
+              echo "Source still unknown or API not ready (attempt $((RETRY + 1))/$MAX_RETRIES)... waiting 10s"
               sleep 10
             fi
           done
@@ -168,27 +258,36 @@ jobs:
           DEPLOY_ID=$(echo "$RESPONSE" | jq -r '.result[0].id // "unknown"')
           COMMIT=$(echo "$RESPONSE" | jq -r '.result[0].deployment_trigger.metadata.commit_hash // "unknown"')
           
-          echo "SOURCE=$SOURCE" >> $GITHUB_OUTPUT
+          # Exponer salidas: raw/trigger/normalized y created_at
+          echo "SOURCE_RAW=$SOURCE" >> $GITHUB_OUTPUT
+          echo "TRIGGER_TYPE=$TRIGGER" >> $GITHUB_OUTPUT
+          echo "SOURCE_NORMALIZED=$NORMALIZED" >> $GITHUB_OUTPUT
+          echo "CREATED_AT=$CREATED_AT" >> $GITHUB_OUTPUT
           echo "DEPLOY_ID=$DEPLOY_ID" >> $GITHUB_OUTPUT
           echo ""
           echo "✅ Source verification completed"
-          echo "Source: $SOURCE"
+          echo "Source (normalized): $NORMALIZED"
+          echo "Source (raw): ${SOURCE:-empty} | Trigger: ${TRIGGER:-empty} | Success: $SUCCESS"
           echo "Deployment ID: $DEPLOY_ID"
           echo "Commit: $COMMIT"
           
           # Validate source
-          if [ "$SOURCE" != "direct_upload" ]; then
-            echo "❌ ERROR: Expected source=direct_upload, got source=$SOURCE"
-            echo "This may indicate timing issue or Git Integration interference."
+          if [ "$NORMALIZED" != "DIRECT_UPLOAD_OK" ]; then
+            echo "❌ ERROR: Expected SOURCE_NORMALIZED=DIRECT_UPLOAD_OK, got ${NORMALIZED} (raw=${SOURCE:-empty}, trigger=${TRIGGER:-empty})"
+            echo "This may indicate timing issues, wrong Account ID/Token scope, or Git Integration interference."
+            echo "--- API response (first 400 chars) ---"
+            echo "$RESPONSE" | head -c 400 || true
+            echo "\n--- end ---"
             exit 1
           fi
           
-          echo "✅ Source validation PASSED (direct_upload)"
+          echo "✅ Source validation PASSED (DIRECT_UPLOAD_OK)"
         env:
           CLOUDFLARE_API_TOKEN: ${{ secrets.CF_API_TOKEN_PAGES || secrets.CLOUDFLARE_API_TOKEN || secrets.CF_API_TOKEN }}
           CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CF_ACCOUNT_ID || secrets.CLOUDFLARE_ACCOUNT_ID }}
       
       - name: Record deployment evidence
+        if: always()
         run: |
           mkdir -p docs/_meta/_deploy_forensics/post_migration
           
@@ -207,13 +306,16 @@ jobs:
           - **Branch**: production
           - **Deploy URL**: ${{ steps.deploy.outputs.DEPLOY_URL }}
           - **Deployment ID**: ${{ steps.verify_source.outputs.DEPLOY_ID }}
-          - **Source Type**: ${{ steps.verify_source.outputs.SOURCE }}
+          - **Source Type (normalized)**: ${{ steps.verify_source.outputs.SOURCE_NORMALIZED }}
+          - **Source Type (raw)**: ${{ steps.verify_source.outputs.SOURCE_RAW }}
+          - **Trigger Type**: ${{ steps.verify_source.outputs.TRIGGER_TYPE }}
+          - **Created At**: ${{ steps.verify_source.outputs.CREATED_AT }}
           
           ## Validation Results
           
           - ✅ Build completed successfully
           - ✅ Wrangler deploy completed
-          - ✅ Source verification: **${{ steps.verify_source.outputs.SOURCE }}**
+          - ✅ Source verification: **${{ steps.verify_source.outputs.SOURCE_NORMALIZED || 'N/A' }}**
           - ⏭️ Access validation: PENDING (requires manual policy setup)
           - ⏭️ Fingerprint comparison: PENDING
           
@@ -232,12 +334,154 @@ jobs:
           
           echo "✅ Evidence recorded in docs/_meta/_deploy_forensics/post_migration/"
       
+      - name: Access Check — Discover asset
+        id: find_asset
+        if: always()
+        run: |
+          set -e
+          # Pick first CSS/JS asset from local build to mirror in prod
+          ASSET=$(find apps/briefing/site -type f \( -name '*.css' -o -name '*.js' \) | sed 's#apps/briefing/site/##' | head -1 || true)
+          echo "ASSET_REL=$ASSET" >> $GITHUB_OUTPUT
+          echo "ASSET_REL=$ASSET" >> $GITHUB_ENV
+
+      - name: Access Check — With Headers (200 expected)
+        if: always()
+        run: |
+          set -e
+          mkdir -p docs/_meta
+          URL="${{ steps.deploy.outputs.DEPLOY_URL }}"
+          if [ -z "$URL" ]; then echo "No DEPLOY_URL, skipping"; exit 0; fi
+          if [ -z "${{ secrets.CF_ACCESS_CLIENT_ID }}" ] || [ -z "${{ secrets.CF_ACCESS_CLIENT_SECRET }}" ]; then
+            echo "PENDING_PROTECTION: Missing Access secrets" >> docs/_meta/ACCESS_DIAG_BRIEFING.md
+            exit 0
+          fi
+          {
+            echo "# Nuevo proyecto — protegido (with headers)"
+            echo "Root: $URL"
+          } >> docs/_meta/ACCESS_DIAG_BRIEFING.md
+          # HEAD root
+          curl -s -I "$URL/" \
+            -H "CF-Access-Client-Id: ${{ secrets.CF_ACCESS_CLIENT_ID }}" \
+            -H "CF-Access-Client-Secret: ${{ secrets.CF_ACCESS_CLIENT_SECRET }}" \
+            | tee -a docs/_meta/ACCESS_DIAG_BRIEFING.md
+          # HEAD asset
+          if [ -n "$ASSET_REL" ]; then
+            echo "\nAsset: $URL/$ASSET_REL" >> docs/_meta/ACCESS_DIAG_BRIEFING.md
+            curl -s -I "$URL/$ASSET_REL" \
+              -H "CF-Access-Client-Id: ${{ secrets.CF_ACCESS_CLIENT_ID }}" \
+              -H "CF-Access-Client-Secret: ${{ secrets.CF_ACCESS_CLIENT_SECRET }}" \
+              | tee -a docs/_meta/ACCESS_DIAG_BRIEFING.md
+          fi
+
+      - name: Access Check — Without Headers (blocked expected)
+        if: always()
+        run: |
+          set -e
+          mkdir -p docs/_meta
+          URL="${{ steps.deploy.outputs.DEPLOY_URL }}"
+          if [ -z "$URL" ]; then echo "No DEPLOY_URL, skipping"; exit 0; fi
+          {
+            echo "\n# Nuevo proyecto — protegido (without headers)"
+            echo "Root: $URL"
+          } >> docs/_meta/ACCESS_DIAG_BRIEFING.md
+          curl -s -I "$URL/" | tee -a docs/_meta/ACCESS_DIAG_BRIEFING.md
+          if [ -n "$ASSET_REL" ]; then
+            echo "\nAsset: $URL/$ASSET_REL" >> docs/_meta/ACCESS_DIAG_BRIEFING.md
+            curl -s -I "$URL/$ASSET_REL" | tee -a docs/_meta/ACCESS_DIAG_BRIEFING.md
+          fi
+
+      - name: Fingerprints — Local and Prod
+        id: fingerprints
+        if: always()
+        run: |
+          set -e
+          mkdir -p docs/_meta/_deploy_forensics/post_migration
+          URL="${{ steps.deploy.outputs.DEPLOY_URL }}"
+          INDEX_LOCAL="apps/briefing/site/index.html"
+          ASSET_REL="${ASSET_REL:-}"
+          ASSET_LOCAL="apps/briefing/site/${ASSET_REL:-}"
+
+          # Local hashes
+          INDEX_SHA_LOCAL=$(sha256sum "$INDEX_LOCAL" | awk '{print $1}')
+          ASSET_SHA_LOCAL=""
+          if [ -f "$ASSET_LOCAL" ]; then
+            ASSET_SHA_LOCAL=$(sha256sum "$ASSET_LOCAL" | awk '{print $1}')
+          fi
+          jq -n --arg index "$INDEX_SHA_LOCAL" --arg asset "$ASSET_SHA_LOCAL" '{index_sha:$index,asset_sha:$asset}' \
+            > docs/_meta/_deploy_forensics/post_migration/fp_local.json
+
+          # Prod fetch (with Access headers if present)
+          HDR_ID="${{ secrets.CF_ACCESS_CLIENT_ID }}"
+          HDR_SECRET="${{ secrets.CF_ACCESS_CLIENT_SECRET }}"
+          CURL_HDRS=()
+          if [ -n "$HDR_ID" ] && [ -n "$HDR_SECRET" ]; then
+            CURL_HDRS+=( -H "CF-Access-Client-Id: $HDR_ID" -H "CF-Access-Client-Secret: $HDR_SECRET" )
+          fi
+
+          INDEX_ETAG=$(curl -s -D - "$URL/" "${CURL_HDRS[@]}" -o /dev/null | grep -i '^etag:' | head -1 | cut -d' ' -f2- | tr -d '\r\n' || true)
+          INDEX_SHA_PROD=$(curl -s "$URL/" "${CURL_HDRS[@]}" | sha256sum | awk '{print $1}')
+          ASSET_ETAG=""
+          ASSET_SHA_PROD=""
+          if [ -n "$ASSET_REL" ]; then
+            ASSET_ETAG=$(curl -s -D - "$URL/$ASSET_REL" "${CURL_HDRS[@]}" -o /dev/null | grep -i '^etag:' | head -1 | cut -d' ' -f2- | tr -d '\r\n' || true)
+            ASSET_SHA_PROD=$(curl -s "$URL/$ASSET_REL" "${CURL_HDRS[@]}" | sha256sum | awk '{print $1}')
+          fi
+          jq -n \
+            --arg index_etag "$INDEX_ETAG" --arg index_sha "$INDEX_SHA_PROD" \
+            --arg asset_etag "$ASSET_ETAG" --arg asset_sha "$ASSET_SHA_PROD" \
+            '{index_etag:$index_etag,index_sha:$index_sha,asset_etag:$asset_etag,asset_sha:$asset_sha}' \
+            > docs/_meta/_deploy_forensics/post_migration/fp_prod.json
+
+          # Compare
+          STATUS="MATCH"
+          if [ "$INDEX_SHA_LOCAL" != "$INDEX_SHA_PROD" ] || { [ -n "$ASSET_SHA_LOCAL" ] && [ "$ASSET_SHA_LOCAL" != "$ASSET_SHA_PROD" ]; }; then
+            STATUS="MISMATCH"
+          fi
+          echo "$STATUS" > /tmp/fp_status
+          {
+            echo "Fingerprint compare: $STATUS"
+            echo "index local=$INDEX_SHA_LOCAL prod=$INDEX_SHA_PROD"
+            if [ -n "$ASSET_SHA_LOCAL" ]; then echo "asset local=$ASSET_SHA_LOCAL prod=$ASSET_SHA_PROD"; fi
+          } > docs/_meta/_deploy_forensics/post_migration/fingerprint_diff.txt
+
+      - name: Fingerprints — Optional Purge and Retry
+        if: always()
+        run: |
+          set -e
+          URL="${{ steps.deploy.outputs.DEPLOY_URL }}"
+          STATUS=$(cat /tmp/fp_status || echo "UNKNOWN")
+          if [ "$STATUS" != "MISMATCH" ]; then echo "No mismatch, skip purge"; exit 0; fi
+          ZONE_ID="${{ secrets.CF_ZONE_ID || secrets.CLOUDFLARE_ZONE_ID }}"
+          if [ -z "$ZONE_ID" ]; then
+            echo "No ZONE_ID available, cannot purge. Recording MISMATCH_after_purge." >> docs/_meta/_deploy_forensics/post_migration/fingerprint_diff.txt
+            exit 0
+          fi
+          FILES_JSON=$(jq -n --arg url "$URL/" --arg asset "$ASSET_REL" '{files: [$url, ($asset|length>0?($url+$asset):empty)] | map(select(. != null and . != "")) }')
+          echo "$FILES_JSON" > /tmp/purge.json
+          RESP=$(curl -s -X POST "https://api.cloudflare.com/client/v4/zones/$ZONE_ID/purge_cache" \
+            -H "Authorization: Bearer $CLOUDFLARE_API_TOKEN" -H "Content-Type: application/json" \
+            --data @/tmp/purge.json)
+          echo "$RESP" | head -c 400
+          sleep 5
+          # Re-fetch index only
+          HDR_ID="${{ secrets.CF_ACCESS_CLIENT_ID }}"; HDR_SECRET="${{ secrets.CF_ACCESS_CLIENT_SECRET }}"; CURL_HDRS=()
+          if [ -n "$HDR_ID" ] && [ -n "$HDR_SECRET" ]; then CURL_HDRS+=( -H "CF-Access-Client-Id: $HDR_ID" -H "CF-Access-Client-Secret: $HDR_SECRET" ); fi
+          INDEX_SHA_PROD2=$(curl -s "$URL/" "${CURL_HDRS[@]}" | sha256sum | awk '{print $1}')
+          echo "After purge index sha: $INDEX_SHA_PROD2" >> docs/_meta/_deploy_forensics/post_migration/fingerprint_diff.txt
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CF_API_TOKEN_PAGES || secrets.CLOUDFLARE_API_TOKEN || secrets.CF_API_TOKEN }}
+
       - name: Commit evidence
+        if: always()
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
           
           git add docs/_meta/_deploy_forensics/post_migration/
+          git add docs/_meta/ACCESS_DIAG_BRIEFING.md || true
+          git add docs/_meta/BRIEFING_STATUS_PIPELINE_RUN.md || true
+          git add docs/_meta/BRIEFING_DEPLOY_HANDOFF.md || true
+          git add docs/_meta/WORKFLOW_AUDIT_DEPLOY.md || true
           
           if git diff --staged --quiet; then
             echo "No changes to commit"
@@ -248,12 +492,66 @@ jobs:
         continue-on-error: true
       
       - name: Summary
+        if: always()
         run: |
           echo "## 🚀 Deployment Summary" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "**Project**: runart-briefing-direct" >> $GITHUB_STEP_SUMMARY
           echo "**URL**: ${{ steps.deploy.outputs.DEPLOY_URL }}" >> $GITHUB_STEP_SUMMARY
-          echo "**Source**: ${{ steps.verify_source.outputs.SOURCE }}" >> $GITHUB_STEP_SUMMARY
+          echo "**Source (normalized)**: ${{ steps.verify_source.outputs.SOURCE_NORMALIZED }}" >> $GITHUB_STEP_SUMMARY
+          echo "**Source (raw)**: ${{ steps.verify_source.outputs.SOURCE_RAW }} | **Trigger**: ${{ steps.verify_source.outputs.TRIGGER_TYPE }}" >> $GITHUB_STEP_SUMMARY
           echo "**Deployment ID**: ${{ steps.verify_source.outputs.DEPLOY_ID }}" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
-          echo "✅ **Status**: Direct Upload deployment successful" >> $GITHUB_STEP_SUMMARY
+          if [ "${{ steps.verify_source.outputs.SOURCE_NORMALIZED }}" = "DIRECT_UPLOAD_OK" ]; then
+            echo "✅ **Status**: Direct Upload deployment successful" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "⚠️ **Status**: Deployment finished but source verification did not confirm direct_upload" >> $GITHUB_STEP_SUMMARY
+          fi
+
+      - name: Update BRIEFING_STATUS_PIPELINE_RUN.md
+        if: always()
+        run: |
+          set -e
+          FILE="docs/_meta/BRIEFING_STATUS_PIPELINE_RUN.md"
+          mkdir -p "$(dirname "$FILE")"
+          {
+            echo "\n---\n## Direct Upload — última ejecución"
+            echo "- Fecha: $(date -u +"%Y-%m-%dT%H:%M:%SZ")"
+            echo "- Run URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
+            echo "- Proyecto: runart-briefing-direct"
+            echo "- URL: ${{ steps.deploy.outputs.DEPLOY_URL }}"
+            echo "- SOURCE_NORMALIZED: ${{ steps.verify_source.outputs.SOURCE_NORMALIZED }} (raw=${{ steps.verify_source.outputs.SOURCE_RAW }}, trigger=${{ steps.verify_source.outputs.TRIGGER_TYPE }})"
+            echo "- Deployment ID: ${{ steps.verify_source.outputs.DEPLOY_ID }}"
+          } >> "$FILE"
+
+      - name: Create Cutover Plan doc
+        if: always()
+        run: |
+          set -e
+          FILE="docs/_meta/BRIEFING_DEPLOY_HANDOFF.md"
+          mkdir -p docs/_meta
+          if [ ! -f "$FILE" ]; then
+            cat > "$FILE" << 'EOF'
+            # Briefing — Cutover Plan (Direct Upload)
+
+            Opciones de corte:
+
+            - Opción 1: Apuntar dominio custom (p.ej. briefing.runartfoundry.com) al proyecto nuevo `runart-briefing-direct` y retirar del antiguo.
+            - Opción 2: Ventana corta; eliminar proyecto viejo y re-crear con `--project-name "runart-foundry"` para conservar subdominio histórico; revalidar Access y bindings.
+
+            Requisitos: Validación API OK, Access (200 con headers, 302/403 sin headers), fingerprints MATCH.
+            EOF
+          fi
+
+      - name: Append Workflow Audit note
+        if: always()
+        run: |
+          set -e
+          FILE="docs/_meta/WORKFLOW_AUDIT_DEPLOY.md"
+          mkdir -p docs/_meta
+          {
+            echo "\n## Migración Direct Upload — $(date -u +"%Y-%m-%dT%H:%M:%SZ")"
+            echo "Run: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
+            echo "Project: runart-briefing-direct | URL: ${{ steps.deploy.outputs.DEPLOY_URL }}"
+            echo "SOURCE_NORMALIZED: ${{ steps.verify_source.outputs.SOURCE_NORMALIZED }} | RAW: ${{ steps.verify_source.outputs.SOURCE_RAW }} | TRIGGER: ${{ steps.verify_source.outputs.TRIGGER_TYPE }}"
+          } >> "$FILE"
