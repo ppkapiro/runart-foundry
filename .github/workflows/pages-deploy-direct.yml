@@ -21,6 +21,10 @@ jobs:
     name: Build & Deploy via Wrangler Direct Upload
     runs-on: ubuntu-latest
     environment: ${{ inputs.environment || 'production' }}
+    env:
+      ACCOUNT_ID_INPUT: ${{ secrets.CF_ACCOUNT_ID || secrets.CLOUDFLARE_ACCOUNT_ID }}
+      CLOUDFLARE_API_TOKEN: ${{ secrets.CF_API_TOKEN_PAGES || secrets.CLOUDFLARE_API_TOKEN }}
+      PROJECT_NAME: runart-briefing-direct
     
     steps:
       - name: Checkout
@@ -80,19 +84,23 @@ jobs:
           WHOAMI_TXT=$(wrangler whoami 2>&1 || true)
           echo "$WHOAMI_TXT" > /tmp/whoami.txt
           # Try to extract 'Account ID:' line
-          ACCOUNT_ID_RUNTIME=$(echo "$WHOAMI_TXT" | sed -n 's/.*[Aa]ccount[[:space:]]\{1,\}ID:[[:space:]]*\([a-zA-Z0-9_-]\{5,\}\).*/\1/p' | head -1 | tr -d '\r\n' )
-          if [ -z "$ACCOUNT_ID_RUNTIME" ]; then
+          WHOAMI_ACCOUNT_ID=$(echo "$WHOAMI_TXT" | sed -n 's/.*[Aa]ccount[[:space:]]\{1,\}ID:[[:space:]]*\([a-zA-Z0-9_-]\{5,\}\).*/\1/p' | head -1 | tr -d '\r\n' )
+          if [ -z "$WHOAMI_ACCOUNT_ID" ]; then
             echo "wrangler whoami did not yield an Account ID; falling back to API /accounts"
             ACCTS=$(curl -s -X GET "https://api.cloudflare.com/client/v4/accounts" -H "Authorization: Bearer $CLOUDFLARE_API_TOKEN" -H "Content-Type: application/json")
             echo "$ACCTS" | jq '.' > docs/_meta/_deploy_forensics/post_migration/accounts_list.json || true
-            ACCOUNT_ID_RUNTIME=$(echo "$ACCTS" | jq -r '.result[0].id // empty')
+            WHOAMI_ACCOUNT_ID=$(echo "$ACCTS" | jq -r '.result[0].id // empty')
           fi
 
-          ACCOUNT_ID_ENV="${CLOUDFLARE_ACCOUNT_ID:-}"
-          if [ -n "$ACCOUNT_ID_ENV" ] && [ -n "$ACCOUNT_ID_RUNTIME" ] && [ "$ACCOUNT_ID_ENV" != "$ACCOUNT_ID_RUNTIME" ]; then
-            echo "⚠️ WARNING: CLOUDFLARE_ACCOUNT_ID != wrangler whoami account_id ($ACCOUNT_ID_ENV vs $ACCOUNT_ID_RUNTIME). Using runtime value."
+          ACCOUNT_ID_INPUT_VAL="${ACCOUNT_ID_INPUT:-}"
+          if [ -n "$ACCOUNT_ID_INPUT_VAL" ] && [ -n "$WHOAMI_ACCOUNT_ID" ] && [ "$ACCOUNT_ID_INPUT_VAL" != "$WHOAMI_ACCOUNT_ID" ]; then
+            echo "⚠️ WARNING: ACCOUNT_ID_INPUT != wrangler whoami account_id ($ACCOUNT_ID_INPUT_VAL vs $WHOAMI_ACCOUNT_ID). Using ACCOUNT_ID_INPUT."
           fi
-          ACCOUNT_ID_EFFECTIVE=${ACCOUNT_ID_RUNTIME:-$ACCOUNT_ID_ENV}
+          if [ -n "$ACCOUNT_ID_INPUT_VAL" ]; then
+            ACCOUNT_ID_EFFECTIVE="$ACCOUNT_ID_INPUT_VAL"
+          else
+            ACCOUNT_ID_EFFECTIVE="$WHOAMI_ACCOUNT_ID"
+          fi
           if [ -z "$ACCOUNT_ID_EFFECTIVE" ]; then
             echo "❌ ERROR: Unable to resolve Cloudflare Account ID (no env and whoami returned empty)."
             exit 1
@@ -100,6 +108,12 @@ jobs:
 
           echo "ACCOUNT_ID_EFFECTIVE=$ACCOUNT_ID_EFFECTIVE" >> $GITHUB_ENV
           echo "ACCOUNT_ID_EFFECTIVE=$ACCOUNT_ID_EFFECTIVE" >> $GITHUB_OUTPUT
+          echo "WHOAMI_ACCOUNT_ID=$WHOAMI_ACCOUNT_ID" >> $GITHUB_OUTPUT
+
+          # Persist accounts_resolved.json
+          jq -n --arg account_id_input "$ACCOUNT_ID_INPUT_VAL" --arg whoami_account_id "$WHOAMI_ACCOUNT_ID" --arg account_id_effective "$ACCOUNT_ID_EFFECTIVE" \
+            '{account_id_input:$account_id_input, whoami_account_id:$whoami_account_id, account_id_effective:$account_id_effective}' \
+            > docs/_meta/_deploy_forensics/post_migration/accounts_resolved.json
 
           echo "=== Verify Token via API ==="
           VERIFY=$(curl -s -X GET \
@@ -118,7 +132,6 @@ jobs:
           echo "✅ Token verify OK. Proceeding to project check to validate Pages permissions."
         env:
           CLOUDFLARE_API_TOKEN: ${{ secrets.CF_API_TOKEN_PAGES || secrets.CLOUDFLARE_API_TOKEN || secrets.CF_API_TOKEN }}
-          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CF_ACCOUNT_ID || secrets.CLOUDFLARE_ACCOUNT_ID }}
 
       - name: Check or Create Project (API)
         id: check_project
@@ -156,7 +169,7 @@ jobs:
         run: |
           set -e
           
-          PROJECT_NAME="runart-briefing-direct"
+          PROJECT_NAME="${PROJECT_NAME}"
           BRANCH="production"
           COMMIT_HASH="${{ github.sha }}"
           COMMIT_MSG="direct-upload:${COMMIT_HASH}"
@@ -170,6 +183,7 @@ jobs:
           # Deploy with Wrangler
           OUTPUT=$(wrangler pages deploy "apps/briefing/site" \
             --project-name "$PROJECT_NAME" \
+            --account-id "${{ steps.resolve_account.outputs.ACCOUNT_ID_EFFECTIVE }}" \
             --branch "$BRANCH" \
             --commit-hash "$COMMIT_HASH" \
             --commit-message "$COMMIT_MSG" 2>&1 | tee /tmp/wrangler_output.log)
@@ -217,7 +231,7 @@ jobs:
         run: |
           set -e
           
-          PROJECT_NAME="runart-briefing-direct"
+          PROJECT_NAME="${PROJECT_NAME}"
           ACCOUNT_ID="$ACCOUNT_ID_EFFECTIVE"
           
           echo "=== Verifying deployment source ==="
@@ -248,34 +262,19 @@ jobs:
             if [ "$SUCCESS" = "true" ] && [ "$NORMALIZED" != "UNKNOWN" ]; then
               break
             fi
-
-            # Si el proyecto no se encuentra en esta cuenta, intentar en otras cuentas accesibles
-            NOT_FOUND_CODE=$(echo "$RESPONSE" | jq -r '.errors[0].code // empty')
-            if [ "$SUCCESS" = "false" ] && { [ "$NOT_FOUND_CODE" = "8000007" ] || [ "$NOT_FOUND_CODE" = "1001" ]; }; then
-              echo "Project not found in account $ACCOUNT_ID. Attempting discovery across accessible accounts..."
-              ACCTS=$(curl -s -X GET "https://api.cloudflare.com/client/v4/accounts" -H "Authorization: Bearer $CLOUDFLARE_API_TOKEN" -H "Content-Type: application/json")
-              IDS=$(echo "$ACCTS" | jq -r '.result[].id')
-              for CAND in $IDS; do
-                echo "Checking project in account $CAND..."
-                ST=$(curl -s -o /tmp/_p.json -w "%{http_code}" -X GET "https://api.cloudflare.com/client/v4/accounts/$CAND/pages/projects/$PROJECT_NAME" -H "Authorization: Bearer $CLOUDFLARE_API_TOKEN" -H "Content-Type: application/json")
-                if [ "$ST" = "200" ]; then
-                  echo "Found project in account $CAND. Updating ACCOUNT_ID to match."
-                  ACCOUNT_ID="$CAND"
-                  echo "ACCOUNT_ID_EFFECTIVE=$ACCOUNT_ID" >> $GITHUB_ENV
-                  break
-                fi
-              done
-              # Reintentar inmediatamente con nueva cuenta (no contar contra backoff actual)
-            fi
             
             RETRY=$((RETRY + 1))
             if [ $RETRY -lt $MAX_RETRIES ]; then
-              echo "Source still unknown or API not ready (attempt $((RETRY + 1))/$MAX_RETRIES)... waiting 10s"
-              sleep 10
+              SLEEP=$((RETRY*2+2))
+              echo "Source still unknown or API not ready (attempt $((RETRY + 1))/$MAX_RETRIES)... waiting ${SLEEP}s"
+              sleep $SLEEP
             fi
           done
           
           echo "$RESPONSE" | jq '.' > /tmp/deployments_api.json
+          # Persist raw response also in docs for convenience
+          mkdir -p docs/_meta/_deploy_forensics/post_migration
+          echo "$RESPONSE" | jq '.' > docs/_meta/_deploy_forensics/post_migration/deployment_api_response.json || true
           
           # Extract details
           DEPLOY_ID=$(echo "$RESPONSE" | jq -r '.result[0].id // "unknown"')
@@ -297,12 +296,25 @@ jobs:
           
           # Validate source
           if [ "$NORMALIZED" != "DIRECT_UPLOAD_OK" ]; then
-            echo "❌ ERROR: Expected SOURCE_NORMALIZED=DIRECT_UPLOAD_OK, got ${NORMALIZED} (raw=${SOURCE:-empty}, trigger=${TRIGGER:-empty})"
-            echo "This may indicate timing issues, wrong Account ID/Token scope, or Git Integration interference."
-            echo "--- API response (first 400 chars) ---"
-            echo "$RESPONSE" | head -c 400 || true
-            echo "\n--- end ---"
-            exit 1
+            ERR_CODE=$(echo "$RESPONSE" | jq -r '.errors[0].code // empty')
+            if [ "$ERR_CODE" = "8000007" ]; then
+              # Project not found in this account — list projects and fail clearly
+              curl -s -H "Authorization: Bearer $CLOUDFLARE_API_TOKEN" \
+                "https://api.cloudflare.com/client/v4/accounts/$ACCOUNT_ID/pages/projects?per_page=100" \
+                | tee docs/_meta/_deploy_forensics/post_migration/projects_list.json >/dev/null
+              if jq -e --arg name "$PROJECT_NAME" '.result[] | select(.name == $name)' docs/_meta/_deploy_forensics/post_migration/projects_list.json >/dev/null; then
+                echo "❌ ERROR: Project '$PROJECT_NAME' appears in projects list but deployment API returned 8000007. Revisa estado/configuración del proyecto."
+              else
+                echo "❌ ERROR: Project not found in ACCOUNT_ID_EFFECTIVE=$ACCOUNT_ID. Revisa CF_ACCOUNT_ID y el token."
+              fi
+              exit 1
+            else
+              echo "❌ ERROR: Expected SOURCE_NORMALIZED=DIRECT_UPLOAD_OK, got ${NORMALIZED} (raw=${SOURCE:-empty}, trigger=${TRIGGER:-empty})"
+              echo "--- API response (first 400 chars) ---"
+              echo "$RESPONSE" | head -c 400 || true
+              echo "\n--- end ---"
+              exit 1
+            fi
           fi
           
           echo "✅ Source validation PASSED (DIRECT_UPLOAD_OK)"
@@ -327,6 +339,7 @@ jobs:
           ## Deployment Info
           
           - **Project Name**: runart-briefing-direct
+          - **Account ID Effective**: $ACCOUNT_ID_EFFECTIVE
           - **Branch**: production
           - **Deploy URL**: ${{ steps.deploy.outputs.DEPLOY_URL }}
           - **Deployment ID**: ${{ steps.verify_source.outputs.DEPLOY_ID }}
