@@ -136,33 +136,33 @@
         }
       },
       "latest_deployment": {
-        "id": "ce2b6235-b248-48c4-8c7f-5540a5ae10d0",
-        "short_id": "ce2b6235",
+        "id": "c6f2e1d7-71dd-4d72-a328-f6eceefc55dc",
+        "short_id": "c6f2e1d7",
         "project_id": "440eb224-2b2a-48ac-a14e-0768769198a2",
         "project_name": "runart-foundry",
         "environment": "production",
-        "url": "https://ce2b6235.runart-foundry.pages.dev",
-        "created_on": "2025-10-24T17:02:35.022951Z",
-        "modified_on": "2025-10-24T17:02:38.362671Z",
+        "url": "https://c6f2e1d7.runart-foundry.pages.dev",
+        "created_on": "2025-10-24T17:40:31.25709Z",
+        "modified_on": "2025-10-24T17:40:34.237572Z",
         "latest_stage": {
           "name": "deploy",
           "started_on": null,
-          "ended_on": "2025-10-24T17:02:38.362671Z",
+          "ended_on": "2025-10-24T17:40:34.237572Z",
           "status": "success"
         },
         "deployment_trigger": {
           "type": "ad_hoc",
           "metadata": {
             "branch": "main",
-            "commit_hash": "3112c990091cbe7514964ac304ee6ad56655dcf6",
-            "commit_message": "meta: redeploy canónico ejecutado (success) — run 18786159164",
+            "commit_hash": "6134ed9b9b8acd6ec8e4a648221671bd57dd9ce1",
+            "commit_message": "forensics: collect data (mode=pre-check)",
             "commit_dirty": false
           }
         },
         "stages": [
           {
             "name": "queued",
-            "started_on": "2025-10-24T17:02:35.022951Z",
+            "started_on": "2025-10-24T17:40:31.25709Z",
             "ended_on": null,
             "status": "active"
           },
@@ -187,7 +187,7 @@
           {
             "name": "deploy",
             "started_on": null,
-            "ended_on": "2025-10-24T17:02:38.362671Z",
+            "ended_on": "2025-10-24T17:40:34.237572Z",
             "status": "success"
           }
         ],
@@ -255,33 +255,33 @@
         "uses_functions": false
       },
       "canonical_deployment": {
-        "id": "ce2b6235-b248-48c4-8c7f-5540a5ae10d0",
-        "short_id": "ce2b6235",
+        "id": "c6f2e1d7-71dd-4d72-a328-f6eceefc55dc",
+        "short_id": "c6f2e1d7",
         "project_id": "440eb224-2b2a-48ac-a14e-0768769198a2",
         "project_name": "runart-foundry",
         "environment": "production",
-        "url": "https://ce2b6235.runart-foundry.pages.dev",
-        "created_on": "2025-10-24T17:02:35.022951Z",
-        "modified_on": "2025-10-24T17:02:38.362671Z",
+        "url": "https://c6f2e1d7.runart-foundry.pages.dev",
+        "created_on": "2025-10-24T17:40:31.25709Z",
+        "modified_on": "2025-10-24T17:40:34.237572Z",
         "latest_stage": {
           "name": "deploy",
           "started_on": null,
-          "ended_on": "2025-10-24T17:02:38.362671Z",
+          "ended_on": "2025-10-24T17:40:34.237572Z",
           "status": "success"
         },
         "deployment_trigger": {
           "type": "ad_hoc",
           "metadata": {
             "branch": "main",
-            "commit_hash": "3112c990091cbe7514964ac304ee6ad56655dcf6",
-            "commit_message": "meta: redeploy canónico ejecutado (success) — run 18786159164",
+            "commit_hash": "6134ed9b9b8acd6ec8e4a648221671bd57dd9ce1",
+            "commit_message": "forensics: collect data (mode=pre-check)",
             "commit_dirty": false
           }
         },
         "stages": [
           {
             "name": "queued",
-            "started_on": "2025-10-24T17:02:35.022951Z",
+            "started_on": "2025-10-24T17:40:31.25709Z",
             "ended_on": null,
             "status": "active"
           },
@@ -306,7 +306,7 @@
           {
             "name": "deploy",
             "started_on": null,
-            "ended_on": "2025-10-24T17:02:38.362671Z",
+            "ended_on": "2025-10-24T17:40:34.237572Z",
             "status": "success"
           }
         ],
