@@ -364,6 +364,111 @@ jobs:
           CLOUDFLARE_API_TOKEN: ${{ secrets.CF_API_TOKEN_PAGES || secrets.CLOUDFLARE_API_TOKEN || secrets.CF_API_TOKEN }}
           CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CF_ACCOUNT_ID || secrets.CLOUDFLARE_ACCOUNT_ID }}
       
+      - name: Discover Deployment URL (API)
+        id: discover_url
+        run: |
+          set -e
+          PROJECT_NAME="${PROJECT_NAME}"
+          ACCOUNT_ID="$ACCOUNT_ID_EFFECTIVE"
+
+          echo "=== Discovering deployment URL via API ==="
+          RESP=$(curl -s -X GET \
+            "https://api.cloudflare.com/client/v4/accounts/$ACCOUNT_ID/pages/projects/$PROJECT_NAME/deployments" \
+            -H "Authorization: Bearer $CLOUDFLARE_API_TOKEN" -H "Content-Type: application/json")
+          URL_API=$(echo "$RESP" | jq -r '.result[0].url // empty')
+          if [ -z "$URL_API" ] && [ -n "${{ steps.deploy.outputs.DEPLOY_URL }}" ]; then
+            URL_API="${{ steps.deploy.outputs.DEPLOY_URL }}"
+          fi
+          echo "DEPLOY_URL_API=$URL_API" >> $GITHUB_OUTPUT
+          mkdir -p docs/_meta/_deploy_forensics/post_migration
+          echo "$URL_API" > docs/_meta/_deploy_forensics/post_migration/deployment_url.txt
+          echo "Discovered URL: $URL_API"
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CF_API_TOKEN_PAGES || secrets.CLOUDFLARE_API_TOKEN || secrets.CF_API_TOKEN }}
+
+      - name: (OPT-IN) Configure Access for new subdomain
+        if: always()
+        id: access_optin
+        run: |
+          set -e
+          mkdir -p docs/_meta
+
+          URL="${{ steps.discover_url.outputs.DEPLOY_URL_API }}"
+          if [ -z "$URL" ]; then
+            URL="${{ steps.deploy.outputs.DEPLOY_URL }}"
+          fi
+          HOST=$(echo "$URL" | sed -n 's#^https\?://\([^/]*\).*#\1#p')
+          echo "ACCESS_DEPLOY_HOST=$HOST" >> $GITHUB_ENV
+
+          TEAM="${{ secrets.CF_ZERO_TRUST_TEAM }}"
+          APP_ID="${{ secrets.ACCESS_APP_ID }}"
+          POLICY_ID="${{ secrets.ACCESS_POLICY_ID_PROD }}"
+          if [ -z "$TEAM" ] || [ -z "$APP_ID" ]; then
+            echo "PENDING_PROTECTION: Missing CF_ZERO_TRUST_TEAM or ACCESS_APP_ID" >> docs/_meta/ACCESS_DIAG_BRIEFING.md
+            echo "ACCESS_CONFIGURED=NO" >> $GITHUB_OUTPUT
+            echo "ACCESS_CONFIGURED=NO" >> $GITHUB_ENV
+            exit 0
+          fi
+
+          echo "=== Access OPT-IN: updating app domains and policy order ==="
+          ACCOUNT_ID="$ACCOUNT_ID_EFFECTIVE"
+          BASE="https://api.cloudflare.com/client/v4/accounts/$ACCOUNT_ID/access"
+
+          # 1) Read app (before)
+          curl -s -H "Authorization: Bearer $CLOUDFLARE_API_TOKEN" "$BASE/apps/$APP_ID" | jq '.' > docs/_meta/ACCESS_app_before.json
+
+          # Extract domains and append host if missing
+          DOMAINS=$(jq -r '.domains // [] | @json' docs/_meta/ACCESS_app_before.json)
+          HAS_DOMAIN=$(jq -r --arg h "$HOST" '.domains // [] | map(.== $h) | any' docs/_meta/ACCESS_app_before.json)
+          if [ "$HAS_DOMAIN" != "true" ]; then
+            NEW_DOMAINS=$(jq -c --arg h "$HOST" '(.domains // []) + [$h] | unique' docs/_meta/ACCESS_app_before.json)
+            echo "$NEW_DOMAINS" > /tmp/access_domains.json
+            # PATCH domains only (best-effort; if not supported, attempt PUT fallback)
+            RESP_PATCH=$(curl -s -o /tmp/access_app_patch.json -w "%{http_code}" -X PATCH "$BASE/apps/$APP_ID" \
+              -H "Authorization: Bearer $CLOUDFLARE_API_TOKEN" -H "Content-Type: application/json" \
+              --data @<(jq -n --slurpfile d /tmp/access_domains.json '{domains: $d[0]}'))
+            if [ "$RESP_PATCH" != "200" ]; then
+              echo "PATCH domains not supported or failed (HTTP $RESP_PATCH). Trying PUT..."
+              # Build PUT payload from existing app + updated domains
+              jq --argfile d /tmp/access_domains.json '.domains = $d' docs/_meta/ACCESS_app_before.json > /tmp/access_app_put.json
+              RESP_PUT=$(curl -s -o /tmp/access_app_put_resp.json -w "%{http_code}" -X PUT "$BASE/apps/$APP_ID" \
+                -H "Authorization: Bearer $CLOUDFLARE_API_TOKEN" -H "Content-Type: application/json" \
+                --data @/tmp/access_app_put.json)
+              if [ "$RESP_PUT" != "200" ]; then
+                echo "PENDING_PROTECTION: Failed to update app domains (HTTP $RESP_PUT)" >> docs/_meta/ACCESS_DIAG_BRIEFING.md
+                echo "ACCESS_CONFIGURED=NO" >> $GITHUB_OUTPUT
+                echo "ACCESS_CONFIGURED=NO" >> $GITHUB_ENV
+                cp /tmp/access_app_put_resp.json docs/_meta/ACCESS_app_after.json || true
+                exit 0
+              fi
+              cp /tmp/access_app_put_resp.json docs/_meta/ACCESS_app_after.json || true
+            else
+              cp /tmp/access_app_patch.json docs/_meta/ACCESS_app_after.json || true
+            fi
+          else
+            # No change on domains; copy before as after
+            cp docs/_meta/ACCESS_app_before.json docs/_meta/ACCESS_app_after.json || true
+          fi
+
+          # 2) Ensure SERVICE AUTH policy precedence if provided
+          if [ -n "$POLICY_ID" ]; then
+            curl -s -H "Authorization: Bearer $CLOUDFLARE_API_TOKEN" "$BASE/apps/$APP_ID/policies" | jq '.' > /tmp/access_policies.json
+            CUR_PREC=$(jq -r --arg id "$POLICY_ID" '.result[] | select(.id==$id) | .precedence // empty' /tmp/access_policies.json)
+            if [ -n "$CUR_PREC" ] && [ "$CUR_PREC" != "1" ]; then
+              RESP_POL=$(curl -s -o /tmp/access_policy_patch.json -w "%{http_code}" -X PATCH "$BASE/apps/$APP_ID/policies/$POLICY_ID" \
+                -H "Authorization: Bearer $CLOUDFLARE_API_TOKEN" -H "Content-Type: application/json" \
+                --data '{"precedence":1}')
+              if [ "$RESP_POL" != "200" ]; then
+                echo "WARN: Failed to set precedence=1 on policy $POLICY_ID (HTTP $RESP_POL)" >> docs/_meta/ACCESS_DIAG_BRIEFING.md
+              fi
+            fi
+          fi
+
+          echo "ACCESS_CONFIGURED=YES" >> $GITHUB_OUTPUT
+          echo "ACCESS_CONFIGURED=YES" >> $GITHUB_ENV
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CF_API_TOKEN_PAGES || secrets.CLOUDFLARE_API_TOKEN || secrets.CF_API_TOKEN }}
+
       - name: Record deployment evidence
         if: always()
         run: |
@@ -428,14 +533,18 @@ jobs:
         run: |
           set -e
           mkdir -p docs/_meta
-          URL="${{ steps.deploy.outputs.DEPLOY_URL }}"
+          URL="${{ steps.discover_url.outputs.DEPLOY_URL_API || steps.deploy.outputs.DEPLOY_URL }}"
           if [ -z "$URL" ]; then echo "No DEPLOY_URL, skipping"; exit 0; fi
+          if [ "${{ steps.access_optin.outputs.ACCESS_CONFIGURED }}" != "YES" ]; then
+            echo "PENDING_PROTECTION: Access not configured (opt-in missing or API error)" >> docs/_meta/ACCESS_DIAG_BRIEFING.md
+            exit 0
+          fi
           if [ -z "${{ secrets.CF_ACCESS_CLIENT_ID }}" ] || [ -z "${{ secrets.CF_ACCESS_CLIENT_SECRET }}" ]; then
-            echo "PENDING_PROTECTION: Missing Access secrets" >> docs/_meta/ACCESS_DIAG_BRIEFING.md
+            echo "PENDING_PROTECTION: Missing Access Service Token secrets" >> docs/_meta/ACCESS_DIAG_BRIEFING.md
             exit 0
           fi
           {
-            echo "# Nuevo proyecto — protegido (with headers)"
+            echo "# Direct Upload — protegido (with headers)"
             echo "Root: $URL"
           } >> docs/_meta/ACCESS_DIAG_BRIEFING.md
           # HEAD root
@@ -457,10 +566,10 @@ jobs:
         run: |
           set -e
           mkdir -p docs/_meta
-          URL="${{ steps.deploy.outputs.DEPLOY_URL }}"
+          URL="${{ steps.discover_url.outputs.DEPLOY_URL_API || steps.deploy.outputs.DEPLOY_URL }}"
           if [ -z "$URL" ]; then echo "No DEPLOY_URL, skipping"; exit 0; fi
           {
-            echo "\n# Nuevo proyecto — protegido (without headers)"
+            echo "\n# Direct Upload — protegido (without headers)"
             echo "Root: $URL"
           } >> docs/_meta/ACCESS_DIAG_BRIEFING.md
           curl -s -I "$URL/" | tee -a docs/_meta/ACCESS_DIAG_BRIEFING.md
@@ -475,7 +584,7 @@ jobs:
         run: |
           set -e
           mkdir -p docs/_meta/_deploy_forensics/post_migration
-          URL="${{ steps.deploy.outputs.DEPLOY_URL }}"
+          URL="${{ steps.discover_url.outputs.DEPLOY_URL_API || steps.deploy.outputs.DEPLOY_URL }}"
           INDEX_LOCAL="apps/briefing/site/index.html"
           ASSET_REL="${ASSET_REL:-}"
           ASSET_LOCAL="apps/briefing/site/${ASSET_REL:-}"
@@ -576,7 +685,7 @@ jobs:
           echo "## 🚀 Deployment Summary" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "**Project**: runart-briefing-direct" >> $GITHUB_STEP_SUMMARY
-          echo "**URL**: ${{ steps.deploy.outputs.DEPLOY_URL }}" >> $GITHUB_STEP_SUMMARY
+          echo "**URL**: ${{ steps.discover_url.outputs.DEPLOY_URL_API || steps.deploy.outputs.DEPLOY_URL }}" >> $GITHUB_STEP_SUMMARY
           echo "**Source (normalized)**: ${{ steps.verify_source.outputs.SOURCE_NORMALIZED }}" >> $GITHUB_STEP_SUMMARY
           echo "**Source (raw)**: ${{ steps.verify_source.outputs.SOURCE_RAW }} | **Trigger**: ${{ steps.verify_source.outputs.TRIGGER_TYPE }}" >> $GITHUB_STEP_SUMMARY
           echo "**Deployment ID**: ${{ steps.verify_source.outputs.DEPLOY_ID }}" >> $GITHUB_STEP_SUMMARY
@@ -586,6 +695,7 @@ jobs:
           else
             echo "⚠️ **Status**: Deployment finished but source verification did not confirm direct_upload" >> $GITHUB_STEP_SUMMARY
           fi
+          echo "**Access configured (opt-in)**: ${{ steps.access_optin.outputs.ACCESS_CONFIGURED || 'NO' }}" >> $GITHUB_STEP_SUMMARY
 
       - name: Update BRIEFING_STATUS_PIPELINE_RUN.md
         if: always()
@@ -598,9 +708,10 @@ jobs:
             echo "- Fecha: $(date -u +"%Y-%m-%dT%H:%M:%SZ")"
             echo "- Run URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
             echo "- Proyecto: runart-briefing-direct"
-            echo "- URL: ${{ steps.deploy.outputs.DEPLOY_URL }}"
+            echo "- URL: ${{ steps.discover_url.outputs.DEPLOY_URL_API || steps.deploy.outputs.DEPLOY_URL }}"
             echo "- SOURCE_NORMALIZED: ${{ steps.verify_source.outputs.SOURCE_NORMALIZED }} (raw=${{ steps.verify_source.outputs.SOURCE_RAW }}, trigger=${{ steps.verify_source.outputs.TRIGGER_TYPE }})"
             echo "- Deployment ID: ${{ steps.verify_source.outputs.DEPLOY_ID }}"
+            echo "- ACCESS_CONFIGURED (opt-in): ${{ steps.access_optin.outputs.ACCESS_CONFIGURED || 'NO' }}"
           } >> "$FILE"
 
       - name: Create Cutover Plan doc
@@ -621,6 +732,12 @@ jobs:
               echo "Requisitos: Validación API OK, Access (200 con headers, 302/403 sin headers), fingerprints MATCH."
             } > "$FILE"
           fi
+          {
+            echo "\n## Post-protection & fingerprints"
+            echo "- URL: ${{ steps.discover_url.outputs.DEPLOY_URL_API || steps.deploy.outputs.DEPLOY_URL }}"
+            echo "- Access (opt-in): ${{ steps.access_optin.outputs.ACCESS_CONFIGURED || 'NO' }} (ver docs/_meta/ACCESS_DIAG_BRIEFING.md)"
+            echo "- Fingerprints: ver docs/_meta/_deploy_forensics/post_migration/fingerprint_diff.txt"
+          } >> "$FILE"
 
       - name: Append Workflow Audit note
         if: always()
