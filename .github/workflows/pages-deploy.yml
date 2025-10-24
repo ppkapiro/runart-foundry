@@ -77,4 +77,24 @@ jobs:
           git commit -m "docs(meta): log deploy Pages [skip ci]" || true
           git push || true
 
-      # Purge Cloudflare Cache (optional): paso omitido para evitar dependencia de secretos no garantizados (CF_ZONE_ID)
+      - name: Purge Cloudflare Cache (opcional)
+        env:
+          CF_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CF_ZONE_ID: ${{ secrets.CF_ZONE_ID }}
+        run: |
+          if [ -n "$CF_ZONE_ID" ]; then
+            echo "ℹ️  CF_ZONE_ID disponible; purgando cache..."
+            curl -sS -X POST "https://api.cloudflare.com/client/v4/zones/${CF_ZONE_ID}/purge_cache" \
+              -H "Authorization: Bearer ${CF_API_TOKEN}" \
+              -H "Content-Type: application/json" \
+              --data '{"purge_everything":true}' | tee purge_result.json
+            if grep -q '"success":true' purge_result.json; then
+              echo "✅ Cache purgada exitosamente"
+              echo "- Cache purge OK: $(date -u +%FT%TZ)" >> docs/_meta/BRIEFING_STATUS_PIPELINE_RUN.md
+            else
+              echo "⚠️  Purge falló; no crítico"
+            fi
+          else
+            echo "ℹ️  CF_ZONE_ID no configurado; saltando purge de cache (no crítico)"
+          fi
+        continue-on-error: true

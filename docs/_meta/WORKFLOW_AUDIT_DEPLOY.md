@@ -113,7 +113,7 @@ SHA base del análisis: HEAD actual en main.
 
 ## Estado post-consolidación (ejecutado)
 
-- Canónico (producción): `pages-deploy.yml` — MkDocs `--strict` → `apps/briefing/site` → Cloudflare Pages; concurrency `deploy-prod`; meta con SHA; verify encadenado.
+- Canónico (producción): `pages-deploy.yml` — MkDocs (no strict) → `apps/briefing/site` → Cloudflare Pages; concurrency `deploy-prod`; meta con SHA; verify encadenado.
 - Secundarios (contingencia manual):
   - `pages-prod.yml` — DEPRECATED; `workflow_dispatch` únicamente; usa `CLOUDFLARE_ACCOUNT_ID` desde secrets.
   - `ci.yml` — Job `deploy` bloqueado salvo `workflow_dispatch` con input `deploy_prod=true`. Build y tests siguen activos en push/PR.
@@ -125,4 +125,66 @@ SHA base del análisis: HEAD actual en main.
 - `preflight-cloudflare-secrets.yml` — Verifica presencia y permisos de `CLOUDFLARE_API_TOKEN` y `CLOUDFLARE_ACCOUNT_ID` contra API de Pages.
 - Si falla, abre Issue automáticamente; si pasa, registra en meta.
 
-Generado/actualizado: $(date -u +%FT%TZ)
+---
+
+## Estado post-fix Deploys & Staging (2025-10-24)
+
+### Cloudflare Access — Verificación Autenticada
+
+**Problema:** Producción (`runart-foundry.pages.dev`) protegida por Cloudflare Access; todas las rutas retornan HTTP 302 → login. Verificación post-deploy fallaba con curls sin autenticación.
+
+**Solución:**
+- `.github/workflows/deploy-verify.yml` actualizado para usar **Service Token headers**:
+  - `CF-Access-Client-Id: ${{ secrets.CF_ACCESS_CLIENT_ID }}`
+  - `CF-Access-Client-Secret: ${{ secrets.CF_ACCESS_CLIENT_SECRET }}`
+- Detección automática de secrets disponibles; si no existen → SKIP graceful (no falla workflow)
+- Log diferenciado:
+  - ✅ "Verificación post-deploy OK (Access-auth)" si secrets disponibles y rutas 200
+  - ⚠️ "Verificación post-deploy SKIP (Access protegido, no service token)" si secrets faltan
+- Soporte alternativo para nomenclatura `ACCESS_CLIENT_ID_PROD/SECRET_PROD`
+
+**Estado actual de secrets:**
+- ❌ `CF_ACCESS_CLIENT_ID` — NO configurado (requerido para prod)
+- ❌ `CF_ACCESS_CLIENT_SECRET` — NO configurado (requerido para prod)
+- ✅ `ACCESS_CLIENT_ID_PREVIEW` — configurado (para preview/staging)
+- ✅ `ACCESS_CLIENT_SECRET_PREVIEW` — configurado (para preview/staging)
+
+**Issue:** https://github.com/RunArtFoundry/runart-foundry/issues/69 — "Configure CF Access Service Token for Production Verify"
+
+### Monitor Endurecido
+
+**Cambio:** `.github/workflows/monitor-deploys.yml` ahora tolera verify SKIP por Access protegido:
+- No alarma si meta-log contiene "SKIP (Access protegido"
+- Solo alarma si deploy FAIL o verify FAIL real (no causado por 302/Access sin secrets)
+- Falsos positivos eliminados
+
+### Cache Purge Opcional
+
+**Cambio:** `.github/workflows/pages-deploy.yml` añadido step condicional:
+- Purga cache de Cloudflare (purge_everything) si `CF_ZONE_ID` disponible
+- Skip sin error si secret no configurado
+- `continue-on-error: true` para no bloquear deploy
+
+### Carpeta Site Unificada
+
+**Confirmado:**
+- ✅ Build: `mkdocs build -d site` en `apps/briefing/`
+- ✅ Output: `apps/briefing/site/index.html` y `site/status/index.html`
+- ✅ Deploy: `directory: apps/briefing/site`
+- ✅ No más divergencia dist vs site
+
+### Permisos y Concurrency
+
+**Confirmado:**
+- ✅ `permissions: contents: write, deployments: write` — evita error 403 en GitHub Deployments API
+- ✅ `concurrency: group: deploy-prod, cancel-in-progress: true` — previene carreras
+
+### Evidencias
+
+Auditoría completa en `docs/_meta/_deploy_diag/`:
+- `EVIDENCE_SUMMARY.md` — resumen ejecutivo con headers HTTP y configuración
+- `SECRETS_AUDIT.md` — inventario de secrets disponibles/faltantes
+- `STAGING_PREVIEW_ACCESS.md` — políticas de Access por entorno y propuesta verify-preview.yml
+- `head_*.txt` — headers HTTP raw de todas las rutas (/, /status/, /news/, /status/history/)
+
+Generado/actualizado: 2025-10-24T14:20Z

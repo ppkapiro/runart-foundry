@@ -1,0 +1,13 @@
+HTTP/2 302 
+date: Fri, 24 Oct 2025 14:03:39 GMT
+location: https://runart-briefing-pages.cloudflareaccess.com/cdn-cgi/access/login/runart-foundry.pages.dev?kid=208c1b2a60b592e4f5468bd56804e905bff41b8745928f4eaf136ea2e4d5ee5b&meta=eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiIsImtpZCI6IjgxYjFkN2IwZDg4ZTNjZTkwNGFhYzc3YTExZmM2NjQ0YWY0ZTM0YWI3MzE1YjMxNDI0NDI5MDVlMDcwOGFhYTkifQ.eyJ0eXBlIjoibWV0YSIsImF1ZCI6IjIwOGMxYjJhNjBiNTkyZTRmNTQ2OGJkNTY4MDRlOTA1YmZmNDFiODc0NTkyOGY0ZWFmMTM2ZWEyZTRkNWVlNWIiLCJob3N0bmFtZSI6InJ1bmFydC1mb3VuZHJ5LnBhZ2VzLmRldiIsInJlZGlyZWN0X3VybCI6Ii9zdGF0dXMvIiwic2VydmljZV90b2tlbl9zdGF0dXMiOmZhbHNlLCJpc193YXJwIjpmYWxzZSwiaXNfZ2F0ZXdheSI6ZmFsc2UsImV4cCI6MTc2MTMxNDkxOSwibmJmIjoxNzYxMzE0NjE5LCJpYXQiOjE3NjEzMTQ2MTksImF1dGhfc3RhdHVzIjoiTk9ORSIsIm10bHNfYXV0aCI6eyJjZXJ0X2lzc3Vlcl9kbiI6IiIsImNlcnRfc2VyaWFsIjoiIiwiY2VydF9pc3N1ZXJfc2tpIjoiIiwiY2VydF9wcmVzZW50ZWQiOmZhbHNlLCJjb21tb25fbmFtZSI6IiIsImF1dGhfc3RhdHVzIjoiTk9ORSJ9LCJyZWFsX2NvdW50cnkiOiJVUyIsImFwcF9zZXNzaW9uX2hhc2giOiJmYmJmNzY4ODEzMTdhMTk1ZDlmMzg0YTdkNjg3NWYxOWEwMTk4NTliMzUxNTBhZWVlNzczZTA5YTZkNjU2NjQ0In0.rRdEK0WEnwOIg1SMLtvUkrBjKnRmg15weqhzA1JmnBnp5BDUvsYtbQfB3RaGA2UIeHm2xXms0dgighKDIt7hQT6VL_GOLnStEBX86-FrQgdbmUHX2ludyerESoUEo-KAmDOK8PeBPssHJg4NsFFNUJYIJcTO5VpawOP4GJ_KTub0rNmSYnjrhagqfy0RneSNQWn2F0C4c4Y_PZbZtn27-oLSnlpuN6ok_kvrsnxxm_9XIkzPCW3ooYI7GdHhu4rO7k29ybtfNv4KYCAZv9qsBLpOLYkxARgD6RRRjTyN3uhnkn3vKcD09Weuf1_47Zz98aAojc--pQscS6lH1xgvoA&redirect_url=%2Fstatus%2F
+expires: Thu, 01 Jan 1970 00:00:01 GMT
+access-control-allow-credentials: true
+cache-control: private, max-age=0, no-store, no-cache, must-revalidate, post-check=0, pre-check=0
+report-to: {"group":"cf-nel","max_age":604800,"endpoints":[{"url":"https://a.nel.cloudflare.com/report/v4?s=opksjhOedAtc2NHi3MsyXfNOSgwq8hSAazQk1SfXWgklIjoIVjvSGxXNMuQ4hnBesE88Dvnob%2FZoJzlAoESX9jIpNVHTKrsSygUYv7MU9HgVWKqH19LXCA%3D%3D"}]}
+nel: {"report_to":"cf-nel","success_fraction":0.0,"max_age":604800}
+server: cloudflare
+set-cookie: CF_AppSession=4478c599b675111e; HttpOnly; Secure; Path=/; Expires=Sat, 25 Oct 2025 14:03:39 GMT
+cf-ray: 993a04d40c4b33e0-MIA
+alt-svc: h3=":443"; ma=86400
+

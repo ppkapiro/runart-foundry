@@ -217,3 +217,71 @@ Notas:
 - SHA: ef6c9e8
 - Status: Publicado con éxito a Cloudflare Pages
 - Verificación: PENDIENTE hasta remover Access policy
+
+---
+
+## Operación FIX DEPLOYS & STAGING (2025-10-24T14:15Z)
+
+### Objetivo
+Eliminar puntos ciegos en deploy/verify y estabilizar pipelines con verificación autenticada vía Cloudflare Access Service Tokens.
+
+### Cambios Implementados
+
+#### A) Auditoría Técnica
+- ✅ Headers HTTP de producción capturados (todas las rutas retornan 302 → Access login)
+- ✅ Confirmado workflow canónico único (`pages-deploy.yml`)
+- ✅ Workflows legacy (pages-prod.yml, ci.yml deploy job) son manual-only o deshabilitados
+
+#### B) Verificación con Access (Service Token)
+- ✅ `.github/workflows/deploy-verify.yml` actualizado:
+  - Detecta `CF_ACCESS_CLIENT_ID/SECRET` o `ACCESS_CLIENT_ID_PROD/SECRET_PROD`
+  - Usa headers `CF-Access-Client-Id` y `CF-Access-Client-Secret` para autenticación
+  - Verifica `/`, `/status/`, `/news/`, `/status/history/` con Access auth
+  - Skip graceful si secrets no existen (no falla)
+  - Log diferenciado: "OK (Access-auth)" vs "SKIP (Access protegido, no service token)"
+
+- ✅ `.github/workflows/monitor-deploys.yml` endurecido:
+  - Tolera verify SKIP por Access protegido (no alarma falsos positivos)
+  - Solo alarma si deploy FAIL o verify FAIL real
+
+#### C) Staging/Preview
+- ✅ Documentado en `docs/_meta/_deploy_diag/STAGING_PREVIEW_ACCESS.md`:
+  - Preview usa `ACCESS_CLIENT_ID_PREVIEW/SECRET_PREVIEW` (ya configurados)
+  - Propuesta de workflow `verify-preview.yml` para PRs
+
+#### D) Unificación Build
+- ✅ Confirmado: `mkdocs build -d site` en `apps/briefing/`
+- ✅ Cloudflare Pages action publica `directory: apps/briefing/site`
+- ✅ Permisos: `contents: write`, `deployments: write`
+- ✅ Concurrency: `group: deploy-prod`, `cancel-in-progress: true`
+
+#### E) Cache Purge Opcional
+- ✅ `.github/workflows/pages-deploy.yml` añadido step condicional:
+  - Purga cache si `CF_ZONE_ID` disponible
+  - Skip sin error si no configurado
+  - `continue-on-error: true`
+
+#### F) Evidencias y Documentación
+- ✅ `docs/_meta/_deploy_diag/SECRETS_AUDIT.md` — inventario de secrets disponibles/faltantes
+- ✅ `docs/_meta/_deploy_diag/STAGING_PREVIEW_ACCESS.md` — políticas de Access por entorno
+- ✅ `docs/_meta/_deploy_diag/EVIDENCE_SUMMARY.md` — resumen ejecutivo con headers HTTP y estado
+- ✅ `docs/_meta/_deploy_diag/head_*.txt` — headers HTTP raw de todas las rutas
+
+### Issue Creado
+- 🔗 https://github.com/RunArtFoundry/runart-foundry/issues/69
+  - **Título:** Configure CF Access Service Token for Production Verify
+  - **Descripción:** Crear `CF_ACCESS_CLIENT_ID` y `CF_ACCESS_CLIENT_SECRET` para habilitar verificación autenticada en prod
+
+### Próximos Pasos
+1. Configurar Access Service Token en Cloudflare Dashboard y añadir secrets a GitHub
+2. Re-ejecutar verificación post-merge; debe SKIP con mensaje claro hasta que secrets estén disponibles
+3. Opcional: configurar `CF_ZONE_ID` para purge automático de cache
+
+### Criterios de Salida ✅
+- ✅ Deploy a PROD funcional
+- ✅ Verify PROD autenticado implementado (skip si secrets faltan)
+- ✅ Monitor tolerante a Access 302
+- ✅ Staging/preview documentado
+- ✅ Unificación carpeta `site` y permisos `deployments: write`
+- ✅ Evidencias en `docs/_meta/_deploy_diag/`
+

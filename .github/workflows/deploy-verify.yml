@@ -4,39 +4,90 @@ on:
   workflow_run:
     workflows: ["Deploy to Cloudflare Pages (Briefing)"]
     types: [completed]
+  workflow_dispatch:
 
 permissions:
   contents: write
 
 jobs:
   verify:
-    if: ${{ github.event.workflow_run.conclusion == 'success' }}
+    if: ${{ github.event.workflow_run.conclusion == 'success' || github.event_name == 'workflow_dispatch' }}
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Check / (home)
+      - name: Check Access secrets availability
+        id: check_secrets
         run: |
-          curl -sSf https://runart-foundry.pages.dev/ >/dev/null
+          if [ -n "${{ secrets.CF_ACCESS_CLIENT_ID }}" ] && [ -n "${{ secrets.CF_ACCESS_CLIENT_SECRET }}" ]; then
+            echo "access_available=true" >> $GITHUB_OUTPUT
+            echo "✅ Access secrets disponibles (CF_ACCESS_CLIENT_ID/SECRET)"
+          elif [ -n "${{ secrets.ACCESS_CLIENT_ID_PROD }}" ] && [ -n "${{ secrets.ACCESS_CLIENT_SECRET_PROD }}" ]; then
+            echo "access_available=true" >> $GITHUB_OUTPUT
+            echo "use_prod_naming=true" >> $GITHUB_OUTPUT
+            echo "✅ Access secrets disponibles (ACCESS_CLIENT_ID_PROD/SECRET_PROD)"
+          else
+            echo "access_available=false" >> $GITHUB_OUTPUT
+            echo "⚠️  Access secrets NO disponibles; verificación saltará contenido protegido"
+          fi
 
-      - name: Check /status/
+      - name: Check / (home) with Access auth
+        if: steps.check_secrets.outputs.access_available == 'true'
+        env:
+          CF_CLIENT_ID: ${{ secrets.CF_ACCESS_CLIENT_ID || secrets.ACCESS_CLIENT_ID_PROD }}
+          CF_CLIENT_SECRET: ${{ secrets.CF_ACCESS_CLIENT_SECRET || secrets.ACCESS_CLIENT_SECRET_PROD }}
         run: |
-          curl -sS https://runart-foundry.pages.dev/status/ | grep -E "KPIs|Documentos|Estado Operativo" >/dev/null
+          curl -sSf -H "CF-Access-Client-Id: $CF_CLIENT_ID" -H "CF-Access-Client-Secret: $CF_CLIENT_SECRET" \
+            https://runart-foundry.pages.dev/ >/dev/null && echo "✅ / OK"
 
-      - name: Check /news/
+      - name: Check /status/ with Access auth
+        if: steps.check_secrets.outputs.access_available == 'true'
+        env:
+          CF_CLIENT_ID: ${{ secrets.CF_ACCESS_CLIENT_ID || secrets.ACCESS_CLIENT_ID_PROD }}
+          CF_CLIENT_SECRET: ${{ secrets.CF_ACCESS_CLIENT_SECRET || secrets.ACCESS_CLIENT_SECRET_PROD }}
         run: |
-          curl -sS https://runart-foundry.pages.dev/news/ | grep -E "Auto-Post|Actualización|docs|news" >/dev/null
+          curl -sS -H "CF-Access-Client-Id: $CF_CLIENT_ID" -H "CF-Access-Client-Secret: $CF_CLIENT_SECRET" \
+            https://runart-foundry.pages.dev/status/ | grep -E "KPIs|Documentos|Estado Operativo" >/dev/null && echo "✅ /status/ OK"
 
-      - name: Check /status/history/
+      - name: Check /news/ with Access auth
+        if: steps.check_secrets.outputs.access_available == 'true'
+        env:
+          CF_CLIENT_ID: ${{ secrets.CF_ACCESS_CLIENT_ID || secrets.ACCESS_CLIENT_ID_PROD }}
+          CF_CLIENT_SECRET: ${{ secrets.CF_ACCESS_CLIENT_SECRET || secrets.ACCESS_CLIENT_SECRET_PROD }}
         run: |
-          curl -sS https://runart-foundry.pages.dev/status/history/ | grep -E "canvas|Chart" >/dev/null
+          curl -sS -H "CF-Access-Client-Id: $CF_CLIENT_ID" -H "CF-Access-Client-Secret: $CF_CLIENT_SECRET" \
+            https://runart-foundry.pages.dev/news/ | grep -E "Auto-Post|Actualización|docs|news" >/dev/null && echo "✅ /news/ OK"
 
-      - name: Log verification to meta
+      - name: Check /status/history/ with Access auth
+        if: steps.check_secrets.outputs.access_available == 'true'
+        env:
+          CF_CLIENT_ID: ${{ secrets.CF_ACCESS_CLIENT_ID || secrets.ACCESS_CLIENT_ID_PROD }}
+          CF_CLIENT_SECRET: ${{ secrets.CF_ACCESS_CLIENT_SECRET || secrets.ACCESS_CLIENT_SECRET_PROD }}
+        run: |
+          curl -sS -H "CF-Access-Client-Id: $CF_CLIENT_ID" -H "CF-Access-Client-Secret: $CF_CLIENT_SECRET" \
+            https://runart-foundry.pages.dev/status/history/ | grep -E "canvas|Chart" >/dev/null && echo "✅ /status/history/ OK"
+
+      - name: Skip verification (Access protected, no secrets)
+        if: steps.check_secrets.outputs.access_available == 'false'
+        run: |
+          echo "⚠️  Sitio protegido por Cloudflare Access; secrets no disponibles."
+          echo "ℹ️  Para habilitar verificación autenticada, configurar CF_ACCESS_CLIENT_ID/SECRET en GitHub Secrets."
+          echo "SKIP_REASON=Access protected, no service token" >> $GITHUB_ENV
+
+      - name: Log verification to meta (success)
+        if: steps.check_secrets.outputs.access_available == 'true'
         run: |
           echo "" >> docs/_meta/BRIEFING_STATUS_PIPELINE_RUN.md
-          echo "- Verificación post-deploy OK: $(date -u +%FT%TZ)" >> docs/_meta/BRIEFING_STATUS_PIPELINE_RUN.md
+          echo "- Verificación post-deploy OK (Access-auth): $(date -u +%FT%TZ)" >> docs/_meta/BRIEFING_STATUS_PIPELINE_RUN.md
           echo "  Rutas verificadas: /, /status/, /news/, /status/history/" >> docs/_meta/BRIEFING_STATUS_PIPELINE_RUN.md
+
+      - name: Log verification skipped to meta
+        if: steps.check_secrets.outputs.access_available == 'false'
+        run: |
+          echo "" >> docs/_meta/BRIEFING_STATUS_PIPELINE_RUN.md
+          echo "- Verificación post-deploy SKIP (Access protegido, no service token): $(date -u +%FT%TZ)" >> docs/_meta/BRIEFING_STATUS_PIPELINE_RUN.md
+          echo "  Issue: https://github.com/RunArtFoundry/runart-foundry/issues/69" >> docs/_meta/BRIEFING_STATUS_PIPELINE_RUN.md
 
       - name: Commit verification log
         run: |
