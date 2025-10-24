@@ -294,6 +294,106 @@ Eliminar puntos ciegos en deploy/verify y estabilizar pipelines con verificació
 
 - Verify prod: 2025-10-24T14:58:35Z | auth: with-Access | result: OK
 
+---
+
+## 🔬 FORENSICS INVESTIGATION — Deploy/Content Mismatch
+
+**Fecha:** 2025-10-24T15:10–15:35Z  
+**Contexto:** User reporta contenido viejo visible en navegador a pesar de deploy OK
+
+### Root Cause Identificado
+
+**🔴 CRÍTICO: Git Integration ACTIVO (Dual-Source Deployments)**
+
+Evidencia API (`cf_project_settings.json`):
+- `source.type: "github"` → Git Integration conectado a `ppkapiro/runart-foundry`
+- Build automático: `npm run build` desde `apps/briefing` → `site/`
+- `build_caching: true` → posible cache stale
+
+Deploy history (`cf_deploys.json`):
+```
+TODOS los deploys recientes: source=github (Git Integration)
+NINGÚN deploy: source=direct_upload (GitHub Action)
+```
+
+**Problema:** GitHub Action `pages-deploy.yml` sube artefactos pero Git Integration los sobreescribe inmediatamente con build automático desde repo.
+
+**🔴 SECUNDARIO: Access Service Token PREVIEW no autoriza PROD**
+
+Fingerprint comparison (`fingerprint_diff.txt`):
+```
+Local build:
+  index.html:        ffaa3d1b27050a1734d10e0498b0765afa31261a
+  status/index.html: 30b7b0901c80d93b4ea739acb5e159da9fb5476a
+
+Production (con ACCESS_CLIENT_ID_PREVIEW):
+  index.html:        da39a3ee5e6b4b0d3255bfef95601890afd80709 (EMPTY FILE)
+  status/index.html: da39a3ee5e6b4b0d3255bfef95601890afd80709 (EMPTY FILE)
+
+Result: ❌ MISMATCH (prod files 0 bytes)
+```
+
+Service Token para preview environment no autoriza `runart-foundry.pages.dev` (production).
+
+### Remediaciones Documentadas
+
+**Archivo completo:** `docs/_meta/_deploy_forensics/REMediation.md`
+
+#### ✅ Aplicadas (Automated)
+
+1. Forensics data collection workflow (`forensics-collect.yml`)
+2. API queries: projects, deploys, settings
+3. Build local + fingerprint comparison
+4. Issue #70 abierto: "Disconnect Pages Git Integration"
+
+#### ⏳ Pendientes (Manual — Owner Required)
+
+1. **[P1-CRITICAL] Desconectar Git Integration**
+   - Location: Cloudflare Dashboard → Pages → runart-foundry → Settings
+   - Action: Disconnect repo `ppkapiro/runart-foundry`
+   - Validación: próximos deploys mostrarán `source: direct_upload`
+
+2. **[P1] Crear Access Service Token PROD**
+   - Location: Cloudflare Zero Trust → Service Tokens
+   - Token name: `GitHub Actions CI — Prod runart-foundry`
+   - Add secrets: `CF_ACCESS_CLIENT_ID`, `CF_ACCESS_CLIENT_SECRET`
+   - Update policy: Allow Service Auth in `runart-foundry.pages.dev` app
+
+3. **Re-deploy canónico post-disconnect**
+   - Trigger: automático en próximo push, o manual via `gh workflow run`
+   - Validación: SHA correlation PASS, fingerprint MATCH, source=direct_upload
+
+### Evidencias Recolectadas
+
+**Directorio:** `docs/_meta/_deploy_forensics/`
+
+- `cf_projects.json` — Lista de proyectos Pages (1 encontrado: runart-foundry)
+- `cf_deploys.json` — Últimos 10 deploys (todos source=github)
+- `cf_project_settings.json` — Config completa (Git Integration activo)
+- `correlation.txt` — SHA mismatch (local: bdb0df6, prod: 893b759)
+- `fingerprint_diff.txt` — MISMATCH (prod empty files)
+- `local_fingerprints.txt` — Build local válido
+- `prod_fingerprints.txt` — Archivos vacíos (0 bytes)
+- `WORKFLOW_AUDIT_DEPLOY.md` — Análisis técnico completo
+- `REMediation.md` — Remediaciones aplicadas y pendientes
+
+### Issues Relacionados
+
+- **Issue #69**: Configure prod Access Service Tokens (pre-existente)
+- **Issue #70**: Disconnect Pages Git Integration (**NUEVO** — [link](https://github.com/RunArtFoundry/runart-foundry/issues/70))
+
+### Criterios de Cierre
+
+- [ ] Git Integration desconectado (Dashboard confirmation)
+- [ ] Access Service Token PROD creado y policy actualizada
+- [ ] Deploy canónico post-disconnect exitoso
+- [ ] API muestra `source: direct_upload` en último deploy
+- [ ] Fingerprint MATCH entre prod y local
+- [ ] Meta-log entry: `"Forensics OK — root cause: Git Integration — fix: disconnected — source: direct_upload"`
+
+**Estado actual:** ⏸️ **BLOCKED ON MANUAL ACTIONS** (owner Dashboard access required)  
+**Próxima acción:** Owner debe ejecutar remediaciones manuales → re-validar post-disconnect
+
 - Verify prod: 2025-10-24T15:17:22Z | auth: with-Access | result: OK
 
 - Verify prod: 2025-10-24T15:21:37Z | auth: with-Access | result: OK
