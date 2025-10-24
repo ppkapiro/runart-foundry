@@ -39,10 +39,24 @@ jobs:
           curl -sS "https://api.cloudflare.com/client/v4/accounts/$CF_ACCOUNT_ID/pages/projects/runart-foundry" \
             -H "Authorization: Bearer $CF_API_TOKEN" | jq '.' > docs/_meta/_deploy_forensics/cf_project_settings.json
       
+      - name: Download production content snippets
+        env:
+          CF_CLIENT_ID: ${{ secrets.ACCESS_CLIENT_ID_PREVIEW }}
+          CF_CLIENT_SECRET: ${{ secrets.ACCESS_CLIENT_SECRET_PREVIEW }}
+        run: |
+          curl -sS -H "CF-Access-Client-Id: $CF_CLIENT_ID" -H "CF-Access-Client-Secret: $CF_CLIENT_SECRET" \
+            https://runart-foundry.pages.dev/index.html | head -n 50 > docs/_meta/_deploy_forensics/home_snippet.html
+          curl -sS -H "CF-Access-Client-Id: $CF_CLIENT_ID" -H "CF-Access-Client-Secret: $CF_CLIENT_SECRET" \
+            https://runart-foundry.pages.dev/status/ | head -n 50 > docs/_meta/_deploy_forensics/status_snippet.html || echo "status_404" > docs/_meta/_deploy_forensics/flag_status.txt
+          curl -sS -H "CF-Access-Client-Id: $CF_CLIENT_ID" -H "CF-Access-Client-Secret: $CF_CLIENT_SECRET" \
+            https://runart-foundry.pages.dev/news/ | head -n 50 > docs/_meta/_deploy_forensics/news_snippet.html || echo "news_404" > docs/_meta/_deploy_forensics/flag_news.txt
+          curl -sS -H "CF-Access-Client-Id: $CF_CLIENT_ID" -H "CF-Access-Client-Secret: $CF_CLIENT_SECRET" \
+            https://runart-foundry.pages.dev/status/history/ | head -n 50 > docs/_meta/_deploy_forensics/history_snippet.html || echo "history_404" > docs/_meta/_deploy_forensics/flag_history.txt
+      
       - name: Commit forensics data
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
           git add docs/_meta/_deploy_forensics/
-          git commit -m "forensics: collect Pages API data (projects, deploys, settings)" || true
+          git commit -m "forensics: collect Pages API data + prod content snippets" || true
           git push || true
