@@ -114,12 +114,8 @@ jobs:
             head -c 400 docs/_meta/_deploy_forensics/post_migration/token_verify.json || true
             exit 1
           fi
-          HAS_PAGES=$(echo "$VERIFY" | jq -r '. | tostring | test("pages"; "i")')
-          if [ "$HAS_PAGES" != "true" ]; then
-            echo "❌ ERROR: Token does not appear to include Pages permissions (no 'pages' found in verify response)."
-            exit 1
-          fi
-          echo "✅ Token verify OK; Pages permissions likely present."
+          # No enforce pages scope here; project check will validate practical permissions.
+          echo "✅ Token verify OK. Proceeding to project check to validate Pages permissions."
         env:
           CLOUDFLARE_API_TOKEN: ${{ secrets.CF_API_TOKEN_PAGES || secrets.CLOUDFLARE_API_TOKEN || secrets.CF_API_TOKEN }}
           CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CF_ACCOUNT_ID || secrets.CLOUDFLARE_ACCOUNT_ID }}
