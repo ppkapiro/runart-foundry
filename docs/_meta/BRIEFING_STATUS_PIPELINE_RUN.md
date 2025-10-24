@@ -488,3 +488,10 @@ Service Token para preview environment no autoriza `runart-foundry.pages.dev` (p
   URL: https://runart-foundry.pages.dev
 
 - Verify prod: 2025-10-24T16:40:41Z | auth: with-Access | result: PARTIAL
+
+---
+## Redeploy canónico
+- Ejecutado: 2025-10-24T17:00:26Z
+- Run URL: https://github.com/RunArtFoundry/runart-foundry/actions/runs/18786159164
+- SHA: 5f287acabc3eb3d86e88424444fcc69704f6ecda
+- Resultado: success
