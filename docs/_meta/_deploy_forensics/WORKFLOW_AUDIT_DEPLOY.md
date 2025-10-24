@@ -90,18 +90,63 @@ Posibles razones de contenido viejo:
    - Consistencia con verificación post-deploy
    - Sin builds automáticos no solicitados
 
-### Opción B: Desactivar GitHub Action
+---
 
-1. Eliminar/deshabilitar `.github/workflows/pages-deploy.yml`
-2. Confiar solo en Git Integration
-3. **Desventaja**: Pierdes control de deploy timing y verificación integrada
+## ⚠️ UPDATE: 2025-10-24T15:50Z — Git Integration SIGUE ACTIVO
 
-### Opción C: Configurar Git Integration correctamente
+**Pre-check ejecutado antes de redeploy canónico:**
 
-1. Asegurar que `npm run build` en Pages ejecuta exactamente lo mismo que Action
-2. Verificar que `build_caching` no cause stale content
-3. Añadir purge de cache CDN post-deploy
-4. **Problema**: Sigue siendo dual-source con posibilidad de race conditions
+Último deployment Production (`pre_check_deployment.json`):
+```json
+{
+  "id": "c4dadde7-abcb-4d3f-a7f2-606b3ea248ba",
+  "source": "github",
+  "commit": "b53444df896ab70712dd124c381688ef1f9ec2aa",
+  "created_at": "2025-10-24T15:26:54.623689Z",
+  "url": "https://c4dadde7.runart-foundry.pages.dev",
+  "latest_stage": "success"
+}
+```
+
+**Estado del proyecto Pages** (`cf_projects.json`):
+```json
+{
+  "source": {
+    "type": "github",
+    "config": {
+      "owner": "ppkapiro",
+      "repo_name": "runart-foundry",
+      "production_branch": "main",
+      "deployments_enabled": true,
+      "production_deployments_enabled": true
+    }
+  }
+}
+```
+
+### 🔴 BLOQUEO CRÍTICO
+
+**Git Integration NO FUE DESCONECTADO por el owner.**
+
+Según instrucciones de redeploy canónico:
+> "Si source ≠ direct_upload: marcar BLOQUEO CRÍTICO en docs/_meta/WORKFLOW_AUDIT_DEPLOY.md (Remediación), detallar causa visible y no continuar con pasos 4–6. Dejar estado como FAILED y finalizar."
+
+**Causa raíz**: Issue #70 requiere acción manual en Cloudflare Dashboard que no ha sido ejecutada.
+
+**Impacto**:
+- Cualquier deploy de GitHub Action será sobreescrito por Git Integration
+- No se puede certificar source=direct_upload sin desconectar primero
+- Deploy canónico sería INÚTIL (Git Integration rebuildeará inmediatamente después)
+
+**Estado**: ❌ **FAILED — BLOCKED ON MANUAL ACTION**
+
+**Próxima acción requerida**:
+1. Owner debe acceder a Cloudflare Dashboard
+2. Disconnect Git Integration siguiendo pasos de Issue #70
+3. Re-ejecutar pre-check para validar `source: null` o ausencia de config GitHub
+4. Entonces proceder con deploy canónico
+
+---
 
 ## Decisión
 

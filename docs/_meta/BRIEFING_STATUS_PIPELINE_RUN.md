@@ -394,6 +394,77 @@ Service Token para preview environment no autoriza `runart-foundry.pages.dev` (p
 **Estado actual:** ⏸️ **BLOCKED ON MANUAL ACTIONS** (owner Dashboard access required)  
 **Próxima acción:** Owner debe ejecutar remediaciones manuales → re-validar post-disconnect
 
+---
+
+## 🚨 REDEPLOY CANÓNICO — BLOCKED (2025-10-24T15:50Z)
+
+**Contexto**: Intento de redeploy canónico con validación completa post-forensics
+
+### Pre-check: Estado Base Deployment
+
+**Ejecutado**: 2025-10-24T15:50Z via `forensics-collect.yml` (mode=pre-check)
+
+**Último deployment Production**:
+```json
+{
+  "id": "c4dadde7-abcb-4d3f-a7f2-606b3ea248ba",
+  "source": "github",
+  "commit": "b53444df896ab70712dd124c381688ef1f9ec2aa",
+  "created_at": "2025-10-24T15:26:54.623689Z",
+  "url": "https://c4dadde7.runart-foundry.pages.dev",
+  "latest_stage": "success"
+}
+```
+
+**Estado proyecto Pages** (`cf_projects.json`):
+```json
+{
+  "source": {
+    "type": "github",
+    "config": {
+      "owner": "ppkapiro",
+      "repo_name": "runart-foundry",
+      "production_branch": "main",
+      "deployments_enabled": true,
+      "production_deployments_enabled": true
+    }
+  },
+  "build_config": {
+    "build_command": "npm run build",
+    "destination_dir": "site",
+    "build_caching": true,
+    "root_dir": "apps/briefing"
+  }
+}
+```
+
+### 🔴 BLOQUEO CRÍTICO DETECTADO
+
+**Git Integration NO desconectado**: `source.type: "github"` AÚN PRESENTE
+
+**Consecuencias**:
+- Deploy de GitHub Action sería sobreescrito inmediatamente por Git Integration
+- Imposible validar `source: direct_upload` sin disconnect previo
+- Issue #70 (disconnect Git Integration) NO fue ejecutado por owner
+
+**Decisión según instrucciones**:
+> "Si source ≠ direct_upload: marcar BLOQUEO CRÍTICO en docs/_meta/WORKFLOW_AUDIT_DEPLOY.md (Remediación), detallar causa visible y no continuar con pasos 4–6. Dejar estado como FAILED y finalizar."
+
+**Estado**: ❌ **FAILED — BLOCKED ON MANUAL ACTION** (Git Integration disconnect required)
+
+**Evidencias actualizadas**:
+- `docs/_meta/_deploy_forensics/pre_check_deployment.json`
+- `docs/_meta/_deploy_forensics/pre_check_summary.txt`
+- `docs/_meta/_deploy_forensics/WORKFLOW_AUDIT_DEPLOY.md` (sección UPDATE añadida)
+
+**Próximos pasos requeridos (manual - owner)**:
+1. ✋ **[BLOQUEANTE]** Cloudflare Dashboard → Pages → runart-foundry → Settings → Disconnect Git Integration
+2. Re-ejecutar pre-check: `gh workflow run "Forensics: Collect Pages Data" -f mode=pre-check`
+3. Validar: `source: null` o ausencia de config GitHub en `cf_projects.json`
+4. Solo entonces: proceder con deploy canónico
+
+**Deploy canónico NO ejecutado** — operación abortada en paso 1 (verificación previa)
+
 - Verify prod: 2025-10-24T15:17:22Z | auth: with-Access | result: OK
 
 - Verify prod: 2025-10-24T15:21:37Z | auth: with-Access | result: OK
