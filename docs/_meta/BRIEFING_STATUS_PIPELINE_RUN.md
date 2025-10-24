@@ -288,3 +288,6 @@ Eliminar puntos ciegos en deploy/verify y estabilizar pipelines con verificació
 
 ---
 **Test Access Fix**: 2025-10-24T14:56:44Z | Commit 68a7cd6 | Secret fallback + API validator
+
+- Deploy ejecutado: 2025-10-24T14:58:11Z | SHA: 893b759 | dir: site
+  URL: https://runart-foundry.pages.dev
