@@ -402,3 +402,6 @@ Service Token para preview environment no autoriza `runart-foundry.pages.dev` (p
   URL: https://runart-foundry.pages.dev
 
 - Verify prod: 2025-10-24T15:25:11Z | auth: with-Access | result: OK
+
+- Deploy ejecutado: 2025-10-24T15:26:56Z | SHA: b53444d | dir: site
+  URL: https://runart-foundry.pages.dev
