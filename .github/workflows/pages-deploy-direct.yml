@@ -181,12 +181,28 @@ jobs:
           echo ""
           
           # Deploy with Wrangler
-          OUTPUT=$(wrangler pages deploy "apps/briefing/site" \
+          set +e  # Don't exit on error so we can capture it
+          wrangler pages deploy "apps/briefing/site" \
             --project-name "$PROJECT_NAME" \
             --account-id "${{ steps.resolve_account.outputs.ACCOUNT_ID_EFFECTIVE }}" \
             --branch "$BRANCH" \
             --commit-hash "$COMMIT_HASH" \
-            --commit-message "$COMMIT_MSG" 2>&1 | tee /tmp/wrangler_output.log)
+            --commit-message "$COMMIT_MSG" 2>&1 | tee /tmp/wrangler_output.log
+          DEPLOY_EXIT_CODE=$?
+          set -e  # Re-enable exit on error
+          
+          echo ""
+          echo "Wrangler exit code: $DEPLOY_EXIT_CODE"
+          
+          if [ $DEPLOY_EXIT_CODE -ne 0 ]; then
+            echo "❌ ERROR: Wrangler deploy failed with exit code $DEPLOY_EXIT_CODE"
+            echo "--- Full wrangler output ---"
+            cat /tmp/wrangler_output.log || echo "No output captured"
+            echo "--- End of wrangler output ---"
+            exit 1
+          fi
+          
+          OUTPUT=$(cat /tmp/wrangler_output.log)
           
           # Extract URL from output
           DEPLOY_URL=$(echo "$OUTPUT" | grep -oP 'https://[a-z0-9-]+\.runart-briefing-direct\.pages\.dev' | head -1)
