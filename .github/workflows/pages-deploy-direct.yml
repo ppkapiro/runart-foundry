@@ -24,6 +24,7 @@ jobs:
     env:
       ACCOUNT_ID_INPUT: ${{ secrets.CF_ACCOUNT_ID || secrets.CLOUDFLARE_ACCOUNT_ID }}
       CLOUDFLARE_API_TOKEN: ${{ secrets.CF_API_TOKEN_PAGES || secrets.CLOUDFLARE_API_TOKEN }}
+      ACCESS_API_TOKEN: ${{ secrets.CF_API_TOKEN_ACCESS || secrets.CF_API_TOKEN_PAGES || secrets.CLOUDFLARE_API_TOKEN || secrets.CF_API_TOKEN }}
       PROJECT_NAME: runart-briefing-direct
     
     steps:
@@ -51,26 +52,23 @@ jobs:
           [ -z "$CF_ACCESS_CLIENT_SECRET_VAL" ] && missing+=("CF_ACCESS_CLIENT_SECRET")
 
           TS=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
-          {
-            echo '{'
-            echo '  "ts": '"$TS"','
-            echo '  "checks": {'
-            echo '    "CF_ACCOUNT_ID": '"$([ -n "$CF_ACCOUNT_ID_VAL" ] && echo 'present' || echo 'missing')"','
-            echo '    "CF_API_TOKEN_PAGES": '"$([ -n "$CF_API_TOKEN_PAGES_VAL" ] && echo 'present' || echo 'missing')"','
-            echo '    "CF_ZERO_TRUST_TEAM": '"$([ -n "$CF_ZERO_TRUST_TEAM_VAL" ] && echo 'present' || echo 'missing')"','
-            echo '    "CF_ACCESS_CLIENT_ID": '"$([ -n "$CF_ACCESS_CLIENT_ID_VAL" ] && echo 'present' || echo 'missing')"','
-            echo '    "CF_ACCESS_CLIENT_SECRET": '"$([ -n "$CF_ACCESS_CLIENT_SECRET_VAL" ] && echo 'present' || echo 'missing')"'
-            echo '  },'
-            printf '  "missing": ['
-            first=1
-            for k in "${missing[@]}"; do
-              [ $first -eq 1 ] && first=0 || printf ', '
-              printf '"%s"' "$k"
-            done
-            echo '],'
-            echo '  "note": "Presence-only report. Secret values are not stored."
-            echo '}'
-          } > docs/_meta/_deploy_forensics/access_final/secrets_missing.json
+          CA_STATUS=$([ -n "$CF_ACCOUNT_ID_VAL" ] && echo present || echo missing)
+          TP_STATUS=$([ -n "$CF_API_TOKEN_PAGES_VAL" ] && echo present || echo missing)
+          TEAM_STATUS=$([ -n "$CF_ZERO_TRUST_TEAM_VAL" ] && echo present || echo missing)
+          CID_STATUS=$([ -n "$CF_ACCESS_CLIENT_ID_VAL" ] && echo present || echo missing)
+          CSEC_STATUS=$([ -n "$CF_ACCESS_CLIENT_SECRET_VAL" ] && echo present || echo missing)
+
+          MISSING_JSON=$(printf '%s\n' "${missing[@]}" | jq -R . | jq -s .)
+          jq -n \
+            --arg ts "$TS" \
+            --arg ca "$CA_STATUS" \
+            --arg tp "$TP_STATUS" \
+            --arg team "$TEAM_STATUS" \
+            --arg cid "$CID_STATUS" \
+            --arg csec "$CSEC_STATUS" \
+            --argjson missing "$MISSING_JSON" \
+            '{ts:$ts, checks:{CF_ACCOUNT_ID:$ca, CF_API_TOKEN_PAGES:$tp, CF_ZERO_TRUST_TEAM:$team, CF_ACCESS_CLIENT_ID:$cid, CF_ACCESS_CLIENT_SECRET:$csec}, missing:$missing, note:"Presence-only report. Secret values are not stored."}' \
+            > docs/_meta/_deploy_forensics/access_final/secrets_missing.json
 
           if [ ${#missing[@]} -gt 0 ]; then
             echo "::error::Missing required secrets: ${missing[*]}"
@@ -449,7 +447,7 @@ jobs:
           fi
 
           echo "=== Listing Access apps (per_page=100) ==="
-          curl -s -H "Authorization: Bearer $CLOUDFLARE_API_TOKEN" \
+          curl -s -H "Authorization: Bearer $ACCESS_API_TOKEN" \
             "https://api.cloudflare.com/client/v4/accounts/$ACCOUNT_ID/access/apps?per_page=100" \
             | tee docs/_meta/_deploy_forensics/access_final/apps_list.json >/dev/null
 
@@ -478,7 +476,7 @@ jobs:
           echo "ACCESS_APP_ID=$APP_ID" >> $GITHUB_OUTPUT
           echo "✅ Autodiscovered ACCESS_APP_ID=$APP_ID"
         env:
-          CLOUDFLARE_API_TOKEN: ${{ secrets.CF_API_TOKEN_PAGES || secrets.CLOUDFLARE_API_TOKEN || secrets.CF_API_TOKEN }}
+          ACCESS_API_TOKEN: ${{ secrets.CF_API_TOKEN_ACCESS || secrets.CF_API_TOKEN_PAGES || secrets.CLOUDFLARE_API_TOKEN || secrets.CF_API_TOKEN }}
 
       - name: Access Final — Autodiscover Service Auth Policy
         id: access_autodiscover_policy
@@ -503,7 +501,7 @@ jobs:
           fi
 
           echo "=== Listing policies for app $APP_ID ==="
-          curl -s -H "Authorization: Bearer $CLOUDFLARE_API_TOKEN" \
+          curl -s -H "Authorization: Bearer $ACCESS_API_TOKEN" \
             "https://api.cloudflare.com/client/v4/accounts/$ACCOUNT_ID/access/apps/$APP_ID/policies" \
             | tee docs/_meta/_deploy_forensics/access_final/policies_list.json >/dev/null
 
@@ -532,7 +530,7 @@ jobs:
           echo "ACCESS_POLICY_ID_PROD=$PID" >> $GITHUB_OUTPUT
           echo "✅ Autodiscovered ACCESS_POLICY_ID_PROD=$PID"
         env:
-          CLOUDFLARE_API_TOKEN: ${{ secrets.CF_API_TOKEN_PAGES || secrets.CLOUDFLARE_API_TOKEN || secrets.CF_API_TOKEN }}
+          ACCESS_API_TOKEN: ${{ secrets.CF_API_TOKEN_ACCESS || secrets.CF_API_TOKEN_PAGES || secrets.CLOUDFLARE_API_TOKEN || secrets.CF_API_TOKEN }}
 
       - name: (OPT-IN) Configure Access for new subdomain
         if: always()
@@ -565,7 +563,7 @@ jobs:
           BASE="https://api.cloudflare.com/client/v4/accounts/$ACCOUNT_ID/access"
 
           # 1) Read app (before)
-          curl -s -H "Authorization: Bearer $CLOUDFLARE_API_TOKEN" "$BASE/apps/$APP_ID" | jq '.' > docs/_meta/ACCESS_app_before.json
+          curl -s -H "Authorization: Bearer $ACCESS_API_TOKEN" "$BASE/apps/$APP_ID" | jq '.' > docs/_meta/ACCESS_app_before.json
 
           # Extract domains and append host if missing
           DOMAINS=$(jq -r '.domains // [] | @json' docs/_meta/ACCESS_app_before.json)
@@ -575,14 +573,14 @@ jobs:
             echo "$NEW_DOMAINS" > /tmp/access_domains.json
             # PATCH domains only (best-effort; if not supported, attempt PUT fallback)
             RESP_PATCH=$(curl -s -o /tmp/access_app_patch.json -w "%{http_code}" -X PATCH "$BASE/apps/$APP_ID" \
-              -H "Authorization: Bearer $CLOUDFLARE_API_TOKEN" -H "Content-Type: application/json" \
+              -H "Authorization: Bearer $ACCESS_API_TOKEN" -H "Content-Type: application/json" \
               --data @<(jq -n --slurpfile d /tmp/access_domains.json '{domains: $d[0]}'))
             if [ "$RESP_PATCH" != "200" ]; then
               echo "PATCH domains not supported or failed (HTTP $RESP_PATCH). Trying PUT..."
               # Build PUT payload from existing app + updated domains
               jq --argfile d /tmp/access_domains.json '.domains = $d' docs/_meta/ACCESS_app_before.json > /tmp/access_app_put.json
               RESP_PUT=$(curl -s -o /tmp/access_app_put_resp.json -w "%{http_code}" -X PUT "$BASE/apps/$APP_ID" \
-                -H "Authorization: Bearer $CLOUDFLARE_API_TOKEN" -H "Content-Type: application/json" \
+                -H "Authorization: Bearer $ACCESS_API_TOKEN" -H "Content-Type: application/json" \
                 --data @/tmp/access_app_put.json)
               if [ "$RESP_PUT" != "200" ]; then
                 echo "PENDING_PROTECTION: Failed to update app domains (HTTP $RESP_PUT)" >> docs/_meta/ACCESS_DIAG_BRIEFING.md
@@ -602,7 +600,7 @@ jobs:
 
           # 2) Ensure SERVICE AUTH policy precedence if provided
           if [ -n "$POLICY_ID" ]; then
-            curl -s -H "Authorization: Bearer $CLOUDFLARE_API_TOKEN" "$BASE/apps/$APP_ID/policies" | jq '.' > /tmp/access_policies.json
+            curl -s -H "Authorization: Bearer $ACCESS_API_TOKEN" "$BASE/apps/$APP_ID/policies" | jq '.' > /tmp/access_policies.json
             CUR_PREC=$(jq -r --arg id "$POLICY_ID" '.result[] | select(.id==$id) | .precedence // empty' /tmp/access_policies.json)
             if [ -n "$CUR_PREC" ] && [ "$CUR_PREC" != "1" ]; then
               RESP_POL=$(curl -s -o /tmp/access_policy_patch.json -w "%{http_code}" -X PATCH "$BASE/apps/$APP_ID/policies/$POLICY_ID" \
@@ -617,7 +615,7 @@ jobs:
           echo "ACCESS_CONFIGURED=YES" >> $GITHUB_OUTPUT
           echo "ACCESS_CONFIGURED=YES" >> $GITHUB_ENV
         env:
-          CLOUDFLARE_API_TOKEN: ${{ secrets.CF_API_TOKEN_PAGES || secrets.CLOUDFLARE_API_TOKEN || secrets.CF_API_TOKEN }}
+          ACCESS_API_TOKEN: ${{ secrets.CF_API_TOKEN_ACCESS || secrets.CF_API_TOKEN_PAGES || secrets.CLOUDFLARE_API_TOKEN || secrets.CF_API_TOKEN }}
 
       - name: Access Final — Create audit folder
         if: always()
@@ -641,7 +639,7 @@ jobs:
           fi
           URL="https://api.cloudflare.com/client/v4/accounts/$ACCOUNT_ID/access/apps/$APP_ID"
           HTTP=$(curl -s -o docs/_meta/_deploy_forensics/access_final/app_before.json -w "%{http_code}" \
-            -H "Authorization: Bearer $CLOUDFLARE_API_TOKEN" "$URL")
+            -H "Authorization: Bearer $ACCESS_API_TOKEN" "$URL")
           if [ "$HTTP" != "200" ]; then
             echo '{"error":"app_get_failed","http":'"$HTTP"'}' > docs/_meta/_deploy_forensics/access_final/access_error.json
             echo "PENDING_PROTECTION: Access app GET failed (HTTP $HTTP)" >> docs/_meta/ACCESS_DIAG_BRIEFING.md
@@ -659,7 +657,7 @@ jobs:
           fi
           echo "ACCESS_FINAL_CONFIGURED=UNKNOWN" >> $GITHUB_OUTPUT
         env:
-          CLOUDFLARE_API_TOKEN: ${{ secrets.CF_API_TOKEN_PAGES || secrets.CLOUDFLARE_API_TOKEN || secrets.CF_API_TOKEN }}
+          ACCESS_API_TOKEN: ${{ secrets.CF_API_TOKEN_ACCESS || secrets.CF_API_TOKEN_PAGES || secrets.CLOUDFLARE_API_TOKEN || secrets.CF_API_TOKEN }}
 
       - name: Access Final — Ensure Service Token (OPT-IN)
         id: access_service_token
@@ -692,7 +690,7 @@ jobs:
           echo "=== Creating Access Service Token (OPT-IN) ==="
           jq -n --arg name "$NAME" --arg duration "876000h" '{name:$name, duration:$duration}' > /tmp/service_token_payload.json
           HTTP=$(curl -s -X POST -o docs/_meta/_deploy_forensics/access_final/service_token_create.json -w "%{http_code}" \
-            -H "Authorization: Bearer $CLOUDFLARE_API_TOKEN" -H "Content-Type: application/json" \
+            -H "Authorization: Bearer $ACCESS_API_TOKEN" -H "Content-Type: application/json" \
             --data @/tmp/service_token_payload.json \
             "https://api.cloudflare.com/client/v4/accounts/$ACCOUNT_ID/access/service_tokens")
           if [ "$HTTP" != "200" ]; then
@@ -720,7 +718,7 @@ jobs:
           echo "ACCESS_CLIENT_SECRET_EFFECTIVE=$NEW_SECRET" >> $GITHUB_ENV
           echo "ACCESS_SERVICE_TOKEN_CREATED=YES" >> $GITHUB_ENV
         env:
-          CLOUDFLARE_API_TOKEN: ${{ secrets.CF_API_TOKEN_PAGES || secrets.CLOUDFLARE_API_TOKEN || secrets.CF_API_TOKEN }}
+          ACCESS_API_TOKEN: ${{ secrets.CF_API_TOKEN_ACCESS || secrets.CF_API_TOKEN_PAGES || secrets.CLOUDFLARE_API_TOKEN || secrets.CF_API_TOKEN }}
 
       - name: Access Final — Patch Service Auth Policy
         id: access_patch_policy
@@ -762,7 +760,7 @@ jobs:
 
           URL="https://api.cloudflare.com/client/v4/accounts/$ACCOUNT_ID/access/apps/$APP_ID/policies/$POLICY_ID"
           HTTP=$(curl -s -X PATCH -o docs/_meta/_deploy_forensics/access_final/policy_patch.json -w "%{http_code}" \
-            -H "Authorization: Bearer $CLOUDFLARE_API_TOKEN" -H "Content-Type: application/json" \
+            -H "Authorization: Bearer $ACCESS_API_TOKEN" -H "Content-Type: application/json" \
             --data @/tmp/policy_patch.json "$URL")
           if [ "$HTTP" != "200" ]; then
             jq -n --arg http "$HTTP" '{error:"policy_patch_failed", http:$http}' > docs/_meta/_deploy_forensics/access_final/access_error.json
@@ -781,7 +779,7 @@ jobs:
           fi
           echo "ACCESS_FINAL_CONFIGURED=YES" >> $GITHUB_OUTPUT
         env:
-          CLOUDFLARE_API_TOKEN: ${{ secrets.CF_API_TOKEN_PAGES || secrets.CLOUDFLARE_API_TOKEN || secrets.CF_API_TOKEN }}
+          ACCESS_API_TOKEN: ${{ secrets.CF_API_TOKEN_ACCESS || secrets.CF_API_TOKEN_PAGES || secrets.CLOUDFLARE_API_TOKEN || secrets.CF_API_TOKEN }}
 
       - name: Access Final — WITH HEADERS (expect 200)
         if: always()
