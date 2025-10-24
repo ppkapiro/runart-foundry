@@ -1,0 +1,48 @@
+name: "Forensics: Collect Pages Data"
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  collect:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Create forensics directory
+        run: mkdir -p docs/_meta/_deploy_forensics
+      
+      - name: Collect CF Pages projects
+        env:
+          CF_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CF_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+        run: |
+          curl -sS "https://api.cloudflare.com/client/v4/accounts/$CF_ACCOUNT_ID/pages/projects" \
+            -H "Authorization: Bearer $CF_API_TOKEN" | jq '.' > docs/_meta/_deploy_forensics/cf_projects.json
+      
+      - name: Collect runart-foundry deploys
+        env:
+          CF_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CF_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+        run: |
+          curl -sS "https://api.cloudflare.com/client/v4/accounts/$CF_ACCOUNT_ID/pages/projects/runart-foundry/deployments" \
+            -H "Authorization: Bearer $CF_API_TOKEN" | jq '.result[:10]' > docs/_meta/_deploy_forensics/cf_deploys.json
+      
+      - name: Collect project settings
+        env:
+          CF_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CF_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+        run: |
+          curl -sS "https://api.cloudflare.com/client/v4/accounts/$CF_ACCOUNT_ID/pages/projects/runart-foundry" \
+            -H "Authorization: Bearer $CF_API_TOKEN" | jq '.' > docs/_meta/_deploy_forensics/cf_project_settings.json
+      
+      - name: Commit forensics data
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add docs/_meta/_deploy_forensics/
+          git commit -m "forensics: collect Pages API data (projects, deploys, settings)" || true
+          git push || true
