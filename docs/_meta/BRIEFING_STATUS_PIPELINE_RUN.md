@@ -300,3 +300,5 @@ Eliminar puntos ciegos en deploy/verify y estabilizar pipelines con verificació
 
 - Deploy ejecutado: 2025-10-24T15:24:43Z | SHA: 4ddbe8c | dir: site
   URL: https://runart-foundry.pages.dev
+
+- Verify prod: 2025-10-24T15:25:11Z | auth: with-Access | result: OK
