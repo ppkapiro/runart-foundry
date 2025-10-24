@@ -495,3 +495,5 @@ Service Token para preview environment no autoriza `runart-foundry.pages.dev` (p
 - Run URL: https://github.com/RunArtFoundry/runart-foundry/actions/runs/18786159164
 - SHA: 5f287acabc3eb3d86e88424444fcc69704f6ecda
 - Resultado: success
+
+- Verify prod: 2025-10-24T17:03:03Z | auth: with-Access | result: PARTIAL
