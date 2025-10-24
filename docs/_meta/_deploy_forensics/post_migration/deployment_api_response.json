@@ -1,11 +1,13 @@
 {
-  "result": null,
-  "success": false,
-  "errors": [
-    {
-      "code": 8000007,
-      "message": "Project not found. The specified project name does not match any of your existing projects."
-    }
-  ],
-  "messages": []
+  "result": [],
+  "success": true,
+  "errors": [],
+  "messages": [],
+  "result_info": {
+    "page": 1,
+    "per_page": 25,
+    "count": 0,
+    "total_count": 0,
+    "total_pages": 0
+  }
 }

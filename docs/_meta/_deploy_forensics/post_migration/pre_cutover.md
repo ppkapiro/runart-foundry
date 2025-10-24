@@ -1,8 +1,8 @@
 # Migración a Direct Upload — Pre-Cutover Evidence
 
-**Fecha**: 2025-10-24T20:28:40Z
-**Workflow Run**: https://github.com/RunArtFoundry/runart-foundry/actions/runs/18791335483
-**Commit**: c96fadaf1c1f523153d05bf356151d31a2f8c4a8
+**Fecha**: 2025-10-24T20:35:55Z
+**Workflow Run**: https://github.com/RunArtFoundry/runart-foundry/actions/runs/18791481980
+**Commit**: 4d1effe77db0d0b1c3234ee1ee2423e6da1c7830
 
 ## Deployment Info
 
