@@ -594,3 +594,6 @@ Contiene instrucciones paso a paso para que Owner configure los secrets faltante
   URL: https://runart-foundry.pages.dev
 
 - Verify prod: 2025-10-24T18:03:08Z | auth: with-Access | result: PARTIAL
+
+- Deploy ejecutado: 2025-10-24T18:20:12Z | SHA: a1f42f6 | dir: site
+  URL: https://runart-foundry.pages.dev
