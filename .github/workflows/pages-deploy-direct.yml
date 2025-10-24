@@ -720,6 +720,30 @@ jobs:
         env:
           ACCESS_API_TOKEN: ${{ secrets.CF_API_TOKEN_ACCESS || secrets.CF_API_TOKEN_PAGES || secrets.CLOUDFLARE_API_TOKEN || secrets.CF_API_TOKEN }}
 
+      - name: Access Final — Resolve Service Token ID
+        id: access_resolve_token_id
+        if: always()
+        continue-on-error: true
+        run: |
+          set -e
+          mkdir -p docs/_meta/_deploy_forensics/access_final
+          ACCOUNT_ID="$ACCOUNT_ID_EFFECTIVE"
+          CID_EFFECTIVE="${ACCESS_CLIENT_ID_EFFECTIVE:-${{ secrets.CF_ACCESS_CLIENT_ID }}}"
+          if [ -z "$CID_EFFECTIVE" ]; then
+            echo '{"error":"missing_client_id_for_mapping"}' > docs/_meta/_deploy_forensics/access_final/access_error.json
+            echo "ACCESS_TOKEN_ID_EFFECTIVE=" >> $GITHUB_ENV
+            exit 0
+          fi
+          URL="https://api.cloudflare.com/client/v4/accounts/$ACCOUNT_ID/access/service_tokens"
+          curl -s -H "Authorization: Bearer $ACCESS_API_TOKEN" "$URL" | tee docs/_meta/_deploy_forensics/access_final/service_tokens_list.json >/dev/null
+          TOKEN_ID=$(jq -r --arg cid "$CID_EFFECTIVE" '.result[] | select(.client_id==$cid) | .id // .token_id // empty' docs/_meta/_deploy_forensics/access_final/service_tokens_list.json | head -1)
+          if [ -z "$TOKEN_ID" ]; then
+            echo '{"error":"service_token_id_not_found_for_client_id"}' > docs/_meta/_deploy_forensics/access_final/access_error.json
+          fi
+          echo "ACCESS_TOKEN_ID_EFFECTIVE=$TOKEN_ID" >> $GITHUB_ENV
+        env:
+          ACCESS_API_TOKEN: ${{ secrets.CF_API_TOKEN_ACCESS || secrets.CF_API_TOKEN_PAGES || secrets.CLOUDFLARE_API_TOKEN || secrets.CF_API_TOKEN }}
+
       - name: Access Final — Patch Service Auth Policy
         id: access_patch_policy
         if: always()
@@ -731,18 +755,18 @@ jobs:
           [ -z "$APP_ID" ] && APP_ID="$ACCESS_APP_ID_EFFECTIVE"
           POLICY_ID="${{ secrets.ACCESS_POLICY_ID_PROD }}"
           [ -z "$POLICY_ID" ] && POLICY_ID="$ACCESS_POLICY_ID_PROD_EFFECTIVE"
-          CLIENT_ID="${ACCESS_CLIENT_ID_EFFECTIVE:-${{ secrets.CF_ACCESS_CLIENT_ID }}}"
-          if [ -z "$ACCOUNT_ID" ] || [ -z "$APP_ID" ] || [ -z "$POLICY_ID" ] || [ -z "$CLIENT_ID" ]; then
+          TOKEN_ID="${ACCESS_TOKEN_ID_EFFECTIVE:-}"
+          if [ -z "$ACCOUNT_ID" ] || [ -z "$APP_ID" ] || [ -z "$POLICY_ID" ] || [ -z "$TOKEN_ID" ]; then
             echo '{"error":"missing_policy_or_client_id"}' > docs/_meta/_deploy_forensics/access_final/access_error.json
             echo "PENDING_PROTECTION: Missing ACCESS_POLICY_ID_PROD or CF_ACCESS_CLIENT_ID" >> docs/_meta/ACCESS_DIAG_BRIEFING.md
             echo "ACCESS_FINAL_CONFIGURED=NO" >> $GITHUB_OUTPUT
             exit 0
           fi
           # Body per instrucciones (construido vía jq)
-          jq -n --arg cid "$CLIENT_ID" '
+          jq -n --arg token_id "$TOKEN_ID" '
             {
-              decision: "allow",
-              include: [ { service_token: { id: $cid } } ],
+              decision: "non_identity",
+              include: [ { service_token: { token_id: $token_id } } ],
               name: "Allow CI RunArt Production (Direct)",
               precedence: 1,
               purpose_justification_prompt: false,
