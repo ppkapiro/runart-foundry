@@ -285,3 +285,6 @@ Eliminar puntos ciegos en deploy/verify y estabilizar pipelines con verificació
 - ✅ Unificación carpeta `site` y permisos `deployments: write`
 - ✅ Evidencias en `docs/_meta/_deploy_diag/`
 
+
+---
+**Test Access Fix**: 2025-10-24T14:56:44Z | Commit 68a7cd6 | Secret fallback + API validator
