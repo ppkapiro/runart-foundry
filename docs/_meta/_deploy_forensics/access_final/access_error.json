@@ -1,4 +1,1 @@
-{
-  "error": "policy_put_failed",
-  "http": "405"
-}
+{"error":"service_token_id_not_found_for_client_id"}
