@@ -1,11 +1,1 @@
-{
-  "result": null,
-  "success": false,
-  "errors": [
-    {
-      "code": 12130,
-      "message": "access.api.error.invalid_request: can not update reusable policies through this endpoint"
-    }
-  ],
-  "messages": []
-}
+{"success":false,"errors":[{"code":10000,"message":"PUT method not allowed for the api_token authentication scheme"}]}

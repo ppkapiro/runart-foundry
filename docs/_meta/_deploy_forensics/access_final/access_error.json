@@ -1,4 +1,4 @@
 {
   "error": "policy_put_failed",
-  "http": "400"
+  "http": "405"
 }
