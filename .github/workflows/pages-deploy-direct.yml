@@ -889,6 +889,47 @@ jobs:
             -H "CF-Access-Client-Secret: $CSEC")
           echo "ACCESS_WITH_HEADERS_STATUS=$STATUS" >> $GITHUB_OUTPUT
 
+      - name: Access Final — Debug WITH HEADERS (decode meta)
+        if: always()
+        continue-on-error: true
+        run: |
+          set -e
+          mkdir -p docs/_meta/_deploy_forensics/access_final
+          URL="https://runart-briefing-direct.pages.dev/"
+          CID="${ACCESS_CLIENT_ID_EFFECTIVE:-${{ secrets.CF_ACCESS_CLIENT_ID }}}"
+          CSEC="${ACCESS_CLIENT_SECRET_EFFECTIVE:-${{ secrets.CF_ACCESS_CLIENT_SECRET }}}"
+          # Capturar respuesta con headers
+          curl -s -i "$URL" \
+            -H "CF-Access-Client-Id: $CID" \
+            -H "CF-Access-Client-Secret: $CSEC" \
+            > docs/_meta/_deploy_forensics/access_final/with_headers_response.txt || true
+          # Extraer Location y el parámetro meta
+          LOC=$(grep -i "^location:" docs/_meta/_deploy_forensics/access_final/with_headers_response.txt | awk '{print $2}' | tr -d '\r')
+          if [ -z "$LOC" ]; then
+            echo '{"note":"no_location_header"}' > docs/_meta/_deploy_forensics/access_final/with_headers_meta.json
+            exit 0
+          fi
+          # Decodificar meta con una llamada Python de una sola línea para evitar problemas de YAML
+          META=$(python3 -c 'import sys,urllib.parse;print((urllib.parse.parse_qs(urllib.parse.urlsplit(sys.argv[1]).query).get("meta") or [None])[0])' "$LOC") || META=
+          if [ -z "$META" ] || [[ "$META" == "None" ]]; then
+            echo '{"location":"'"$LOC"'","note":"no_meta_param"}' > docs/_meta/_deploy_forensics/access_final/with_headers_meta.json
+          else
+            PAYLOAD_B64=$(printf '%s' "$META" | cut -d '.' -f2)
+            # Base64url decode del payload
+            PAYLOAD_JSON=$(python3 -c 'import sys,base64; p=sys.argv[1]; p+="="*((4-len(p)%4)%4); print(base64.urlsafe_b64decode(p.encode()).decode())' "$PAYLOAD_B64" 2>/dev/null || true)
+            if [ -z "$PAYLOAD_JSON" ]; then
+              echo '{"location":"'"$LOC"'","error":"payload_decode_failed"}' > docs/_meta/_deploy_forensics/access_final/with_headers_meta.json
+            else
+              # Extraer banderas útiles con jq si está disponible; si no, guardar crudo
+              if command -v jq >/dev/null 2>&1; then
+                echo "$PAYLOAD_JSON" | jq --arg loc "$LOC" '{location:$loc, meta_payload:., service_token_status:(.service_token_status // null), auth_status:(.auth_status // null)}' > docs/_meta/_deploy_forensics/access_final/with_headers_meta.json || echo "$PAYLOAD_JSON" > docs/_meta/_deploy_forensics/access_final/with_headers_meta_raw.json
+              else
+                printf '{"location":"%s","meta_payload":%s}\n' "$LOC" "$PAYLOAD_JSON" > docs/_meta/_deploy_forensics/access_final/with_headers_meta.json
+              fi
+            fi
+          fi
+          echo "Saved with_headers_meta.json"
+
       - name: Access Final — WITHOUT HEADERS (expect 302/403)
         if: always()
         id: access_test_without
