@@ -823,3 +823,67 @@ server: cloudflare
 alt-svc: h3=":443"; ma=86400
 server-timing: cfL4;desc="?proto=TCP&rtt=8498&min_rtt=8467&rtt_var=1807&sent=6&recv=9&lost=0&retrans=0&sent_bytes=3450&recv_bytes=807&delivery_rate=504296&cwnd=254&unsent_bytes=0&cid=7037e46540d04a57&ts=64&x=0"
 
+\n# Access — WITH HEADERS (final)
+HTTP/2 302 
+date: Sat, 25 Oct 2025 17:28:49 GMT
+location: https://runart-briefing-pages.cloudflareaccess.com/cdn-cgi/access/login/runart-briefing-direct.pages.dev?kid=76585272ad0badca5b2d47c1698f2ba32398f0a5edd8f3b013a148221da0cb9e&meta=eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiIsImtpZCI6IjgxYjFkN2IwZDg4ZTNjZTkwNGFhYzc3YTExZmM2NjQ0YWY0ZTM0YWI3MzE1YjMxNDI0NDI5MDVlMDcwOGFhYTkifQ.eyJ0eXBlIjoibWV0YSIsImF1ZCI6Ijc2NTg1MjcyYWQwYmFkY2E1YjJkNDdjMTY5OGYyYmEzMjM5OGYwYTVlZGQ4ZjNiMDEzYTE0ODIyMWRhMGNiOWUiLCJob3N0bmFtZSI6InJ1bmFydC1icmllZmluZy1kaXJlY3QucGFnZXMuZGV2IiwicmVkaXJlY3RfdXJsIjoiLyIsInNlcnZpY2VfdG9rZW5fc3RhdHVzIjpmYWxzZSwiaXNfd2FycCI6ZmFsc2UsImlzX2dhdGV3YXkiOmZhbHNlLCJleHAiOjE3NjE0MTM2MjksIm5iZiI6MTc2MTQxMzMyOSwiaWF0IjoxNzYxNDEzMzI5LCJhdXRoX3N0YXR1cyI6Ik5PTkUiLCJtdGxzX2F1dGgiOnsiY2VydF9pc3N1ZXJfZG4iOiIiLCJjZXJ0X3NlcmlhbCI6IiIsImNlcnRfaXNzdWVyX3NraSI6IiIsImNlcnRfcHJlc2VudGVkIjpmYWxzZSwiY29tbW9uX25hbWUiOiIiLCJhdXRoX3N0YXR1cyI6Ik5PTkUifSwicmVhbF9jb3VudHJ5IjoiVVMiLCJhcHBfc2Vzc2lvbl9oYXNoIjoiYmZhZGU2NDBhYjRhYjRiMGM0NWQyNTZmZmJmNTUyMzkwZmY3ZWExNzE2MmIwN2UxZGQ1OWNkZjJiYjBmNTFmMiJ9.qGomomjXXw6GTTco7hgM7fMti7NmySGef6us39hJsel9F0poi_Y2xeLe5llNYCSbBuPSVs4mKT7vwzW7c2mKNd2wGegXRTkwSw0Km6X8I-HILweSkWP8l4_c78zm7KSR4Ht5w3tncPeajZktbfmHoufBzy1-ZlbUVxVne1xvNYjevd-bIzIJ5OoEOl6Liqpk1yXxgFTYaex9AAIhZ8_J3g9qBBHz7Al9l2FgtElwkQ7BdlTUXo916oI6iUyXPbmcUO4h5M5He6RKlK58M9TEo0hGFrrQZ0ktzRxtz-EZ-tKCfQIUUewBTe5PtQmrFDL-dWvmFJGke1SpmQOQFEd3EA&redirect_url=%2F
+access-control-allow-credentials: true
+cache-control: private, max-age=0, no-store, no-cache, must-revalidate, post-check=0, pre-check=0
+expires: Thu, 01 Jan 1970 00:00:01 GMT
+report-to: {"group":"cf-nel","max_age":604800,"endpoints":[{"url":"https://a.nel.cloudflare.com/report/v4?s=eiHCvfKZsOixxzTq6c5rS6AG%2Bmi66uM2A2FmMYBnK6tIvSXf7mhU%2B05cbe1GQwr4fH19EWvvwBHGglVfjRLIXelKveA8qXuzPMht%2FhF6P66aslEGiL4%2BMFuSekq3VUEU"}]}
+nel: {"report_to":"cf-nel","success_fraction":0.0,"max_age":604800}
+server: cloudflare
+set-cookie: CF_AppSession=e8b7d1265e51231c; HttpOnly; Secure; Path=/; Expires=Sun, 26 Oct 2025 17:28:49 GMT
+cf-ray: 99436ebf8f7be642-IAD
+alt-svc: h3=":443"; ma=86400
+
+\n# Access — WITHOUT HEADERS (final)
+HTTP/2 302 
+date: Sat, 25 Oct 2025 17:28:50 GMT
+location: https://runart-briefing-pages.cloudflareaccess.com/cdn-cgi/access/login/runart-briefing-direct.pages.dev?kid=76585272ad0badca5b2d47c1698f2ba32398f0a5edd8f3b013a148221da0cb9e&meta=eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiIsImtpZCI6IjgxYjFkN2IwZDg4ZTNjZTkwNGFhYzc3YTExZmM2NjQ0YWY0ZTM0YWI3MzE1YjMxNDI0NDI5MDVlMDcwOGFhYTkifQ.eyJ0eXBlIjoibWV0YSIsImF1ZCI6Ijc2NTg1MjcyYWQwYmFkY2E1YjJkNDdjMTY5OGYyYmEzMjM5OGYwYTVlZGQ4ZjNiMDEzYTE0ODIyMWRhMGNiOWUiLCJob3N0bmFtZSI6InJ1bmFydC1icmllZmluZy1kaXJlY3QucGFnZXMuZGV2IiwicmVkaXJlY3RfdXJsIjoiLyIsInNlcnZpY2VfdG9rZW5fc3RhdHVzIjpmYWxzZSwiaXNfd2FycCI6ZmFsc2UsImlzX2dhdGV3YXkiOmZhbHNlLCJleHAiOjE3NjE0MTM2MzAsIm5iZiI6MTc2MTQxMzMzMCwiaWF0IjoxNzYxNDEzMzMwLCJhdXRoX3N0YXR1cyI6Ik5PTkUiLCJtdGxzX2F1dGgiOnsiY2VydF9pc3N1ZXJfZG4iOiIiLCJjZXJ0X3NlcmlhbCI6IiIsImNlcnRfaXNzdWVyX3NraSI6IiIsImNlcnRfcHJlc2VudGVkIjpmYWxzZSwiY29tbW9uX25hbWUiOiIiLCJhdXRoX3N0YXR1cyI6Ik5PTkUifSwicmVhbF9jb3VudHJ5IjoiVVMiLCJhcHBfc2Vzc2lvbl9oYXNoIjoiYWZlOWVkYWQyMmY5YmUwYTNmMWE1NDU0ODEyMDM5N2E5OWNkMjE1NTQ5Yzk0ODMwMjVmODM4YWNkMzg3ODM5NyJ9.FkilSEjA6ePqvf9dtmeB4qU3vt2vENkgkmiGSaBN3VR1iYIWk7tGUV_bLv3PKzFce2mv0RuxdDbANTUip5R6y97s_iS-MpNRi3cfR3xUBKHqtgOCuqHAw6yEeKTULe1KkUBHfNLxXV6gvOWx3yl96rOofUJmJop4z_71-1xtyQDnK-cGtynRzFeMQsMKVy6COLheFHPK31sqFwX2jvZj4CeKiZqEDYG-er-V2UBhUrEeT3cOXUw282oQn2s16-0gUprkrjO8_n4ieii8tRVxR9LNHcZaL9_RvV8b3MbORPTmUYadYwERUvB8FG-Qn9fX8kBQ6ixRibkR-wCHLc0dEA&redirect_url=%2F
+access-control-allow-credentials: true
+expires: Thu, 01 Jan 1970 00:00:01 GMT
+cache-control: private, max-age=0, no-store, no-cache, must-revalidate, post-check=0, pre-check=0
+report-to: {"group":"cf-nel","max_age":604800,"endpoints":[{"url":"https://a.nel.cloudflare.com/report/v4?s=0%2BkV07%2BkOr672al%2FNSbmhNv2v8TNOJR%2BrZOTvoRPnktCsyn3Y19G5irgJMv%2FtnrL8uiXdpn4N2TJ%2Bf8aOFcr%2BybUqsxkyDqlu6okOPM2ti6hliGRgFOJfxzR%2BEzrgU8x"}]}
+nel: {"report_to":"cf-nel","success_fraction":0.0,"max_age":604800}
+server: cloudflare
+set-cookie: CF_AppSession=70dd3b8a1bffc4d6; HttpOnly; Secure; Path=/; Expires=Sun, 26 Oct 2025 17:28:50 GMT
+cf-ray: 99436ec15f08dc40-IAD
+alt-svc: h3=":443"; ma=86400
+
+PENDING_PROTECTION: Access not configured (opt-in missing or API error)
+\n# Direct Upload — protegido (without headers)
+Root: https://b30f38d6.runart-briefing-direct.pages.dev
+HTTP/2 200 
+date: Sat, 25 Oct 2025 17:28:50 GMT
+content-type: text/html; charset=utf-8
+access-control-allow-origin: *
+cache-control: public, max-age=0, must-revalidate
+etag: "532bce829f98fa64478a50c949c0593c"
+referrer-policy: strict-origin-when-cross-origin
+x-content-type-options: nosniff
+x-robots-tag: noindex
+vary: accept-encoding
+report-to: {"group":"cf-nel","max_age":604800,"endpoints":[{"url":"https://a.nel.cloudflare.com/report/v4?s=5Ob81kSHhOgxrm3PqUmCgduC3UlobXaHBiHVdHUUsPlnETJ%2BSGysPiHJbTiibvkuzI4m0LAtOO2vs2N0KLZbjDbsaAw5JFr%2Boa6Wxlt5DVCCTwLSnoh6gD6t3Pzeeu8b8Z4OJkM00pU%2B"}]}
+nel: {"report_to":"cf-nel","success_fraction":0.0,"max_age":604800}
+server: cloudflare
+cf-ray: 99436ec29efde625-IAD
+alt-svc: h3=":443"; ma=86400
+
+\nAsset: https://b30f38d6.runart-briefing-direct.pages.dev/roles.js
+HTTP/2 200 
+date: Sat, 25 Oct 2025 17:28:50 GMT
+content-type: application/javascript
+access-control-allow-origin: *
+cache-control: public, max-age=0, must-revalidate
+etag: "5ec951b8faaa0337f57b77ee48645836"
+referrer-policy: strict-origin-when-cross-origin
+x-content-type-options: nosniff
+x-robots-tag: noindex
+vary: accept-encoding
+report-to: {"group":"cf-nel","max_age":604800,"endpoints":[{"url":"https://a.nel.cloudflare.com/report/v4?s=%2FPnkdD5D7bGvUaksJFkrW%2BY%2Bk7yTj5KRuhe5BOrWvaRanaaDulngNwuwebuOg60mXYsHAP3hVIIdama2j46Y6%2FiTvNlklSS2M3pfGH7t3QRz9IDW0ZpStHPw%2BqqenTYAHtZIwBjl0Q%3D%3D"}]}
+nel: {"report_to":"cf-nel","success_fraction":0.0,"max_age":604800}
+server: cloudflare
+cf-ray: 99436ec35f60d46e-IAD
+alt-svc: h3=":443"; ma=86400
+
