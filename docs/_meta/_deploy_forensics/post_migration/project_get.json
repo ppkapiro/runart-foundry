@@ -31,33 +31,33 @@
       }
     },
     "latest_deployment": {
-      "id": "6ff75bec-1ced-471d-adcb-dec144056069",
-      "short_id": "6ff75bec",
+      "id": "e064e894-201d-472b-a1e7-705e6a1a4312",
+      "short_id": "e064e894",
       "project_id": "147b8030-5bc4-45f9-8d59-c0779556aa20",
       "project_name": "runart-briefing-direct",
       "environment": "production",
-      "url": "https://6ff75bec.runart-briefing-direct.pages.dev",
-      "created_on": "2025-10-24T22:54:28.941818Z",
-      "modified_on": "2025-10-24T22:54:31.435343Z",
+      "url": "https://e064e894.runart-briefing-direct.pages.dev",
+      "created_on": "2025-10-24T22:57:12.399038Z",
+      "modified_on": "2025-10-24T22:57:15.00662Z",
       "latest_stage": {
         "name": "deploy",
         "started_on": null,
-        "ended_on": "2025-10-24T22:54:31.435343Z",
+        "ended_on": "2025-10-24T22:57:15.00662Z",
         "status": "success"
       },
       "deployment_trigger": {
         "type": "ad_hoc",
         "metadata": {
           "branch": "production",
-          "commit_hash": "9e76d0bb9d2967251f8ca783403df3f88f7adb80",
-          "commit_message": "direct-upload:9e76d0bb9d2967251f8ca783403df3f88f7adb80",
+          "commit_hash": "ad9175039b24e680f4a69af80fd57272f9b66ec5",
+          "commit_message": "direct-upload:ad9175039b24e680f4a69af80fd57272f9b66ec5",
           "commit_dirty": true
         }
       },
       "stages": [
         {
           "name": "queued",
-          "started_on": "2025-10-24T22:54:28.941818Z",
+          "started_on": "2025-10-24T22:57:12.399038Z",
           "ended_on": null,
           "status": "active"
         },
@@ -82,7 +82,7 @@
         {
           "name": "deploy",
           "started_on": null,
-          "ended_on": "2025-10-24T22:54:31.435343Z",
+          "ended_on": "2025-10-24T22:57:15.00662Z",
           "status": "success"
         }
       ],
@@ -105,33 +105,33 @@
       "uses_functions": false
     },
     "canonical_deployment": {
-      "id": "6ff75bec-1ced-471d-adcb-dec144056069",
-      "short_id": "6ff75bec",
+      "id": "e064e894-201d-472b-a1e7-705e6a1a4312",
+      "short_id": "e064e894",
       "project_id": "147b8030-5bc4-45f9-8d59-c0779556aa20",
       "project_name": "runart-briefing-direct",
       "environment": "production",
-      "url": "https://6ff75bec.runart-briefing-direct.pages.dev",
-      "created_on": "2025-10-24T22:54:28.941818Z",
-      "modified_on": "2025-10-24T22:54:31.435343Z",
+      "url": "https://e064e894.runart-briefing-direct.pages.dev",
+      "created_on": "2025-10-24T22:57:12.399038Z",
+      "modified_on": "2025-10-24T22:57:15.00662Z",
       "latest_stage": {
         "name": "deploy",
         "started_on": null,
-        "ended_on": "2025-10-24T22:54:31.435343Z",
+        "ended_on": "2025-10-24T22:57:15.00662Z",
         "status": "success"
       },
       "deployment_trigger": {
         "type": "ad_hoc",
         "metadata": {
           "branch": "production",
-          "commit_hash": "9e76d0bb9d2967251f8ca783403df3f88f7adb80",
-          "commit_message": "direct-upload:9e76d0bb9d2967251f8ca783403df3f88f7adb80",
+          "commit_hash": "ad9175039b24e680f4a69af80fd57272f9b66ec5",
+          "commit_message": "direct-upload:ad9175039b24e680f4a69af80fd57272f9b66ec5",
           "commit_dirty": true
         }
       },
       "stages": [
         {
           "name": "queued",
-          "started_on": "2025-10-24T22:54:28.941818Z",
+          "started_on": "2025-10-24T22:57:12.399038Z",
           "ended_on": null,
           "status": "active"
         },
@@ -156,7 +156,7 @@
         {
           "name": "deploy",
           "started_on": null,
-          "ended_on": "2025-10-24T22:54:31.435343Z",
+          "ended_on": "2025-10-24T22:57:15.00662Z",
           "status": "success"
         }
       ],
