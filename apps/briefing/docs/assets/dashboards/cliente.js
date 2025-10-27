@@ -1,4 +1,5 @@
 (function () {
+  const isLocalMode = () => (typeof window !== 'undefined' && window.__AUTH_MODE__ === 'none');
   const statusEl = document.getElementById('kpi-status');
   const dom = {
     accepted: document.getElementById('kpi-accepted'),
@@ -73,6 +74,17 @@
   }
 
   async function loadKPIs() {
+    if (isLocalMode()) {
+      setStatus('Modo local: KPIs no disponibles sin Access.');
+      // Limpiar mostradores a guiones para evitar confusión
+      setKpi(dom.accepted, '–');
+      setKpi(dom.pending, '–');
+      setKpi(dom.rejected, '–');
+      setKpi(dom.last7, '–');
+      setKpi(dom.latency, '–');
+      if (dom.sparkline) dom.sparkline.innerHTML = '<p>Modo local</p>';
+      return;
+    }
     setStatus('Cargando KPIs…');
     try {
       const response = await fetch('/api/inbox', {

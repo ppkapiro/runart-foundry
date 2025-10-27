@@ -116,6 +116,13 @@ def write_access_map(entries: Iterable[AccessEntry]) -> None:
 
 
 def main() -> None:
+    import os
+    if os.environ.get("AUTH_MODE", "").lower() == "none":
+        # Modo local: generar mapa pero no fallar por faltas de .interno
+        entries, _ = collect_entries()
+        write_access_map(entries)
+        print("[mark_internal] Modo local (AUTH_MODE=none): validaciones de acceso desactivadas.")
+        return
     entries, missing = collect_entries()
     write_access_map(entries)
 

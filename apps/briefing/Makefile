@@ -20,6 +20,13 @@ serve: venv
 	$(RUN_PY) scripts/mark_internal.py
 	$(MKDOCS) serve
 
+.PHONY: serve-local
+serve-local: venv
+	@echo "AUTH_MODE=none" > .env.local || true
+	@echo "// Generated for Local Mode\n(function(){window.__AUTH_MODE__='none';})();" > docs/assets/auth-mode.js
+	AUTH_MODE=none $(RUN_PY) scripts/mark_internal.py
+	AUTH_MODE=none $(MKDOCS) serve -a 127.0.0.1:8000
+
 preview:
 	@echo "Preview se documenta en docs/architecture/065_switch_pages.md (no despliega automáticamente)."
 
