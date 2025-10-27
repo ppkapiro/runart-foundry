@@ -1,0 +1,228 @@
+{
+    "key": "group_runart_project",
+    "title": "Project Details",
+    "fields": [
+        {
+            "key": "field_project_artist_name",
+            "label": "Artist Name",
+            "name": "artist_name",
+            "type": "text",
+            "instructions": "Full name of the artist",
+            "required": 1,
+            "wrapper": {
+                "width": "50"
+            }
+        },
+        {
+            "key": "field_project_alloy",
+            "label": "Alloy",
+            "name": "alloy",
+            "type": "text",
+            "instructions": "e.g., Bronce Cu-Sn (90-10)",
+            "required": 1,
+            "wrapper": {
+                "width": "50"
+            }
+        },
+        {
+            "key": "field_project_measures",
+            "label": "Measures",
+            "name": "measures",
+            "type": "text",
+            "instructions": "Dimensions (e.g., 180 x 80 x 60 cm)",
+            "required": 0
+        },
+        {
+            "key": "field_project_edition",
+            "label": "Edition",
+            "name": "edition",
+            "type": "select",
+            "instructions": "Type of edition",
+            "required": 1,
+            "choices": {
+                "unique": "Pieza única",
+                "limited": "Edición limitada",
+                "open": "Edición abierta"
+            },
+            "default_value": "unique",
+            "wrapper": {
+                "width": "33"
+            }
+        },
+        {
+            "key": "field_project_edition_number",
+            "label": "Edition Number",
+            "name": "edition_number",
+            "type": "text",
+            "instructions": "e.g., 3/25 (only if limited edition)",
+            "required": 0,
+            "conditional_logic": [
+                [
+                    {
+                        "field": "field_project_edition",
+                        "operator": "==",
+                        "value": "limited"
+                    }
+                ]
+            ],
+            "wrapper": {
+                "width": "33"
+            }
+        },
+        {
+            "key": "field_project_patina_type",
+            "label": "Patina Type",
+            "name": "patina_type",
+            "type": "text",
+            "instructions": "e.g., Pátina artística tradicional",
+            "required": 0,
+            "wrapper": {
+                "width": "34"
+            }
+        },
+        {
+            "key": "field_project_year",
+            "label": "Year",
+            "name": "year",
+            "type": "number",
+            "instructions": "Year of completion",
+            "required": 1,
+            "min": 1990,
+            "max": 2030,
+            "wrapper": {
+                "width": "25"
+            }
+        },
+        {
+            "key": "field_project_location",
+            "label": "Location",
+            "name": "location",
+            "type": "text",
+            "instructions": "City, State/Country",
+            "required": 0,
+            "wrapper": {
+                "width": "75"
+            }
+        },
+        {
+            "key": "field_project_video_url",
+            "label": "Video URL",
+            "name": "video_url",
+            "type": "url",
+            "instructions": "YouTube or Vimeo URL",
+            "required": 0
+        },
+        {
+            "key": "field_project_credits",
+            "label": "Credits",
+            "name": "credits",
+            "type": "textarea",
+            "instructions": "Technical credits (one per line)",
+            "required": 0,
+            "rows": 4
+        },
+        {
+            "key": "field_project_gallery",
+            "label": "Gallery",
+            "name": "gallery",
+            "type": "gallery",
+            "instructions": "Project images (8-15 recommended)",
+            "required": 0,
+            "min": 0,
+            "max": 30,
+            "insert": "append",
+            "library": "all",
+            "return_format": "array",
+            "preview_size": "medium"
+        },
+        {
+            "key": "field_project_technical_description",
+            "label": "Technical Description",
+            "name": "technical_description",
+            "type": "textarea",
+            "instructions": "120-200 words technical description",
+            "required": 0,
+            "rows": 5
+        },
+        {
+            "key": "field_project_process",
+            "label": "Process Steps",
+            "name": "process_steps",
+            "type": "repeater",
+            "instructions": "Describe the casting process (5-6 steps)",
+            "required": 0,
+            "layout": "table",
+            "button_label": "Add Step",
+            "sub_fields": [
+                {
+                    "key": "field_process_step_title",
+                    "label": "Step Title",
+                    "name": "step_title",
+                    "type": "text",
+                    "required": 1
+                },
+                {
+                    "key": "field_process_step_description",
+                    "label": "Description",
+                    "name": "step_description",
+                    "type": "textarea",
+                    "required": 0,
+                    "rows": 2
+                }
+            ]
+        },
+        {
+            "key": "field_project_testimonial_quote",
+            "label": "Artist Testimonial Quote",
+            "name": "testimonial_quote",
+            "type": "textarea",
+            "instructions": "Featured quote from artist",
+            "required": 0,
+            "rows": 3
+        },
+        {
+            "key": "field_project_related_testimonial",
+            "label": "Related Testimonial",
+            "name": "related_testimonial",
+            "type": "post_object",
+            "instructions": "Link to full testimonial post",
+            "required": 0,
+            "post_type": ["testimonial"],
+            "return_format": "id"
+        },
+        {
+            "key": "field_project_seo_title",
+            "label": "SEO Title",
+            "name": "seo_title",
+            "type": "text",
+            "instructions": "Custom SEO title (55-60 characters)",
+            "required": 0,
+            "maxlength": 60
+        },
+        {
+            "key": "field_project_seo_description",
+            "label": "SEO Description",
+            "name": "seo_description",
+            "type": "textarea",
+            "instructions": "Meta description (140-155 characters)",
+            "required": 0,
+            "rows": 2,
+            "maxlength": 155
+        }
+    ],
+    "location": [
+        [
+            {
+                "param": "post_type",
+                "operator": "==",
+                "value": "project"
+            }
+        ]
+    ],
+    "menu_order": 0,
+    "position": "normal",
+    "style": "default",
+    "label_placement": "top",
+    "instruction_placement": "label",
+    "active": true
+}

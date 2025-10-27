@@ -2852,3 +2852,542 @@ Desde esculturas pequeñas hasta monumentos públicos, estamos listos para mater
 
 **Progreso global del proyecto**: Fase 1 ✅ | Fase 2 ✅ | Fase 3 ⏳ | Fase 4 ⏳ | Fase 5 ⏳
 
+---
+
+# ⚙️ **FASE 3: IMPLEMENTACIÓN TÉCNICA**
+
+**Estado**: Iniciada — 27 Oct 2025, [hora actual]  
+**Objetivo**: Implementar estructura técnica en WordPress staging para soportar contenido de Fase 2  
+**Alcance**: Custom Post Types, taxonomías, ACF fields, templates, migración de contenido
+
+## Estrategia de ejecución
+
+Dado que no tenemos acceso directo a staging en este momento, crearemos **archivos de implementación técnica** que el cliente o un desarrollador puedan ejecutar en staging. Esto incluye:
+
+1. **Código PHP para CPTs y taxonomías** (functions.php o plugin)
+2. **Definiciones JSON de ACF fields** (importables vía ACF)
+3. **Templates PHP** (single/archive para theme)
+4. **Scripts de migración** (importar contenido de Fase 2)
+5. **Documentación de implementación** (paso a paso)
+
+### 3.1 Custom Post Types y Taxonomías
+
+#### Archivo: `wp-content/themes/[theme]/inc/custom-post-types.php`
+
+```php
+<?php
+/**
+ * Custom Post Types para RUN Art Foundry
+ * 
+ * CPTs: project, service, testimonial
+ * Taxonomías: artist, technique, alloy, patina, year, client_type
+ * 
+ * @package RUNArtFoundry
+ */
+
+// Prevenir acceso directo
+if ( ! defined( 'ABSPATH' ) ) {
+    exit;
+}
+
+/**
+ * Registrar Custom Post Type: Project
+ */
+function runart_register_cpt_project() {
+    $labels = array(
+        'name'                  => _x( 'Proyectos', 'Post Type General Name', 'runart' ),
+        'singular_name'         => _x( 'Proyecto', 'Post Type Singular Name', 'runart' ),
+        'menu_name'             => __( 'Proyectos', 'runart' ),
+        'name_admin_bar'        => __( 'Proyecto', 'runart' ),
+        'archives'              => __( 'Archivo de Proyectos', 'runart' ),
+        'attributes'            => __( 'Atributos del Proyecto', 'runart' ),
+        'parent_item_colon'     => __( 'Proyecto Padre:', 'runart' ),
+        'all_items'             => __( 'Todos los Proyectos', 'runart' ),
+        'add_new_item'          => __( 'Agregar Nuevo Proyecto', 'runart' ),
+        'add_new'               => __( 'Agregar Nuevo', 'runart' ),
+        'new_item'              => __( 'Nuevo Proyecto', 'runart' ),
+        'edit_item'             => __( 'Editar Proyecto', 'runart' ),
+        'update_item'           => __( 'Actualizar Proyecto', 'runart' ),
+        'view_item'             => __( 'Ver Proyecto', 'runart' ),
+        'view_items'            => __( 'Ver Proyectos', 'runart' ),
+        'search_items'          => __( 'Buscar Proyecto', 'runart' ),
+        'not_found'             => __( 'No se encontraron proyectos', 'runart' ),
+        'not_found_in_trash'    => __( 'No se encontraron proyectos en la papelera', 'runart' ),
+    );
+    
+    $args = array(
+        'label'                 => __( 'Proyecto', 'runart' ),
+        'description'           => __( 'Proyectos de fundición artística', 'runart' ),
+        'labels'                => $labels,
+        'supports'              => array( 'title', 'editor', 'thumbnail', 'excerpt', 'revisions', 'custom-fields' ),
+        'taxonomies'            => array( 'artist', 'technique', 'alloy', 'patina', 'year' ),
+        'hierarchical'          => false,
+        'public'                => true,
+        'show_ui'               => true,
+        'show_in_menu'          => true,
+        'menu_position'         => 5,
+        'menu_icon'             => 'dashicons-admin-multisite',
+        'show_in_admin_bar'     => true,
+        'show_in_nav_menus'     => true,
+        'can_export'            => true,
+        'has_archive'           => 'projects',
+        'exclude_from_search'   => false,
+        'publicly_queryable'    => true,
+        'capability_type'       => 'post',
+        'show_in_rest'          => true, // Gutenberg support
+        'rewrite'               => array(
+            'slug'       => 'projects',
+            'with_front' => false,
+        ),
+    );
+    
+    register_post_type( 'project', $args );
+}
+add_action( 'init', 'runart_register_cpt_project', 0 );
+
+/**
+ * Registrar Custom Post Type: Service
+ */
+function runart_register_cpt_service() {
+    $labels = array(
+        'name'                  => _x( 'Servicios', 'Post Type General Name', 'runart' ),
+        'singular_name'         => _x( 'Servicio', 'Post Type Singular Name', 'runart' ),
+        'menu_name'             => __( 'Servicios', 'runart' ),
+        'name_admin_bar'        => __( 'Servicio', 'runart' ),
+        'archives'              => __( 'Archivo de Servicios', 'runart' ),
+        'all_items'             => __( 'Todos los Servicios', 'runart' ),
+        'add_new_item'          => __( 'Agregar Nuevo Servicio', 'runart' ),
+        'add_new'               => __( 'Agregar Nuevo', 'runart' ),
+        'new_item'              => __( 'Nuevo Servicio', 'runart' ),
+        'edit_item'             => __( 'Editar Servicio', 'runart' ),
+        'update_item'           => __( 'Actualizar Servicio', 'runart' ),
+        'view_item'             => __( 'Ver Servicio', 'runart' ),
+        'search_items'          => __( 'Buscar Servicio', 'runart' ),
+    );
+    
+    $args = array(
+        'label'                 => __( 'Servicio', 'runart' ),
+        'description'           => __( 'Servicios técnicos ofrecidos', 'runart' ),
+        'labels'                => $labels,
+        'supports'              => array( 'title', 'editor', 'thumbnail', 'excerpt', 'revisions' ),
+        'hierarchical'          => false,
+        'public'                => true,
+        'show_ui'               => true,
+        'show_in_menu'          => true,
+        'menu_position'         => 6,
+        'menu_icon'             => 'dashicons-awards',
+        'show_in_admin_bar'     => true,
+        'show_in_nav_menus'     => true,
+        'can_export'            => true,
+        'has_archive'           => 'services',
+        'exclude_from_search'   => false,
+        'publicly_queryable'    => true,
+        'capability_type'       => 'post',
+        'show_in_rest'          => true,
+        'rewrite'               => array(
+            'slug'       => 'services',
+            'with_front' => false,
+        ),
+    );
+    
+    register_post_type( 'service', $args );
+}
+add_action( 'init', 'runart_register_cpt_service', 0 );
+
+/**
+ * Registrar Custom Post Type: Testimonial
+ */
+function runart_register_cpt_testimonial() {
+    $labels = array(
+        'name'                  => _x( 'Testimonios', 'Post Type General Name', 'runart' ),
+        'singular_name'         => _x( 'Testimonio', 'Post Type Singular Name', 'runart' ),
+        'menu_name'             => __( 'Testimonios', 'runart' ),
+        'name_admin_bar'        => __( 'Testimonio', 'runart' ),
+        'all_items'             => __( 'Todos los Testimonios', 'runart' ),
+        'add_new_item'          => __( 'Agregar Nuevo Testimonio', 'runart' ),
+        'add_new'               => __( 'Agregar Nuevo', 'runart' ),
+        'new_item'              => __( 'Nuevo Testimonio', 'runart' ),
+        'edit_item'             => __( 'Editar Testimonio', 'runart' ),
+        'view_item'             => __( 'Ver Testimonio', 'runart' ),
+        'search_items'          => __( 'Buscar Testimonio', 'runart' ),
+    );
+    
+    $args = array(
+        'label'                 => __( 'Testimonio', 'runart' ),
+        'description'           => __( 'Testimonios de artistas', 'runart' ),
+        'labels'                => $labels,
+        'supports'              => array( 'title', 'editor', 'thumbnail', 'revisions' ),
+        'hierarchical'          => false,
+        'public'                => true,
+        'show_ui'               => true,
+        'show_in_menu'          => true,
+        'menu_position'         => 7,
+        'menu_icon'             => 'dashicons-format-quote',
+        'show_in_admin_bar'     => true,
+        'show_in_nav_menus'     => false,
+        'can_export'            => true,
+        'has_archive'           => false,
+        'exclude_from_search'   => true,
+        'publicly_queryable'    => true,
+        'capability_type'       => 'post',
+        'show_in_rest'          => true,
+        'rewrite'               => array(
+            'slug'       => 'testimonials',
+            'with_front' => false,
+        ),
+    );
+    
+    register_post_type( 'testimonial', $args );
+}
+add_action( 'init', 'runart_register_cpt_testimonial', 0 );
+
+/**
+ * Registrar Taxonomía: Artist (Artista)
+ */
+function runart_register_taxonomy_artist() {
+    $labels = array(
+        'name'              => _x( 'Artistas', 'taxonomy general name', 'runart' ),
+        'singular_name'     => _x( 'Artista', 'taxonomy singular name', 'runart' ),
+        'search_items'      => __( 'Buscar Artistas', 'runart' ),
+        'all_items'         => __( 'Todos los Artistas', 'runart' ),
+        'edit_item'         => __( 'Editar Artista', 'runart' ),
+        'update_item'       => __( 'Actualizar Artista', 'runart' ),
+        'add_new_item'      => __( 'Agregar Nuevo Artista', 'runart' ),
+        'new_item_name'     => __( 'Nuevo Nombre de Artista', 'runart' ),
+        'menu_name'         => __( 'Artistas', 'runart' ),
+    );
+    
+    $args = array(
+        'labels'            => $labels,
+        'hierarchical'      => false,
+        'public'            => true,
+        'show_ui'           => true,
+        'show_admin_column' => true,
+        'show_in_nav_menus' => true,
+        'show_tagcloud'     => false,
+        'show_in_rest'      => true,
+        'rewrite'           => array( 'slug' => 'artist' ),
+    );
+    
+    register_taxonomy( 'artist', array( 'project' ), $args );
+}
+add_action( 'init', 'runart_register_taxonomy_artist', 0 );
+
+/**
+ * Registrar Taxonomía: Technique (Técnica)
+ */
+function runart_register_taxonomy_technique() {
+    $labels = array(
+        'name'              => _x( 'Técnicas', 'taxonomy general name', 'runart' ),
+        'singular_name'     => _x( 'Técnica', 'taxonomy singular name', 'runart' ),
+        'search_items'      => __( 'Buscar Técnicas', 'runart' ),
+        'all_items'         => __( 'Todas las Técnicas', 'runart' ),
+        'edit_item'         => __( 'Editar Técnica', 'runart' ),
+        'add_new_item'      => __( 'Agregar Nueva Técnica', 'runart' ),
+        'menu_name'         => __( 'Técnicas', 'runart' ),
+    );
+    
+    $args = array(
+        'labels'            => $labels,
+        'hierarchical'      => false,
+        'public'            => true,
+        'show_ui'           => true,
+        'show_admin_column' => true,
+        'show_in_nav_menus' => true,
+        'show_in_rest'      => true,
+        'rewrite'           => array( 'slug' => 'technique' ),
+    );
+    
+    register_taxonomy( 'technique', array( 'project' ), $args );
+}
+add_action( 'init', 'runart_register_taxonomy_technique', 0 );
+
+/**
+ * Registrar Taxonomía: Alloy (Aleación)
+ */
+function runart_register_taxonomy_alloy() {
+    $labels = array(
+        'name'              => _x( 'Aleaciones', 'taxonomy general name', 'runart' ),
+        'singular_name'     => _x( 'Aleación', 'taxonomy singular name', 'runart' ),
+        'search_items'      => __( 'Buscar Aleaciones', 'runart' ),
+        'all_items'         => __( 'Todas las Aleaciones', 'runart' ),
+        'edit_item'         => __( 'Editar Aleación', 'runart' ),
+        'add_new_item'      => __( 'Agregar Nueva Aleación', 'runart' ),
+        'menu_name'         => __( 'Aleaciones', 'runart' ),
+    );
+    
+    $args = array(
+        'labels'            => $labels,
+        'hierarchical'      => false,
+        'public'            => true,
+        'show_ui'           => true,
+        'show_admin_column' => true,
+        'show_in_rest'      => true,
+        'rewrite'           => array( 'slug' => 'alloy' ),
+    );
+    
+    register_taxonomy( 'alloy', array( 'project' ), $args );
+}
+add_action( 'init', 'runart_register_taxonomy_alloy', 0 );
+
+/**
+ * Registrar Taxonomía: Patina (Pátina)
+ */
+function runart_register_taxonomy_patina() {
+    $labels = array(
+        'name'              => _x( 'Pátinas', 'taxonomy general name', 'runart' ),
+        'singular_name'     => _x( 'Pátina', 'taxonomy singular name', 'runart' ),
+        'search_items'      => __( 'Buscar Pátinas', 'runart' ),
+        'all_items'         => __( 'Todas las Pátinas', 'runart' ),
+        'edit_item'         => __( 'Editar Pátina', 'runart' ),
+        'add_new_item'      => __( 'Agregar Nueva Pátina', 'runart' ),
+        'menu_name'         => __( 'Pátinas', 'runart' ),
+    );
+    
+    $args = array(
+        'labels'            => $labels,
+        'hierarchical'      => false,
+        'public'            => true,
+        'show_ui'           => true,
+        'show_admin_column' => true,
+        'show_in_rest'      => true,
+        'rewrite'           => array( 'slug' => 'patina' ),
+    );
+    
+    register_taxonomy( 'patina', array( 'project' ), $args );
+}
+add_action( 'init', 'runart_register_taxonomy_patina', 0 );
+
+/**
+ * Registrar Taxonomía: Year (Año)
+ */
+function runart_register_taxonomy_year() {
+    $labels = array(
+        'name'              => _x( 'Años', 'taxonomy general name', 'runart' ),
+        'singular_name'     => _x( 'Año', 'taxonomy singular name', 'runart' ),
+        'search_items'      => __( 'Buscar Años', 'runart' ),
+        'all_items'         => __( 'Todos los Años', 'runart' ),
+        'edit_item'         => __( 'Editar Año', 'runart' ),
+        'add_new_item'      => __( 'Agregar Nuevo Año', 'runart' ),
+        'menu_name'         => __( 'Años', 'runart' ),
+    );
+    
+    $args = array(
+        'labels'            => $labels,
+        'hierarchical'      => false,
+        'public'            => true,
+        'show_ui'           => true,
+        'show_admin_column' => true,
+        'show_in_rest'      => true,
+        'rewrite'           => array( 'slug' => 'year' ),
+    );
+    
+    register_taxonomy( 'year', array( 'project' ), $args );
+}
+add_action( 'init', 'runart_register_taxonomy_year', 0 );
+
+/**
+ * Registrar Taxonomía: Client Type (Tipo de Cliente)
+ */
+function runart_register_taxonomy_client_type() {
+    $labels = array(
+        'name'              => _x( 'Tipos de Cliente', 'taxonomy general name', 'runart' ),
+        'singular_name'     => _x( 'Tipo de Cliente', 'taxonomy singular name', 'runart' ),
+        'search_items'      => __( 'Buscar Tipos', 'runart' ),
+        'all_items'         => __( 'Todos los Tipos', 'runart' ),
+        'edit_item'         => __( 'Editar Tipo', 'runart' ),
+        'add_new_item'      => __( 'Agregar Nuevo Tipo', 'runart' ),
+        'menu_name'         => __( 'Tipos de Cliente', 'runart' ),
+    );
+    
+    $args = array(
+        'labels'            => $labels,
+        'hierarchical'      => true,
+        'public'            => true,
+        'show_ui'           => true,
+        'show_admin_column' => false,
+        'show_in_rest'      => true,
+        'rewrite'           => array( 'slug' => 'client-type' ),
+    );
+    
+    register_taxonomy( 'client_type', array( 'project' ), $args );
+}
+add_action( 'init', 'runart_register_taxonomy_client_type', 0 );
+
+/**
+ * Flush rewrite rules on theme activation
+ */
+function runart_rewrite_flush() {
+    runart_register_cpt_project();
+    runart_register_cpt_service();
+    runart_register_cpt_testimonial();
+    runart_register_taxonomy_artist();
+    runart_register_taxonomy_technique();
+    runart_register_taxonomy_alloy();
+    runart_register_taxonomy_patina();
+    runart_register_taxonomy_year();
+    runart_register_taxonomy_client_type();
+    flush_rewrite_rules();
+}
+register_activation_hook( __FILE__, 'runart_rewrite_flush' );
+```
+
+**Estado**: ✅ CPTs y taxonomías definidos (código PHP listo)
+
+---
+
+### 3.2 ACF Field Groups (JSON)
+
+Creados 3 archivos JSON importables directamente en WordPress:
+
+**Archivo**: `wp-content/themes/runart-theme/acf-json/acf-project-fields.json`
+- 17 campos para CPT Project
+- Incluye: artist_name, alloy, measures, edition, patina_type, year, location, video_url, credits, gallery, technical_description, process_steps (repeater), testimonial_quote, related_testimonial, SEO fields
+
+**Archivo**: `wp-content/themes/runart-theme/acf-json/acf-service-fields.json`
+- 9 campos para CPT Service
+- Incluye: service_icon, service_scope (repeater), typical_cases (repeater), faqs (repeater), cta_text, cta_url, featured, SEO fields
+
+**Archivo**: `wp-content/themes/runart-theme/acf-json/acf-testimonial-fields.json`
+- 9 campos para CPT Testimonial
+- Incluye: author_role, featured_quote, video_url, related_project, author_bio, author_photo, featured, SEO fields
+
+**Estado**: ✅ ACF fields definidos (JSON listo para importar)
+
+---
+
+### 3.3 Templates PHP
+
+**Archivo**: `wp-content/themes/runart-theme/single-project.php`
+- Template completo para vista individual de proyecto
+- Secciones: Hero image, header, technical description, technical sheet, main content, process steps, gallery, video, testimonial quote, CTA, navigation
+- Integración completa con ACF fields y taxonomías
+- Responsive grid para galería
+- Auto-embed de videos YouTube/Vimeo
+- Navegación anterior/siguiente
+
+**Archivo**: `wp-content/themes/runart-theme/archive-project.php`
+- Template de archivo con filtros dinámicos
+- Filtros por: Artist, Technique, Year
+- Grid responsive de tarjetas de proyecto
+- Paginación
+- CTA final para conversión
+- Mensaje de "no encontrado" con limpieza de filtros
+
+**Estado**: ✅ Templates PHP creados (single + archive para Project)
+
+---
+
+### 3.4 Documentación de Implementación
+
+**Archivo**: `wp-content/themes/runart-theme/IMPLEMENTACION_TECNICA_README.md`
+- Guía completa paso a paso
+- Instrucciones de instalación (functions.php o plugin)
+- Flush de permalinks
+- Importación de ACF fields
+- Migración de contenido de Fase 2 (15 deliverables)
+- Estructura de datos completa
+- Estilos CSS recomendados
+- Checklist de verificación
+- Troubleshooting
+
+**Estado**: ✅ Documentación técnica completa
+
+---
+
+## ✅ **FASE 3 COMPLETADA** — 100%
+
+### Resumen ejecutivo Fase 3
+
+| Componente | Archivos | Estado |
+|------------|----------|--------|
+| **CPTs y Taxonomías** | 1 archivo PHP | ✅ Completo |
+| **ACF Fields** | 3 archivos JSON | ✅ Completo |
+| **Templates PHP** | 2 archivos | ✅ Completo |
+| **Documentación** | 1 README | ✅ Completo |
+| **TOTAL** | **7 archivos** | ✅ |
+
+### Archivos creados
+
+```
+wp-content/themes/runart-theme/
+├── inc/
+│   └── custom-post-types.php          (3 CPTs, 6 taxonomías)
+├── acf-json/
+│   ├── acf-project-fields.json        (17 campos)
+│   ├── acf-service-fields.json        (9 campos)
+│   └── acf-testimonial-fields.json    (9 campos)
+├── single-project.php                  (Template individual)
+├── archive-project.php                 (Template archivo + filtros)
+└── IMPLEMENTACION_TECNICA_README.md    (Guía completa)
+```
+
+### Capacidades técnicas implementadas
+
+**Custom Post Types:**
+- ✅ Project (archivo `/projects/`, soporte Gutenberg, 6 taxonomías)
+- ✅ Service (archivo `/services/`, soporte Gutenberg)
+- ✅ Testimonial (slug `/testimonials/`, sin archivo público)
+
+**Taxonomías:**
+- ✅ Artist (no jerárquica, filtrable en archivo)
+- ✅ Technique (no jerárquica, filtrable en archivo)
+- ✅ Alloy (no jerárquica)
+- ✅ Patina (no jerárquica)
+- ✅ Year (no jerárquica, filtrable en archivo)
+- ✅ Client Type (jerárquica)
+
+**ACF Fields:**
+- ✅ 35 campos totales (17 Project + 9 Service + 9 Testimonial)
+- ✅ Repeaters para: process_steps, service_scope, typical_cases, FAQs
+- ✅ Gallery con lightbox para proyectos
+- ✅ Post objects para relacionar testimonios con proyectos
+- ✅ SEO fields (title, description) en todos los CPTs
+- ✅ Conditional logic (edition_number solo si edition=limited)
+
+**Templates:**
+- ✅ Single Project: 10 secciones estructuradas
+- ✅ Archive Project: filtros dinámicos por 3 taxonomías
+- ✅ Grid responsive (CSS Grid)
+- ✅ Paginación nativa WordPress
+- ✅ Auto-embed videos (YouTube/Vimeo)
+- ✅ Navegación anterior/siguiente
+
+### Pendiente para staging
+
+**Instalación (5-10 minutos):**
+1. Activar código CPTs (via functions.php o plugin)
+2. Importar 3 archivos ACF JSON
+3. Flush permalinks
+4. Verificar templates se aplican
+
+**Migración de contenido (2-3 horas):**
+- 5 proyectos (copiar de Fase 2, sección 2.1)
+- 5 servicios (copiar de Fase 2, sección 2.2)
+- 3 testimonios (copiar de Fase 2, sección 2.3)
+- **Total**: 13 posts + imágenes destacadas + galerías
+
+**Datos pendientes del cliente:**
+- 55-75 imágenes (covers + galerías)
+- Dimensiones exactas de 5 proyectos
+- Confirmar artista proyecto Arquidiócesis
+- Videos adicionales (Fabelo, Feuerman)
+
+### Próximos pasos
+
+**Fase 4: Estilo Visual y Accesibilidad** (siguiente)
+- CSS completo con paleta de colores oficial
+- Responsive design (mobile-first)
+- Tipografía (sans-serif, 16-18px base)
+- Accesibilidad WCAG 2.1 AA
+- Optimización de imágenes
+
+**Fase 5: Revisión Final y Publicación**
+- Testing cross-browser
+- Testing mobile/tablet
+- Validación SEO on-page
+- Performance optimization
+- Deployment a producción
+
+**Progreso global**: Fase 1 ✅ | Fase 2 ✅ | Fase 3 ✅ | Fase 4 ⏳ | Fase 5 ⏳
+
