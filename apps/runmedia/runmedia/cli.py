@@ -3,12 +3,15 @@ from typing import Optional
 import click
 
 from . import __version__
-from .config import DEFAULT_ROOTS, MEDIA_INDEX_PATH, REPO_ROOT
+import os
+from .config import DEFAULT_ROOTS, MEDIA_INDEX_PATH, REPO_ROOT, ASSOCIATION_RULES_PATH
 from .indexer import build_index
 from .association import associate
 from .organizer import organize
-from .exporter import export_json, export_csv
+from .exporter import export_json, export_csv, export_alt_suggestions
 from .verify import verify
+from .auto_rules import build_auto_rules
+from .wp_integration import plan_alt_updates
 
 
 @click.group()
@@ -42,13 +45,15 @@ def organize_cmd() -> None:
 
 
 @main.command()
-@click.argument("format", type=click.Choice(["json", "csv"]))
+@click.argument("format", type=click.Choice(["json", "csv", "alt-suggestions"]))
 def export(format: str) -> None:  # noqa: A003
     """Exporta el índice a JSON/CSV en content/media/exports."""
     if format == "json":
         path = export_json()
-    else:
+    elif format == "csv":
         path = export_csv()
+    else:
+        path = export_alt_suggestions()
     click.echo(f"[export] Escrito: {path}")
 
 
@@ -57,6 +62,23 @@ def verify_cmd() -> None:
     """Verifica consistencia del índice (huérfanas, alt, duplicados)."""
     summary, _details = verify()
     click.echo(f"[verify] {summary}")
+
+
+@main.command()
+@click.option("--min-freq", default=20, show_default=True, help="Frecuencia mínima de token para proponer regla")
+def rules_auto(min_freq: int) -> None:
+    """Genera/ fusiona reglas de asociación automáticamente desde el índice."""
+    merged = build_auto_rules(min_freq=min_freq)
+    projects = len(merged.get("projects", {}))
+    services = len(merged.get("services", {}))
+    click.echo(f"[rules-auto] Reglas: projects={projects}, services={services} -> {os.path.basename(ASSOCIATION_RULES_PATH)}")
+
+
+@main.command()
+def wp_plan() -> None:
+    """Genera plan CSV de ALT para importar/curar en WordPress."""
+    path = plan_alt_updates()
+    click.echo(f"[wp-plan] Escrito: {path}")
 
 
 @main.command()

@@ -122,7 +122,7 @@ Para cada módulo se indica: qué hace, cómo interactúa y su estado.
 2) Asociación con contenidos (slug o ID)
 - Qué hace: Vincula imágenes con proyectos/servicios/posts/páginas a partir de slugs, reglas, sitemap y/o REST WP. Puede usar patrones de nombre o carpetas lógicas.
 - Interacción: Enriquecimiento del índice; habilita validaciones y exportación contextual.
-- Estado: [ ] Pendiente · [x] En progreso · [ ] Completado
+- Estado: [ ] Pendiente · [ ] En progreso · [x] Completado
 
 3) Editor de metadatos (título, alt, descripción, tipo de toma, idioma)
 - Qué hace: Permite editar metadatos bilingües y campos adicionales; soporta modo CLI y, en fases posteriores, panel simple.
@@ -132,7 +132,7 @@ Para cada módulo se indica: qué hace, cómo interactúa y su estado.
 4) Organizador de carpetas (estructura lógica)
 - Qué hace: Propone y materializa una estructura en `content/media/library/` basada en categorías (projects/services/site/brand/people/etc.), creando enlaces simbólicos o copias controladas sin duplicar binarios.
 - Interacción: Apoya asociación, exportación y auditoría. Trabaja con checksums para evitar duplicados.
-- Estado: [ ] Pendiente · [x] En progreso · [ ] Completado
+- Estado: [ ] Pendiente · [ ] En progreso · [x] Completado
 
 5) Exportador (JSON / CSV)
 - Qué hace: Genera vistas filtradas en JSON/CSV para consumo externo (WP, informes, catálogos).
@@ -247,5 +247,6 @@ Usa esta sección para documentar decisiones, dudas, bloqueos y soluciones. Mant
 ---
 
 Notas finales
-- Desarrollo iniciado y en curso: Módulo 1 (Escáner/Indexador) COMPLETADO; Exportador y Verificador COMPLETADOS; Asociación/Organizador/Editor en PROGRESO; resto PENDIENTE.
-- Próximo paso recomendado: definir reglas en `content/media/association_rules.yaml` para elevar la tasa de asociación y ejecutar `python -m runmedia assoc && python -m runmedia organize-cmd`.
+- Desarrollo: Escáner/Indexador, Exportador, Verificador, Asociación y Organizador COMPLETADOS. Editor en PROGRESO; resto PENDIENTE.
+- Métrica actual: total=6162, huérfanas=703 tras reglas automáticas (comando `rules-auto`).
+- Próximo paso recomendado: curar `association_rules.yaml` (afinado manual de 10–20 slugs críticos) y completar ALT con `export alt-suggestions` o `wp-plan` antes de integración.

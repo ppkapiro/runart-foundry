@@ -1,5 +1,5 @@
 import os
-from typing import Any, Dict, Iterable, List, Optional
+from typing import Any, Dict, Iterable, List
 
 from .config import MEDIA_INDEX_PATH
 from .utils import IMAGE_EXTS, atomic_write_json, load_json, now_iso, read_image_size, relpath_under, sha256_file
