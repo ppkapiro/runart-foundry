@@ -12,6 +12,7 @@ from .exporter import export_json, export_csv, export_alt_suggestions
 from .verify import verify
 from .auto_rules import build_auto_rules
 from .wp_integration import plan_alt_updates
+from .optimizer import optimize as optimize_run
 
 
 @click.group()
@@ -119,6 +120,24 @@ def enrich(img_id: str, title_es: Optional[str], title_en: Optional[str], alt_es
 
     atomic_write_json(MEDIA_INDEX_PATH, idx)
     click.echo(f"[enrich] Actualizado {img_id}")
+
+
+@main.command()
+@click.option("--formats", multiple=True, type=click.Choice(["webp", "avif"]), default=["webp", "avif"], show_default=True, help="Formatos a generar")
+@click.option("--widths", default="", help="Lista de anchos separados por coma (ej: 2560,1600,1200,800,400). Vacío=por defecto")
+@click.option("--limit", type=int, default=None, help="Procesar solo los primeros N ítems")
+@click.option("--force/--no-force", default=False, help="Rehacer variantes aunque existan")
+@click.option("--quality", type=int, default=82, show_default=True, help="Calidad de compresión (0-100)")
+def optimize(formats: tuple[str, ...], widths: str, limit: Optional[int], force: bool, quality: int) -> None:
+    """Genera variantes WebP/AVIF y tamaños y actualiza el índice."""
+    parsed_widths = None
+    if widths.strip():
+        try:
+            parsed_widths = [int(x.strip()) for x in widths.split(",") if x.strip()]
+        except Exception as e:
+            raise click.ClickException(f"Anchuras inválidas: {widths} ({e})")
+    result = optimize_run(list(formats), parsed_widths, limit=limit, force=force, quality=quality)
+    click.echo(f"[optimize] Procesados={result['processed']} creados={result['created']} omitidos={result['skipped']} formatos={','.join(result['formats'])}")
 
 
 if __name__ == "__main__":

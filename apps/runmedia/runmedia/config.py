@@ -14,3 +14,4 @@ ASSOCIATION_RULES_PATH = os.path.join(REPO_ROOT, "content", "media", "associatio
 LIBRARY_ROOT = os.path.join(REPO_ROOT, "content", "media", "library")
 EXPORTS_DIR = os.path.join(REPO_ROOT, "content", "media", "exports")
 REPORTS_DIR = os.path.join(REPO_ROOT, "_reports")
+VARIANTS_ROOT = os.path.join(REPO_ROOT, "content", "media", "variants")

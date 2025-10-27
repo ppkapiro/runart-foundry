@@ -147,7 +147,7 @@ Para cada módulo se indica: qué hace, cómo interactúa y su estado.
 7) Optimizador (WebP/AVIF y tamaños)
 - Qué hace: Genera variantes WebP/AVIF y tamaños alineados con necesidades del tema WP; conserva originales y referencia en el índice.
 - Interacción: Escribe rutas de variantes y tamaños en el índice; no sobreescribe ficheros WP originales.
-- Estado: [ ] Pendiente · [ ] En progreso · [ ] Completado
+- Estado: [ ] Pendiente · [x] En progreso · [ ] Completado
 
 8) Integración con WordPress (opcional, desacoplada)
 - Qué hace: Exporta/importa metadatos vía REST o archivo; opcionalmente, MU plugin para ingesta de `media-index.json`.
@@ -247,6 +247,6 @@ Usa esta sección para documentar decisiones, dudas, bloqueos y soluciones. Mant
 ---
 
 Notas finales
-- Desarrollo: Escáner/Indexador, Exportador, Verificador, Asociación y Organizador COMPLETADOS. Editor en PROGRESO; resto PENDIENTE.
+- Desarrollo: Escáner/Indexador, Exportador, Verificador, Asociación y Organizador COMPLETADOS. Editor en PROGRESO; Optimizador EN PROGRESO; resto PENDIENTE.
 - Métrica actual: total=6162, huérfanas=703 tras reglas automáticas (comando `rules-auto`).
-- Próximo paso recomendado: curar `association_rules.yaml` (afinado manual de 10–20 slugs críticos) y completar ALT con `export alt-suggestions` o `wp-plan` antes de integración.
+- Próximo paso recomendado: curar `association_rules.yaml` (afinado manual de 10–20 slugs críticos), ejecutar `optimize` en lote y completar ALT con `export alt-suggestions` o `wp-plan` antes de integración.
