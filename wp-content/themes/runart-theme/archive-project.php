@@ -201,8 +201,8 @@ get_header();
         <div class="container">
             <h2><?php _e('¿Quieres Crear tu Propia Escultura en Bronce?', 'runart'); ?></h2>
             <p><?php _e('Desde esculturas de galería hasta monumentos públicos, RUN Art Foundry transforma tu visión artística en bronce permanente.', 'runart'); ?></p>
-            <a href="/contact/" class="btn btn-primary btn-lg"><?php _e('Inicia tu consulta gratuita', 'runart'); ?></a>
-            <a href="/services/" class="btn btn-secondary btn-lg"><?php _e('Ver servicios', 'runart'); ?></a>
+            <a href="<?php echo esc_url( runart_get_contact_url_for_lang( function_exists('pll_current_language') ? pll_current_language() : 'en' ) ); ?>" class="btn btn-primary btn-lg"><?php _e('Inicia tu consulta gratuita', 'runart'); ?></a>
+            <a href="<?php echo esc_url( get_post_type_archive_link('service') ); ?>" class="btn btn-secondary btn-lg"><?php _e('Ver servicios', 'runart'); ?></a>
         </div>
     </section>
     

@@ -216,8 +216,8 @@ while ( have_posts() ) :
                 <hr>
                 <p>
                     <strong><?php _e('¿Tienes un proyecto similar en mente?', 'runart'); ?></strong><br>
-                    <a href="/contact/" class="btn btn-primary"><?php _e('Inicia tu consulta', 'runart'); ?></a>
-                    <a href="/services/" class="btn btn-secondary"><?php _e('Ver servicios', 'runart'); ?></a>
+                    <a href="<?php echo esc_url( runart_get_contact_url_for_lang( function_exists('pll_current_language') ? pll_current_language() : 'en' ) ); ?>" class="btn btn-primary"><?php _e('Inicia tu consulta', 'runart'); ?></a>
+                    <a href="<?php echo esc_url( get_post_type_archive_link('service') ); ?>" class="btn btn-secondary"><?php _e('Ver servicios', 'runart'); ?></a>
                 </p>
             </div>
             
