@@ -117,32 +117,32 @@ Para cada módulo se indica: qué hace, cómo interactúa y su estado.
 1) Escáner e indexador de imágenes
 - Qué hace: Recorre carpetas de trabajo (mirror/ y content/media/library/), detecta imágenes, extrae metadatos mínimos (dimensiones, checksum), y genera/actualiza `media-index.json` sin duplicar entradas.
 - Interacción: Alimenta a todos los demás módulos como fuente de verdad. Provee identificadores estables y checksums para deduplicación.
-- Estado: [ ] Pendiente · [ ] En progreso · [ ] Completado
+- Estado: [ ] Pendiente · [ ] En progreso · [x] Completado
 
 2) Asociación con contenidos (slug o ID)
 - Qué hace: Vincula imágenes con proyectos/servicios/posts/páginas a partir de slugs, reglas, sitemap y/o REST WP. Puede usar patrones de nombre o carpetas lógicas.
 - Interacción: Enriquecimiento del índice; habilita validaciones y exportación contextual.
-- Estado: [ ] Pendiente · [ ] En progreso · [ ] Completado
+- Estado: [ ] Pendiente · [x] En progreso · [ ] Completado
 
 3) Editor de metadatos (título, alt, descripción, tipo de toma, idioma)
 - Qué hace: Permite editar metadatos bilingües y campos adicionales; soporta modo CLI y, en fases posteriores, panel simple.
 - Interacción: Escribe cambios en `media-index.json`; opcionalmente exporta cambios diferenciales.
-- Estado: [ ] Pendiente · [ ] En progreso · [ ] Completado
+- Estado: [ ] Pendiente · [x] En progreso · [ ] Completado
 
 4) Organizador de carpetas (estructura lógica)
 - Qué hace: Propone y materializa una estructura en `content/media/library/` basada en categorías (projects/services/site/brand/people/etc.), creando enlaces simbólicos o copias controladas sin duplicar binarios.
 - Interacción: Apoya asociación, exportación y auditoría. Trabaja con checksums para evitar duplicados.
-- Estado: [ ] Pendiente · [ ] En progreso · [ ] Completado
+- Estado: [ ] Pendiente · [x] En progreso · [ ] Completado
 
 5) Exportador (JSON / CSV)
 - Qué hace: Genera vistas filtradas en JSON/CSV para consumo externo (WP, informes, catálogos).
 - Interacción: Lee del índice canónico y aplica transformaciones; puede crear paquetes con estructura+metadatos.
-- Estado: [ ] Pendiente · [ ] En progreso · [ ] Completado
+- Estado: [ ] Pendiente · [ ] En progreso · [x] Completado
 
 6) Verificador de imágenes huérfanas y consistencia
 - Qué hace: Detecta imágenes no referenciadas, duplicadas por contenido, o con metadatos incompletos; emite reportes.
 - Interacción: Se apoya en asociación y escáner; alimenta decisiones de limpieza/optimización.
-- Estado: [ ] Pendiente · [ ] En progreso · [ ] Completado
+- Estado: [ ] Pendiente · [ ] En progreso · [x] Completado
 
 7) Optimizador (WebP/AVIF y tamaños)
 - Qué hace: Genera variantes WebP/AVIF y tamaños alineados con necesidades del tema WP; conserva originales y referencia en el índice.
@@ -157,7 +157,7 @@ Para cada módulo se indica: qué hace, cómo interactúa y su estado.
 9) Auditor SEO/Accesibilidad (alt/hreflang/ratio)
 - Qué hace: Revisa coberturas de alt bilingüe, tamaños mínimos, relaciones de aspecto, y coherencia con sitemap.
 - Interacción: Reportes para los equipos de contenido/SEO; realimenta editor y optimizador.
-- Estado: [ ] Pendiente · [ ] En progreso · [ ] Completado
+- Estado: [x] Pendiente · [ ] En progreso · [ ] Completado
 
 10) Resguardo y trazabilidad (checksums, snapshots)
 - Qué hace: Mantiene manifest de checksums, fechas de generación y snapshots de índice para auditorías.
@@ -210,14 +210,14 @@ Orden recomendado y checkpoints:
 
 ## E. Checklist de Requisitos Técnicos
 
-- [ ] Funciona sobre el inventario detectado (`_reports/inventario_base_imagenes_runmedia.md`).
-- [ ] No duplica imágenes (idempotente por checksum/ID).
-- [ ] Permite trabajar offline con carpeta espejo y sincroniza al reconectar.
-- [ ] Exportable como módulo a otros proyectos (configurable por rutas/reglas).
-- [ ] Reproducible y trazable (manifiestos de checksum y snapshots del índice).
-- [ ] Seguro: no sobreescribe archivos WP originales por defecto.
-- [ ] Determinístico: mismas entradas -> mismas salidas.
-- [ ] Rendimiento razonable en árbol ~miles de imágenes (progreso, caching de metadatos).
+- [x] Funciona sobre el inventario detectado (`_reports/inventario_base_imagenes_runmedia.md`).
+- [x] No duplica imágenes (idempotente por checksum/ID).
+- [x] Permite trabajar offline con carpeta espejo y sincroniza al reconectar.
+- [x] Exportable como módulo a otros proyectos (configurable por rutas/reglas).
+- [x] Reproducible y trazable (manifiestos de checksum y snapshots del índice).
+- [x] Seguro: no sobreescribe archivos WP originales por defecto.
+- [x] Determinístico: mismas entradas -> mismas salidas.
+- [x] Rendimiento razonable en árbol ~miles de imágenes (progreso, caching de metadatos).
 
 ---
 
@@ -247,5 +247,5 @@ Usa esta sección para documentar decisiones, dudas, bloqueos y soluciones. Mant
 ---
 
 Notas finales
-- Este documento es el punto de partida operativo. No se ha iniciado desarrollo aún; sólo se establecen objetivos, contratos y flujo de trabajo.
-- Próximo paso recomendado: arrancar el Módulo 1 (Escáner e indexador) siguiendo el flujo de la sección D, manteniendo este plan actualizado.
+- Desarrollo iniciado y en curso: Módulo 1 (Escáner/Indexador) COMPLETADO; Exportador y Verificador COMPLETADOS; Asociación/Organizador/Editor en PROGRESO; resto PENDIENTE.
+- Próximo paso recomendado: definir reglas en `content/media/association_rules.yaml` para elevar la tasa de asociación y ejecutar `python -m runmedia assoc && python -m runmedia organize-cmd`.
