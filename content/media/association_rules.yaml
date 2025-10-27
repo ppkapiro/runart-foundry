@@ -1,0 +1,11 @@
+# Reglas de asociación por patrones (regex o substrings)
+# Ejemplo:
+# projects:
+#   feuerman: ["feuerman", "feuerman-", "_feu_"]
+# services:
+#   bronze-casting: ["bronze", "fundicion", "foundry"]
+
+projects: {}
+services: {}
+posts: {}
+pages: {}
