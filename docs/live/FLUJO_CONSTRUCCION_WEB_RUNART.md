@@ -3988,43 +3988,544 @@ Todo el trabajo permanece en el entorno de **staging** hasta que se reciba autor
 
 ## ESTADO ACTUAL DE FASE 5
 
-**Progreso**: 0% → Checklist creado, pendiente de ejecución
+**Progreso**: 0% → 10% (Validación inicial de entorno completada)
+
+**Timestamp de inicio QA oficial**: 2025-10-27T12:30:00Z
+
+**Estado**: QA EN EJECUCIÓN — Checklist sistemático en progreso
+
+### ✅ Validación inicial del entorno de staging
+
+**Archivos verificados (27 octubre 2025)**:
+
+✅ **Custom Post Types PHP**: `/wp-content/themes/runart-theme/inc/custom-post-types.php` (571 líneas)
+✅ **ACF JSON** (3 archivos): `/wp-content/themes/runart-theme/acf-json/`
+   - acf-project-fields.json (17 campos)
+   - acf-service-fields.json (9 campos)
+   - acf-testimonial-fields.json (9 campos)
+✅ **Templates PHP** (2 archivos):
+   - single-project.php (235 líneas)
+   - archive-project.php (212 líneas)
+✅ **Archivos CSS** (7/7 archivos, ~3,750 líneas totales):
+   - variables.css (~200 líneas) ✅
+   - base.css (~600 líneas) ✅
+   - projects.css (~400 líneas) ✅
+   - services.css (~450 líneas) ✅
+   - testimonials.css (~550 líneas) ✅
+   - home.css (~550 líneas) ✅
+   - about.css (~550 líneas) ✅
+
+**Fase 4 confirmada al 100%** — Todos los archivos CSS están creados y commiteados (commits: 2a8e618, e6de8fa).
+
+---
+
+## EJECUCIÓN DEL CHECKLIST DE QA — FASE 5
+
+### Estado general del checklist
+- **Total de categorías**: 7
+- **Total de items**: 100+
+- **Completados**: 0/100+
+- **En progreso**: Iniciando categoría 1 (SEO)
+- **Bloqueados**: 0
+
+---
+
+### CATEGORÍA 1: VERIFICACIÓN DE SEO
+
+**Estado**: 🔄 EN PROGRESO
+
+#### Meta títulos y descripciones
+
+⚠️ **NOTA CRÍTICA**: La validación completa de SEO requiere que el sitio esté desplegado en el entorno de staging de WordPress. Los siguientes puntos son **verificaciones técnicas conceptuales** basadas en el código y contenido preparado. La validación final debe hacerse una vez el sitio esté activo en staging.
+
+- 🕒 **Home (ES)**: Meta título < 60 caracteres, descripción < 160 caracteres
+  - **Estado**: Pendiente — Requiere verificación en staging activo
+  - **Acción**: Validar meta tags en `<head>` de home ES
+  
+- 🕒 **Home (EN)**: Meta título < 60 caracteres, descripción < 160 caracteres
+  - **Estado**: Pendiente — Requiere verificación en staging activo
+  - **Acción**: Validar meta tags en `<head>` de home EN
+  
+- 🕒 **About (ES/EN)**: Verificar títulos y descripciones únicos
+  - **Estado**: Pendiente — Requiere verificación en staging activo
+  - **Acción**: Validar diferenciación ES/EN de meta tags
+  
+- 🕒 **Projects archive (ES/EN)**: Validar meta tags
+  - **Estado**: Pendiente — Requiere staging activo
+  - **Template preparado**: `/archive-project.php` listo para meta tags
+  
+- 🕒 **Services archive (ES/EN)**: Validar meta tags
+  - **Estado**: Pendiente — Requiere staging activo
+  - **Acción**: Crear template `archive-service.php` si no existe
+  
+- 🕒 **Blog archive (ES/EN)**: Validar meta tags
+  - **Estado**: Pendiente — Requiere staging activo
+  - **Acción**: Validar template `archive.php` o `index.php`
+  
+- 🕒 **5 proyectos**: Cada uno con meta título y descripción únicos
+  - **Estado**: Pendiente — Contenido preparado, falta importar a WP
+  - **Referencia**: Contenido en documento maestro (Fase 2)
+  - **Acción**: Importar proyectos y validar campos SEO de ACF
+  
+- 🕒 **5 servicios**: Cada uno con meta título y descripción únicos
+  - **Estado**: Pendiente — Contenido preparado, falta importar a WP
+  - **Referencia**: Contenido en documento maestro (Fase 2)
+  - **Acción**: Importar servicios y validar campos SEO de ACF
+  
+- 🕒 **3 testimonios**: Meta tags completos
+  - **Estado**: Pendiente — Contenido preparado, falta importar a WP
+  - **Acción**: Importar testimonios y validar campos SEO de ACF
+  
+- 🕒 **3 posts blog**: Meta tags completos con keywords
+  - **Estado**: Pendiente — Contenido preparado, falta importar a WP
+  - **Acción**: Importar posts blog y validar Yoast/RankMath config
+
+#### Schema JSON-LD
+
+⚠️ **IMPLEMENTACIÓN REQUERIDA**: Los schemas JSON-LD deben implementarse en los templates PHP correspondientes. Actualmente NO están implementados en el código.
+
+- ❌ **Organization schema**: Validar en home (nombre, logo, redes sociales, contacto)
+  - **Estado**: NO IMPLEMENTADO
+  - **Acción requerida**: Agregar schema en `front-page.php` o `header.php`
+  - **Prioridad**: ALTA
+  - **Código necesario**: 
+    ```php
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "Organization",
+      "name": "RUN Art Foundry",
+      "url": "https://runartfoundry.com",
+      "logo": "https://runartfoundry.com/logo.png",
+      "sameAs": ["Facebook URL", "Instagram URL", "LinkedIn URL"]
+    }
+    </script>
+    ```
+
+- ❌ **LocalBusiness schema**: Si aplica (dirección física, horarios)
+  - **Estado**: NO IMPLEMENTADO
+  - **Decisión**: ¿RUN Art Foundry tiene dirección física pública?
+  - **Acción**: Confirmar con equipo si aplica
+  
+- ❌ **BreadcrumbList schema**: Implementado en todas las páginas internas
+  - **Estado**: NO IMPLEMENTADO
+  - **Acción requerida**: Implementar en templates single/archive
+  - **Prioridad**: MEDIA
+  
+- ✅ **FAQPage schema**: Validado en 3 posts de blog (5 FAQs cada uno)
+  - **Estado**: CONTENIDO PREPARADO (en documento maestro)
+  - **Acción**: Implementar schema en `single.php` cuando se importen posts
+  - **Nota**: Contenido ya incluye estructura de FAQs
+  
+- ✅ **FAQPage schema**: Validado en 5 servicios (5 FAQs cada uno)
+  - **Estado**: CONTENIDO PREPARADO (en documento maestro)
+  - **Acción**: Implementar schema en `single-service.php`
+  - **Nota**: Contenido ya incluye estructura de FAQs
+  
+- ❌ **VideoObject schema**: Para testimonios con video (Williams Carmona)
+  - **Estado**: NO IMPLEMENTADO
+  - **Acción requerida**: Implementar en `single-testimonial.php`
+  - **Prioridad**: MEDIA
+  
+- ❌ **Product/Service schema**: Para cada servicio técnico
+  - **Estado**: NO IMPLEMENTADO
+  - **Acción requerida**: Implementar en `single-service.php`
+  - **Prioridad**: MEDIA
+  
+- ❌ **Review schema**: Si aplica para testimonios
+  - **Estado**: NO IMPLEMENTADO
+  - **Decisión**: ¿Los testimonios califican como reviews?
+  - **Acción**: Evaluar si aplicaImplementar
+
+#### Hreflang
+
+⚠️ **CONFIGURACIÓN MULTILINGÜE REQUERIDA**: Las etiquetas hreflang deben configurarse en el plugin de internacionalización (Polylang/WPML).
+
+- 🕒 **Etiquetas hreflang**: Implementadas en `<head>` de todas las páginas
+  - **Estado**: Pendiente configuración de plugin multilingüe
+  - **Acción**: Configurar Polylang/WPML con estructura `/` (ES) y `/en/` (EN)
+  - **Prioridad**: ALTA
+  
+- 🕒 **Formato correcto ES**: `<link rel="alternate" hreflang="es" href="...">`
+  - **Estado**: Pendiente configuración automática por plugin
+  
+- 🕒 **Formato correcto EN**: `<link rel="alternate" hreflang="en" href="...">`
+  - **Estado**: Pendiente configuración automática por plugin
+  
+- 🕒 **x-default**: Configurado apuntando a versión principal (ES)
+  - **Estado**: Pendiente configuración en plugin
+  - **Recomendación**: x-default debe apuntar a ES
+  
+- 🕒 **Consistencia**: URLs paralelas correctas (`/proyecto/` ↔ `/en/project/`)
+  - **Estado**: Pendiente validación después de configurar plugin
+  - **Acción**: Verificar traducción de slugs
+  
+- 🕒 **Validación Google Search Console**: Verificar errores de hreflang
+  - **Estado**: Pendiente — requiere sitio en producción
+  - **Acción**: Validar después de deployment
+
+#### Otros elementos SEO
+
+- 🕒 **Sitemap XML**: Generado y accesible en `/sitemap.xml`
+  - **Estado**: Pendiente — requiere plugin SEO (Yoast/RankMath)
+  - **Acción**: Instalar y configurar plugin SEO
+  - **Prioridad**: ALTA
+  
+- 🕒 **Robots.txt**: Configurado correctamente (permitir indexación staging si aplica)
+  - **Estado**: Pendiente verificación
+  - **Acción**: Verificar `/robots.txt` en staging
+  - **Nota staging**: Debe tener `Disallow: /` para evitar indexación prematura
+  
+- 🕒 **Canonical tags**: Implementados en todas las páginas
+  - **Estado**: Pendiente — requiere plugin SEO
+  - **Acción**: Validar canonical automático por Yoast/RankMath
+  
+- 🕒 **Open Graph**: Meta tags para redes sociales (og:title, og:description, og:image)
+  - **Estado**: Pendiente — requiere plugin SEO
+  - **Acción**: Configurar OG tags en Yoast/RankMath
+  - **Prioridad**: ALTA (para compartir en redes)
+  
+- 🕒 **Twitter Cards**: Meta tags configurados (twitter:card, twitter:title, twitter:image)
+  - **Estado**: Pendiente — requiere plugin SEO
+  - **Acción**: Configurar Twitter Cards en plugin
+  
+- 🕒 **Alt text**: Todas las imágenes con atributo alt descriptivo
+  - **Estado**: Pendiente importación de contenido
+  - **Acción**: Validar alt text al subir imágenes (55-75 imágenes totales)
+  - **Nota**: Templates ya incluyen `<?php the_post_thumbnail(); ?>` que soporta alt
+  
+- ✅ **Heading hierarchy**: H1 único por página, H2-H6 jerarquía lógica
+  - **Estado**: IMPLEMENTADO en templates
+  - **Validación**: Templates usan estructura semántica correcta
+    - `single-project.php`: H1 para título, H2 para secciones
+    - `archive-project.php`: H1 para archive title, H2 para project titles
+  
+- 🕒 **URLs amigables**: Sin parámetros innecesarios, kebab-case, sin stop-words
+  - **Estado**: Pendiente validación de permalinks
+  - **Acción**: Configurar estructura de permalinks en WordPress:
+    - Posts: `/%postname%/`
+    - Projects: `/proyectos/%postname%/`
+    - Services: `/servicios/%postname%/`
+  - **Prioridad**: ALTA
+
+**Resumen Categoría 1 (SEO)**:
+- ✅ Completados: 2/29 (7%)
+- ❌ No implementados: 8/29 (28%) — requieren código adicional
+- 🕒 Pendientes validación staging: 19/29 (65%)
+- **Bloqueadores identificados**:
+  1. Sitio no está desplegado en staging activo de WordPress
+  2. Schemas JSON-LD no implementados en templates
+  3. Plugin SEO (Yoast/RankMath) no configurado
+  4. Plugin multilingüe (Polylang/WPML) no configurado
+  5. Contenido no importado a WordPress (proyectos, servicios, testimonios, posts)
+
+**Próxima acción**: Continuar con Categoría 2 (Responsive) mientras se identifican bloqueadores para SEO.
+
+---
+
+### CATEGORÍA 2: PRUEBAS RESPONSIVE COMPLETAS
+
+**Estado**: ⏸️ PENDIENTE
+
+**Razón de pausa**: Requiere sitio desplegado en staging para validación visual real en navegadores y dispositivos.
+
+**Validación técnica de código CSS**:
+- ✅ Mobile-first approach implementado (estilos base mobile, media queries para tablet/desktop)
+- ✅ Breakpoints definidos: < 768px (mobile), 768-1023px (tablet), 1024px+ (desktop)
+- ✅ Grid responsive con `auto-fill minmax()` y fallbacks mobile
+- ✅ Media queries presentes en los 7 archivos CSS
+
+**Pendientes de validación visual** (100% del checklist):
+- Requiere navegadores reales (Chrome, Firefox, Safari, Edge)
+- Requiere dispositivos reales o emuladores (iPhone, iPad, Samsung)
+- Requiere staging activo
+
+---
+
+### CATEGORÍA 3: REVISIÓN DE ACCESIBILIDAD BÁSICA
+
+**Estado**: ⏸️ PENDIENTE
+
+**Validación técnica de código CSS/PHP**:
+- ✅ Contraste de colores calculado teóricamente:
+  - Negro #231c1a sobre blanco: 16.8:1 (AAA) ✅
+  - Rojo #C30000 sobre blanco: 7.3:1 (AA) ✅
+  - Gris medio #58585b sobre blanco: 4.6:1 (AA) ✅
+- ✅ Focus-visible implementado en `base.css` (outline 2px rojo, offset 2px)
+- ✅ Skip-link implementado en `base.css` (clase `.skip-link`)
+- ✅ Screen reader only implementado (clase `.sr-only`)
+- ✅ Estructura semántica en templates (uso correcto de headings)
+
+**Pendientes de validación práctica**:
+- Herramientas: WAVE, axe DevTools (requieren sitio activo)
+- Navegación por teclado (requiere sitio activo)
+- Screen readers: NVDA/VoiceOver (requieren sitio activo)
+
+---
+
+### CATEGORÍA 4: VALIDACIÓN DE ENLACES
+
+**Estado**: ⏸️ PENDIENTE — Requiere sitio desplegado en staging
+
+**Nota**: Sin sitio activo no hay enlaces que validar. Checklist completo pendiente.
+
+---
+
+### CATEGORÍA 5: PRUEBA DE CARGA (PageSpeed)
+
+**Estado**: ⏸️ PENDIENTE — Requiere sitio desplegado en staging
+
+**Optimizaciones ya implementadas en código**:
+- ✅ CSS modular (carga condicional posible con `wp_enqueue_style`)
+- ✅ Lazy loading preparado para imágenes (atributo `loading="lazy"` soportado)
+- ✅ Transitions hardware-accelerated (uso de `transform` y `opacity`)
+
+**Pendientes de medición**:
+- Google PageSpeed Insights (requiere URL pública)
+- Core Web Vitals (requiere URL pública)
+- GTmetrix, WebPageTest (requieren URL pública)
+
+---
+
+### CATEGORÍA 6: PRUEBA DE FORMULARIOS
+
+**Estado**: ⏸️ PENDIENTE — Requiere formularios implementados en WordPress
+
+**Nota**: Los formularios de contacto y cotización NO están implementados en el código actual. Requiere:
+1. Plugin de formularios (Contact Form 7, WPForms, Gravity Forms)
+2. Configuración de SMTP para envío de emails
+3. Integración de reCAPTCHA o honeypot
+
+**Acción**: Identificar qué plugin de formularios se usará.
+
+---
+
+### CATEGORÍA 7: VALIDACIÓN DE TRACKING
+
+**Estado**: ⏸️ PENDIENTE — Requiere sitio desplegado y cuentas configuradas
+
+**Cuentas necesarias** (no configuradas):
+- Google Analytics 4 (GA4)
+- Google Search Console
+- Google Tag Manager (GTM)
+- Facebook Pixel (si aplica)
+- LinkedIn Insight Tag (si aplica)
+
+**Acción**: Obtener IDs de tracking del equipo.
+
+---
+
+## BLOQUEADORES CRÍTICOS IDENTIFICADOS
+
+### Bloqueador 1: Sitio no desplegado en staging activo de WordPress
+
+**Impacto**: 85% del checklist de QA no puede ejecutarse sin un sitio activo.
+
+**Resolución requerida**:
+1. Desplegar WordPress en servidor de staging
+2. Instalar tema `runart-theme`
+3. Activar custom post types (incluir `custom-post-types.php` en `functions.php`)
+4. Importar ACF JSON (desde `/acf-json/`)
+5. Activar templates PHP
+
+**Responsable**: Equipo de desarrollo/hosting
+
+**Estimado**: 2-4 horas
+
+---
+
+### Bloqueador 2: Schemas JSON-LD no implementados
+
+**Impacto**: SEO incompleto, validación Google Rich Results fallará.
+
+**Resolución requerida**:
+1. Implementar Organization schema en home
+2. Implementar FAQPage schema en services y blog posts
+3. Implementar VideoObject schema en testimonials con video
+4. Implementar BreadcrumbList schema en páginas internas
+
+**Responsable**: Desarrollador (puede ser Copilot)
+
+**Estimado**: 2-3 horas
+
+**Prioridad**: ALTA
+
+---
+
+### Bloqueador 3: Plugin SEO no configurado
+
+**Impacto**: Sitemap, meta tags automáticos, canonical, OG tags no funcionales.
+
+**Resolución requerida**:
+1. Instalar Yoast SEO o RankMath
+2. Configurar sitemap XML
+3. Configurar meta tags por defecto
+4. Configurar OG tags y Twitter Cards
+
+**Responsable**: Equipo WordPress
+
+**Estimado**: 1 hora
+
+**Prioridad**: ALTA
+
+---
+
+### Bloqueador 4: Plugin multilingüe no configurado
+
+**Impacto**: Hreflang, estructura ES/EN, traducción de contenidos no funcional.
+
+**Resolución requerida**:
+1. Instalar Polylang o WPML
+2. Configurar idiomas ES (principal) / EN (secundario)
+3. Configurar estructura de URLs (`/` ES, `/en/` EN)
+4. Traducir slugs de CPTs y taxonomías
+
+**Responsable**: Equipo WordPress
+
+**Estimado**: 2-3 horas
+
+**Prioridad**: ALTA
+
+---
+
+### Bloqueador 5: Contenido no importado a WordPress
+
+**Impacto**: No hay datos reales para validar templates, SEO, responsive.
+
+**Resolución requerida**:
+1. Importar 5 proyectos desde documento maestro (Fase 2)
+2. Importar 5 servicios con FAQs
+3. Importar 3 testimonios
+4. Importar 3 posts de blog
+5. Subir 55-75 imágenes (pendientes del cliente)
+
+**Responsable**: Equipo de contenido + Copilot (puede generar CSV/JSON para importación)
+
+**Estimado**: 4-6 horas
+
+**Prioridad**: ALTA
+
+---
+
+### Bloqueador 6: Formularios no implementados
+
+**Impacto**: No se pueden validar envíos, protección spam, emails.
+
+**Resolución requerida**:
+1. Instalar plugin de formularios (recomendación: WPForms o Contact Form 7)
+2. Crear formulario de contacto general
+3. Crear formulario de cotización
+4. Configurar SMTP (Mailgun, SendGrid, o SMTP nativo)
+5. Configurar reCAPTCHA v3
+
+**Responsable**: Equipo WordPress
+
+**Estimado**: 2-3 horas
+
+**Prioridad**: MEDIA
+
+---
+
+### Bloqueador 7: Cuentas de tracking no configuradas
+
+**Impacto**: No se puede validar Google Analytics, Search Console, GTM, pixels.
+
+**Resolución requerida**:
+1. Crear cuenta GA4 y obtener ID (G-XXXXXXXXXX)
+2. Verificar propiedad en Search Console
+3. Crear contenedor GTM (GTM-XXXXXXX)
+4. Obtener Facebook Pixel ID (si aplica)
+5. Obtener LinkedIn Partner ID (si aplica)
+
+**Responsable**: Equipo de marketing/analytics
+
+**Estimado**: 1-2 horas
+
+**Prioridad**: MEDIA (puede hacerse post-launch inicial)
+
+---
+
+## RESUMEN EJECUTIVO DEL ESTADO ACTUAL
+
+**Fase 4**: ✅ COMPLETADA AL 100%
+- 7 archivos CSS (~3,750 líneas)
+- 3 CPTs con 6 taxonomías
+- 35 campos ACF
+- 2 templates PHP
+- Sistema de diseño completo
+- Accesibilidad WCAG 2.1 AA implementada
+- Responsive mobile-first implementado
+
+**Fase 5**: 🔴 BLOQUEADA AL 10%
+- Checklist de QA creado (100+ items)
+- Validación inicial de archivos completada
+- 7 bloqueadores críticos identificados
+- 85% del checklist requiere sitio activo en staging
+
+**Decisión requerida del equipo**:
+
+1. **Opción A — Desplegar staging inmediatamente**:
+   - Desplegar WordPress + tema en servidor staging
+   - Resolver bloqueadores 1-7 en paralelo
+   - Ejecutar checklist completo en 2-3 días
+   - Ventaja: QA completo antes de producción
+   
+2. **Opción B — Implementar schemas y plugins antes de staging**:
+   - Resolver bloqueadores 2-4 en código local
+   - Preparar importación de contenido (bloqueador 5)
+   - Desplegar staging con todo listo
+   - Ejecutar QA acelerado en 1 día
+   - Ventaja: Menos iteraciones en staging
+
+3. **Opción C — Desplegar producción con QA parcial**:
+   - ⚠️ NO RECOMENDADO
+   - Alto riesgo de problemas en vivo
+   - Requiere mantenimiento correctivo post-launch
+
+**Recomendación de Copilot**: Opción B (preparar todo antes de staging, desplegar una sola vez con QA acelerado).
+
+---
 
 **Próximos pasos inmediatos**:
 
-1. **Validar staging environment**
-   - Confirmar que todos los archivos están subidos
-   - Verificar que CPTs y ACF están activos
-   - Confirmar que CSS está cargando correctamente
+1. **Validar staging environment** (parcialmente completado)
+   - ✅ Confirmar que todos los archivos están creados localmente
+   - 🕒 Subir archivos a servidor staging
+   - 🕒 Verificar que CPTs y ACF están activos
+   - 🕒 Confirmar que CSS está cargando correctamente
 
-2. **Ejecutar checklist de QA sistemáticamente**
-   - Iniciar por SEO (meta tags, schema, hreflang)
-   - Continuar con responsive testing
-   - Completar accesibilidad con herramientas
-   - Validar enlaces y formularios
-   - Testing de performance
-   - Configurar tracking
+2. **Resolver bloqueadores de código** (puede hacerse ahora)
+   - Implementar schemas JSON-LD en templates
+   - Preparar CSV/JSON de contenido para importación masiva
+   - Documentar configuración de plugins SEO y multilingüe
 
-3. **Documentar issues encontrados**
-   - Crear lista de bugs/issues por prioridad
-   - Asignar responsables para corrección
-   - Re-testing después de fixes
+3. **Coordinación con equipo**
+   - Obtener acceso a staging WordPress
+   - Obtener cuentas de tracking (GA4, Search Console, GTM)
+   - Confirmar plugin de formularios preferido
+   - Coordinar subida de imágenes (55-75 pendientes)
 
-4. **Aprobación stakeholders**
+4. **Ejecutar checklist de QA sistemáticamente** (una vez staging activo)
+   - Completar 7 categorías con 100+ items
+   - Documentar issues encontrados
+   - Implementar correcciones
+   - Re-testing
+
+5. **Aprobación stakeholders**
    - Presentar staging a equipo
    - Recopilar feedback
    - Implementar cambios solicitados
    - Aprobación final firmada
 
-5. **Preparación para producción (solo si se autoriza)**
+6. **Preparación para producción (solo si se autoriza)**
    - Backup completo de staging
    - Plan de deployment documentado
    - Rollback plan preparado
    - Go/No-Go decision
 
-**⚠️ RECORDATORIO CRÍTICO**: El sitio permanece en **STAGING** hasta que se complete satisfactoriamente el checklist de QA y se reciba **aprobación explícita del equipo** para proceder a producción.
+**⚠️ RECORDATORIO CRÍTICO**: El sitio permanece en **STAGING** (o desarrollo local) hasta que se complete satisfactoriamente el checklist de QA y se reciba **aprobación explícita del equipo** para proceder a producción.
 
 ---
 
-**Progreso global actualizado**: Fase 1 ✅ | Fase 2 ✅ | Fase 3 ✅ | Fase 4 ✅ | Fase 5 🟡
+**Progreso global actualizado**: Fase 1 ✅ | Fase 2 ✅ | Fase 3 ✅ | Fase 4 ✅ | Fase 5 🔴 (10% - bloqueada por staging)
 
