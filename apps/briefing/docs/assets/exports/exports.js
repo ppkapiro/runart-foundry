@@ -1,4 +1,5 @@
 (function () {
+  const isLocalMode = () => (typeof window !== 'undefined' && window.__AUTH_MODE__ === 'none');
   const session = { role: 'visitante', email: '' };
 
   const normaliseItems = (payload) => {
@@ -130,6 +131,10 @@
   };
 
   const fetchInbox = async () => {
+    if (isLocalMode()) {
+      // Modo local: sin llamadas a endpoints cloud. Devolver lista vacía.
+      return [];
+    }
     try {
       const res = await fetch('/api/inbox', { credentials: 'include', redirect: 'manual' });
 
@@ -158,6 +163,12 @@
   };
 
   const fetchSession = async () => {
+    if (isLocalMode()) {
+      // Modo local: simular sesión mínima para habilitar UI si procede.
+      session.role = 'equipo';
+      session.email = 'local@runart.dev';
+      return;
+    }
     try {
       const res = await fetch('/api/whoami', { credentials: 'include' });
       if (!res.ok) throw new Error('whoami failed');
@@ -172,6 +183,11 @@
   };
 
   const ensureAccess = () => {
+    if (isLocalMode()) {
+      setFormEnabled(true);
+      setStatus('Modo local: exportaciones desactivadas (sin APIs).');
+      return true;
+    }
     const role = (session.role || 'visitante').toLowerCase();
     if (!['admin', 'equipo', 'cliente'].includes(role)) {
       setFormEnabled(false);
@@ -205,12 +221,16 @@
 
     setStatus('Cargando…');
 
-    const payload = await fetchInbox();
+  const payload = await fetchInbox();
     if (!payload) return;
 
     const items = normaliseItems(payload);
     const filtered = filterByRole(items, range, session);
     const records = filtered.map(recordFromItem);
+    if (isLocalMode()) {
+      setStatus('Modo local: sin datos remotos que exportar.');
+      return;
+    }
 
     if (records.length === 0) {
       const msg = role === 'cliente'

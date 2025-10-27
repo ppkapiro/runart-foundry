@@ -173,6 +173,7 @@ extra_css:
     - assets/runart/userbar.css
     - assets/runart/dashboards.css
 extra_javascript:
+    - assets/auth-mode.js
     - assets/env-flag.js
     - assets/runart/userbar.js
     - assets/runart/dashboards.js

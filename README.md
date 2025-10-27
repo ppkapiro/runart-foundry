@@ -45,6 +45,21 @@ Este es un **monorepo** que contiene múltiples módulos:
 - **`scripts/`**: Scripts globales del proyecto
 - **`.tools/`**: Dependencias npm para auditorías (Lighthouse, Axe)
 
+## Ejecutar Briefing en local sin autenticación (Local Mode)
+
+Para trabajar el micrositio Briefing 100% en local, sin Cloudflare Access ni tokens:
+
+1) Clona el repo y entra al directorio raíz.
+2) Inicia el modo local:
+  - make -C apps/briefing serve-local
+3) Abre http://127.0.0.1:8000 en tu navegador.
+
+Notas:
+- Este modo establece AUTH_MODE=none y sobreescribe apps/briefing/docs/assets/auth-mode.js durante la sesión local.
+- Las secciones que dependen de /api/* mostrarán placeholders o mensajes; no hay datos remotos ni autenticación.
+- Para volver al comportamiento normal, usa make -C apps/briefing serve o elimina .env.local.
+- Detalles completos: apps/briefing/SAFE_LOCAL_MODE.md
+
 ## Iteración cerrada — Fase 5 · UI contextual y experiencias por rol
 
 - Reporte de fase: `apps/briefing/docs/internal/briefing_system/reports/2025-10-11_fase5_ui_contextual_y_experiencias_por_rol.md` (sello DONE con entregables diferidos documentados).
