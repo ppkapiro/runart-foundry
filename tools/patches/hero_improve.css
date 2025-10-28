@@ -1,0 +1,22 @@
+/* hero.improve (flag opcional, no aplicado por defecto)
+   Activar sólo si se decide subir Perf ≥ 80 o LCP ≤ 3.0s.
+   Modo de activación sugerido: añadir clase .hero-improve al <body> o al contenedor del hero.
+*/
+
+/* Reservar altura del hero para reducir CLS */
+.hero-improve .site-hero,
+.hero-improve .hero {
+  /* opción A: relación de aspecto */
+  aspect-ratio: 16 / 9;
+  /* opción B: altura mínima fluida (descomentar si se prefiere) */
+  /* min-height: clamp(40vh, 60vh, 72vh); */
+}
+
+/* Preload (documentación):
+   Añadir en <head> bajo flag: 
+   <link rel="preload" as="image" href="/path/hero.jpg" imagesrcset="..." imagesizes="...">
+*/
+
+/* Fuentes: asegurar render rápido sin bloquear LCP */
+/* Si el tema usa @font-face propio, añadir font-display: swap; */
+/* @font-face { font-display: swap; } */

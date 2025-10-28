@@ -1,0 +1,72 @@
+/*
+ * Responsive Overrides — v0.3.1 (surgical)
+ * Mantiene paleta/tipografías; solo corrige layout y accesibilidad táctil.
+ */
+
+:root {
+  --header-h: clamp(56px, 6vw, 88px);
+  --container-max: 1200px;
+  --container-pad-x: clamp(16px, 4vw, 32px);
+  --gap-sm: clamp(12px, 2.8vw, 20px);
+  --gap-md: clamp(16px, 4vw, 28px);
+  --gap-lg: clamp(24px, 6vw, 40px);
+}
+
+/* Contener desbordes horizontales de forma segura */
+html, body { overflow-x: clip; }
+
+/* Tipografía fluida mínima (no cambia familia ni pesos) */
+body { font-size: clamp(15px, 1.6vw, 17px); line-height: 1.6; }
+h1 { font-size: clamp(28px, 4.6vw, 44px); line-height: 1.15; }
+h2 { font-size: clamp(24px, 3.8vw, 36px); line-height: 1.2; }
+h3 { font-size: clamp(20px, 3.2vw, 28px); line-height: 1.3; }
+h4, h5, h6 { line-height: 1.35; }
+
+/* Contenedores fluidos */
+.container, .wrap, .inner { max-width: var(--container-max); padding-inline: var(--container-pad-x); margin-inline: auto; }
+
+/* Safe areas iOS */
+body { padding-bottom: env(safe-area-inset-bottom, 0); }
+.site-header, header { padding-top: max(env(safe-area-inset-top, 0px), 0); }
+
+/* Offset para anclas bajo header sticky */
+:where(h2, h3, h4, [id]) { scroll-margin-top: var(--header-h); }
+
+/* Grid helpers */
+.grid-auto { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 280px), 1fr)); gap: var(--gap-md); }
+
+/* Ajustes de grids existentes */
+.blog-grid, .services-grid, .projects-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 280px), 1fr)); gap: var(--gap-lg); }
+
+/* Imágenes responsivas y placeholders para evitar CLS */
+img { max-width: 100%; height: auto; }
+.blog-card-image, .service-card-image, .project-card-image { aspect-ratio: 16 / 9; overflow: hidden; border-radius: 8px; }
+.blog-card-image img, .service-card-image img, .project-card-image img { width: 100%; height: 100%; object-fit: cover; display: block; }
+
+/* Cards: espaciados táctiles */
+.blog-card, .service-card, .project-card { display: flex; flex-direction: column; gap: var(--gap-sm); }
+.blog-card .blog-read-more, .btn, button, .menu a { min-height: 44px; display: inline-flex; align-items: center; }
+
+/* Formularios: evitar zoom iOS y asegurar targets */
+input, select, textarea { font-size: 16px; min-height: 44px; }
+button, .btn { padding: 10px 16px; }
+
+/* Header sticky estable (no cambia estilos, solo robustez) */
+main { padding-top: min(4vh, var(--header-h)); }
+
+/* Touch: desactivar hovers en coarse pointers */
+@media (hover: none) and (pointer: coarse) {
+  a:hover, button:hover { filter: none; transform: none; }
+  .blog-card:hover, .service-card:hover, .project-card:hover { box-shadow: none; transform: none; }
+}
+
+/* Breakpoints quirúrgicos */
+@media (max-width: 430px) {
+  .hero-title { font-size: clamp(24px, 7vw, 32px); }
+  .hero-subtitle { font-size: clamp(14px, 3.8vw, 16px); }
+  .archive-header, .blog-header { text-align: left; }
+}
+
+@media (max-width: 390px) {
+  .container, .wrap { padding-inline: 14px; }
+}

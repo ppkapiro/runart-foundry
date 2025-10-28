@@ -1,0 +1,42 @@
+{
+  "generatedAt": "2025-10-28T00:00:00Z",
+  "baseUrl": "https://staging.runartfoundry.com",
+  "issues": [
+    {
+      "route": "/en/blog/",
+      "selector": ".blog-grid",
+      "type": "layout/grid",
+      "severity": "medium",
+      "description": "Grilla con columnas fijas en móvil causaba overflow potencial.",
+      "fix": "grid-template-columns: repeat(auto-fit, minmax(min(100%, 280px), 1fr))",
+      "status": "fixed"
+    },
+    {
+      "route": "/en/services/",
+      "selector": ".service-card-image",
+      "type": "media/aspect-ratio",
+      "severity": "medium",
+      "description": "Imágenes sin relación reservada causaban CLS.",
+      "fix": "aspect-ratio: 16/9; object-fit: cover",
+      "status": "fixed"
+    },
+    {
+      "route": "/en/contact/",
+      "selector": "form input, form button",
+      "type": "accessibility/tap-targets",
+      "severity": "high",
+      "description": "Targets menores a 44px y font-size < 16px en iOS.",
+      "fix": "min-height: 44px; font-size: 16px",
+      "status": "fixed"
+    },
+    {
+      "route": "/es/projects/",
+      "selector": "h2[id]",
+      "type": "header/sticky-anchors",
+      "severity": "low",
+      "description": "Anclas quedaban ocultas bajo header sticky.",
+      "fix": "scroll-margin-top: var(--header-h)",
+      "status": "fixed"
+    }
+  ]
+}

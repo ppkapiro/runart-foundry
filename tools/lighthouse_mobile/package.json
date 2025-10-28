@@ -1,0 +1,15 @@
+{
+  "name": "lighthouse-mobile-runner",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Runner de Lighthouse (modo móvil) con 3 corridas por página y resúmenes",
+  "scripts": {
+    "run": "node runner.js",
+    "lint": "echo 'no lint'"
+  },
+  "dependencies": {
+    "lighthouse": "^12.1.0",
+    "puppeteer": "^23.7.0"
+  }
+}
