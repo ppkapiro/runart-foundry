@@ -67,10 +67,19 @@
 - **Impacto:** develop 311 commits behind main (incluyendo v0.3.1 responsive)
 
 ### 2. Deployment Manual a Staging
-- **Comando:** `tools/deploy_theme_complete.sh` o similar
-- **Target:** IONOS staging con v0.3.1-responsive-final
+- **Estado:** ⚠️ **BLOQUEADO por falta de credenciales SSH/SFTP**
+- **Target:** IONOS staging.runartfoundry.com con v0.3.1-responsive-final
 - **Razón:** No existe workflow automático para WordPress theme changes (solo Cloudflare Pages para briefing/docs)
-- **Smoke tests post-deploy:**
+- **Bloqueadores identificados:**
+  - No hay credenciales SSH/SFTP configuradas (variables de entorno ausentes)
+  - Script `tools/deploy_theme_complete.sh` no existe (mencionado en docs pero ausente)
+  - Estructura remota IONOS no documentada (paths, WP-CLI availability)
+- **Scripts disponibles:**
+  - `tools/deploy_fase2_staging.sh` (solo i18n Fase 2, requiere deployment manual)
+  - `tools/staging_privacy.sh` (requiere `IONOS_SSH_HOST` env var)
+  - `tools/remote_run_autodetect.sh` (template para remote execution)
+- **Documentación creada:** `_reports/STATUS_DEPLOYMENT_SSH_20251028.md` con plan detallado
+- **Smoke tests post-deploy (cuando se configure):**
   - 12 rutas (/, /en/, /es/, /en/about/, /es/about/, /en/services/, /es/services/, /en/projects/, /es/projects/, /en/blog/, /es/blog-2/, /en/contact/, /es/contacto/)
   - Verificar: HTTP 200, no overflow 360-430px, CTAs bilingües correctos
 
@@ -119,7 +128,24 @@
 ### 2. No Automatic WordPress Deployment
 - **Problema:** CI/CD solo activo para `apps/briefing/**` y `docs/**` (Cloudflare Pages)
 - **Impacto:** Cambios en `wp-content/themes/**` requieren deploy manual
-- **Solución:** Script `tools/deploy_theme_complete.sh` o extensión de `.github/workflows/pages-deploy.yml`
+- **Solución:** Script SSH/SFTP personalizado (`tools/deploy_theme_ssh.sh` a crear)
+- **Bloqueadores actuales:**
+  - Credenciales SSH/SFTP IONOS no configuradas
+  - Variables de entorno requeridas: `IONOS_SSH_HOST`, `IONOS_SSH_KEY`, `SSH_PORT`, `STAGING_WP_PATH`
+  - Estructura remota IONOS sin documentar
+- **Plan de acción:** Ver `_reports/STATUS_DEPLOYMENT_SSH_20251028.md`
+
+### 3. Falta Configuración SSH/SFTP para Deployment
+- **Problema:** No existen credenciales IONOS configuradas localmente
+- **Impacto:** CRÍTICO - Imposible desplegar v0.3.1 a staging
+- **Requerido:**
+  ```bash
+  export IONOS_SSH_HOST="usuario@host.ionos.de"
+  export IONOS_SSH_KEY="~/.ssh/ionos_runart"
+  export SSH_PORT=22
+  export STAGING_WP_PATH="/html/staging/wp-content"
+  ```
+- **Acción:** Configurar `~/.runart_staging_env` con credenciales de panel IONOS
 
 ### 3. preview Branch Desactualizado
 - **Problema:** 311 commits behind main, status stale
@@ -130,10 +156,30 @@
 
 ## 🎯 Próximos Pasos Recomendados
 
-### Inmediato (próximas 24h)
-1. **Deploy v0.3.1 a staging:** Ejecutar `tools/deploy_theme_complete.sh` y documentar en ACTUALIZACION_MAIN_20251028.md
-2. **Smoke tests staging:** Verificar 12 rutas con `?v=now`, validar métricas Lighthouse
-3. **Crear PR main → develop:** Bypass branch protection para sincronizar develop con v0.3.1
+### Crítico (ANTES de cualquier deployment)
+1. **Configurar credenciales SSH/SFTP IONOS:**
+   - Obtener de panel IONOS: host, usuario, password/key
+   - Crear `~/.runart_staging_env` con variables de entorno
+   - Configurar SSH key sin password o usar ssh-agent
+   - Documentar en `_reports/IONOS_STAGING_CONFIG.md`
+   - **Documentación completa:** `_reports/STATUS_DEPLOYMENT_SSH_20251028.md`
+
+2. **Explorar estructura remota IONOS:**
+   - SSH al servidor: `ssh usuario@host.ionos.de`
+   - Encontrar WordPress root path (`find ~ -name wp-config.php`)
+   - Verificar WP-CLI disponible (`which wp`)
+   - Documentar en `_reports/IONOS_STAGING_EXPLORATION_20251028.md`
+
+3. **Crear script `deploy_theme_ssh.sh`:**
+   - Template con rsync sobre SSH
+   - Backup automático pre-deployment
+   - Cache flush post-deployment (si WP-CLI disponible)
+   - Ver ejemplo en `_reports/STATUS_DEPLOYMENT_SSH_20251028.md`
+
+### Inmediato (próximas 24h - post configuración SSH)
+4. **Deploy v0.3.1 a staging:** Ejecutar `tools/deploy_theme_ssh.sh` (a crear) y documentar en ACTUALIZACION_MAIN_20251028.md
+5. **Smoke tests staging:** Verificar 12 rutas con `?v=now`, validar métricas Lighthouse
+6. **Crear PR main → develop:** Bypass branch protection para sincronizar develop con v0.3.1
 
 ### Corto plazo (próximos 3 días)
 4. **Cerrar ramas stale:** Eliminar `feat-local-no-auth-briefing`, `feat/briefing-status-integration-research`, evaluar `preview`
@@ -154,6 +200,8 @@
 _reports/
   ACTUALIZACION_MAIN_20251028.md          # Merge + release notes
   INVENTARIO_RAMAS_20251028.json          # Estado 37 ramas
+  RESUMEN_EJECUTIVO_20251028.md           # Este resumen (actualizado)
+  STATUS_DEPLOYMENT_SSH_20251028.md       # Plan deployment SSH/SFTP detallado
 
 docs/imaging/
   00-roadmap.md                            # Roadmap Fase 2
@@ -167,6 +215,9 @@ wp-content/themes/runart-base/
 
 tools/
   validate_images.sh                       # Script validación (stub)
+  deploy_fase2_staging.sh                  # Deployment i18n manual
+  staging_privacy.sh                       # robots.txt SSH (requiere config)
+  remote_run_autodetect.sh                 # Remote execution template
 ```
 
 ---
@@ -178,10 +229,20 @@ tools/
 - **Inventario ramas:** `_reports/INVENTARIO_RAMAS_20251028.json`
 - **Merge documentation:** `_reports/ACTUALIZACION_MAIN_20251028.md`
 - **Roadmap Fase 2:** `docs/imaging/00-roadmap.md`
+- **Deployment SSH plan:** `_reports/STATUS_DEPLOYMENT_SSH_20251028.md` ⭐ NUEVO
 
 ---
 
 **FIN RESUMEN**  
 **Status:** Merge completado, release etiquetado, Fase 2 inicializada.  
-**Bloqueadores:** develop branch protection, manual WordPress deployment.  
-**Next Action:** Deploy v0.3.1 a staging + smoke tests + PR main → develop.
+**Bloqueadores:** 
+1. develop branch protection (requiere PR vía GitHub UI)
+2. ⚠️ **CRÍTICO:** Credenciales SSH/SFTP IONOS no configuradas (bloquea deployment)
+3. Script `deploy_theme_ssh.sh` no existe (template en STATUS_DEPLOYMENT_SSH_20251028.md)
+
+**Next Action (PRIORITARIO):**  
+1. Configurar `~/.runart_staging_env` con credenciales IONOS
+2. Explorar estructura remota vía SSH
+3. Crear `tools/deploy_theme_ssh.sh`
+4. Deploy v0.3.1 a staging + smoke tests
+5. PR main → develop vía GitHub UI
