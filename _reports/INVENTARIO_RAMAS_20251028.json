@@ -1,0 +1,935 @@
+{
+  "generated": "2025-10-28T19:28:42-04:00",
+  "repository": "RunArtFoundry/runart-foundry",
+  "mainCommit": "05ba65ef8bb2691a2379a121a02b09f81b782d6f",
+  "branches": [
+    {
+      "name": "backup/main-pre-governance",
+      "fullName": "backup/main-pre-governance",
+      "commit": "f45a293f8e4add66b828c1fa7bce87c6f57de30c",
+      "behindMain": 310,
+      "aheadOfMain": 2,
+      "status": "active"
+    },
+    {
+      "name": "chore/preview-check",
+      "fullName": "chore/preview-check",
+      "commit": "73f2e13237f8cf2c8e9ec80905ab6d98a534c00b",
+      "behindMain": 365,
+      "aheadOfMain": 3,
+      "status": "active"
+    },
+    {
+      "name": "chore/remove-temp-orchestrator",
+      "fullName": "chore/remove-temp-orchestrator",
+      "commit": "48dd776a7ef19988d7dd7267a25d94b0e6c3e190",
+      "behindMain": 289,
+      "aheadOfMain": 2,
+      "status": "active"
+    },
+    {
+      "name": "ci/credenciales-cloudflare-audit",
+      "fullName": "ci/credenciales-cloudflare-audit",
+      "commit": "35c3b01f3e7731d5d02025c4bf33eab6f3693e17",
+      "behindMain": 282,
+      "aheadOfMain": 15,
+      "status": "active"
+    },
+    {
+      "name": "ci/fix-preview-extractor",
+      "fullName": "ci/fix-preview-extractor",
+      "commit": "6cf3e9c18e96199e03a615913f3564c3f94c9db7",
+      "behindMain": 311,
+      "aheadOfMain": 37,
+      "status": "active"
+    },
+    {
+      "name": "ci/preview-access-url-prechecks",
+      "fullName": "ci/preview-access-url-prechecks",
+      "commit": "ba8210ada5ef6c39456ded90b399c0c92fe82aab",
+      "behindMain": 311,
+      "aheadOfMain": 21,
+      "status": "active"
+    },
+    {
+      "name": "ci/run-preview-now",
+      "fullName": "ci/run-preview-now",
+      "commit": "6426001b65d420121734d57b670d8d8c94020cec",
+      "behindMain": 311,
+      "aheadOfMain": 27,
+      "status": "active"
+    },
+    {
+      "name": "deploy/smoke-preview-2025-10-07",
+      "fullName": "deploy/smoke-preview-2025-10-07",
+      "commit": "0601cd2d02537c9c9082906118e70171b6635c60",
+      "behindMain": 350,
+      "aheadOfMain": 6,
+      "status": "active"
+    },
+    {
+      "name": "develop",
+      "fullName": "develop",
+      "commit": "4ec1fe8d4044855badab044cc564ff794b50b6c2",
+      "behindMain": 311,
+      "aheadOfMain": 18,
+      "status": "active"
+    },
+    {
+      "name": "feat-local-no-auth-briefing",
+      "fullName": "feat-local-no-auth-briefing",
+      "commit": "f9d8e47edca2d554b8abb8b2670b5752eda9f887",
+      "behindMain": 27,
+      "aheadOfMain": 0,
+      "status": "stale"
+    },
+    {
+      "name": "feat/ci-access-service-token-verification",
+      "fullName": "feat/ci-access-service-token-verification",
+      "commit": "d8a2a57e49e1e88192a5ca840f401abc59513882",
+      "behindMain": 267,
+      "aheadOfMain": 19,
+      "status": "active"
+    },
+    {
+      "name": "feat/overlay-hardening-082",
+      "fullName": "feat/overlay-hardening-082",
+      "commit": "9abb849fd46599719d25ed2ab2f763de6940ef1d",
+      "behindMain": 282,
+      "aheadOfMain": 12,
+      "status": "active"
+    },
+    {
+      "name": "feat/pages-functions-preview-hardening",
+      "fullName": "feat/pages-functions-preview-hardening",
+      "commit": "96567e5d147bfdcc5d60c12866f22992272bdd26",
+      "behindMain": 261,
+      "aheadOfMain": 7,
+      "status": "active"
+    },
+    {
+      "name": "feat/ui-minimal-poc",
+      "fullName": "feat/ui-minimal-poc",
+      "commit": "ac12b6f2d73cd0a77218e3c0b77f0ebfcfd1d3fb",
+      "behindMain": 261,
+      "aheadOfMain": 2,
+      "status": "active"
+    },
+    {
+      "name": "feature/pr-01-briefing-canon",
+      "fullName": "feature/pr-01-briefing-canon",
+      "commit": "8f6a1a3220028be0672215f25e034b97a1fe67bd",
+      "behindMain": 152,
+      "aheadOfMain": 5,
+      "status": "active"
+    },
+    {
+      "name": "feature/pr-02-root-alignment",
+      "fullName": "feature/pr-02-root-alignment",
+      "commit": "f83b6caee7dcd91e436677edc1b7ed60ea9accba",
+      "behindMain": 152,
+      "aheadOfMain": 6,
+      "status": "active"
+    },
+    {
+      "name": "feature/pr-02.1-root-alignment-applied",
+      "fullName": "feature/pr-02.1-root-alignment-applied",
+      "commit": "d3a23477fee436f829ed1ca1fa8b517637999dcd",
+      "behindMain": 151,
+      "aheadOfMain": 8,
+      "status": "active"
+    },
+    {
+      "name": "feature/pr-03-curaduria-activa",
+      "fullName": "feature/pr-03-curaduria-activa",
+      "commit": "8ae8a422fc021a1e34b6362069ad9577ae11664e",
+      "behindMain": 151,
+      "aheadOfMain": 11,
+      "status": "active"
+    },
+    {
+      "name": "feature/pr-04-validadores-strict",
+      "fullName": "feature/pr-04-validadores-strict",
+      "commit": "0276015daf57f7579b0177023feeda1708b209c8",
+      "behindMain": 150,
+      "aheadOfMain": 6,
+      "status": "active"
+    },
+    {
+      "name": "feature/pr-05-legacy-cleanup",
+      "fullName": "feature/pr-05-legacy-cleanup",
+      "commit": "85124cdaa84576832fdfc73928a67e358600c7a0",
+      "behindMain": 148,
+      "aheadOfMain": 1,
+      "status": "active"
+    },
+    {
+      "name": "feature/pr-06-status-publish",
+      "fullName": "feature/pr-06-status-publish",
+      "commit": "09865b700e677b0b03c6c79cd4aca11e080b9123",
+      "behindMain": 147,
+      "aheadOfMain": 1,
+      "status": "active"
+    },
+    {
+      "name": "feature/pr-07-governance-stale",
+      "fullName": "feature/pr-07-governance-stale",
+      "commit": "41e15ac10a6543b0536be4692afcedbee597a654",
+      "behindMain": 146,
+      "aheadOfMain": 1,
+      "status": "active"
+    },
+    {
+      "name": "feature/roles-unificados",
+      "fullName": "feature/roles-unificados",
+      "commit": "9abb849fd46599719d25ed2ab2f763de6940ef1d",
+      "behindMain": 282,
+      "aheadOfMain": 12,
+      "status": "active"
+    },
+    {
+      "name": "feature/wp-staging-lite-integration",
+      "fullName": "feature/wp-staging-lite-integration",
+      "commit": "bc4f544f1b74d0953a34845cb8a1ed7128ee129c",
+      "behindMain": 164,
+      "aheadOfMain": 12,
+      "status": "active"
+    },
+    {
+      "name": "fix/access-middleware-enforcement",
+      "fullName": "fix/access-middleware-enforcement",
+      "commit": "28a5890c96047168b2783580b8d8141ab1df10cd",
+      "behindMain": 330,
+      "aheadOfMain": 6,
+      "status": "active"
+    },
+    {
+      "name": "fix/iter3-ci-canonical",
+      "fullName": "fix/iter3-ci-canonical",
+      "commit": "3436dec16178e95c1b7dcb0b9e08dc273035a35b",
+      "behindMain": 365,
+      "aheadOfMain": 8,
+      "status": "active"
+    },
+    {
+      "name": "fix/iter3-missing-assets",
+      "fullName": "fix/iter3-missing-assets",
+      "commit": "6afc9002555bd3787734ed7909f161ac6208d5e1",
+      "behindMain": 365,
+      "aheadOfMain": 6,
+      "status": "active"
+    },
+    {
+      "name": "fix/kv-log-binding",
+      "fullName": "fix/kv-log-binding",
+      "commit": "b21b76d16fe99c30fbc2e5bfc73631987f918a39",
+      "behindMain": 365,
+      "aheadOfMain": 2,
+      "status": "active"
+    },
+    {
+      "name": "fix/orchestrator-nonblocking-smokes",
+      "fullName": "fix/orchestrator-nonblocking-smokes",
+      "commit": "9cb1276a711620f50c1fefc335d17696df04a4fd",
+      "behindMain": 292,
+      "aheadOfMain": 1,
+      "status": "active"
+    },
+    {
+      "name": "fix/pages-functions-routing",
+      "fullName": "fix/pages-functions-routing",
+      "commit": "49f7faa17b042bca17f44bd1d17e787119f8d44c",
+      "behindMain": 311,
+      "aheadOfMain": 42,
+      "status": "active"
+    },
+    {
+      "name": "fix/pages-prod-accountid",
+      "fullName": "fix/pages-prod-accountid",
+      "commit": "e3da82b7ac05a0169ed825f965291999ccac0888",
+      "behindMain": 387,
+      "aheadOfMain": 1,
+      "status": "active"
+    },
+    {
+      "name": "fix/preview-role-resolution",
+      "fullName": "fix/preview-role-resolution",
+      "commit": "49f7faa17b042bca17f44bd1d17e787119f8d44c",
+      "behindMain": 311,
+      "aheadOfMain": 42,
+      "status": "active"
+    },
+    {
+      "name": "fix/promote-workflow-run-watch",
+      "fullName": "fix/promote-workflow-run-watch",
+      "commit": "f1ef8a82ff76305da912097bffe17a6a872b4a51",
+      "behindMain": 388,
+      "aheadOfMain": 2,
+      "status": "active"
+    },
+    {
+      "name": "hotfix/roles-canario-rollback",
+      "fullName": "hotfix/roles-canario-rollback",
+      "commit": "9abb849fd46599719d25ed2ab2f763de6940ef1d",
+      "behindMain": 282,
+      "aheadOfMain": 12,
+      "status": "active"
+    },
+    {
+      "name": "hotfix/roles-canary-datacheck",
+      "fullName": "hotfix/roles-canary-datacheck",
+      "commit": "a5afca4e816aa1b0eac35000302b54e0d831c67f",
+      "behindMain": 281,
+      "aheadOfMain": 2,
+      "status": "active"
+    },
+    {
+      "name": "main",
+      "fullName": "main",
+      "commit": "05ba65ef8bb2691a2379a121a02b09f81b782d6f",
+      "behindMain": 0,
+      "aheadOfMain": 0,
+      "status": "merged"
+    },
+    {
+      "name": "ops/overlay-deploy-ci",
+      "fullName": "ops/overlay-deploy-ci",
+      "commit": "ec0282cecef1df97c82b3030e426eb7ae0ad203d",
+      "behindMain": 311,
+      "aheadOfMain": 43,
+      "status": "active"
+    },
+    {
+      "name": "ops/overlay-deploy-into-default",
+      "fullName": "ops/overlay-deploy-into-default",
+      "commit": "17f3175ad798db39ba6e1393b310b1ab04e55e1f",
+      "behindMain": 396,
+      "aheadOfMain": 1,
+      "status": "active"
+    },
+    {
+      "name": "sync/bootstrap-git-to-main",
+      "fullName": "sync/bootstrap-git-to-main",
+      "commit": "bf04330c7451a72a31321e6ff802d34be24bcc74",
+      "behindMain": 310,
+      "aheadOfMain": 12,
+      "status": "active"
+    },
+    {
+      "name": "test/briefing-deploy",
+      "fullName": "test/briefing-deploy",
+      "commit": "2785fb935dec9e3cfeb012cb182271958f677403",
+      "behindMain": 387,
+      "aheadOfMain": 3,
+      "status": "active"
+    },
+    {
+      "name": "backup/main-pre-governance",
+      "fullName": "remotes/origin/backup/main-pre-governance",
+      "commit": "f45a293f8e4add66b828c1fa7bce87c6f57de30c",
+      "behindMain": 310,
+      "aheadOfMain": 2,
+      "status": "active"
+    },
+    {
+      "name": "chore/preview-check",
+      "fullName": "remotes/origin/chore/preview-check",
+      "commit": "73f2e13237f8cf2c8e9ec80905ab6d98a534c00b",
+      "behindMain": 365,
+      "aheadOfMain": 3,
+      "status": "active"
+    },
+    {
+      "name": "chore/remove-temp-orchestrator",
+      "fullName": "remotes/origin/chore/remove-temp-orchestrator",
+      "commit": "ddfdd7275da46f5087f9cd78ad9821035681a2c7",
+      "behindMain": 289,
+      "aheadOfMain": 1,
+      "status": "active"
+    },
+    {
+      "name": "ci/credenciales-cloudflare-audit",
+      "fullName": "remotes/origin/ci/credenciales-cloudflare-audit",
+      "commit": "35c3b01f3e7731d5d02025c4bf33eab6f3693e17",
+      "behindMain": 282,
+      "aheadOfMain": 15,
+      "status": "active"
+    },
+    {
+      "name": "ci/fix-preview-extractor",
+      "fullName": "remotes/origin/ci/fix-preview-extractor",
+      "commit": "6cf3e9c18e96199e03a615913f3564c3f94c9db7",
+      "behindMain": 311,
+      "aheadOfMain": 37,
+      "status": "active"
+    },
+    {
+      "name": "ci/preview-access-url-prechecks",
+      "fullName": "remotes/origin/ci/preview-access-url-prechecks",
+      "commit": "ba8210ada5ef6c39456ded90b399c0c92fe82aab",
+      "behindMain": 311,
+      "aheadOfMain": 21,
+      "status": "active"
+    },
+    {
+      "name": "ci/run-preview-now",
+      "fullName": "remotes/origin/ci/run-preview-now",
+      "commit": "6426001b65d420121734d57b670d8d8c94020cec",
+      "behindMain": 311,
+      "aheadOfMain": 27,
+      "status": "active"
+    },
+    {
+      "name": "deploy/smoke-preview-2025-10-07",
+      "fullName": "remotes/origin/deploy/smoke-preview-2025-10-07",
+      "commit": "0601cd2d02537c9c9082906118e70171b6635c60",
+      "behindMain": 350,
+      "aheadOfMain": 6,
+      "status": "active"
+    },
+    {
+      "name": "develop",
+      "fullName": "remotes/origin/develop",
+      "commit": "fe4266a9a566aa27c02a2694d5b2654e62ebb4d0",
+      "behindMain": 311,
+      "aheadOfMain": 2,
+      "status": "active"
+    },
+    {
+      "name": "feat-local-no-auth-briefing",
+      "fullName": "remotes/origin/feat-local-no-auth-briefing",
+      "commit": "f9d8e47edca2d554b8abb8b2670b5752eda9f887",
+      "behindMain": 27,
+      "aheadOfMain": 0,
+      "status": "stale"
+    },
+    {
+      "name": "feat/briefing-status-integration-research",
+      "fullName": "remotes/origin/feat/briefing-status-integration-research",
+      "commit": "d6e9f13332b12cfa15972ff9a5a712b983d0b5df",
+      "behindMain": 142,
+      "aheadOfMain": 0,
+      "status": "stale"
+    },
+    {
+      "name": "feat/ci-access-service-token-verification",
+      "fullName": "remotes/origin/feat/ci-access-service-token-verification",
+      "commit": "d8a2a57e49e1e88192a5ca840f401abc59513882",
+      "behindMain": 267,
+      "aheadOfMain": 19,
+      "status": "active"
+    },
+    {
+      "name": "feat/overlay-hardening-082",
+      "fullName": "remotes/origin/feat/overlay-hardening-082",
+      "commit": "9abb849fd46599719d25ed2ab2f763de6940ef1d",
+      "behindMain": 282,
+      "aheadOfMain": 12,
+      "status": "active"
+    },
+    {
+      "name": "feat/pages-functions-preview-hardening",
+      "fullName": "remotes/origin/feat/pages-functions-preview-hardening",
+      "commit": "96567e5d147bfdcc5d60c12866f22992272bdd26",
+      "behindMain": 261,
+      "aheadOfMain": 7,
+      "status": "active"
+    },
+    {
+      "name": "feature/pr-01-briefing-canon",
+      "fullName": "remotes/origin/feature/pr-01-briefing-canon",
+      "commit": "8f6a1a3220028be0672215f25e034b97a1fe67bd",
+      "behindMain": 152,
+      "aheadOfMain": 5,
+      "status": "active"
+    },
+    {
+      "name": "feature/pr-02-root-alignment",
+      "fullName": "remotes/origin/feature/pr-02-root-alignment",
+      "commit": "f83b6caee7dcd91e436677edc1b7ed60ea9accba",
+      "behindMain": 152,
+      "aheadOfMain": 6,
+      "status": "active"
+    },
+    {
+      "name": "feature/pr-02.1-root-alignment-applied",
+      "fullName": "remotes/origin/feature/pr-02.1-root-alignment-applied",
+      "commit": "b0d7450a22307d50c6f814c1235a5d4524cc3d9e",
+      "behindMain": 152,
+      "aheadOfMain": 7,
+      "status": "active"
+    },
+    {
+      "name": "feature/pr-03-curaduria-activa",
+      "fullName": "remotes/origin/feature/pr-03-curaduria-activa",
+      "commit": "8ae8a422fc021a1e34b6362069ad9577ae11664e",
+      "behindMain": 151,
+      "aheadOfMain": 11,
+      "status": "active"
+    },
+    {
+      "name": "feature/pr-04-validadores-strict",
+      "fullName": "remotes/origin/feature/pr-04-validadores-strict",
+      "commit": "0276015daf57f7579b0177023feeda1708b209c8",
+      "behindMain": 150,
+      "aheadOfMain": 6,
+      "status": "active"
+    },
+    {
+      "name": "feature/pr-05-legacy-cleanup",
+      "fullName": "remotes/origin/feature/pr-05-legacy-cleanup",
+      "commit": "85124cdaa84576832fdfc73928a67e358600c7a0",
+      "behindMain": 148,
+      "aheadOfMain": 1,
+      "status": "active"
+    },
+    {
+      "name": "feature/pr-06-status-publish",
+      "fullName": "remotes/origin/feature/pr-06-status-publish",
+      "commit": "09865b700e677b0b03c6c79cd4aca11e080b9123",
+      "behindMain": 147,
+      "aheadOfMain": 1,
+      "status": "active"
+    },
+    {
+      "name": "feature/pr-07-governance-stale",
+      "fullName": "remotes/origin/feature/pr-07-governance-stale",
+      "commit": "41e15ac10a6543b0536be4692afcedbee597a654",
+      "behindMain": 146,
+      "aheadOfMain": 1,
+      "status": "active"
+    },
+    {
+      "name": "feature/preview2-workflow",
+      "fullName": "remotes/origin/feature/preview2-workflow",
+      "commit": "81fee2021c215569ab19cad5744b1f1315d737e0",
+      "behindMain": 311,
+      "aheadOfMain": 2,
+      "status": "active"
+    },
+    {
+      "name": "feature/wp-staging-lite-integration",
+      "fullName": "remotes/origin/feature/wp-staging-lite-integration",
+      "commit": "bc4f544f1b74d0953a34845cb8a1ed7128ee129c",
+      "behindMain": 164,
+      "aheadOfMain": 12,
+      "status": "active"
+    },
+    {
+      "name": "fix/iter3-missing-assets",
+      "fullName": "remotes/origin/fix/iter3-missing-assets",
+      "commit": "6afc9002555bd3787734ed7909f161ac6208d5e1",
+      "behindMain": 365,
+      "aheadOfMain": 6,
+      "status": "active"
+    },
+    {
+      "name": "fix/kv-log-binding",
+      "fullName": "remotes/origin/fix/kv-log-binding",
+      "commit": "b21b76d16fe99c30fbc2e5bfc73631987f918a39",
+      "behindMain": 365,
+      "aheadOfMain": 2,
+      "status": "active"
+    },
+    {
+      "name": "fix/orchestrator-nonblocking-smokes",
+      "fullName": "remotes/origin/fix/orchestrator-nonblocking-smokes",
+      "commit": "9728457c058f5656d98fe7864411f9271f8ea69b",
+      "behindMain": 387,
+      "aheadOfMain": 2,
+      "status": "active"
+    },
+    {
+      "name": "fix/pages-prod-accountid",
+      "fullName": "remotes/origin/fix/pages-prod-accountid",
+      "commit": "e3da82b7ac05a0169ed825f965291999ccac0888",
+      "behindMain": 387,
+      "aheadOfMain": 1,
+      "status": "active"
+    },
+    {
+      "name": "fix/preview-role-resolution",
+      "fullName": "remotes/origin/fix/preview-role-resolution",
+      "commit": "49f7faa17b042bca17f44bd1d17e787119f8d44c",
+      "behindMain": 311,
+      "aheadOfMain": 42,
+      "status": "active"
+    },
+    {
+      "name": "fix/promote-workflow-run-watch",
+      "fullName": "remotes/origin/fix/promote-workflow-run-watch",
+      "commit": "f1ef8a82ff76305da912097bffe17a6a872b4a51",
+      "behindMain": 388,
+      "aheadOfMain": 2,
+      "status": "active"
+    },
+    {
+      "name": "hotfix/roles-canary-datacheck",
+      "fullName": "remotes/origin/hotfix/roles-canary-datacheck",
+      "commit": "a5afca4e816aa1b0eac35000302b54e0d831c67f",
+      "behindMain": 281,
+      "aheadOfMain": 2,
+      "status": "active"
+    },
+    {
+      "name": "main",
+      "fullName": "remotes/origin/main",
+      "commit": "05ba65ef8bb2691a2379a121a02b09f81b782d6f",
+      "behindMain": 0,
+      "aheadOfMain": 0,
+      "status": "merged"
+    },
+    {
+      "name": "ops/overlay-deploy-ci",
+      "fullName": "remotes/origin/ops/overlay-deploy-ci",
+      "commit": "ec0282cecef1df97c82b3030e426eb7ae0ad203d",
+      "behindMain": 311,
+      "aheadOfMain": 43,
+      "status": "active"
+    },
+    {
+      "name": "ops/overlay-deploy-into-default",
+      "fullName": "remotes/origin/ops/overlay-deploy-into-default",
+      "commit": "17f3175ad798db39ba6e1393b310b1ab04e55e1f",
+      "behindMain": 396,
+      "aheadOfMain": 1,
+      "status": "active"
+    },
+    {
+      "name": "ppkapiro-patch-1",
+      "fullName": "remotes/origin/ppkapiro-patch-1",
+      "commit": "87af0088905963ab6edd03c2a0ede6b960db5a66",
+      "behindMain": 311,
+      "aheadOfMain": 2,
+      "status": "active"
+    },
+    {
+      "name": "preview",
+      "fullName": "remotes/origin/preview",
+      "commit": "e6fc5c804f80c0da5f10eb2bfc8907638040ee4f",
+      "behindMain": 311,
+      "aheadOfMain": 0,
+      "status": "stale"
+    },
+    {
+      "name": "sync/bootstrap-git-to-main",
+      "fullName": "remotes/origin/sync/bootstrap-git-to-main",
+      "commit": "bf04330c7451a72a31321e6ff802d34be24bcc74",
+      "behindMain": 310,
+      "aheadOfMain": 12,
+      "status": "active"
+    },
+    {
+      "name": "test/briefing-deploy",
+      "fullName": "remotes/origin/test/briefing-deploy",
+      "commit": "2785fb935dec9e3cfeb012cb182271958f677403",
+      "behindMain": 387,
+      "aheadOfMain": 3,
+      "status": "active"
+    },
+    {
+      "name": "backup/main-pre-governance",
+      "fullName": "remotes/upstream/backup/main-pre-governance",
+      "commit": "f45a293f8e4add66b828c1fa7bce87c6f57de30c",
+      "behindMain": 310,
+      "aheadOfMain": 2,
+      "status": "active"
+    },
+    {
+      "name": "chore/preview-check",
+      "fullName": "remotes/upstream/chore/preview-check",
+      "commit": "73f2e13237f8cf2c8e9ec80905ab6d98a534c00b",
+      "behindMain": 365,
+      "aheadOfMain": 3,
+      "status": "active"
+    },
+    {
+      "name": "chore/remove-temp-orchestrator",
+      "fullName": "remotes/upstream/chore/remove-temp-orchestrator",
+      "commit": "ddfdd7275da46f5087f9cd78ad9821035681a2c7",
+      "behindMain": 289,
+      "aheadOfMain": 1,
+      "status": "active"
+    },
+    {
+      "name": "ci/credenciales-cloudflare-audit",
+      "fullName": "remotes/upstream/ci/credenciales-cloudflare-audit",
+      "commit": "35c3b01f3e7731d5d02025c4bf33eab6f3693e17",
+      "behindMain": 282,
+      "aheadOfMain": 15,
+      "status": "active"
+    },
+    {
+      "name": "ci/fix-preview-extractor",
+      "fullName": "remotes/upstream/ci/fix-preview-extractor",
+      "commit": "6cf3e9c18e96199e03a615913f3564c3f94c9db7",
+      "behindMain": 311,
+      "aheadOfMain": 37,
+      "status": "active"
+    },
+    {
+      "name": "ci/preview-access-url-prechecks",
+      "fullName": "remotes/upstream/ci/preview-access-url-prechecks",
+      "commit": "ba8210ada5ef6c39456ded90b399c0c92fe82aab",
+      "behindMain": 311,
+      "aheadOfMain": 21,
+      "status": "active"
+    },
+    {
+      "name": "ci/run-preview-now",
+      "fullName": "remotes/upstream/ci/run-preview-now",
+      "commit": "6426001b65d420121734d57b670d8d8c94020cec",
+      "behindMain": 311,
+      "aheadOfMain": 27,
+      "status": "active"
+    },
+    {
+      "name": "deploy/smoke-preview-2025-10-07",
+      "fullName": "remotes/upstream/deploy/smoke-preview-2025-10-07",
+      "commit": "0601cd2d02537c9c9082906118e70171b6635c60",
+      "behindMain": 350,
+      "aheadOfMain": 6,
+      "status": "active"
+    },
+    {
+      "name": "develop",
+      "fullName": "remotes/upstream/develop",
+      "commit": "fe4266a9a566aa27c02a2694d5b2654e62ebb4d0",
+      "behindMain": 311,
+      "aheadOfMain": 2,
+      "status": "active"
+    },
+    {
+      "name": "feat-local-no-auth-briefing",
+      "fullName": "remotes/upstream/feat-local-no-auth-briefing",
+      "commit": "f9d8e47edca2d554b8abb8b2670b5752eda9f887",
+      "behindMain": 27,
+      "aheadOfMain": 0,
+      "status": "stale"
+    },
+    {
+      "name": "feat/briefing-status-integration-research",
+      "fullName": "remotes/upstream/feat/briefing-status-integration-research",
+      "commit": "d6e9f13332b12cfa15972ff9a5a712b983d0b5df",
+      "behindMain": 142,
+      "aheadOfMain": 0,
+      "status": "stale"
+    },
+    {
+      "name": "feat/ci-access-service-token-verification",
+      "fullName": "remotes/upstream/feat/ci-access-service-token-verification",
+      "commit": "d8a2a57e49e1e88192a5ca840f401abc59513882",
+      "behindMain": 267,
+      "aheadOfMain": 19,
+      "status": "active"
+    },
+    {
+      "name": "feat/overlay-hardening-082",
+      "fullName": "remotes/upstream/feat/overlay-hardening-082",
+      "commit": "9abb849fd46599719d25ed2ab2f763de6940ef1d",
+      "behindMain": 282,
+      "aheadOfMain": 12,
+      "status": "active"
+    },
+    {
+      "name": "feat/pages-functions-preview-hardening",
+      "fullName": "remotes/upstream/feat/pages-functions-preview-hardening",
+      "commit": "96567e5d147bfdcc5d60c12866f22992272bdd26",
+      "behindMain": 261,
+      "aheadOfMain": 7,
+      "status": "active"
+    },
+    {
+      "name": "feature/pr-01-briefing-canon",
+      "fullName": "remotes/upstream/feature/pr-01-briefing-canon",
+      "commit": "8f6a1a3220028be0672215f25e034b97a1fe67bd",
+      "behindMain": 152,
+      "aheadOfMain": 5,
+      "status": "active"
+    },
+    {
+      "name": "feature/pr-02-root-alignment",
+      "fullName": "remotes/upstream/feature/pr-02-root-alignment",
+      "commit": "f83b6caee7dcd91e436677edc1b7ed60ea9accba",
+      "behindMain": 152,
+      "aheadOfMain": 6,
+      "status": "active"
+    },
+    {
+      "name": "feature/pr-02.1-root-alignment-applied",
+      "fullName": "remotes/upstream/feature/pr-02.1-root-alignment-applied",
+      "commit": "b0d7450a22307d50c6f814c1235a5d4524cc3d9e",
+      "behindMain": 152,
+      "aheadOfMain": 7,
+      "status": "active"
+    },
+    {
+      "name": "feature/pr-03-curaduria-activa",
+      "fullName": "remotes/upstream/feature/pr-03-curaduria-activa",
+      "commit": "8ae8a422fc021a1e34b6362069ad9577ae11664e",
+      "behindMain": 151,
+      "aheadOfMain": 11,
+      "status": "active"
+    },
+    {
+      "name": "feature/pr-04-validadores-strict",
+      "fullName": "remotes/upstream/feature/pr-04-validadores-strict",
+      "commit": "0276015daf57f7579b0177023feeda1708b209c8",
+      "behindMain": 150,
+      "aheadOfMain": 6,
+      "status": "active"
+    },
+    {
+      "name": "feature/pr-05-legacy-cleanup",
+      "fullName": "remotes/upstream/feature/pr-05-legacy-cleanup",
+      "commit": "85124cdaa84576832fdfc73928a67e358600c7a0",
+      "behindMain": 148,
+      "aheadOfMain": 1,
+      "status": "active"
+    },
+    {
+      "name": "feature/pr-06-status-publish",
+      "fullName": "remotes/upstream/feature/pr-06-status-publish",
+      "commit": "09865b700e677b0b03c6c79cd4aca11e080b9123",
+      "behindMain": 147,
+      "aheadOfMain": 1,
+      "status": "active"
+    },
+    {
+      "name": "feature/pr-07-governance-stale",
+      "fullName": "remotes/upstream/feature/pr-07-governance-stale",
+      "commit": "41e15ac10a6543b0536be4692afcedbee597a654",
+      "behindMain": 146,
+      "aheadOfMain": 1,
+      "status": "active"
+    },
+    {
+      "name": "feature/preview2-workflow",
+      "fullName": "remotes/upstream/feature/preview2-workflow",
+      "commit": "81fee2021c215569ab19cad5744b1f1315d737e0",
+      "behindMain": 311,
+      "aheadOfMain": 2,
+      "status": "active"
+    },
+    {
+      "name": "feature/wp-staging-lite-integration",
+      "fullName": "remotes/upstream/feature/wp-staging-lite-integration",
+      "commit": "bc4f544f1b74d0953a34845cb8a1ed7128ee129c",
+      "behindMain": 164,
+      "aheadOfMain": 12,
+      "status": "active"
+    },
+    {
+      "name": "fix/iter3-missing-assets",
+      "fullName": "remotes/upstream/fix/iter3-missing-assets",
+      "commit": "6afc9002555bd3787734ed7909f161ac6208d5e1",
+      "behindMain": 365,
+      "aheadOfMain": 6,
+      "status": "active"
+    },
+    {
+      "name": "fix/kv-log-binding",
+      "fullName": "remotes/upstream/fix/kv-log-binding",
+      "commit": "b21b76d16fe99c30fbc2e5bfc73631987f918a39",
+      "behindMain": 365,
+      "aheadOfMain": 2,
+      "status": "active"
+    },
+    {
+      "name": "fix/orchestrator-nonblocking-smokes",
+      "fullName": "remotes/upstream/fix/orchestrator-nonblocking-smokes",
+      "commit": "9728457c058f5656d98fe7864411f9271f8ea69b",
+      "behindMain": 387,
+      "aheadOfMain": 2,
+      "status": "active"
+    },
+    {
+      "name": "fix/pages-prod-accountid",
+      "fullName": "remotes/upstream/fix/pages-prod-accountid",
+      "commit": "e3da82b7ac05a0169ed825f965291999ccac0888",
+      "behindMain": 387,
+      "aheadOfMain": 1,
+      "status": "active"
+    },
+    {
+      "name": "fix/preview-role-resolution",
+      "fullName": "remotes/upstream/fix/preview-role-resolution",
+      "commit": "49f7faa17b042bca17f44bd1d17e787119f8d44c",
+      "behindMain": 311,
+      "aheadOfMain": 42,
+      "status": "active"
+    },
+    {
+      "name": "fix/promote-workflow-run-watch",
+      "fullName": "remotes/upstream/fix/promote-workflow-run-watch",
+      "commit": "f1ef8a82ff76305da912097bffe17a6a872b4a51",
+      "behindMain": 388,
+      "aheadOfMain": 2,
+      "status": "active"
+    },
+    {
+      "name": "hotfix/roles-canary-datacheck",
+      "fullName": "remotes/upstream/hotfix/roles-canary-datacheck",
+      "commit": "a5afca4e816aa1b0eac35000302b54e0d831c67f",
+      "behindMain": 281,
+      "aheadOfMain": 2,
+      "status": "active"
+    },
+    {
+      "name": "main",
+      "fullName": "remotes/upstream/main",
+      "commit": "05ba65ef8bb2691a2379a121a02b09f81b782d6f",
+      "behindMain": 0,
+      "aheadOfMain": 0,
+      "status": "merged"
+    },
+    {
+      "name": "ops/overlay-deploy-ci",
+      "fullName": "remotes/upstream/ops/overlay-deploy-ci",
+      "commit": "ec0282cecef1df97c82b3030e426eb7ae0ad203d",
+      "behindMain": 311,
+      "aheadOfMain": 43,
+      "status": "active"
+    },
+    {
+      "name": "ops/overlay-deploy-into-default",
+      "fullName": "remotes/upstream/ops/overlay-deploy-into-default",
+      "commit": "17f3175ad798db39ba6e1393b310b1ab04e55e1f",
+      "behindMain": 396,
+      "aheadOfMain": 1,
+      "status": "active"
+    },
+    {
+      "name": "ppkapiro-patch-1",
+      "fullName": "remotes/upstream/ppkapiro-patch-1",
+      "commit": "87af0088905963ab6edd03c2a0ede6b960db5a66",
+      "behindMain": 311,
+      "aheadOfMain": 2,
+      "status": "active"
+    },
+    {
+      "name": "preview",
+      "fullName": "remotes/upstream/preview",
+      "commit": "e6fc5c804f80c0da5f10eb2bfc8907638040ee4f",
+      "behindMain": 311,
+      "aheadOfMain": 0,
+      "status": "stale"
+    },
+    {
+      "name": "sync/bootstrap-git-to-main",
+      "fullName": "remotes/upstream/sync/bootstrap-git-to-main",
+      "commit": "bf04330c7451a72a31321e6ff802d34be24bcc74",
+      "behindMain": 310,
+      "aheadOfMain": 12,
+      "status": "active"
+    },
+    {
+      "name": "test/briefing-deploy",
+      "fullName": "remotes/upstream/test/briefing-deploy",
+      "commit": "2785fb935dec9e3cfeb012cb182271958f677403",
+      "behindMain": 387,
+      "aheadOfMain": 3,
+      "status": "active"
+    }
+  ]
+}
