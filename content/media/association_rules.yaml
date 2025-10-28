@@ -1,421 +1,237 @@
 pages: {}
 posts: {}
 projects:
-  1024x576:
-  - _1024x576_
-  - 1024x576
-  - -1024x576-
-  1024x636:
-  - -1024x636-
-  - _1024x636_
-  - 1024x636
-  1024x768:
-  - -1024x768-
-  - 1024x768
-  - _1024x768_
-  150x150:
-  - _150x150_
-  - 150x150
-  - -150x150-
-  169x300:
-  - -169x300-
-  - 169x300
-  - _169x300_
-  196x300:
-  - _196x300_
-  - -196x300-
-  - 196x300
-  224x300:
-  - _224x300_
-  - 224x300
-  - -224x300-
-  225x300:
-  - 225x300
-  - -225x300-
-  - _225x300_
-  272x182:
-  - 272x182
-  - -272x182-
-  - _272x182_
-  300x169:
-  - 300x169
-  - _300x169_
-  - -300x169-
-  300x186:
-  - -300x186-
-  - 300x186
-  - _300x186_
-  300x199:
-  - _300x199_
-  - -300x199-
-  - 300x199
-  300x200:
-  - _300x200_
-  - -300x200-
-  - 300x200
-  300x225:
-  - _300x225_
-  - 300x225
-  - -300x225-
-  350x350:
-  - 350x350
-  - _350x350_
-  - -350x350-
-  375x375:
-  - _375x375_
-  - -375x375-
-  - 375x375
-  500x450:
-  - _500x450_
-  - -500x450-
-  - 500x450
-  500x99999:
-  - 500x99999
-  - -500x99999-
-  - _500x99999_
-  576x1024:
-  - _576x1024_
-  - -576x1024-
-  - 576x1024
-  587x400:
-  - 587x400
-  - _587x400_
-  - -587x400-
-  600x400:
-  - _600x400_
-  - -600x400-
-  - 600x400
-  768x432:
-  - 768x432
-  - _768x432_
-  - -768x432-
-  768x477:
-  - _768x477_
-  - -768x477-
-  - 768x477
-  800x450:
-  - 800x450
-  - _800x450_
-  - -800x450-
-  99999x500:
-  - _99999x500_
-  - 99999x500
-  - -99999x500-
-  alexander:
+  alexander-arrechea:
   - alexander
-  - -alexander-
+  - arrechea
   - _alexander_
-  aluminum:
-  - _aluminum_
-  - -aluminum-
-  - aluminum
-  am1:
-  - _am1_
-  - -am1-
-  - am1
-  american:
+  - _arrechea_
+  - -arrechea-
+  american-dream:
   - american
   - _american_
   - -american-
+  - mask
+  - dream
   armonia:
   - _armonia_
   - armonia
   - -armonia-
-  arrechea:
-  - -arrechea-
-  - arrechea
-  - _arrechea_
-  back:
-  - back
-  - -back-
-  - _back_
+  - hiperrealista
   ballerina:
   - ballerina
   - _ballerina_
   - -ballerina-
-  bases:
-  - bases
-  - -bases-
-  - _bases_
-  beso:
-  - -beso-
-  - _beso_
-  - beso
-  carlos:
+  - dancer
+  carlos-manuel-cespedes:
   - _carlos_
   - -carlos-
   - carlos
-  carroza:
-  - -carroza-
-  - _carroza_
-  - carroza
-  ceramic:
-  - ceramic
-  - _ceramic_
-  - -ceramic-
-  cespedes:
   - cespedes
-  - _cespedes_
-  - -cespedes-
+  - manuel
   clementina:
   - _clementina_
   - -clementina-
   - clementina
-  contra:
+  contra-corriente:
   - contra
   - -contra-
   - _contra_
-  corriente:
-  - _corriente_
-  - -corriente-
   - corriente
-  coser:
-  - _coser_
-  - -coser-
-  - coser
-  crates:
-  - crates
-  - -crates-
-  - _crates_
-  cropped:
-  - _cropped_
-  - cropped
-  - -cropped-
-  dancer:
-  - -dancer-
-  - _dancer_
-  - dancer
-  dewax:
-  - _dewax_
-  - -dewax-
-  - dewax
-  dream:
-  - -dream-
-  - _dream_
-  - dream
-  dsc:
-  - _dsc_
-  - -dsc-
-  - dsc
-  durga:
+  durga-ma:
   - -durga-
   - _durga_
   - durga
-  enlargement:
-  - enlargement
-  - -enlargement-
-  - _enlargement_
-  equilibrio:
+  - goddess
+  el-beso:
+  - -beso-
+  - _beso_
+  - beso
+  - kiss
+  - final
+  el-equilibrio:
   - _equilibrio_
   - equilibrio
   - -equilibrio-
-  estupinan:
-  - _estupinan_
-  - -estupinan-
-  - estupinan
+  - balance
+  - premade
+  el-gran-viaje:
+  - gran
+  - -gran-
+  - _gran_
+  - viaje
+  el-rapto-de-micaela:
+  - micaela
+  - _micaela_
+  - -micaela-
+  - rapto
+  el-saltamonte:
+  - _saltamonte_
+  - -saltamonte-
+  - saltamonte
+  - grasshopper
   eva:
   - eva
   - _eva_
   - -eva-
-  fabelo:
-  - fabelo
-  - _fabelo_
-  - -fabelo-
-  fantastico:
-  - _fantastico_
-  - -fantastico-
-  - fantastico
-  favicon:
-  - -favicon-
-  - _favicon_
-  - favicon
-  gomez:
-  - _gomez_
-  - -gomez-
-  - gomez
-  gran:
-  - gran
-  - -gran-
-  - _gran_
-  granite:
-  - granite
-  - -granite-
-  - _granite_
-  guajiro:
+  guajiro-reide-molina:
   - _guajiro_
   - -guajiro-
   - guajiro
-  home:
-  - -home-
-  - home
-  - _home_
-  jet:
-  - jet
-  - _jet_
-  - -jet-
-  lira:
+  - reide
+  - molina
+  la-gran-carroza:
+  - -carroza-
+  - _carroza_
+  - carroza
+  - carriage
+  la-lira:
   - -lira-
   - lira
   - _lira_
-  logo:
-  - _logo_
-  - -logo-
-  - logo
-  lucas:
-  - lucas
-  - -lucas-
-  - _lucas_
-  manuel:
-  - manuel
-  - -manuel-
-  - _manuel_
-  maquina:
-  - -maquina-
-  - maquina
-  - _maquina_
-  marble:
-  - -marble-
-  - marble
-  - _marble_
-  mask:
-  - mask
-  - -mask-
-  - _mask_
-  maximo:
-  - -maximo-
-  - _maximo_
-  - maximo
-  micaela:
-  - micaela
-  - _micaela_
-  - -micaela-
-  modeling:
-  - modeling
-  - _modeling_
-  - -modeling-
-  molding:
-  - -molding-
-  - molding
-  - _molding_
-  mounting:
-  - mounting
-  - _mounting_
-  - -mounting-
-  mujer:
-  - _mujer_
-  - -mujer-
-  - mujer
-  nosotros:
-  - _nosotros_
-  - nosotros
-  - -nosotros-
-  oil:
-  - oil
-  - -oil-
-  - _oil_
-  paint:
-  - -paint-
-  - paint
-  - _paint_
-  pajaros:
-  - _pajaros_
-  - -pajaros-
-  - pajaros
-  patina:
-  - patina
-  - -patina-
-  - _patina_
-  poco:
-  - poco
-  - _poco_
-  - -poco-
-  polish:
-  - polish
-  - _polish_
-  - -polish-
-  reflexion:
+  - lyre
+  la-reflexion:
   - reflexion
   - -reflexion-
   - _reflexion_
-  resine:
-  - _resine_
-  - -resine-
-  - resine
-  restoration:
-  - -restoration-
-  - _restoration_
-  - restoration
-  roberto:
-  - -roberto-
-  - _roberto_
+  - reflection
+  maquina-de-coser:
+  - -maquina-
+  - maquina
+  - _maquina_
+  - coser
+  - sewing
+  maximo-gomez:
+  - _gomez_
+  - -gomez-
+  - gomez
+  - maximo
+  mujer-con-pajaros:
+  - _mujer_
+  - -mujer-
+  - mujer
+  - pajaros
+  - birds
+  poco-de-nosotros:
+  - _nosotros_
+  - nosotros
+  - -nosotros-
+  - poco
+  roberto-estupinan:
+  - _estupinan_
+  - -estupinan-
+  - estupinan
   - roberto
-  rubber:
-  - -rubber-
-  - rubber
-  - _rubber_
-  runartfoundry:
-  - -runartfoundry-
-  - _runartfoundry_
+  run-art-foundry-branding:
+  - -home-
+  - home
+  - _home_
+  - logo
+  - branding
+  - favicon
+  - cropped
   - runartfoundry
-  saltamonte:
-  - _saltamonte_
-  - -saltamonte-
-  - saltamonte
-  screen:
-  - -screen-
-  - _screen_
-  - screen
-  sculpture:
-  - -sculpture-
-  - sculpture
-  - _sculpture_
-  sculture:
-  - _sculture_
-  - -sculture-
-  - sculture
   serena:
   - -serena-
   - serena
   - _serena_
-  shell:
-  - shell
-  - -shell-
-  - _shell_
-  shot:
-  - _shot_
-  - -shot-
-  - shot
-  silicon:
-  - -silicon-
-  - _silicon_
-  - silicon
-  suenos:
-  - _suenos_
+  suenos-de-lucas:
+  - lucas
+  - -lucas-
+  - _lucas_
   - suenos
-  - -suenos-
-  viaje:
+  - dreams
+  viaje-fantastico-fabelo:
+  - fabelo
+  - _fabelo_
+  - -fabelo-
+  - fantastico
   - viaje
-  - _viaje_
-  - -viaje-
-  water:
-  - _water_
-  - water
-  - -water-
-  wax:
-  - _wax_
-  - -wax-
-  - wax
-  welding:
-  - -welding-
-  - _welding_
-  - welding
-  wood:
-  - wood
-  - _wood_
-  - -wood-
 services:
   bronze-casting:
   - bronze
   - fundicion
   - foundry
   - casting
+  - metal
+  - pour
+  sculpture-modeling:
+  - modeling
+  - sculture
+  - sculpture
+  - clay
+  - plastilina
+  ceramic-shell:
+  - ceramic
+  - shell
+  - investment
+  - dipping
+  wax-casting:
+  - wax
+  - dewax
+  - molten
+  - lost
+  welding-polish:
+  - welding
+  - polish
+  - grinding
+  - finishing
+  - metal
+  patina:
+  - patina
+  - chemical
+  - color
+  - finish
+  - oxidation
+  silicon-rubber-molding:
+  - silicon
+  - rubber
+  - molding
+  - mold
+  - flexible
+  sculpture-enlargement:
+  - enlargement
+  - scaling
+  - upscale
+  - pointing
+  granite-bases:
+  - granite
+  - bases
+  - mounting
+  - pedestal
+  - stone
+  wood-crates:
+  - crates
+  - wood
+  - packaging
+  - shipping
+  marble-sculpture:
+  - marble
+  - stone
+  - carving
+  water-jet:
+  - water
+  - jet
+  - cutting
+  - cnc
+  resine-casting:
+  - resine
+  - resin
+  - polyester
+  - fiberglass
+  restoration:
+  - restoration
+  - repair
+  - conservation
+  - maintenance
+  oil-in-bronze:
+  - oil
+  - paint
+  - polychrome
+  - color
+  engineering:
+  - engineering
+  - cad
+  - design
+  - technical
+  - drawing
