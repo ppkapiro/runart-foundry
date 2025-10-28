@@ -1,0 +1,109 @@
+════════════════════════════════════════════════════════════════════════
+CHANGELOG — Responsive v0.3.1
+════════════════════════════════════════════════════════════════════════
+
+Fecha: 2025-10-28
+Rama: fix/responsive-v0.3.1
+Commits: b0493aa, 9837f50, c369e4e
+
+OBJETIVO CUMPLIDO
+─────────────────
+Estandarizar validación móvil de RunArtFoundry con Lighthouse (modo móvil),
+generar métricas reproducibles (2 corridas por página), registrar artefactos
+y abrir PR con reportes actualizados. NO mergeado aún.
+
+ALCANCE
+───────
+• 12 páginas EN/ES: Home, About, Services, Projects, Blog, Contact
+• Emulación móvil estándar (360×640, 2x DPR, Moto G4/Lighthouse default)
+• Quality gates: Perf ≥80, Acc ≥90, BP ≥90, LCP ≤3s, CLS ≤0.10, INP ≤200ms
+
+RESULTADOS
+──────────
+✅ TODOS LOS GATES SUPERADOS
+   • Performance: 96.5 – 100 (gate ≥80)
+   • Accessibility: 90 – 93 (gate ≥90)
+   • Best Practices: 93 constante (gate ≥90)
+   • LCP: 1.50 – 2.05s (gate ≤3.0s)
+   • CLS: 0.000 constante (gate ≤0.10)
+   • INP: N/A (JS minimal, gate ≤200ms)
+
+ARCHIVOS AÑADIDOS/MODIFICADOS
+──────────────────────────────
+Tema WordPress:
+  • wp-content/themes/runart-base/assets/css/responsive.overrides.css (nuevo)
+  • wp-content/themes/runart-base/functions.php (enqueue CSS)
+
+Tooling:
+  • tools/lighthouse_mobile/runner.js (nuevo)
+  • tools/lighthouse_mobile/package.json (nuevo)
+  • tools/patches/hero_improve.css (parche opcional, NO aplicado)
+  • tools/patches/README.md (documentación parche)
+  • tools/cache_purge_pages.sh (template WP-CLI, opcional)
+
+Reportes:
+  • _reports/RESPONSIVE_AUDIT.md (auditoría consolidada con tabla Lighthouse)
+  • _reports/RESPONSIVE_LH_SUMMARY.json (resumen JSON con promedios y gates)
+  • _reports/RESPONSIVE_LH_RAW/ (39 JSONs de Lighthouse raw data)
+  • _reports/RESPONSIVE_DIFF.md (diff de cambios responsive)
+  • _reports/INVENTARIO_RESPONSIVE.json (inventario detallado)
+  • _reports/PR_RESPONSIVE_V0.3.1.md (descripción completa del PR)
+  • docs/ux/Guia_Responsive.md (guía de buenas prácticas)
+
+CAMBIOS TÉCNICOS
+────────────────
+CSS Responsive Overrides (quirúrgicos, NO rompe paleta v0.3.1):
+  • Tipografía fluida con clamp(14px, 2vw, 18px)
+  • Grids auto-fit con minmax(280px, 1fr) para blog/services/projects
+  • aspect-ratio: 16/9 + object-fit: cover en cards (mitigación CLS)
+  • Tap targets ≥ 44px en botones/enlaces
+  • Inputs ≥ 16px (iOS no-zoom)
+  • scroll-margin-top global para sticky headers
+  • Safe areas iOS con env(safe-area-inset-*)
+  • overflow-x: clip en contenedores
+  • Hover deshabilitado en dispositivos táctiles
+
+Runner Lighthouse:
+  • Emulación móvil con throttling simulado
+  • 2 corridas por página (configurable con RUNS=N)
+  • Cálculo de promedio y desviación estándar
+  • Evaluación automática de gates
+  • Generación de recomendaciones (ninguna requerida; todos los gates PASS)
+  • Salida: JSONs raw + summary consolidado
+
+GUARDRAILS RESPETADOS
+──────────────────────
+✅ No se tocó paleta, tipografías core, contenidos, i18n
+✅ No se alteraron CI/CD ni secrets
+✅ Solo cambios en tooling de medición + docs/artefactos
+✅ No se publicó a producción; solo staging
+
+RECOMENDACIONES
+───────────────
+✅ NO SE REQUIERE activar flag hero.improve
+   (Todas las métricas ya superan los thresholds)
+
+⚠ SEO bajo (58–69) es externo al responsive
+  → Meta descriptions, canonical links, sitemap (fase futura)
+
+⚠ Blog Acc=90 (no 93) por widgets sin labels completos
+  → No bloquea gate; mejorable en iteración futura
+
+PRÓXIMOS PASOS
+──────────────
+1. Revisión de código y validación de métricas
+2. Merge a main cuando se apruebe (NO HACERLO AÚN)
+3. Deploy a staging (ya aplicado para pruebas)
+4. Validación manual en dispositivos reales
+5. Deploy a producción tras validación final
+
+ENLACES
+───────
+• PR descripción: _reports/PR_RESPONSIVE_V0.3.1.md
+• Auditoría completa: _reports/RESPONSIVE_AUDIT.md
+• Summary JSON: _reports/RESPONSIVE_LH_SUMMARY.json
+• Guía técnica: docs/ux/Guia_Responsive.md
+• Rama: fix/responsive-v0.3.1
+• Labels: type:qa, area:responsive, phase:v0.3.1
+
+════════════════════════════════════════════════════════════════════════
