@@ -218,14 +218,14 @@ Bug visual del language switcher que persistía **solo en Chrome** (móvil/deskt
 
 ### Archivos modificados
 
-- `wp-content/themes/runart-base/assets/css/responsive.overrides.css` (7,848 bytes)
+- `wp-content/themes/runart-base/assets/css/responsive.overrides.css` (8,694 bytes)
 - `wp-content/themes/runart-base/functions.php` (version bump → 0.3.1.3)
 
 ### Cambios aplicados
 
 - Encapsulado scroll horizontal del `.site-nav` para prevenir propagación al body
 - Aplicado `overflow-x: clip` en `.site-header` y `.site-header .container`
-- Limitado ancho del `.site-nav` con `max-inline-size: calc(100dvw - 9rem)`
+- Limitado ancho del `.site-nav` con `max-inline-size: calc(100% - 9rem)`
 - Agregado `overscroll-behavior-inline: contain` para evitar scroll bubbling
 - CSS containment (`contain: inline-size`) para optimizar cálculos
 - Unidades lógicas (`inline-size`, `block-size`) para mejor soporte RTL
@@ -280,7 +280,7 @@ Bug visual del language switcher que persistía **solo en Chrome** (móvil/deskt
 
 ### Checksums
 
-- `responsive.overrides.css`: `b5029a817d5afb7630fb3b49d1061c8f9b7851b381d60d8bed3fb0fb054bf7fb`
+- `responsive.overrides.css`: `506bac3b6aaaf0c157c58fd0f2c3a1ab458852b1f56ff2dfe3a79795f1a28f55`
 - `functions.php`: `e1ae8c4f096333522be9ea7d376353bb02eed96b1c8d668b6c41e4f204d21179`
 
 ### Notas
