@@ -106,6 +106,74 @@ Documenta la creación de los artefactos anteriores.
 
 ---
 
+## 🔀 Alineación de ramas (Q4 2025)
+
+- Estado PR main → develop: CREADO — https://github.com/RunArtFoundry/runart-foundry/pull/72
+  - **Status:** PENDING MANUAL RESOLUTION (conflictos ~100 archivos, checks CI fallidos)
+  - Análisis completo: `_reports/PR72_MERGE_STATUS_20251029.md`
+- Plan de cierre de ramas: ver `_reports/PLAN_CIERRE_RAMAS_2025Q4.md`.
+- Log de ejecución: ver `_reports/CIERRE_RAMAS_LOG_20251029.md`.
+- Criterio aplicado para cierre: behindMain > 150 y aheadOfMain == 0 (solo `preview` en origin/upstream califica).
+- Cierre ejecutado: ✅ COMPLETADO
+  - origin/preview: eliminada 2025-10-29T15:43:29-04:00
+  - upstream/preview: eliminada 2025-10-29T15:43:29-04:00
+  - Issue de soporte: https://github.com/RunArtFoundry/runart-foundry/issues/73
+
+---
+
+## 🔧 Staging: Loader & Exploración (Tarea 2)
+
+**Estado:** ✅ COMPLETADO (con bloqueador SSH key pendiente)
+
+### Artefactos Creados
+
+1. **Staging Env Loader** — `tools/staging_env_loader.sh`
+   - Valida variables de entorno desde `~/.runart_staging_env`
+   - Verifica permisos (600) y prueba conexión SSH
+   - Guía de setup integrada para casos de error
+
+2. **Exploración IONOS** — `_reports/IONOS_STAGING_EXPLORATION_20251029.md`
+   - Host: access958591985.webspace-data.io
+   - WordPress Path: /html/staging
+   - Staging URL: https://staging.runartfoundry.com
+   - Temas detectados: runart-base (parent), runart-theme (child active)
+
+3. **Status Deployment SSH** — `_reports/STATUS_DEPLOYMENT_SSH_20251029.md`
+   - Variables validadas: 9/10 (SSH key pendiente)
+   - Conexión HTTP verificada: ✅ 200 OK
+   - Bloqueador: Password auth falla; requiere SSH key
+
+4. **Theme Check** — `_reports/IONOS_STAGING_THEME_CHECK_20251029.md`
+   - Tema runart-theme: ✅ Activo y funcional
+   - Polylang i18n: ✅ Operacional (redirect a /en/home/)
+   - HTTPS: ✅ Habilitado
+
+5. **Resumen Ejecutivo Tarea 2** — `_reports/RESUMEN_EJECUTIVO_TAREA2_20251029.md`
+   - KPIs, bloqueadores, próximos pasos
+   - Progreso BLOQUE ÚNICO: 25% (2/8 tareas)
+
+### Bloqueadores Identificados
+
+❌ **SSH Authentication Failure**
+   - Causa: Password no funcional; IONOS requiere SSH key
+   - Solución: Generar SSH key y copiar al servidor (30 min)
+   - Instrucciones: Ver `_reports/STATUS_DEPLOYMENT_SSH_20251029.md`
+
+❌ **PR #72 Conflictos**
+   - Causa: develop 311 commits detrás (~100 archivos conflictivos)
+   - Solución: Sesión manual 2-4 horas
+   - Workaround: Continuar con main como referencia
+
+### Acciones Siguientes
+
+- [ ] Configurar SSH key para desbloquear deploys
+- [ ] Crear script deploy_theme_ssh.sh (Tarea 3)
+- [ ] Deploy v0.3.1 a staging (Tarea 3)
+- [ ] Smoke tests 12 rutas (Tarea 4)
+- [ ] Resolver PR #72 (sesión dedicada)
+
+---
+
 ## ✅ Validación
 
 - ✅ Documento creado en `/docs/Deployment_Master.md`
