@@ -118,6 +118,25 @@ Workflow `run-repair.yml` con inputs `area` (home/menus/media/settings) y `mode`
 
 ---
 
+## 🔧 Deployment Guide (RunArt Foundry)
+
+**📘 [Deployment Master Guide](docs/Deployment_Master.md)** — Referencia oficial de deployment  
+**📋 [Deployment Log](docs/Deployment_Log.md)** — Registro cronológico de deployments
+
+### Deployment Master Guide
+Documento completo que centraliza:
+- ✅ Método aprobado de deployment (WSL + WP-CLI + IONOS)
+- ✅ Variables, credenciales y ubicaciones críticas
+- ✅ Procedimientos paso a paso (backup, sincronización, verificación, rollback)
+- ✅ Problemas detectados y soluciones (WSOD, CSS 404, cache, SSH, etc.)
+- ✅ Buenas prácticas de seguridad, testing y versionado
+- ✅ Checklist de verificación pre/durante/post-deployment
+- ✅ **NUEVO:** Sección 8.1 — v0.3.1.1 Language Switcher Fix con pitfalls aprendidos
+
+**Última actualización:** 2025-10-29 v1.2 — Chrome overflow fix (fit-content → flex)
+
+---
+
 ## 🔐 Integración WP Real (Fase 7 — En progreso)
 
 **Estado:** 🟡 En ejecución  

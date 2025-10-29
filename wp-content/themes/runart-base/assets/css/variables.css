@@ -1,0 +1,32 @@
+/* CSS Variables for RunArt Base Theme */
+:root {
+  /* Color Palette - Blanco y Rojo según plan UI/UX */
+  --color-primary: #C30000;        /* Rojo primario (CTAs, acentos) */
+  --color-primary-dark: #9A0000;   /* Rojo oscuro (hover) */
+  --color-bg: #FFFFFF;             /* Fondo blanco */
+  --color-surface: #F5F5F5;        /* Superficie gris muy claro */
+  --color-surface-2: #E5E5E5;      /* Superficie gris claro */
+  --color-text: #231C1A;           /* Negro profundo (texto principal) */
+  --color-text-secondary: #3B3A39; /* Gris carbón (texto secundario) */
+  --color-muted: #666666;          /* Gris medio */
+  --color-border: #D9D9D9;         /* Gris claro (divisores) */
+  --color-accent-bronze: #93867B;  /* Acento metálico bronce (opcional) */
+  
+  /* Layout */
+  --container-max: 1200px;
+  
+  /* Spacing */
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 24px;
+  --space-6: 32px;
+  --space-7: 48px;
+  --space-8: 64px;
+  
+  /* Border & Shadow */
+  --radius: 8px;
+  --shadow-1: 0 2px 8px rgba(0, 0, 0, 0.1);
+  --shadow-2: 0 4px 16px rgba(0, 0, 0, 0.12);
+}

@@ -1,0 +1,296 @@
+/* ========================================
+   CONTACT PAGE - Minimalista Blanco y Rojo
+   ======================================== */
+
+/* Hero Section */
+.contact-page .hero-section {
+    position: relative;
+    min-height: 400px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    overflow: hidden;
+    background: var(--color-bg);
+}
+
+.contact-page .hero-background {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-size: cover;
+    background-position: center;
+    opacity: 0.15;
+    z-index: 0;
+}
+
+.contact-page .hero-content {
+    position: relative;
+    z-index: 1;
+    max-width: 1100px;
+    padding: 60px 24px; /* más espacio alrededor del hero */
+}
+
+.contact-page .hero-title {
+    font-size: clamp(2.5rem, 5vw, 4rem);
+    font-weight: 700;
+    color: var(--color-text);
+    margin-bottom: var(--spacing-md);
+    line-height: 1.1;
+}
+
+.contact-page .hero-subtitle {
+    font-size: 1.25rem;
+    color: var(--color-text);
+    opacity: 0.7;
+    line-height: 1.6;
+}
+
+/* Contact Section */
+.contact-page .contact-section {
+    padding: 80px 0; /* aumentar separación vertical */
+    background: var(--color-bg);
+}
+
+.contact-page .contact-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 450px), 1fr));
+    gap: 48px; /* más espacio entre columna */
+    align-items: start;
+}
+
+/* Form Card */
+.contact-page .form-card {
+    background: #FFFFFF;
+    border: 1px solid var(--color-border);
+    border-radius: 10px;
+    padding: 32px; /* mayor padding interior */
+}
+
+.contact-page .contact-form .form-group {
+    margin-bottom: 20px; /* más separación entre campos */
+}
+
+.contact-page .contact-form label {
+    display: block;
+    font-weight: 600;
+    color: var(--color-text);
+    margin-bottom: 8px;
+    font-size: 0.95rem;
+}
+
+.contact-page .contact-form input[type="text"],
+.contact-page .contact-form input[type="email"],
+.contact-page .contact-form input[type="tel"],
+.contact-page .contact-form textarea {
+    width: 100%;
+    padding: 14px 18px; /* más cómodo para escribir */
+    border: 1px solid var(--color-border);
+    border-radius: 6px;
+    font-size: 1rem;
+    color: var(--color-text);
+    background: #FFFFFF;
+    transition: all 0.25s ease;
+}
+
+.contact-page .contact-form input:focus,
+.contact-page .contact-form textarea:focus {
+    outline: none;
+    border-color: var(--color-primary);
+    box-shadow: 0 0 0 3px rgba(195, 0, 0, 0.1);
+}
+
+.contact-page .contact-form textarea {
+    resize: vertical;
+    min-height: 140px;
+}
+
+.contact-page .contact-form .btn-primary {
+    width: 100%;
+    padding: 14px 32px;
+    font-size: 1rem;
+    font-weight: 600;
+    margin-top: var(--spacing-sm);
+}
+
+/* Contact Form 7 Overrides */
+.contact-page .wpcf7-form p {
+    margin-bottom: var(--spacing-md);
+}
+
+.contact-page .wpcf7-form input[type="text"],
+.contact-page .wpcf7-form input[type="email"],
+.contact-page .wpcf7-form input[type="tel"],
+.contact-page .wpcf7-form textarea {
+    width: 100%;
+    padding: 12px 16px;
+    border: 1px solid var(--color-border);
+    border-radius: 4px;
+    font-size: 1rem;
+    color: var(--color-text);
+    background: #FFFFFF;
+}
+
+.contact-page .wpcf7-form input[type="submit"] {
+    width: 100%;
+    background: var(--color-primary);
+    color: #FFFFFF;
+    border: none;
+    padding: 14px 32px;
+    border-radius: 4px;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.contact-page .wpcf7-form input[type="submit"]:hover {
+    background: #A00000;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(195, 0, 0, 0.3);
+}
+
+/* Map Wrapper */
+.contact-page .map-wrapper {
+    width: 100%;
+    aspect-ratio: 16 / 9;
+    border-radius: 10px;
+    overflow: hidden;
+    margin-bottom: 32px; /* más separación debajo del mapa */
+    border: 1px solid var(--color-border);
+}
+
+/* Info Cards */
+.contact-page .info-cards {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(min(100%, 240px), 1fr));
+    gap: 20px; /* espacio mayor entre cards */
+}
+
+.contact-page .info-card {
+    display: flex;
+    align-items: flex-start;
+    gap: 14px;
+    padding: 18px; /* aumentar padding para respirar */
+    background: #FFFFFF;
+    border: 1px solid var(--color-border);
+    border-radius: 10px;
+    transition: all 0.28s ease;
+}
+
+.contact-page .info-card:hover {
+    border-color: var(--color-primary);
+    box-shadow: 0 4px 12px rgba(195, 0, 0, 0.1);
+    transform: translateY(-2px);
+}
+
+.contact-page .info-icon {
+    font-size: 1.5rem;
+    flex-shrink: 0;
+}
+
+.contact-page .info-content h3 {
+    font-size: 0.9rem;
+    font-weight: 700;
+    color: var(--color-primary);
+    margin: 0 0 4px 0;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.contact-page .info-content p {
+    font-size: 0.95rem;
+    color: var(--color-text);
+    margin: 0;
+    line-height: 1.5;
+}
+
+/* Why Section */
+.contact-page .why-section {
+    padding: 80px 0; /* más espacio arriba y abajo */
+    background: #FAFAFA;
+}
+
+.contact-page .why-section .section-title {
+    text-align: center;
+    margin-bottom: 48px; /* más separación del título a las tarjetas */
+    color: var(--color-text);
+    font-size: clamp(1.8rem, 3vw, 2.5rem);
+}
+
+.contact-page .reasons-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(min(100%, 280px), 1fr));
+    gap: 24px; /* aumentar gap entre tarjetas */
+    max-width: 1100px;
+    margin: 0 auto;
+}
+
+.contact-page .reason-card {
+    display: flex;
+    align-items: center;
+    gap: 16px; /* más espacio entre icono y texto */
+    padding: 24px; /* aumentar padding interno */
+    background: #FFFFFF;
+    border: 1px solid var(--color-border);
+    border-radius: 10px;
+    transition: all 0.3s ease;
+}
+
+.contact-page .reason-card:hover {
+    border-color: var(--color-primary);
+    box-shadow: 0 4px 12px rgba(195, 0, 0, 0.1);
+    transform: translateY(-2px);
+}
+
+.contact-page .reason-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 32px;
+    height: 32px;
+    background: var(--color-primary);
+    color: #FFFFFF;
+    border-radius: 50%;
+    font-size: 1.1rem;
+    font-weight: 700;
+    flex-shrink: 0;
+}
+
+.contact-page .reason-card p {
+    margin: 0;
+    font-size: 0.95rem;
+    color: var(--color-text);
+    line-height: 1.5;
+    font-weight: 500;
+}
+
+/* Responsive */
+@media (max-width: 1024px) {
+    .contact-page .hero-title { font-size: 2.8rem; }
+    .contact-page .hero-content { padding: 42px 18px; }
+    .contact-page .contact-grid { gap: 32px; }
+    .contact-page .why-section { padding: 60px 0; }
+    .contact-page .reasons-grid { gap: 20px; }
+}
+
+@media (max-width: 768px) {
+    .contact-page .hero-title { font-size: 2.4rem; }
+    .contact-page .contact-grid { grid-template-columns: 1fr; }
+    .contact-page .info-cards { grid-template-columns: 1fr; }
+    .contact-page .reasons-grid { grid-template-columns: 1fr; }
+    .contact-page .form-card { padding: 20px; }
+    .contact-page .info-card { padding: 14px; }
+    .contact-page .reason-card { padding: 18px; }
+    .contact-page .why-section { padding: 50px 0; }
+    .contact-page .why-section .section-title { margin-bottom: 32px; }
+}
+
+/* Ensure container has breathing room */
+.contact-page .container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 18px;
+}

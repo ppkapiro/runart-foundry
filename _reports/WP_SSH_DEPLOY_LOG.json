@@ -1,0 +1,940 @@
+[
+  {
+    "timestamp": "2025-10-29T14:35:35Z",
+    "step": "start",
+    "status": "ok",
+    "message": "Deployment script initiated",
+    "meta_raw": "{\"env\":\"staging\"}"
+  },
+  {
+    "timestamp": "2025-10-29T14:35:36Z",
+    "step": "ssh_check",
+    "status": "ok",
+    "message": "SSH connectivity verified",
+    "meta_raw": "{}"
+  },
+  {
+    "timestamp": "2025-10-29T14:35:38Z",
+    "step": "wp_core",
+    "status": "ok",
+    "message": "WordPress detected",
+    "meta_raw": "{}"
+  },
+  {
+    "timestamp": "2025-10-29T14:35:40Z",
+    "step": "wp_siteurl",
+    "status": "ok",
+    "message": "Site URL detected",
+    "meta_raw": "{\"siteurl\":\"https://staging.runartfoundry.com\"}"
+  },
+  {
+    "timestamp": "2025-10-29T14:35:42Z",
+    "step": "backup",
+    "status": "ok",
+    "message": "Theme backup created",
+    "meta_raw": "{\"path\":\"/tmp/runart-base_backup_20251029T143535Z.tgz\"}"
+  },
+  {
+    "timestamp": "2025-10-29T14:35:44Z",
+    "step": "rsync_staging",
+    "status": "ok",
+    "message": "Theme synchronized",
+    "meta_raw": "{\"remote_dir\":\"/homepages/7/d958591985/htdocs/staging/wp-content/themes/runart-base\"}"
+  },
+  {
+    "timestamp": "2025-10-29T14:35:46Z",
+    "step": "rewrite_flush",
+    "status": "ok",
+    "message": "Permalinks flushed",
+    "meta_raw": "{}"
+  },
+  {
+    "timestamp": "2025-10-29T14:35:48Z",
+    "step": "cache_flush",
+    "status": "ok",
+    "message": "Cache flushed",
+    "meta_raw": "{}"
+  },
+  {
+    "timestamp": "2025-10-29T14:35:49Z",
+    "step": "publish_services",
+    "status": "skip",
+    "message": "Already published",
+    "meta_raw": "{\"id\":3514}"
+  },
+  {
+    "timestamp": "2025-10-29T14:35:51Z",
+    "step": "publish_servicios",
+    "status": "skip",
+    "message": "Already published",
+    "meta_raw": "{\"id\":3519}"
+  },
+  {
+    "timestamp": "2025-10-29T14:35:52Z",
+    "step": "publish_projects",
+    "status": "warn",
+    "message": "Page not found",
+    "meta_raw": "{}"
+  },
+  {
+    "timestamp": "2025-10-29T14:35:53Z",
+    "step": "publish_proyectos",
+    "status": "warn",
+    "message": "Page not found",
+    "meta_raw": "{}"
+  },
+  {
+    "timestamp": "2025-10-29T14:35:55Z",
+    "step": "publish_blog",
+    "status": "skip",
+    "message": "Already published",
+    "meta_raw": "{\"id\":3516}"
+  },
+  {
+    "timestamp": "2025-10-29T14:36:01Z",
+    "step": "publish_blog-es",
+    "status": "warn",
+    "message": "Page not found",
+    "meta_raw": "{}"
+  },
+  {
+    "timestamp": "2025-10-29T14:36:07Z",
+    "step": "pages_snapshot",
+    "status": "ok",
+    "message": "Page status captured",
+    "meta_raw": "{}"
+  },
+  {
+    "timestamp": "2025-10-29T14:38:01Z",
+    "step": "start",
+    "status": "ok",
+    "message": "Deployment script initiated",
+    "meta_raw": "{\"env\":\"staging\"}"
+  },
+  {
+    "timestamp": "2025-10-29T14:38:02Z",
+    "step": "ssh_check",
+    "status": "ok",
+    "message": "SSH connectivity verified",
+    "meta_raw": "{}"
+  },
+  {
+    "timestamp": "2025-10-29T14:38:04Z",
+    "step": "wp_core",
+    "status": "ok",
+    "message": "WordPress detected",
+    "meta_raw": "{}"
+  },
+  {
+    "timestamp": "2025-10-29T14:38:06Z",
+    "step": "wp_siteurl",
+    "status": "ok",
+    "message": "Site URL detected",
+    "meta_raw": "{\"siteurl\":\"https://staging.runartfoundry.com\"}"
+  },
+  {
+    "timestamp": "2025-10-29T14:38:09Z",
+    "step": "backup",
+    "status": "ok",
+    "message": "Theme backup created",
+    "meta_raw": "{\"path\":\"/tmp/runart-base_backup_20251029T143801Z.tgz\"}"
+  },
+  {
+    "timestamp": "2025-10-29T14:38:10Z",
+    "step": "rsync_staging",
+    "status": "ok",
+    "message": "Theme synchronized",
+    "meta_raw": "{\"remote_dir\":\"/homepages/7/d958591985/htdocs/staging/wp-content/themes/runart-base\"}"
+  },
+  {
+    "timestamp": "2025-10-29T14:38:11Z",
+    "step": "rewrite_flush",
+    "status": "ok",
+    "message": "Permalinks flushed",
+    "meta_raw": "{}"
+  },
+  {
+    "timestamp": "2025-10-29T14:38:13Z",
+    "step": "cache_flush",
+    "status": "ok",
+    "message": "Cache flushed",
+    "meta_raw": "{}"
+  },
+  {
+    "timestamp": "2025-10-29T14:38:14Z",
+    "step": "publish_services",
+    "status": "skip",
+    "message": "Already published",
+    "meta_raw": "{\"id\":3514}"
+  },
+  {
+    "timestamp": "2025-10-29T14:38:16Z",
+    "step": "publish_servicios",
+    "status": "skip",
+    "message": "Already published",
+    "meta_raw": "{\"id\":3519}"
+  },
+  {
+    "timestamp": "2025-10-29T14:38:17Z",
+    "step": "publish_projects",
+    "status": "warn",
+    "message": "Page not found",
+    "meta_raw": "{}"
+  },
+  {
+    "timestamp": "2025-10-29T14:38:19Z",
+    "step": "publish_proyectos",
+    "status": "warn",
+    "message": "Page not found",
+    "meta_raw": "{}"
+  },
+  {
+    "timestamp": "2025-10-29T14:38:21Z",
+    "step": "publish_blog",
+    "status": "skip",
+    "message": "Already published",
+    "meta_raw": "{\"id\":3516}"
+  },
+  {
+    "timestamp": "2025-10-29T14:38:27Z",
+    "step": "publish_blog-es",
+    "status": "warn",
+    "message": "Page not found",
+    "meta_raw": "{}"
+  },
+  {
+    "timestamp": "2025-10-29T14:38:34Z",
+    "step": "pages_snapshot",
+    "status": "ok",
+    "message": "Page status captured",
+    "meta_raw": "{}"
+  },
+  {
+    "timestamp": "2025-10-29T14:38:42Z",
+    "step": "smoke_tests",
+    "status": "ok",
+    "message": "Smoke tests executed",
+    "meta_raw": "{\"report\":\"_reports/SMOKE_STAGING.md\"}"
+  },
+  {
+    "timestamp": "2025-10-29T14:38:42Z",
+    "step": "finish",
+    "status": "ok",
+    "message": "Deployment completed",
+    "meta_raw": "{}"
+  },
+  {
+    "timestamp": "2025-10-29T14:43:43Z",
+    "step": "start",
+    "status": "ok",
+    "message": "Deployment script initiated",
+    "meta_raw": "{\"env\":\"staging\"}"
+  },
+  {
+    "timestamp": "2025-10-29T14:43:44Z",
+    "step": "ssh_check",
+    "status": "ok",
+    "message": "SSH connectivity verified",
+    "meta_raw": "{}"
+  },
+  {
+    "timestamp": "2025-10-29T14:43:46Z",
+    "step": "wp_core",
+    "status": "ok",
+    "message": "WordPress detected",
+    "meta_raw": "{}"
+  },
+  {
+    "timestamp": "2025-10-29T14:43:48Z",
+    "step": "wp_siteurl",
+    "status": "ok",
+    "message": "Site URL detected",
+    "meta_raw": "{\"siteurl\":\"https://staging.runartfoundry.com\"}"
+  },
+  {
+    "timestamp": "2025-10-29T14:43:57Z",
+    "step": "backup",
+    "status": "ok",
+    "message": "Theme backup created",
+    "meta_raw": "{\"path\":\"/tmp/runart-base_backup_20251029T144343Z.tgz\"}"
+  },
+  {
+    "timestamp": "2025-10-29T14:43:59Z",
+    "step": "rsync_staging",
+    "status": "ok",
+    "message": "Theme synchronized",
+    "meta_raw": "{\"remote_dir\":\"/homepages/7/d958591985/htdocs/staging/wp-content/themes/runart-base\"}"
+  },
+  {
+    "timestamp": "2025-10-29T14:44:01Z",
+    "step": "rewrite_flush",
+    "status": "ok",
+    "message": "Permalinks flushed",
+    "meta_raw": "{}"
+  },
+  {
+    "timestamp": "2025-10-29T14:44:03Z",
+    "step": "cache_flush",
+    "status": "ok",
+    "message": "Cache flushed",
+    "meta_raw": "{}"
+  },
+  {
+    "timestamp": "2025-10-29T14:44:09Z",
+    "step": "publish_services",
+    "status": "skip",
+    "message": "Already published",
+    "meta_raw": "{\"id\":3514}"
+  },
+  {
+    "timestamp": "2025-10-29T14:44:15Z",
+    "step": "publish_servicios",
+    "status": "skip",
+    "message": "Already published",
+    "meta_raw": "{\"id\":3519}"
+  },
+  {
+    "timestamp": "2025-10-29T14:44:21Z",
+    "step": "publish_projects",
+    "status": "warn",
+    "message": "Page not found",
+    "meta_raw": "{}"
+  },
+  {
+    "timestamp": "2025-10-29T14:44:26Z",
+    "step": "publish_proyectos",
+    "status": "warn",
+    "message": "Page not found",
+    "meta_raw": "{}"
+  },
+  {
+    "timestamp": "2025-10-29T14:44:33Z",
+    "step": "publish_blog",
+    "status": "skip",
+    "message": "Already published",
+    "meta_raw": "{\"id\":3516}"
+  },
+  {
+    "timestamp": "2025-10-29T14:44:39Z",
+    "step": "publish_blog-es",
+    "status": "warn",
+    "message": "Page not found",
+    "meta_raw": "{}"
+  },
+  {
+    "timestamp": "2025-10-29T14:44:52Z",
+    "step": "pages_snapshot",
+    "status": "ok",
+    "message": "Page status captured",
+    "meta_raw": "{}"
+  },
+  {
+    "timestamp": "2025-10-29T14:45:00Z",
+    "step": "smoke_tests",
+    "status": "ok",
+    "message": "Smoke tests executed",
+    "meta_raw": "{\"report\":\"_reports/SMOKE_STAGING.md\"}"
+  },
+  {
+    "timestamp": "2025-10-29T14:45:00Z",
+    "step": "env_checklist",
+    "status": "ok",
+    "message": "Environment checklist updated",
+    "meta_raw": "{\"report\":\"_reports/WP_ENV_CHECKLIST.md\"}"
+  },
+  {
+    "timestamp": "2025-10-29T14:45:01Z",
+    "step": "finish",
+    "status": "ok",
+    "message": "Deployment completed",
+    "meta_raw": "{}"
+  },
+  {
+    "timestamp": "2025-10-29T14:45:52Z",
+    "step": "start",
+    "status": "ok",
+    "message": "Deployment script initiated",
+    "meta_raw": "{\"env\":\"staging\"}"
+  },
+  {
+    "timestamp": "2025-10-29T14:45:53Z",
+    "step": "ssh_check",
+    "status": "ok",
+    "message": "SSH connectivity verified",
+    "meta_raw": "{}"
+  },
+  {
+    "timestamp": "2025-10-29T14:45:55Z",
+    "step": "wp_core",
+    "status": "ok",
+    "message": "WordPress detected",
+    "meta_raw": "{}"
+  },
+  {
+    "timestamp": "2025-10-29T14:45:57Z",
+    "step": "wp_siteurl",
+    "status": "ok",
+    "message": "Site URL detected",
+    "meta_raw": "{\"siteurl\":\"https://staging.runartfoundry.com\"}"
+  },
+  {
+    "timestamp": "2025-10-29T14:46:07Z",
+    "step": "backup",
+    "status": "ok",
+    "message": "Theme backup created",
+    "meta_raw": "{\"path\":\"/tmp/runart-base_backup_20251029T144552Z.tgz\"}"
+  },
+  {
+    "timestamp": "2025-10-29T14:46:08Z",
+    "step": "rsync_staging",
+    "status": "ok",
+    "message": "Theme synchronized",
+    "meta_raw": "{\"remote_dir\":\"/homepages/7/d958591985/htdocs/staging/wp-content/themes/runart-base\"}"
+  },
+  {
+    "timestamp": "2025-10-29T14:46:10Z",
+    "step": "rewrite_flush",
+    "status": "ok",
+    "message": "Permalinks flushed",
+    "meta_raw": "{}"
+  },
+  {
+    "timestamp": "2025-10-29T14:46:13Z",
+    "step": "cache_flush",
+    "status": "ok",
+    "message": "Cache flushed",
+    "meta_raw": "{}"
+  },
+  {
+    "timestamp": "2025-10-29T14:46:18Z",
+    "step": "publish_services",
+    "status": "skip",
+    "message": "Already published",
+    "meta_raw": "{\"id\":3514}"
+  },
+  {
+    "timestamp": "2025-10-29T14:46:31Z",
+    "step": "publish_servicios",
+    "status": "skip",
+    "message": "Already published",
+    "meta_raw": "{\"id\":3519}"
+  },
+  {
+    "timestamp": "2025-10-29T14:46:38Z",
+    "step": "publish_projects",
+    "status": "warn",
+    "message": "Page not found",
+    "meta_raw": "{}"
+  },
+  {
+    "timestamp": "2025-10-29T14:46:42Z",
+    "step": "publish_proyectos",
+    "status": "warn",
+    "message": "Page not found",
+    "meta_raw": "{}"
+  },
+  {
+    "timestamp": "2025-10-29T14:46:48Z",
+    "step": "publish_blog",
+    "status": "skip",
+    "message": "Already published",
+    "meta_raw": "{\"id\":3516}"
+  },
+  {
+    "timestamp": "2025-10-29T14:46:59Z",
+    "step": "publish_blog-es",
+    "status": "warn",
+    "message": "Page not found",
+    "meta_raw": "{}"
+  },
+  {
+    "timestamp": "2025-10-29T14:47:00Z",
+    "step": "pages_snapshot",
+    "status": "ok",
+    "message": "Page status captured",
+    "meta_raw": "{}"
+  },
+  {
+    "timestamp": "2025-10-29T14:47:10Z",
+    "step": "smoke_tests",
+    "status": "ok",
+    "message": "Smoke tests executed",
+    "meta_raw": "{\"report\":\"_reports/SMOKE_STAGING.md\"}"
+  },
+  {
+    "timestamp": "2025-10-29T14:47:10Z",
+    "step": "env_checklist",
+    "status": "ok",
+    "message": "Environment checklist updated",
+    "meta_raw": "{\"report\":\"_reports/WP_ENV_CHECKLIST.md\"}"
+  },
+  {
+    "timestamp": "2025-10-29T14:47:10Z",
+    "step": "finish",
+    "status": "ok",
+    "message": "Deployment completed",
+    "meta_raw": "{}"
+  },
+  {
+    "timestamp": "2025-10-29T14:51:10Z",
+    "step": "start",
+    "status": "ok",
+    "message": "Deployment script initiated",
+    "meta_raw": "{\"env\":\"staging\"}"
+  },
+  {
+    "timestamp": "2025-10-29T14:51:11Z",
+    "step": "ssh_check",
+    "status": "ok",
+    "message": "SSH connectivity verified",
+    "meta_raw": "{}"
+  },
+  {
+    "timestamp": "2025-10-29T14:51:13Z",
+    "step": "wp_core",
+    "status": "ok",
+    "message": "WordPress detected",
+    "meta_raw": "{}"
+  },
+  {
+    "timestamp": "2025-10-29T14:51:15Z",
+    "step": "wp_siteurl",
+    "status": "ok",
+    "message": "Site URL detected",
+    "meta_raw": "{\"siteurl\":\"https://staging.runartfoundry.com\"}"
+  },
+  {
+    "timestamp": "2025-10-29T14:51:25Z",
+    "step": "backup",
+    "status": "ok",
+    "message": "Theme backup created",
+    "meta_raw": "{\"path\":\"/tmp/runart-base_backup_20251029T145110Z.tgz\"}"
+  },
+  {
+    "timestamp": "2025-10-29T14:51:27Z",
+    "step": "rsync_staging",
+    "status": "ok",
+    "message": "Theme synchronized",
+    "meta_raw": "{\"remote_dir\":\"/homepages/7/d958591985/htdocs/staging/wp-content/themes/runart-base\"}"
+  },
+  {
+    "timestamp": "2025-10-29T14:51:28Z",
+    "step": "rewrite_flush",
+    "status": "ok",
+    "message": "Permalinks flushed",
+    "meta_raw": "{}"
+  },
+  {
+    "timestamp": "2025-10-29T14:51:30Z",
+    "step": "cache_flush",
+    "status": "ok",
+    "message": "Cache flushed",
+    "meta_raw": "{}"
+  },
+  {
+    "timestamp": "2025-10-29T14:51:36Z",
+    "step": "publish_services",
+    "status": "skip",
+    "message": "Already published",
+    "meta_raw": "{\"id\":3514}"
+  },
+  {
+    "timestamp": "2025-10-29T14:51:43Z",
+    "step": "publish_servicios",
+    "status": "skip",
+    "message": "Already published",
+    "meta_raw": "{\"id\":3519}"
+  },
+  {
+    "timestamp": "2025-10-29T14:51:48Z",
+    "step": "publish_blog",
+    "status": "skip",
+    "message": "Already published",
+    "meta_raw": "{\"id\":3516}"
+  },
+  {
+    "timestamp": "2025-10-29T14:51:55Z",
+    "step": "publish_blog-2",
+    "status": "skip",
+    "message": "Already published",
+    "meta_raw": "{\"id\":3521}"
+  },
+  {
+    "timestamp": "2025-10-29T14:52:00Z",
+    "step": "publish_home",
+    "status": "skip",
+    "message": "Already published",
+    "meta_raw": "{\"id\":3512}"
+  },
+  {
+    "timestamp": "2025-10-29T14:52:06Z",
+    "step": "publish_inicio",
+    "status": "skip",
+    "message": "Already published",
+    "meta_raw": "{\"id\":3517}"
+  },
+  {
+    "timestamp": "2025-10-29T14:52:13Z",
+    "step": "publish_about",
+    "status": "skip",
+    "message": "Already published",
+    "meta_raw": "{\"id\":3513}"
+  },
+  {
+    "timestamp": "2025-10-29T14:52:18Z",
+    "step": "publish_sobre-nosotros",
+    "status": "skip",
+    "message": "Already published",
+    "meta_raw": "{\"id\":3518}"
+  },
+  {
+    "timestamp": "2025-10-29T14:52:25Z",
+    "step": "publish_contact",
+    "status": "skip",
+    "message": "Already published",
+    "meta_raw": "{\"id\":3515}"
+  },
+  {
+    "timestamp": "2025-10-29T14:52:30Z",
+    "step": "publish_contacto",
+    "status": "skip",
+    "message": "Already published",
+    "meta_raw": "{\"id\":3520}"
+  },
+  {
+    "timestamp": "2025-10-29T14:52:36Z",
+    "step": "pages_snapshot",
+    "status": "ok",
+    "message": "Page status captured",
+    "meta_raw": "{}"
+  },
+  {
+    "timestamp": "2025-10-29T14:52:46Z",
+    "step": "smoke_tests",
+    "status": "ok",
+    "message": "Smoke tests executed",
+    "meta_raw": "{\"report\":\"_reports/SMOKE_STAGING.md\"}"
+  },
+  {
+    "timestamp": "2025-10-29T14:52:46Z",
+    "step": "env_checklist",
+    "status": "ok",
+    "message": "Environment checklist updated",
+    "meta_raw": "{\"report\":\"_reports/WP_ENV_CHECKLIST.md\"}"
+  },
+  {
+    "timestamp": "2025-10-29T14:52:46Z",
+    "step": "finish",
+    "status": "ok",
+    "message": "Deployment completed",
+    "meta_raw": "{}"
+  },
+  {
+    "timestamp": "2025-10-29T14:55:55Z",
+    "step": "start",
+    "status": "ok",
+    "message": "Deployment script initiated",
+    "meta_raw": "{\"env\":\"staging\"}"
+  },
+  {
+    "timestamp": "2025-10-29T14:55:56Z",
+    "step": "ssh_check",
+    "status": "ok",
+    "message": "SSH connectivity verified",
+    "meta_raw": "{}"
+  },
+  {
+    "timestamp": "2025-10-29T14:55:58Z",
+    "step": "wp_core",
+    "status": "ok",
+    "message": "WordPress detected",
+    "meta_raw": "{}"
+  },
+  {
+    "timestamp": "2025-10-29T14:55:59Z",
+    "step": "wp_siteurl",
+    "status": "ok",
+    "message": "Site URL detected",
+    "meta_raw": "{\"siteurl\":\"https://staging.runartfoundry.com\"}"
+  },
+  {
+    "timestamp": "2025-10-29T14:56:11Z",
+    "step": "backup",
+    "status": "ok",
+    "message": "Theme backup created",
+    "meta_raw": "{\"path\":\"/tmp/runart-base_backup_20251029T145555Z.tgz\"}"
+  },
+  {
+    "timestamp": "2025-10-29T14:56:12Z",
+    "step": "rsync_staging",
+    "status": "ok",
+    "message": "Theme synchronized",
+    "meta_raw": "{\"remote_dir\":\"/homepages/7/d958591985/htdocs/staging/wp-content/themes/runart-base\"}"
+  },
+  {
+    "timestamp": "2025-10-29T14:56:15Z",
+    "step": "rewrite_flush",
+    "status": "ok",
+    "message": "Permalinks flushed",
+    "meta_raw": "{}"
+  },
+  {
+    "timestamp": "2025-10-29T14:56:21Z",
+    "step": "cache_flush",
+    "status": "ok",
+    "message": "Cache flushed",
+    "meta_raw": "{}"
+  },
+  {
+    "timestamp": "2025-10-29T14:56:27Z",
+    "step": "publish_services",
+    "status": "skip",
+    "message": "Already published",
+    "meta_raw": "{\"id\":3514}"
+  },
+  {
+    "timestamp": "2025-10-29T14:56:32Z",
+    "step": "publish_servicios",
+    "status": "skip",
+    "message": "Already published",
+    "meta_raw": "{\"id\":3519}"
+  },
+  {
+    "timestamp": "2025-10-29T14:56:39Z",
+    "step": "publish_blog",
+    "status": "skip",
+    "message": "Already published",
+    "meta_raw": "{\"id\":3516}"
+  },
+  {
+    "timestamp": "2025-10-29T14:56:45Z",
+    "step": "publish_blog-2",
+    "status": "skip",
+    "message": "Already published",
+    "meta_raw": "{\"id\":3521}"
+  },
+  {
+    "timestamp": "2025-10-29T14:56:50Z",
+    "step": "publish_home",
+    "status": "skip",
+    "message": "Already published",
+    "meta_raw": "{\"id\":3512}"
+  },
+  {
+    "timestamp": "2025-10-29T14:56:57Z",
+    "step": "publish_inicio",
+    "status": "skip",
+    "message": "Already published",
+    "meta_raw": "{\"id\":3517}"
+  },
+  {
+    "timestamp": "2025-10-29T14:57:03Z",
+    "step": "publish_about",
+    "status": "skip",
+    "message": "Already published",
+    "meta_raw": "{\"id\":3513}"
+  },
+  {
+    "timestamp": "2025-10-29T14:57:08Z",
+    "step": "publish_sobre-nosotros",
+    "status": "skip",
+    "message": "Already published",
+    "meta_raw": "{\"id\":3518}"
+  },
+  {
+    "timestamp": "2025-10-29T14:57:15Z",
+    "step": "publish_contact",
+    "status": "skip",
+    "message": "Already published",
+    "meta_raw": "{\"id\":3515}"
+  },
+  {
+    "timestamp": "2025-10-29T14:57:21Z",
+    "step": "publish_contacto",
+    "status": "skip",
+    "message": "Already published",
+    "meta_raw": "{\"id\":3520}"
+  },
+  {
+    "timestamp": "2025-10-29T14:57:26Z",
+    "step": "pages_snapshot",
+    "status": "ok",
+    "message": "Page status captured",
+    "meta_raw": "{}"
+  },
+  {
+    "timestamp": "2025-10-29T14:57:35Z",
+    "step": "smoke_tests",
+    "status": "ok",
+    "message": "Smoke tests executed",
+    "meta_raw": "{\"report\":\"_reports/SMOKE_STAGING.md\"}"
+  },
+  {
+    "timestamp": "2025-10-29T14:57:35Z",
+    "step": "env_checklist",
+    "status": "ok",
+    "message": "Environment checklist updated",
+    "meta_raw": "{\"report\":\"_reports/WP_ENV_CHECKLIST.md\"}"
+  },
+  {
+    "timestamp": "2025-10-29T14:57:35Z",
+    "step": "finish",
+    "status": "ok",
+    "message": "Deployment completed",
+    "meta_raw": "{}"
+  },
+  {
+    "timestamp": "2025-10-29T15:23:17Z",
+    "step": "start",
+    "status": "ok",
+    "message": "Deployment script initiated",
+    "meta_raw": "{\"env\":\"staging\"}"
+  },
+  {
+    "timestamp": "2025-10-29T15:23:18Z",
+    "step": "ssh_check",
+    "status": "ok",
+    "message": "SSH connectivity verified",
+    "meta_raw": "{}"
+  },
+  {
+    "timestamp": "2025-10-29T15:23:19Z",
+    "step": "wp_core",
+    "status": "ok",
+    "message": "WordPress detected",
+    "meta_raw": "{}"
+  },
+  {
+    "timestamp": "2025-10-29T15:23:21Z",
+    "step": "wp_siteurl",
+    "status": "ok",
+    "message": "Site URL detected",
+    "meta_raw": "{\"siteurl\":\"https://staging.runartfoundry.com\"}"
+  },
+  {
+    "timestamp": "2025-10-29T15:23:33Z",
+    "step": "backup",
+    "status": "ok",
+    "message": "Theme backup created",
+    "meta_raw": "{\"path\":\"/tmp/runart-base_backup_20251029T152317Z.tgz\"}"
+  },
+  {
+    "timestamp": "2025-10-29T15:23:34Z",
+    "step": "rsync_staging",
+    "status": "ok",
+    "message": "Theme synchronized",
+    "meta_raw": "{\"remote_dir\":\"/homepages/7/d958591985/htdocs/staging/wp-content/themes/runart-base\"}"
+  },
+  {
+    "timestamp": "2025-10-29T15:23:37Z",
+    "step": "rewrite_flush",
+    "status": "ok",
+    "message": "Permalinks flushed",
+    "meta_raw": "{}"
+  },
+  {
+    "timestamp": "2025-10-29T15:23:42Z",
+    "step": "cache_flush",
+    "status": "ok",
+    "message": "Cache flushed",
+    "meta_raw": "{}"
+  },
+  {
+    "timestamp": "2025-10-29T15:23:49Z",
+    "step": "publish_services",
+    "status": "skip",
+    "message": "Already published",
+    "meta_raw": "{\"id\":3514}"
+  },
+  {
+    "timestamp": "2025-10-29T15:23:55Z",
+    "step": "publish_servicios",
+    "status": "skip",
+    "message": "Already published",
+    "meta_raw": "{\"id\":3519}"
+  },
+  {
+    "timestamp": "2025-10-29T15:24:00Z",
+    "step": "publish_blog",
+    "status": "skip",
+    "message": "Already published",
+    "meta_raw": "{\"id\":3516}"
+  },
+  {
+    "timestamp": "2025-10-29T15:24:07Z",
+    "step": "publish_blog-2",
+    "status": "skip",
+    "message": "Already published",
+    "meta_raw": "{\"id\":3521}"
+  },
+  {
+    "timestamp": "2025-10-29T15:24:13Z",
+    "step": "publish_home",
+    "status": "skip",
+    "message": "Already published",
+    "meta_raw": "{\"id\":3512}"
+  },
+  {
+    "timestamp": "2025-10-29T15:24:18Z",
+    "step": "publish_inicio",
+    "status": "skip",
+    "message": "Already published",
+    "meta_raw": "{\"id\":3517}"
+  },
+  {
+    "timestamp": "2025-10-29T15:24:25Z",
+    "step": "publish_about",
+    "status": "skip",
+    "message": "Already published",
+    "meta_raw": "{\"id\":3513}"
+  },
+  {
+    "timestamp": "2025-10-29T15:24:31Z",
+    "step": "publish_sobre-nosotros",
+    "status": "skip",
+    "message": "Already published",
+    "meta_raw": "{\"id\":3518}"
+  },
+  {
+    "timestamp": "2025-10-29T15:24:36Z",
+    "step": "publish_contact",
+    "status": "skip",
+    "message": "Already published",
+    "meta_raw": "{\"id\":3515}"
+  },
+  {
+    "timestamp": "2025-10-29T15:24:43Z",
+    "step": "publish_contacto",
+    "status": "skip",
+    "message": "Already published",
+    "meta_raw": "{\"id\":3520}"
+  },
+  {
+    "timestamp": "2025-10-29T15:24:49Z",
+    "step": "pages_snapshot",
+    "status": "ok",
+    "message": "Page status captured",
+    "meta_raw": "{}"
+  },
+  {
+    "timestamp": "2025-10-29T15:24:59Z",
+    "step": "smoke_tests",
+    "status": "ok",
+    "message": "Smoke tests executed",
+    "meta_raw": "{\"report\":\"_reports/SMOKE_STAGING.md\"}"
+  },
+  {
+    "timestamp": "2025-10-29T15:24:59Z",
+    "step": "env_checklist",
+    "status": "ok",
+    "message": "Environment checklist updated",
+    "meta_raw": "{\"report\":\"_reports/WP_ENV_CHECKLIST.md\"}"
+  },
+  {
+    "timestamp": "2025-10-29T15:24:59Z",
+    "step": "finish",
+    "status": "ok",
+    "message": "Deployment completed",
+    "meta_raw": "{}"
+  }
+]

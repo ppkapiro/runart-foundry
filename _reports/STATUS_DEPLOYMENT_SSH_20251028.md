@@ -81,57 +81,63 @@ ssh -p 22 usuario@host.ionos.de "printf 'User-agent: *\nDisallow: /\n' > /stagin
 
 ---
 
-## 🚧 Bloqueadores Identificados
+## 🚧 Bloqueadores Identificados (ACTUALIZADO 2025-10-29)
 
-### 1. **No hay credenciales SSH/SFTP configuradas**
-**Impacto:** CRÍTICO  
-**Descripción:** No existen variables de entorno ni archivos de configuración con:
-- Host SSH/SFTP de IONOS
-- Usuario
-- Password o SSH key path
-- Puerto (default 22)
+### 1. **SSH/SFTP Directo BLOQUEADO por IONOS**
+**Impacto:** ALTO (pero SOLUCIONABLE)  
+**Estado:** ✅ **RESUELTO** - Alternativa WP-CLI identificada
 
-**Variables requeridas:**
+**Descripción:** 
+- ❌ SSH directo bloqueado por políticas IONOS hosting compartido
+- ❌ SFTP authentication failed (usuario/password correctos pero acceso denegado)
+- ✅ **WP-CLI disponible** vía panel IONOS → método alternativo confirmado
+
+**Credenciales configuradas:**
 ```bash
-# Opción 1: SSH con key
-export IONOS_SSH_HOST="u111876951@access958591985.webspace-data.io"
-export IONOS_SSH_KEY="~/.ssh/ionos_runart_staging"
+# Archivo: ~/.runart_staging_env (chmod 600) ✅ CREADO
+export IONOS_SSH_HOST="u11876951@access958591985.webspace-data.io"
+export IONOS_SSH_USER="u11876951"
 export SSH_PORT=22
-
-# Opción 2: SFTP con password (menos seguro)
-export IONOS_SFTP_HOST="sftp.ionos.com"
-export IONOS_SFTP_USER="u111876951"
-export IONOS_SFTP_PASS="$(cat ~/.ionos_sftp_pass)"  # almacenar en archivo protegido
-export IONOS_SFTP_PORT=22
+# Password: Tomeguin19$ (confirmado pero SSH bloqueado)
 ```
 
-**Ubicación sugerida:** `~/.runart_staging_env` (source en .bashrc o usar `dotenv`)
+**Solución:** Deployment vía WP-CLI o File Manager web (ver IONOS_STAGING_CONFIG_20251029.md)
 
-### 2. **No hay script `deploy_theme_complete.sh`**
-**Impacto:** ALTO  
-**Descripción:** El script mencionado en documentación (`tools/deploy_theme_complete.sh`) **no existe**
+### 2. **Deployment vía WP-CLI o File Manager (Actualizado)**
+**Impacto:** MEDIO (requiere acceso manual)  
+**Descripción:** 
 
-**Scripts existentes relacionados:**
-- `tools/deploy_fase2_staging.sh` (solo i18n Fase 2, manual)
-- `tools/publish_mvp_staging.sh` (posiblemente relacionado)
-- `tools/verify_fase2_deployment.sh` (verificación post-deployment)
+**Métodos disponibles confirmados:**
 
-**Necesidad:** Crear script unificado que:
-1. Conecte vía SSH/SFTP a IONOS staging
-2. Sincronice `wp-content/themes/runart-base/` completo
-3. Preserve `functions.php` si tiene customizaciones locales (backup)
-4. Ejecute `wp cache flush` remotamente (si WP-CLI disponible)
-5. Verifique deployment exitoso (HTTP 200, headers correctos)
+#### ✅ Opción 1: WP-CLI (RECOMENDADO)
+- Acceso vía panel IONOS → WordPress → Terminal WP-CLI
+- Permite comandos: `wp theme`, `wp cache flush`, upload desde URL
+- **Package preparado:** `/tmp/runart-base-v0.3.1-responsive.zip` (5.6KB) ✅
 
-### 3. **No se conoce estructura remota exacta**
-**Impacto:** MEDIO  
-**Descripción:** No sabemos:
-- Path absoluto del WordPress en IONOS (¿`/html/staging/`? ¿`/www/`?)
-- Si WP-CLI está disponible en servidor
-- Si hay restricciones de permisos (chmod/chown)
-- Si hay symlinks o estructura no estándar
+#### ✅ Opción 2: File Manager Web
+- Panel IONOS → Web Hosting → File Manager
+- Upload ZIP manual a `/wp-content/themes/`
+- Backup manual previo requerido
 
-**Acción requerida:** Exploración manual vía SSH o consulta con IONOS support
+#### ❌ Opción 3: rsync/scp sobre SSH
+- NO DISPONIBLE (SSH bloqueado)
+
+**Necesidad:** Documentar acceso WP-CLI exacto en panel IONOS (pendiente login usuario)
+
+### 3. **Estructura remota IONOS - Pendiente exploración vía WP-CLI**
+**Impacto:** BAJO (WP-CLI abstrae paths)  
+**Descripción:** 
+- Path WordPress root: (detectar con `wp core version --extra`)
+- WP-CLI disponibilidad: ✅ Confirmado por usuario
+- Permisos archivos: (verificar post-upload)
+
+**Acción requerida:** Login panel IONOS y ejecutar comandos WP-CLI para documentar:
+```bash
+wp --info
+wp core version --extra
+wp theme list --path=full
+ls -la wp-content/themes/
+```
 
 ---
 

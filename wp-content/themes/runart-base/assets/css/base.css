@@ -1,0 +1,97 @@
+/* Base styles shared across the site */
+html, body {
+  margin: 0;
+  padding: 0;
+  background: var(--color-bg);
+  color: var(--color-text);
+  font-family: system-ui, -apple-system, "Segoe UI", Roboto, Ubuntu, Cantarell, "Noto Sans", "Helvetica Neue", Arial, sans-serif;
+  line-height: 1.6;
+  font-size: 18px;
+}
+
+/* Links - Negro por defecto, rojo al hover */
+a {
+  color: var(--color-text);
+  text-decoration: none;
+  transition: color 0.2s ease;
+}
+
+a:hover {
+  color: var(--color-primary);
+}
+
+/* Links dentro de contenido de texto */
+.entry-content a,
+.page-content a,
+p a {
+  color: var(--color-primary);
+  text-decoration: underline;
+}
+
+.entry-content a:hover,
+.page-content a:hover,
+p a:hover {
+  color: var(--color-primary-dark);
+}
+
+.container {
+  width: 100%;
+  max-width: var(--container-max);
+  margin: 0 auto;
+  padding: 0 var(--space-5);
+}
+
+.section {
+  padding: var(--space-8) 0;
+}
+.section-dark {
+  background: var(--color-surface);
+}
+
+.btn {
+  display: inline-block;
+  padding: var(--space-4) var(--space-6);
+  border-radius: var(--radius);
+  text-decoration: none;
+  font-weight: 600;
+  transition: all 0.2s ease;
+  cursor: pointer;
+}
+.btn:hover { 
+  transform: translateY(-2px); 
+  box-shadow: var(--shadow-2);
+}
+.btn-primary { 
+  background: var(--color-primary); 
+  color: #fff; 
+}
+.btn-primary:hover {
+  background: var(--color-primary-dark);
+}
+.btn-secondary { 
+  background: var(--color-surface-2); 
+  color: var(--color-text); 
+  border: 1px solid var(--color-border);
+}
+.btn-outline { 
+  border: 2px solid var(--color-primary); 
+  color: var(--color-primary); 
+  background: transparent;
+  padding: calc(var(--space-4) - 2px) calc(var(--space-6) - 2px); 
+}
+.btn-outline:hover {
+  background: var(--color-primary);
+  color: #fff;
+}
+.btn-light { 
+  background: #fff; 
+  color: var(--color-text);
+  border: 1px solid var(--color-border);
+}
+
+img { max-width: 100%; height: auto; display: block; }
+
+/* Utilities */
+.mt-0 { margin-top: 0; }
+.mb-0 { margin-bottom: 0; }
+.text-muted { color: var(--color-muted); }
