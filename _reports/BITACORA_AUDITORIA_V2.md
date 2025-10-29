@@ -25,8 +25,6 @@
 
 ## Eventos (Registro Cronológico Inverso)
 
-## Eventos (Registro Cronológico Inverso)
-
 ### 2025-10-29T23:15:00Z — F2 — Data Entry iniciado
 **Branch:** `feat/content-audit-v2-phase1` (PR #77)
 **PR:** #77
@@ -39,8 +37,19 @@ Inventario inicial de imágenes generado vía WP-CLI (read-only). Resultado actu
 **Resultado:** 🔄 En progreso
 
 ---
-### 2025-10-29T15:45:00Z — Plan Maestro v2 Creado
 ### 2025-10-29T22:42:01Z — F1 — Data Entry iniciado
+**Branch:** `feat/content-audit-v2-phase1 (PR #77)`
+**PR:** #77
+**Commit:** `1b37475`
+**Autor:** Pepe Capiro
+
+**Resumen:**
+Inventario inicial de páginas generado vía WP-CLI (read-only). Resultado actual (entorno local sin WP apuntado): Total=0, ES=0, EN=0, Sin idioma=0. Siguiente: ejecutar en entorno con WP-CLI apuntando a staging.
+
+**Resultado:** 🔄 En progreso
+
+---
+### 2025-10-29T22:25:24Z — PR #77 Revalidado — F1 Listo para Data Entry
 **Branch:** `feat/content-audit-v2-phase1`
 **PR:** #77
 **Commit:** `75b1e51`
