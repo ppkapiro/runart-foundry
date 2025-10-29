@@ -1,6 +1,8 @@
 /*
- * Responsive Overrides — v0.3.1 (surgical)
+ * Responsive Overrides — v0.3.1.3 (surgical)
  * Mantiene paleta/tipografías; solo corrige layout y accesibilidad táctil.
+ * v0.3.1.2: Chrome-specific fix — fit-content → flex:0 0 auto
+ * v0.3.1.3: Chrome mobile nav overflow encapsulation (body scroll elimination)
  */
 
 :root {
@@ -69,4 +71,185 @@ main { padding-top: min(4vh, var(--header-h)); }
 
 @media (max-width: 390px) {
   .container, .wrap { padding-inline: 14px; }
+}
+
+/* ========================================================================
+   LANGUAGE SWITCHER FIX — v0.3.1.2 (Chrome-safe)
+   Corrige overflow, alineación y tap targets en móvil/desktop
+   v0.3.1.2: Reemplazado min-width:fit-content por flex:0 0 auto para Chrome
+   ======================================================================== */
+
+/* Header container: límites estrictos para evitar overflow */
+.site-header .container {
+  inline-size: 100%;
+  max-inline-size: var(--container-max, 1400px);
+  box-sizing: border-box;
+}
+
+/* Contenedor del switcher: Chrome-safe flex item */
+.site-lang-switcher {
+  display: inline-flex !important;
+  align-items: center;
+  gap: 8px;
+  margin-left: auto;
+  /* Chrome fix: flex:0 0 auto en vez de min-width:fit-content */
+  flex: 0 0 auto;
+  max-inline-size: 9rem; /* ≈ 144px */
+  overflow: clip;
+  white-space: nowrap;
+}
+
+/* Fallback para navegadores sin soporte de overflow:clip */
+@supports not (overflow: clip) {
+  .site-lang-switcher {
+    overflow: hidden;
+  }
+}
+
+/* Los <li> directos del switcher (Polylang no usa <ul> wrapper) */
+.site-lang-switcher > li,
+.site-lang-switcher li {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+/* Enlaces de banderas: tap targets accesibles */
+.site-lang-switcher a {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 40px;
+  min-height: 40px;
+  padding: 8px;
+  border-radius: 6px;
+  transition: background 0.2s, opacity 0.2s;
+  opacity: 0.75;
+}
+
+.site-lang-switcher a:hover,
+.site-lang-switcher a:focus-visible {
+  background: rgba(195, 0, 0, 0.08);
+  opacity: 1;
+}
+
+.site-lang-switcher a:focus-visible {
+  outline: 2px solid var(--color-primary, #c30000);
+  outline-offset: 2px;
+}
+
+/* Íconos/banderas: tamaño fluido con aspect-ratio cuadrado (cross-UA stable) */
+.site-lang-switcher a img,
+.site-lang-switcher img {
+  inline-size: clamp(18px, 2.2vw, 22px) !important;
+  block-size: clamp(18px, 2.2vw, 22px) !important;
+  aspect-ratio: 1 / 1; /* Cuadrado para evitar deformación entre navegadores */
+  object-fit: cover;
+  border-radius: 3px;
+  display: block;
+}
+
+/* Desactivar transform/escalado en móvil */
+@media (hover: none) and (pointer: coarse) {
+  .site-lang-switcher a:hover {
+    transform: none;
+    filter: none;
+  }
+}
+
+/* Móvil ≤430px: asegurar compactado */
+@media (max-width: 430px) {
+  .site-lang-switcher {
+    gap: 6px;
+    max-inline-size: 5.5rem; /* ~88px */
+  }
+  
+  .site-lang-switcher a {
+    min-width: 36px;
+    min-height: 36px;
+    padding: 6px;
+  }
+  
+  .site-lang-switcher img {
+    inline-size: clamp(16px, 4vw, 18px) !important;
+    block-size: clamp(16px, 4vw, 18px) !important;
+  }
+  
+  /* ========================================================================
+     v0.3.1.3 Chrome mobile nav overflow encapsulation
+     Previene propagación de scroll del .site-nav al body
+     ======================================================================== */
+  
+  /* Paso 1: Contener overflow en header y container */
+  .site-header {
+    overflow-x: clip;
+    overflow-y: visible;
+    max-inline-size: 100%;
+  }
+  
+  .site-header .container {
+    overflow-x: clip;
+    overflow-y: visible;
+    max-inline-size: 100%;
+    inline-size: 100%;
+  }
+  
+  /* Fallback para navegadores sin soporte de overflow:clip */
+  @supports not (overflow: clip) {
+    .site-header,
+    .site-header .container {
+      overflow-x: hidden;
+    }
+  }
+  
+  /* Paso 2: Encapsular scroll dentro del .site-nav */
+  .site-nav {
+    /* Limitar ancho: 100dvw menos espacio para logo (~3rem) y switcher (~5.5rem) */
+    max-inline-size: calc(100dvw - 9rem);
+    overflow-x: auto;
+    overflow-y: hidden;
+    -webkit-overflow-scrolling: touch;
+    overscroll-behavior-inline: contain; /* Prevenir propagación del scroll */
+    overscroll-behavior-block: none;
+    
+    /* Contención CSS para optimizar cálculos */
+    contain: inline-size;
+    min-inline-size: 0;
+    
+    /* Asegurar que no se salga del contenedor */
+    flex-shrink: 1;
+    flex-grow: 0;
+  }
+  
+  /* Paso 3: Lista interna del nav puede crecer sin romper contenedor */
+  .site-nav ul,
+  .site-nav > ul {
+    inline-size: max-content;
+    min-inline-size: 0;
+    display: flex;
+    flex-wrap: nowrap;
+  }
+  
+  /* Paso 4: Items del menú no se encogen ni crecen */
+  .site-nav li,
+  .site-nav > ul > li {
+    flex: 0 0 auto;
+    min-inline-size: 0;
+  }
+}
+
+/* Móvil extremo ≤380px: tap targets mínimos */
+@media (max-width: 380px) {
+  .site-header .container {
+    padding: 0.75rem 12px;
+  }
+  
+  .site-lang-switcher {
+    max-inline-size: 4.75rem; /* ~76px */
+  }
+  
+  /* v0.3.1.3: Ajustar ancho del nav para viewports extremos */
+  .site-nav {
+    max-inline-size: calc(100dvw - 8rem);
+  }
 }

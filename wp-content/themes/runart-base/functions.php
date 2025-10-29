@@ -70,7 +70,7 @@ function runart_enqueue_assets() {
         'runart-responsive-overrides',
         get_template_directory_uri() . '/assets/css/responsive.overrides.css',
         array('runart-base-style'),
-        '0.3.1'
+        '0.3.1.3'
     );
     
     // JavaScript
