@@ -1,0 +1,27 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: RunArt Base 0.1.0\n"
+"Language: es_ES\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+#: functions.php:22
+msgid "Primary Menu"
+msgstr "Menú principal"
+
+#: functions.php:23
+msgid "Footer Menu"
+msgstr "Menú de pie de página"
+
+#: footer.php:16
+msgid "All rights reserved."
+msgstr "Todos los derechos reservados."
+
+#: index.php:22
+msgid "Nothing Found"
+msgstr "No se encontró nada"
+
+#: index.php:26
+msgid "It seems we can’t find what you’re looking for."
+msgstr "Parece que no podemos encontrar lo que buscas."
