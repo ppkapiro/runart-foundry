@@ -186,3 +186,15 @@ Documenta la creación de los artefactos anteriores.
 ---
 
 **Este registro documenta la creación del Deployment Master Guide tras el deployment exitoso de CSS responsive en staging el 2025-10-29.**
+
+---
+
+## 📌 Actualización 2025-10-29 — Canon del Tema y Congelación Read-only
+
+- Canon documental y de scripts fijado a: **RunArt Base** (`runart-base`).
+- Scripts ajustados a modo seguro por defecto: `READ_ONLY=1`, `DRY_RUN=1`.
+- Agregadas guardas CI:
+   - Dry-run guard: verifica defaults y marcador CI en `tools/deploy_wp_ssh.sh`.
+   - Media guard: exige etiqueta `media-review` cuando se modifican `wp-content/uploads/`, `runmedia/` o `content/media/` en PRs.
+- Reporte de verificación actualizado: `_reports/IONOS_STAGING_THEME_CHECK_20251029.md` (canon vs evidencia actual del child).
+- Inventario de cambios: `_reports/REFERENCIAS_TEMA_CORREGIDAS_20251029.md`.
