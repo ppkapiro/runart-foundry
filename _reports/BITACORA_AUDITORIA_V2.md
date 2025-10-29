@@ -11,7 +11,7 @@
 | Fase | ID | Descripción | Branch/PR | Estado | Fecha Inicio | Fecha Cierre |
 |------|----|-----------|-----------|---------|--------------|--------------| 
 | **F1** | `phase1` | Inventario de Páginas (ES/EN) | `feat/content-audit-v2-phase1` (PR #77) | **EN PROCESO** | 2025-10-29 | — |
-| **F2** | `phase2` | Inventario de Imágenes (Media Library) | TBD | **PENDIENTE** | — | — |
+| **F2** | `phase2` | Inventario de Imágenes (Media Library) | `feat/content-audit-v2-phase1` (PR #77) | **EN PROCESO** | 2025-10-29 | — |
 | **F3** | `phase3` | Matriz Texto ↔ Imagen | TBD | **PENDIENTE** | — | — |
 | **F4** | `phase4` | Reporte de Brechas Bilingües | TBD | **PENDIENTE** | — | — |
 | **F5** | `phase5` | Plan de Acción y Cierre | TBD | **PENDIENTE** | — | — |
@@ -25,8 +25,22 @@
 
 ## Eventos (Registro Cronológico Inverso)
 
+## Eventos (Registro Cronológico Inverso)
+
+### 2025-10-29T23:15:00Z — F2 — Data Entry iniciado
+**Branch:** `feat/content-audit-v2-phase1` (PR #77)
+**PR:** #77
+**Commit:** `3221b19`
+**Autor:** Pepe Capiro
+
+**Resumen:**
+Inventario inicial de imágenes generado vía WP-CLI (read-only). Resultado actual (entorno local sin WP apuntado): Total=0, ES=0, EN=0, Sin idioma=0. Siguiente: ejecutar en entorno con WP-CLI apuntando a staging para obtener metadatos reales (URL, MIME, dimensiones, alt text, tamaños).
+
+**Resultado:** 🔄 En progreso
+
+---
 ### 2025-10-29T15:45:00Z — Plan Maestro v2 Creado
-### 2025-10-29T22:25:24Z — PR #77 Revalidado — F1 Listo para Data Entry
+### 2025-10-29T22:42:01Z — F1 — Data Entry iniciado
 **Branch:** `feat/content-audit-v2-phase1`
 **PR:** #77
 **Commit:** `75b1e51`
