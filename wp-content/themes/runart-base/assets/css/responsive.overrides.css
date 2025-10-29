@@ -180,11 +180,20 @@ main { padding-top: min(4vh, var(--header-h)); }
      Previene propagación de scroll del .site-nav al body
      ======================================================================== */
   
+  /* Anti-scroll global para el body en eje inline (manteniendo pan-y) */
+  html, body {
+    overscroll-behavior-inline: none; /* Evita chaining al viewport */
+    touch-action: pan-y pinch-zoom;   /* Deshabilita pan-x a nivel de página */
+    overflow-x: hidden;               /* Fuerza eliminación de scroll lateral del body en Chrome móvil */
+  }
+  
   /* Paso 1: Contener overflow en header y container */
   .site-header {
     overflow-x: clip;
     overflow-y: visible;
     max-inline-size: 100%;
+    contain: paint; /* Aísla overflow del header al propio contexto de pintura */
+    isolation: isolate;
   }
   
   .site-header .container {
@@ -204,16 +213,17 @@ main { padding-top: min(4vh, var(--header-h)); }
   
   /* Paso 2: Encapsular scroll dentro del .site-nav */
   .site-nav {
-    /* Limitar ancho: 100dvw menos espacio para logo (~3rem) y switcher (~5.5rem) */
-    max-inline-size: calc(100dvw - 9rem);
+    /* Limitar ancho relativo al contenedor para no empujar el layout viewport */
+    max-inline-size: calc(100% - 9rem); /* reserva ≈ logo (3–4rem) + switcher (5–6rem) */
     overflow-x: auto;
     overflow-y: hidden;
     -webkit-overflow-scrolling: touch;
     overscroll-behavior-inline: contain; /* Prevenir propagación del scroll */
     overscroll-behavior-block: none;
+  touch-action: pan-x; /* Permite scroll horizontal SOLO dentro del nav */
     
-    /* Contención CSS para optimizar cálculos */
-    contain: inline-size;
+  /* Contención fuerte para evitar que el ancho contribuya al scrollWidth del documento */
+  contain: size layout paint;
     min-inline-size: 0;
     
     /* Asegurar que no se salga del contenedor */
@@ -228,6 +238,9 @@ main { padding-top: min(4vh, var(--header-h)); }
     min-inline-size: 0;
     display: flex;
     flex-wrap: nowrap;
+    white-space: nowrap; /* Evitar wraps inesperados que expandan el ancho */
+    padding-inline: 0;
+    margin-inline: 0;
   }
   
   /* Paso 4: Items del menú no se encogen ni crecen */
@@ -250,6 +263,6 @@ main { padding-top: min(4vh, var(--header-h)); }
   
   /* v0.3.1.3: Ajustar ancho del nav para viewports extremos */
   .site-nav {
-    max-inline-size: calc(100dvw - 8rem);
+    max-inline-size: calc(100% - 8rem);
   }
 }
