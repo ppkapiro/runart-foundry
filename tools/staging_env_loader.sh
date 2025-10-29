@@ -68,8 +68,10 @@ El archivo de configuración de staging NO existe o está incompleto.
    # O si usas password: export IONOS_SSH_PASS="your-password"
    export SSH_PORT="22"
    
-   # WordPress Installation
-   export STAGING_WP_PATH="/path/to/wordpress"
+    # WordPress Installation
+    export STAGING_WP_PATH="/homepages/7/d958591985/htdocs/staging"
+    # Canon del tema (solo lectura): RunArt Base
+    export THEME_SLUG="runart-base"
    
    # Optional: Database credentials (if needed for WP-CLI)
    # export STAGING_DB_HOST="localhost"
@@ -178,17 +180,28 @@ main() {
         return 2
     fi
     
-    # Set defaults
+    # Enforce canonical theme and read-only defaults
+    # Nota: THEME_SLUG forzado a runart-base (canon). Si estaba definido distinto, se ignora.
+    if [[ -n "${THEME_SLUG:-}" && "${THEME_SLUG}" != "runart-base" ]]; then
+        log_warn "THEME_SLUG=${THEME_SLUG} detectado; se forzará a 'runart-base' (canon)."
+    fi
+    export THEME_SLUG="runart-base"
+    export READ_ONLY="${READ_ONLY:-1}"
     export SSH_PORT="${SSH_PORT:-22}"
+    export THEME_PATH="${STAGING_WP_PATH%/}/wp-content/themes/${THEME_SLUG}"
     
     # Validate SSH key if provided
     if [[ -n "${IONOS_SSH_KEY:-}" ]]; then
         validate_ssh_key "${IONOS_SSH_KEY}" || return 2
     fi
     
-    # Test SSH connection
-    if ! test_ssh_connection; then
-        return 3
+    # Test SSH connection (solo si no se deshabilita explícitamente)
+    if [[ "${SKIP_SSH:-0}" != "1" ]]; then
+        if ! test_ssh_connection; then
+            return 3
+        fi
+    else
+        log_warn "Validación SSH omitida por SKIP_SSH=1 (modo documentación/CI)."
     fi
     
     # Success summary
@@ -199,6 +212,9 @@ main() {
     echo "  IONOS_SSH_USER:   ${IONOS_SSH_USER}"
     echo "  SSH_PORT:         ${SSH_PORT}"
     echo "  STAGING_WP_PATH:  ${STAGING_WP_PATH}"
+    echo "  THEME_SLUG:       ${THEME_SLUG} (canon)"
+    echo "  THEME_PATH:       ${THEME_PATH}"
+    echo "  READ_ONLY:        ${READ_ONLY}"
     echo "  Auth method:      $(if [[ -n "${IONOS_SSH_KEY:-}" ]]; then echo "SSH Key"; else echo "Password"; fi)"
     echo ""
     

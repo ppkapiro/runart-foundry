@@ -101,6 +101,14 @@ export THEME_SLUG="runart-base"
 
 ---
 
+### Nota de Gobernanza del Tema (Staging)
+
+- Canon documental y de scripts: tema activo esperado en Staging es **RunArt Base** (`runart-base`).
+- Modo actual: solo lectura. No se ejecutan cambios en el servidor hasta aprobación explícita (READ_ONLY=1, DRY_RUN=1).
+- Evidencia y paths canónicos: ver `_reports/IONOS_STAGING_THEME_CHECK_20251029.md`.
+
+---
+
 ## 3. Método Oficial de Deployment
 
 ### 3.1. Preparación Local (WSL)

@@ -1,0 +1,54 @@
+name: Guard - Read-only freeze (dry-run + media review)
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened, labeled, unlabeled]
+    branches: [ main, develop ]
+  push:
+    branches: [ main ]
+
+jobs:
+  dryrun-guard:
+    name: Enforce deploy scripts are dry-run capable by default
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Verify deploy script has DRY_RUN and READ_ONLY defaults
+        run: |
+          test -f tools/deploy_wp_ssh.sh
+          grep -q "CI-GUARD: DRY-RUN-CAPABLE" tools/deploy_wp_ssh.sh
+          grep -q "READ_ONLY=\${READ_ONLY:-1}" tools/deploy_wp_ssh.sh
+          grep -q "DRY_RUN=\${DRY_RUN:-1}" tools/deploy_wp_ssh.sh
+          echo "OK: deploy_wp_ssh.sh defaults detected"
+
+  media-guard:
+    name: Require media-review label when media changes
+    runs-on: ubuntu-latest
+    if: github.event_name == 'pull_request'
+    steps:
+      - name: Check labels and changed files
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const pr = context.payload.pull_request;
+            const owner = context.repo.owner;
+            const repo = context.repo.repo;
+            const prNumber = pr.number;
+
+            // Collect labels
+            const hasLabel = pr.labels.some(l => l.name.toLowerCase() === 'media-review');
+
+            // List changed files
+            const files = await github.paginate(github.rest.pulls.listFiles, { owner, repo, pull_number: prNumber });
+            const mediaPatterns = [/^wp-content\/uploads\//, /^runmedia\//, /^content\/media\//];
+            const touchesMedia = files.some(f => mediaPatterns.some(r => r.test(f.filename)));
+
+            core.info(`media-review label: ${hasLabel}`);
+            core.info(`touches media: ${touchesMedia}`);
+
+            if (touchesMedia && !hasLabel) {
+              core.setFailed('Este PR modifica media (uploads/runmedia/content/media) y requiere la etiqueta "media-review".');
+            } else {
+              core.info('Media guard OK');
+            }

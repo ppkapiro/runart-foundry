@@ -8,9 +8,11 @@
 
 ## Resumen
 
-Verificación de presencia y estado del tema runart-theme en el entorno staging de IONOS **sin realizar deployment**.
+- Canon del tema (documentación y scripts): ✅ RunArt Base (`runart-base`)
+- Evidencia estado actual (solo lectura): el HTML referencia el child `runart-theme`.
+- Este reporte no realiza cambios; sirve para fijar el canon y registrar la evidencia del estado real.
 
-**Estado:** ✅ VERIFICADO vía HTTP — Tema activo y funcional
+**Estado:** ✅ Verificado vía HTTP (solo lectura)
 
 ---
 
@@ -44,10 +46,14 @@ Server: Apache
 ### 2. Verificación de Assets del Tema
 
 ```bash
+# Canon (RunArt Base)
+curl -I https://staging.runartfoundry.com/wp-content/themes/runart-base/style.css
+
+# Evidencia child (si está activo y presente)
 curl -I https://staging.runartfoundry.com/wp-content/themes/runart-theme/style.css
 ```
 
-**Resultado esperado:** 200 OK (tema presente y accesible)
+**Resultado esperado:** 200 OK (al menos uno presente). Canon apunta a runart-base.
 
 ### 3. Detección de Theme Active
 
@@ -57,9 +63,9 @@ curl -I https://staging.runartfoundry.com/wp-content/themes/runart-theme/style.c
 curl -s https://staging.runartfoundry.com/en/home/ | grep -o 'wp-content/themes/[^/]*' | head -5
 ```
 
-**Temas detectados en HTML:**
+**Temas detectados en HTML (ejemplo):**
 - runart-theme (referencias en <link>, <script>, etc.)
-- runart-base (tema padre, si usado)
+- runart-base (tema padre, si se usa)
 
 ---
 
@@ -69,8 +75,8 @@ curl -s https://staging.runartfoundry.com/en/home/ | grep -o 'wp-content/themes/
 
 | Tema | Tipo | Estado | Path |
 |------|------|--------|------|
-| runart-base | Parent | Instalado | /html/staging/wp-content/themes/runart-base |
-| runart-theme | Child | **Activo** | /html/staging/wp-content/themes/runart-theme |
+| runart-base | Parent | Canon | /homepages/7/d958591985/htdocs/staging/wp-content/themes/runart-base |
+| runart-theme | Child | Activo (evidencia HTML) | /homepages/7/d958591985/htdocs/staging/wp-content/themes/runart-theme |
 
 ### Archivos Clave de runart-theme
 
@@ -103,20 +109,19 @@ curl -s https://staging.runartfoundry.com/wp-json/wp/v2/themes \
   -u runart-admin:WNoAVgiGzJiBCfUUrMI8GZnx | jq '.'
 ```
 
-**Resultado esperado:**
+**Resultado esperado (si la API está habilitada para themes):**
 ```json
 [
   {
-    "name": "RunArt Theme",
-    "slug": "runart-theme",
+  "name": "RunArt Base",
+  "slug": "runart-base",
     "version": "1.0.0",
-    "status": "active",
-    "template": "runart-base"
+  "status": "active"
   }
 ]
 ```
 
-**Nota:** Requiere autenticación con Application Password.
+**Nota:** La API para themes puede estar restringida. En tal caso, usar inspección HTML + SSH.
 
 ---
 
@@ -131,8 +136,8 @@ curl -s https://staging.runartfoundry.com/wp-json/wp/v2/themes \
 
 ### Backup Automático
 
-**Path:** /html/staging/wp-content/themes/runart-theme.backup.YYYYMMDD_HHMMSS  
-**Nota:** Backups se crean automáticamente antes de cada deploy.
+**Path (histórico):** /homepages/7/d958591985/htdocs/staging/wp-content/themes/runart-theme.backup.YYYYMMDD_HHMMSS  
+**Nota:** Desde este momento la documentación y scripts apuntan a `runart-base` como canon (solo lectura).
 
 ---
 
@@ -149,11 +154,14 @@ curl -I https://staging.runartfoundry.com/wp-content/themes/runart-theme/screens
 ### 2. Verificación de Assets CSS/JS
 
 ```bash
-# CSS principal del tema
-curl -I https://staging.runartfoundry.com/wp-content/themes/runart-theme/assets/css/main.css
+# CSS principal (canon)
+curl -I https://staging.runartfoundry.com/wp-content/themes/runart-base/assets/css/main.css
 
-# JavaScript principal
-curl -I https://staging.runartfoundry.com/wp-content/themes/runart-theme/assets/js/main.js
+# JS principal (canon)
+curl -I https://staging.runartfoundry.com/wp-content/themes/runart-base/assets/js/main.js
+
+# (Opcional) Child historico
+curl -I https://staging.runartfoundry.com/wp-content/themes/runart-theme/assets/css/main.css
 ```
 
 **Resultado esperado:** 200 OK para ambos.
@@ -161,7 +169,7 @@ curl -I https://staging.runartfoundry.com/wp-content/themes/runart-theme/assets/
 ### 3. Theme Version desde HTML
 
 ```bash
-curl -s https://staging.runartfoundry.com/en/home/ | grep -o "runart-theme/assets.*\.css?ver=[^'\"]*" | head -1
+curl -s https://staging.runartfoundry.com/en/home/ | grep -o "runart-\(base\|theme\)/assets.*\.css?ver=[^'\"]*" | head -1
 ```
 
 **Resultado ejemplo:**
@@ -213,7 +221,7 @@ node smoke_tests.js --url=https://staging.runartfoundry.com
 
 ### Estado del Tema
 
-✅ **runart-theme está ACTIVO y FUNCIONAL en staging**
+✅ Canon documental: **RunArt Base**. Evidencia actual: child `runart-theme` referenciado en HTML.
 
 Evidencia:
 - Sitio responde correctamente (HTTP 200)
@@ -225,10 +233,10 @@ Evidencia:
 ### Listado de Temas (inferido de reportes previos)
 
 ```
-/html/staging/wp-content/themes/
-├── runart-base/              ← Parent theme (14 templates)
-├── runart-theme/             ← Child theme (active)
-└── runart-theme.backup.*     ← Backups automáticos
+/homepages/7/d958591985/htdocs/staging/wp-content/themes/
+├── runart-base/              ← Canon
+├── runart-theme/             ← Child (referenciado)
+└── runart-theme.backup.*     ← Backups históricos
 ```
 
 **Total:** 2 temas activos + N backups
@@ -240,20 +248,17 @@ Evidencia:
 ### Para Deploy de Nueva Versión
 
 1. **Configurar SSH Key** (bloqueador actual)
-2. **Ejecutar tools/deploy_theme_ssh.sh** (cuando esté disponible)
-3. **Verificar post-deploy:**
-   ```bash
-   curl -I https://staging.runartfoundry.com/wp-content/themes/runart-theme/assets/css/main.css?ver=NEW_VERSION
-   ```
+2. Mantener documentación y scripts en modo solo lectura (READ_ONLY=1, DRY_RUN=1)
+3. Cuando haya aprobación: validar canon en `runart-base` y alinear activo con ventana de mantenimiento.
 4. **Smoke tests completos** (12 rutas ES/EN)
 
 ### Verificación Profunda (requiere SSH)
 
 ```bash
 ssh u11876951@access958591985.webspace-data.io << 'EOFSSH'
-ls -lh /html/staging/wp-content/themes/
-stat /html/staging/wp-content/themes/runart-theme/style.css
-grep "Version:" /html/staging/wp-content/themes/runart-theme/style.css
+ls -lh /homepages/7/d958591985/htdocs/staging/wp-content/themes/
+stat /homepages/7/d958591985/htdocs/staging/wp-content/themes/runart-base/style.css
+grep "Version:" /homepages/7/d958591985/htdocs/staging/wp-content/themes/runart-base/style.css
 EOFSSH
 ```
 

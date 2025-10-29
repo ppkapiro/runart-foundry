@@ -1,11 +1,15 @@
 #!/usr/bin/env bash
 # RunArt Foundry - Controlled SSH deployment via WP-CLI
+# CI-GUARD: DRY-RUN-CAPABLE (este script soporta DRY_RUN y READ_ONLY por defecto)
 set -euo pipefail
 
 #------------------------------------------------------------------------------
 # Configuration & Guardrails
 #------------------------------------------------------------------------------
 ENVIRONMENT="${1:-staging}"             # staging | prod
+# Guardas por defecto: NO efectuar cambios en servidores si no hay aprobación explícita
+READ_ONLY="${READ_ONLY:-1}"              # 1 = no modifica servidor (freeze)
+DRY_RUN="${DRY_RUN:-1}"                  # 1 = rsync con --dry-run
 PROMOTE_TO_PROD=${PROMOTE_TO_PROD:-false}
 TIMESTAMP="$(date -u +%Y%m%dT%H%M%SZ)"
 ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
@@ -122,13 +126,27 @@ rsync_theme() {
   echo "- *" >>"${include_file}"
 
   export SSHPASS="${WP_SSH_PASS}"
-  log_info "Backing up remote theme directory"
-  run_ssh "cd ${remote_dir%/*} && tar -czf /tmp/${THEME_SLUG}_backup_${TIMESTAMP}.tgz ${THEME_SLUG}" \
-    && append_log "backup" "ok" "Theme backup created" "{\"path\":\"/tmp/${THEME_SLUG}_backup_${TIMESTAMP}.tgz\"}" \
-    || append_log "backup" "warn" "Theme backup failed" '{}'
+  if [[ "${READ_ONLY}" == "1" ]]; then
+    log_warn "READ_ONLY=1: Backup remoto omitido (solo documentación)."
+    append_log "backup" "skip" "READ_ONLY: backup omitido" '{}'
+  else
+    log_info "Backing up remote theme directory"
+    run_ssh "cd ${remote_dir%/*} && tar -czf /tmp/${THEME_SLUG}_backup_${TIMESTAMP}.tgz ${THEME_SLUG}" \
+      && append_log "backup" "ok" "Theme backup created" "{\"path\":\"/tmp/${THEME_SLUG}_backup_${TIMESTAMP}.tgz\"}" \
+      || append_log "backup" "warn" "Theme backup failed" '{}'
+  fi
 
-  log_info "Syncing theme files via rsync"
-  if sshpass -e rsync -av \
+  log_info "Syncing theme files via rsync (DRY_RUN=${DRY_RUN}, READ_ONLY=${READ_ONLY})"
+  # CI-GUARD: el comando rsync incluye soporte para --dry-run cuando DRY_RUN=1
+  local rsync_flags=( -av )
+  if [[ "${DRY_RUN}" == "1" || "${READ_ONLY}" == "1" ]]; then
+    rsync_flags+=( --dry-run )
+  fi
+  if [[ "${READ_ONLY}" == "1" ]]; then
+    log_warn "READ_ONLY=1: Se realizará rsync en modo --dry-run (sin cambios)."
+  fi
+
+  if sshpass -e rsync "${rsync_flags[@]}" \
     --rsync-path="mkdir -p ${remote_dir} && rsync" \
     --rsh="ssh -o StrictHostKeyChecking=no" \
     --filter="merge ${exclude_file}" \
@@ -268,14 +286,20 @@ echo "${PAGES_BEFORE}" | jq '.' > "${PAGES_JSON}.tmp"
 log_info "Synchronizing theme files"
 rsync_theme "staging" "${REMOTE_THEME_DIR_STAGING}" || exit 1
 
-log_info "Running WP-CLI maintenance"
-run_wp "rewrite flush --hard" "${REMOTE_PATH_STAGING}" && append_log "rewrite_flush" "ok" "Permalinks flushed" '{}'
-run_wp "cache flush" "${REMOTE_PATH_STAGING}" && append_log "cache_flush" "ok" "Cache flushed" '{}'
+if [[ "${READ_ONLY}" == "1" ]]; then
+  log_warn "READ_ONLY=1: Mantenimiento WP-CLI omitido (rewrite/cache/publish)."
+  append_log "rewrite_flush" "skip" "READ_ONLY: omitido" '{}'
+  append_log "cache_flush" "skip" "READ_ONLY: omitido" '{}'
+else
+  log_info "Running WP-CLI maintenance"
+  run_wp "rewrite flush --hard" "${REMOTE_PATH_STAGING}" && append_log "rewrite_flush" "ok" "Permalinks flushed" '{}'
+  run_wp "cache flush" "${REMOTE_PATH_STAGING}" && append_log "cache_flush" "ok" "Cache flushed" '{}'
 
-REQUIRED_SLUGS=(services servicios blog blog-2 home inicio about sobre-nosotros contact contacto)
-for slug in "${REQUIRED_SLUGS[@]}"; do
-  ensure_page_published "${REMOTE_PATH_STAGING}" "${slug}"
-done
+  REQUIRED_SLUGS=(services servicios blog blog-2 home inicio about sobre-nosotros contact contacto)
+  for slug in "${REQUIRED_SLUGS[@]}"; do
+    ensure_page_published "${REMOTE_PATH_STAGING}" "${slug}"
+  done
+fi
 
 log_info "Collecting page status (after)"
 PAGES_AFTER="$(collect_pages "${REMOTE_PATH_STAGING}")"
@@ -328,6 +352,8 @@ append_log "env_checklist" "ok" "Environment checklist updated" "{\"report\":\"$
   echo "- Host: ${WP_SSH_HOST}"
   echo "- Ruta base: ${REMOTE_PATH_STAGING}"
   echo "- Tema: ${THEME_SLUG}"
+  echo "- READ_ONLY: ${READ_ONLY}"
+  echo "- DRY_RUN: ${DRY_RUN}"
   echo "- Archivo log JSON: ${LOG_JSON##${ROOT_DIR}/}"
   echo "- Smoke test: ${SMOKE_MD##${ROOT_DIR}/}"
   echo ""
