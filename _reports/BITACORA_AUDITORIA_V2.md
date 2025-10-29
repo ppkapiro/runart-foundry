@@ -26,6 +26,41 @@
 ## Eventos (Registro Cronológico Inverso)
 
 ### 2025-10-29T15:45:00Z — Plan Maestro v2 Creado
+### 2025-10-29T22:25:24Z — PR #77 Revalidado — F1 Listo para Data Entry
+**Branch:** `feat/content-audit-v2-phase1`
+**PR:** #77
+**Commit:** `75b1e51`
+**Autor:** Pepe Capiro
+
+**Resumen:**
+PR #77 revalidado contra develop (a798491). CI: recalculando post-sync. Labels actualizadas: documentation, ready-for-review, area/docs, type/chore, content-phase. Plantillas F1-F5 (1,521 líneas) ahora referencian framework v2 en develop. Estado: OPEN, ready for data entry. Próximo: rellenar 01_pages_inventory.md con datos reales de staging.
+
+**Resultado:** ✅ Éxito
+
+---
+### 2025-10-29T22:25:16Z — Sync Develop ← Main — Completado
+**Branch:** `chore/sync-main-into-develop`
+**PR:** #79
+**Commit:** `a798491`
+**Autor:** Pepe Capiro
+
+**Resumen:**
+PR #79 (chore/sync-main-into-develop) mergeado a develop con SHA a798491. Conflicto resuelto: pages-preview2.yml (mantenida versión de main, más robusta). Canon RunArt Base respetado. develop ahora contiene framework v2 completo. Merge strategy: squash (política del repo). Próximo: revalidar PR #77.
+
+**Resultado:** ✅ Éxito
+
+---
+### 2025-10-29T22:25:03Z — PR #78 Mergeado — Framework Activo en Main
+**PR:** #78
+**Commit:** `7b4eedb`
+**Autor:** Pepe Capiro
+
+**Resumen:**
+PR #78 mergeado a main con SHA 7b4eedb. Framework v2 completo: Plan Maestro (14KB), Bitácora Iterativa (9KB), script helper (2KB). Labels finales: documentation, governance, content-phase, ready-for-review, ready-for-merge. Merge strategy: merge commit (preservar historia). CI: UNSTABLE (checks fallidos no relacionados con PR). Próximo: sync develop.
+
+**Resultado:** ✅ Éxito
+
+---
 ### 2025-10-29T22:03:47Z — PR #78 Creado: Framework Plan Maestro
 **Branch:** `chore/content-images-plan-v2`
 **PR:** #78
