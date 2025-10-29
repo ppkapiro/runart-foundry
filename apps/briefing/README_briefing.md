@@ -1,5 +1,11 @@
 # Estado del Proyecto — Octubre 2025
 
+## Fuente canónica de documentación
+- **Documentación activa**: [`docs/live/`](../../docs/live/)
+  - Hubs temáticos: [Arquitectura](../../docs/live/architecture/index.md), [Operaciones](../../docs/live/operations/index.md), [UI/Roles](../../docs/live/ui_roles/index.md)
+  - Estado operativo: [`docs/status.json`](../../docs/status.json) (regenerar con `make status_update`)
+- **Archivo histórico**: [`docs/archive/`](../../docs/archive/)
+
 ## Estado del proyecto
 - [x] **Fase 0 – Diagnóstico** (cerrada)
 - [x] **Fase 1 – Pilotos y estructura base** (cerrada)
@@ -10,6 +16,21 @@
 📎 Referencia: [Arquitectura del Briefing](docs/briefing_arquitectura.md)
 
 ### Visibilidad por rol
+
+**Prioridad de resolución actual:** `owner > client_admin > client > team > visitor`.
+
+| Email / dominio | Rol asignado | Fuente |
+| --- | --- | --- |
+| `ppcapiro@gmail.com` | owner | `access/roles.json` · `ACCESS_ADMINS` |
+| `runartfoundry@gmail.com` | client_admin | `access/roles.json` |
+| `musicmanagercuba@gmail.com` | client | `access/roles.json` |
+| `infonetwokmedia@gmail.com` | team | `access/roles.json` |
+| dominios listados en `team_domains` (`runartfoundry.com`) | team | `access/roles.json` / KV |
+
+- `/api/whoami` expone `{ role, rol }` (inglés + alias en español) y refleja `RUNART_ENV`.
+- Middleware inyecta cabeceras `X-RunArt-Email`, `X-RunArt-Role` y `X-RunArt-Role-Alias` para el resto de Functions.
+- `/api/inbox` permite `owner`, `client_admin`, `team`; el resto obtiene 403.
+- `/api/admin/roles` (fase 3) controlará altas/bajas persistiendo en `RUNART_ROLES` y registrando en `LOG_EVENTS`.
 
 | Sección / módulo | Equipo | Cliente | Visitante |
 | --- | :---: | :---: | :---: |
@@ -89,7 +110,10 @@ Consulta `docs/internal/briefing_system/ops/ci.md` para los requisitos, flujo co
 
 ### ✅ Completado
 - **Sitio local**: http://127.0.0.1:8000 (ejecutar `cd apps/briefing && make serve`)
-- **Cloudflare Pages**: https://dcf7222b.runart-briefing.pages.dev (también https://runart-briefing.pages.dev)
+- **Cloudflare Pages**: https://runart-foundry.pages.dev/
+- **Preview (hash)**: consultar el output `preview_url` del step `deploy-preview` en GitHub Actions (no existe `preview.<project>.pages.dev` por defecto)
+
+> **Nota**: Las URLs de preview se toman del output (hash) de cloudflare/pages-action; NO usar preview.<project>.pages.dev.
 - **KV Namespaces**:
   - Production: `6418ac6ace59487c97bda9c3a50ab10e`
   - Preview: `e68d7a05dce645478e25c397d4c34c08`
@@ -97,19 +121,32 @@ Consulta `docs/internal/briefing_system/ops/ci.md` para los requisitos, flujo co
 ### ✅ Arquitectura final (Pages Functions)
 
 **Backend**: Los endpoints de API ahora corren como **Cloudflare Pages Functions** integradas en el mismo dominio de Pages, sin necesidad de workers.dev:
-- `POST https://runart-briefing.pages.dev/api/decisiones`
-- `GET https://runart-briefing.pages.dev/api/inbox`
+- `POST https://runart-foundry.pages.dev/api/decisiones`
+- `GET https://runart-foundry.pages.dev/api/inbox`
 
 **Bindings KV**:
 - Production: `6418ac6ace59487c97bda9c3a50ab10e`
 - Preview: `e68d7a05dce645478e25c397d4c34c08`
+
+### 🚀 Pipeline real (2025-10-09)
+- **Orquestador**: `docs/internal/briefing_system/plans/04_orquestador_pipeline_real.md` (AUTO_CONTINUE, D1–D6).
+- **Workflows**: `pages-preview.yml`, `pages-preview2.yml`, `pages-prod.yml` generan despliegues para Preview, CloudFed y Producción.
+- **QA Local**: `npm run build` + `npm run test:unit:smoke` (2025-10-09T14:25Z) documentados en D4.
+- **Smokes Producción**: `_reports/tests/T4_prod/20251009T124000Z_production_smokes.json` (5/5 PASS).
+- **Logs adicionales**: `docs/internal/briefing_system/reports/2025-10-10_local_build_and_dev.log`, `_reports/tests/T3_e2e/20251009T153900Z_preview_smokes.json`, `_reports/tests/T4_prod/20251009T154500Z_production_smokes.json`.
+- **Entornos activos**:
+   - Local: `wrangler pages dev site --port 8787` (bindings `.dev.vars`).
+   - Preview: URL hash entregada por Cloudflare Pages (`deploy-preview.preview_url` en GitHub Actions).
+   - CloudFed Preview2: `https://preview2.runart-foundry.pages.dev` (302 → `/dash/visitor` con Access).
+   - Producción: `https://runart-foundry.pages.dev` (protegido con Cloudflare Access, 302 esperado sin sesión).
+- **Completado 2025-10-09**: IDs `kv_*_preview2` aplicados en `wrangler.toml`, deploy manual mediante `wrangler pages deploy --branch preview2` y smoke `_reports/tests/T3_e2e/20251009T192112Z_preview2_smokes.json` documentado.
 - Configurados en `wrangler.toml`
 
 ### ⚠️ Acción requerida (usuario)
 
 1. **Activar Cloudflare Access** (privacidad - OBLIGATORIO):
    - Ir a: https://dash.cloudflare.com/a2c7fc66f00eab69373e448193ae7201/pages
-   - Seleccionar proyecto `runart-briefing`
+   - Seleccionar proyecto `runart-foundry`
    - En Settings → Access → Enable Access
    - Crear regla "Allow" solo para correo de Uldis
    - Una vez activo, el header `Cf-Access-Authenticated-User-Email` poblará el usuario real
@@ -134,7 +171,7 @@ Consulta `docs/internal/briefing_system/ops/ci.md` para los requisitos, flujo co
    ```bash
    cd apps/briefing
    make build
-   npx wrangler pages deploy site --project-name runart-briefing
+   npx wrangler pages deploy site --project-name runart-foundry
    ```
 
 ## Operativa
@@ -161,10 +198,10 @@ Consulta `docs/internal/briefing_system/ops/ci.md` para los requisitos, flujo co
 - **Variables en Cloudflare Pages**:
    - `EDITOR_TOKEN` (Secret): Token compartido entre editor, inbox y CLI (`RUN_TOKEN`).
    - `MOD_REQUIRED` (Variable): `1` para exigir revisión manual (default), `0` para aceptar automáticamente.
-   - `ORIGIN_ALLOWED` (Variable): Prefijo permitido para `Origin/Referer` (ej. `https://runart-briefing.pages.dev`).
+   - `ORIGIN_ALLOWED` (Variable): Prefijo permitido para `Origin/Referer` (ej. `https://runart-foundry.pages.dev`).
 - **Smoke tests**: Ejecutar `apps/briefing/scripts/smoke_arq3.sh` tras escudos de Access (o `briefing/scripts/...` mientras dure la compatibilidad).
    ```bash
-   PAGES_URL=https://runart-briefing.pages.dev \
+   PAGES_URL=https://runart-foundry.pages.dev \
    RUN_TOKEN=dev-token \
    ACCESS_JWT="$(cat /path/to/cf_access.jwt)" \
    bash apps/briefing/scripts/smoke_arq3.sh
@@ -192,7 +229,7 @@ Consulta `docs/internal/briefing_system/ops/ci.md` para los requisitos, flujo co
 Para validar rápidamente que el endpoint `/api/export_zip` responde (requiere sesión Access en navegador para la verificación visual):
 
 ```bash
-PAGES_URL=https://runart-briefing.pages.dev \
+PAGES_URL=https://runart-foundry.pages.dev \
 RUN_TOKEN=dev-token \
 bash apps/briefing/scripts/smoke_exports.sh
 ```
@@ -211,8 +248,18 @@ make venv           # prepara entorno virtual y dependencias
 make build          # compila MkDocs (warnings tolerados inventariados)
 make serve          # opcional: vista previa local
 
-# QA funcional
-bash scripts/qa_arq6.sh                # smoke Access + APIs ARQ-3
+# QA funcional - PRODUCCIÓN (reconoce Access redirects como PASS)
+PROD_URL=https://runart-foundry.pages.dev \
+RUN_TOKEN=dev-token \
+make test-smoke-prod                    # smoke test optimizado para producción
+
+# QA funcional - AVANZADO (Node.js con reporting)
+PROD_URL=https://runart-foundry.pages.dev \
+make test-smoke-wrapper                 # smoke test con configuración automática
+
+# QA funcional - LEGACY (corregido para Access)
+PAGES_URL=... RUN_TOKEN=... \
+   bash scripts/smoke_arq3.sh           # smoke ARQ-3 con manejo de redirects
 PAGES_URL=... RUN_TOKEN=... \
    bash scripts/smoke_exports.sh        # verifica /api/export_zip (requiere Access)
 

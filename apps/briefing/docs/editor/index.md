@@ -1,5 +1,8 @@
 # Editor de Fichas (beta)
 
+<!-- canonical-crosslink: pr-01 -->
+> Fuente canónica de Briefing: ver `docs/live/` → [Índice](../../../../docs/live/index.md) · Hubs: [Arquitectura](../../../../docs/live/architecture/index.md), [Operaciones](../../../../docs/live/operations/index.md), [UI/Roles](../../../../docs/live/ui_roles/index.md).
+
 Este módulo permite capturar fichas de proyecto sin escribir YAML manualmente. Completa el formulario, genera una vista previa y envía la ficha al inbox para moderación.
 
 <!-- interno:start -->

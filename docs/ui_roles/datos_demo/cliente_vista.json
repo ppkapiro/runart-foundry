@@ -1,0 +1,26 @@
+{
+  "kpis": [
+    {"label": "Progreso", "value": "72%"},
+    {"label": "Hitos", "value": "14/20"},
+    {"label": "Riesgos", "value": "Bajo"}
+  ],
+  "hitos": [
+    {"fecha": "2025-10-15", "titulo": "Molde listo"},
+    {"fecha": "2025-10-20", "titulo": "Colada completada"}
+  ],
+  "decisiones": [
+    {"fecha": "2025-10-18", "asunto": "Aprobar patinado verde"}
+  ],
+  "entregables": [
+    {"id": "E-101", "titulo": "Ficha técnica pieza A"},
+    {"id": "E-102", "titulo": "Informe de control dimensional"}
+  ],
+  "evidencias": [
+    {"id": "EV-1", "tipo": "imagen", "url": "./evidencias/piezaA_1.jpg"},
+    {"id": "EV-2", "tipo": "video", "url": "https://example.com/demo.mp4"}
+  ],
+  "faq": [
+    {"q": "¿Qué es la pátina?", "a": "Acabado químico de color en superficie."},
+    {"q": "¿Cuándo recibiré el próximo avance?", "a": "El día 25, con fotos y notas."}
+  ]
+}

@@ -1,0 +1,1 @@
+{"baseURL":"https://runart-foundry.pages.dev","timestamp":"2025-10-09T12:40:00Z","totals":{"pass":5,"fail":0,"total":5},"results":[{"name":"whoami-owner","status":"pass"},{"name":"whoami-client_admin","status":"pass"},{"name":"whoami-client","status":"pass"},{"name":"whoami-team","status":"pass"},{"name":"whoami-visitor","status":"pass"}]}

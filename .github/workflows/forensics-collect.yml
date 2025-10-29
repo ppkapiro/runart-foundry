@@ -1,0 +1,117 @@
+name: "Forensics: Collect Pages Data"
+
+on:
+  workflow_dispatch:
+    inputs:
+      mode:
+        description: 'Collection mode'
+        required: false
+        default: 'full'
+        type: choice
+        options:
+          - full
+          - pre-check
+          - post-check
+
+permissions:
+  contents: write
+
+jobs:
+  collect:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Create forensics directories
+        run: |
+          mkdir -p docs/_meta/_deploy_forensics
+          mkdir -p docs/_meta/_deploy_forensics/post_disconnect
+      
+      - name: Collect CF Pages projects
+        env:
+          CF_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CF_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+        run: |
+          curl -sS "https://api.cloudflare.com/client/v4/accounts/$CF_ACCOUNT_ID/pages/projects" \
+            -H "Authorization: Bearer $CF_API_TOKEN" | jq '.' > docs/_meta/_deploy_forensics/cf_projects.json
+      
+      - name: Collect runart-foundry deploys (full history)
+        if: ${{ github.event.inputs.mode == 'full' || github.event.inputs.mode == '' }}
+        env:
+          CF_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CF_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+        run: |
+          curl -sS "https://api.cloudflare.com/client/v4/accounts/$CF_ACCOUNT_ID/pages/projects/runart-foundry/deployments" \
+            -H "Authorization: Bearer $CF_API_TOKEN" | jq '.result[:10]' > docs/_meta/_deploy_forensics/cf_deploys.json
+      
+      - name: Collect latest production deployment (pre/post-check)
+        env:
+          CF_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CF_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          MODE: ${{ github.event.inputs.mode }}
+        run: |
+          LATEST_PROD=$(curl -sS "https://api.cloudflare.com/client/v4/accounts/$CF_ACCOUNT_ID/pages/projects/runart-foundry/deployments" \
+            -H "Authorization: Bearer $CF_API_TOKEN" | jq -r '.result[] | select(.environment == "production") | {id, source: .source.type, commit: .deployment_trigger.metadata.commit_hash, created_at: .created_on, url, latest_stage: .latest_stage.status}' | head -8)
+          
+          if [[ "$MODE" == "pre-check" ]]; then
+            echo "$LATEST_PROD" > docs/_meta/_deploy_forensics/pre_check_deployment.json
+            echo "=== PRE-CHECK: Latest Production Deployment ===" | tee -a docs/_meta/_deploy_forensics/pre_check_summary.txt
+            echo "$LATEST_PROD" | tee -a docs/_meta/_deploy_forensics/pre_check_summary.txt
+          elif [[ "$MODE" == "post-check" ]]; then
+            echo "$LATEST_PROD" > docs/_meta/_deploy_forensics/post_disconnect/deployment.json
+            echo "=== POST-CHECK: Latest Production Deployment ===" | tee -a docs/_meta/_deploy_forensics/post_disconnect/summary.txt
+            echo "$LATEST_PROD" | tee -a docs/_meta/_deploy_forensics/post_disconnect/summary.txt
+          fi
+      
+      - name: Collect project settings
+        if: ${{ github.event.inputs.mode == 'full' || github.event.inputs.mode == '' }}
+        env:
+          CF_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CF_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+        run: |
+          curl -sS "https://api.cloudflare.com/client/v4/accounts/$CF_ACCOUNT_ID/pages/projects/runart-foundry" \
+            -H "Authorization: Bearer $CF_API_TOKEN" | jq '.' > docs/_meta/_deploy_forensics/cf_project_settings.json
+      
+      - name: Download production content snippets
+        if: ${{ github.event.inputs.mode == 'full' || github.event.inputs.mode == '' }}
+        env:
+          CF_CLIENT_ID: ${{ secrets.CF_ACCESS_CLIENT_ID }}
+          CF_CLIENT_SECRET: ${{ secrets.CF_ACCESS_CLIENT_SECRET }}
+        run: |
+          curl -sS -H "CF-Access-Client-Id: $CF_CLIENT_ID" -H "CF-Access-Client-Secret: $CF_CLIENT_SECRET" \
+            https://runart-foundry.pages.dev/index.html | head -n 50 > docs/_meta/_deploy_forensics/home_snippet.html
+          curl -sS -H "CF-Access-Client-Id: $CF_CLIENT_ID" -H "CF-Access-Client-Secret: $CF_CLIENT_SECRET" \
+            https://runart-foundry.pages.dev/status/ | head -n 50 > docs/_meta/_deploy_forensics/status_snippet.html || echo "status_404" > docs/_meta/_deploy_forensics/flag_status.txt
+          curl -sS -H "CF-Access-Client-Id: $CF_CLIENT_ID" -H "CF-Access-Client-Secret: $CF_CLIENT_SECRET" \
+            https://runart-foundry.pages.dev/news/ | head -n 50 > docs/_meta/_deploy_forensics/news_snippet.html || echo "news_404" > docs/_meta/_deploy_forensics/flag_news.txt
+          curl -sS -H "CF-Access-Client-Id: $CF_CLIENT_ID" -H "CF-Access-Client-Secret: $CF_CLIENT_SECRET" \
+            https://runart-foundry.pages.dev/status/history/ | head -n 50 > docs/_meta/_deploy_forensics/history_snippet.html || echo "history_404" > docs/_meta/_deploy_forensics/flag_history.txt
+      
+      - name: Setup Python
+        if: ${{ github.event.inputs.mode == 'full' || github.event.inputs.mode == '' }}
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      
+      - name: Build local site for fingerprint comparison
+        if: ${{ github.event.inputs.mode == 'full' || github.event.inputs.mode == '' }}
+        run: |
+          cd apps/briefing
+          pip install -q mkdocs-material mkdocs-glightbox
+          mkdocs build -f mkdocs.yml -d site
+      
+      - name: Compare production vs local fingerprints
+        if: ${{ github.event.inputs.mode == 'full' || github.event.inputs.mode == '' }}
+        env:
+          CF_CLIENT_ID: ${{ secrets.CF_ACCESS_CLIENT_ID }}
+          CF_CLIENT_SECRET: ${{ secrets.CF_ACCESS_CLIENT_SECRET }}
+        run: |
+          ./tools/compare_prod_fingerprints.sh
+      
+      - name: Commit forensics data
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add docs/_meta/_deploy_forensics/
+          git commit -m "forensics: collect data (mode=${{ github.event.inputs.mode || 'full' }})" || true
+          git push || true

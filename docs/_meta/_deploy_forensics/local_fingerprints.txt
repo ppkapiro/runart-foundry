@@ -1,0 +1,2 @@
+ffaa3d1b27050a1734d10e0498b0765afa31261a  apps/briefing/site/index.html
+30b7b0901c80d93b4ea739acb5e159da9fb5476a  apps/briefing/site/status/index.html

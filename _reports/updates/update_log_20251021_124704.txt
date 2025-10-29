@@ -1,0 +1,6 @@
+--- ⚙️ Actualizando Core ---
+{"code":"rest_no_route","message":"No se ha encontrado ninguna ruta que coincida con la URL y el m\u00e9todo de la solicitud.","data":{"status":404}}--- 🔄 Actualizando Plugins ---
+{"code":"rest_missing_callback_param","message":"Par\u00e1metro(s) que falta(n): slug","data":{"status":400,"params":["slug"]}}--- 🔄 Actualizando Temas ---
+{"code":"rest_no_route","message":"No se ha encontrado ninguna ruta que coincida con la URL y el m\u00e9todo de la solicitud.","data":{"status":404}}=== ✅ Actualización completada ===
+total 4.0K
+-rw-r--r-- 1 pepe pepe 562 Oct 21 12:47 update_log_20251021_124704.txt

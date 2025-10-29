@@ -1,0 +1,27 @@
+== PROD SMOKES 2025-10-09T19:41:05Z (https://runart-foundry.pages.dev) ==
+HTTP/2 302 
+date: Thu, 09 Oct 2025 19:41:09 GMT
+location: https://runart-briefing-pages.cloudflareaccess.com/cdn-cgi/access/login/runart-foundry.pages.dev?kid=208c1b2a60b592e4f5468bd56804e905bff41b8745928f4eaf136ea2e4d5ee5b&meta=eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiIsImtpZCI6IjgxYjFkN2IwZDg4ZTNjZTkwNGFhYzc3YTExZmM2NjQ0YWY0ZTM0YWI3MzE1YjMxNDI0NDI5MDVlMDcwOGFhYTkifQ.eyJ0eXBlIjoibWV0YSIsImF1ZCI6IjIwOGMxYjJhNjBiNTkyZTRmNTQ2OGJkNTY4MDRlOTA1YmZmNDFiODc0NTkyOGY0ZWFmMTM2ZWEyZTRkNWVlNWIiLCJob3N0bmFtZSI6InJ1bmFydC1mb3VuZHJ5LnBhZ2VzLmRldiIsInJlZGlyZWN0X3VybCI6Ii8iLCJzZXJ2aWNlX3Rva2VuX3N0YXR1cyI6ZmFsc2UsImlzX3dhcnAiOmZhbHNlLCJpc19nYXRld2F5IjpmYWxzZSwiZXhwIjoxNzYwMDM5MTY5LCJuYmYiOjE3NjAwMzg4NjksImlhdCI6MTc2MDAzODg2OSwiYXV0aF9zdGF0dXMiOiJOT05FIiwibXRsc19hdXRoIjp7ImNlcnRfaXNzdWVyX2RuIjoiIiwiY2VydF9zZXJpYWwiOiIiLCJjZXJ0X2lzc3Vlcl9za2kiOiIiLCJjZXJ0X3ByZXNlbnRlZCI6ZmFsc2UsImNvbW1vbl9uYW1lIjoiIiwiYXV0aF9zdGF0dXMiOiJOT05FIn0sInJlYWxfY291bnRyeSI6IlVTIiwiYXBwX3Nlc3Npb25faGFzaCI6IjMzNjY3NjIyZTlhMDc1NWU5MGExYWI0ZmI3MGY4ODI0NTMwYTUyN2Y2Mzc1YzA3MTY4MDAyMzJmMWJmMjA2YzkifQ.Y7vlI_TfJkdQ4zV8ZODlcwREB_3X-PtpQJKxLQ5w5AjoxLQR93e5r3xgmUYwO0DHw6zc3-NO03y9oeiKGXHk_a983E730Bf1fTd0oF_rye6WIYtFBemRVxTEWgiSJ5I-MGQ_hYtduFHNx39VRJjvamnCyMW-cXvtI3iJsrFicVEYBAwkkOevvwO4siAyKXwXU7DQihocX2RWi3wJGL0MNhBaaRYj4Umt0Zsnw_ntT6eSDOPZoGBEzb_h7-MJiUGhg8RCbmNJAzWYbCYuEt3zyVVCerzQnZFOBHfUiAybuJtqm7gNuuSnqeILje1MyW2GWDc8VaDc0FIT8sSANEFLCQ&redirect_url=%2F
+cache-control: private, max-age=0, no-store, no-cache, must-revalidate, post-check=0, pre-check=0
+access-control-allow-credentials: true
+expires: Thu, 01 Jan 1970 00:00:01 GMT
+report-to: {"group":"cf-nel","max_age":604800,"endpoints":[{"url":"https://a.nel.cloudflare.com/report/v4?s=R98FC64t%2BnPTrBB%2B79sOzhBoBWh1wz5QkQwoO4ctRw8Nmm6sdgIQRNqZcsvER0PcKaydoFet%2BGlFrHPGQ7vXrvrEhIllDOZ0lJK%2BD%2BfjKq0Ry3P6PQxesQ%3D%3D"}]}
+nel: {"report_to":"cf-nel","success_fraction":0.0,"max_age":604800}
+server: cloudflare
+set-cookie: CF_AppSession=21e916d697c117a3; HttpOnly; Secure; Path=/; Expires=Fri, 10 Oct 2025 19:41:09 GMT
+cf-ray: 98c05a98aacb2577-MIA
+alt-svc: h3=":443"; ma=86400
+
+HTTP/2 302 
+date: Thu, 09 Oct 2025 19:41:10 GMT
+location: https://runart-briefing-pages.cloudflareaccess.com/cdn-cgi/access/login/runart-foundry.pages.dev?kid=208c1b2a60b592e4f5468bd56804e905bff41b8745928f4eaf136ea2e4d5ee5b&meta=eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiIsImtpZCI6IjgxYjFkN2IwZDg4ZTNjZTkwNGFhYzc3YTExZmM2NjQ0YWY0ZTM0YWI3MzE1YjMxNDI0NDI5MDVlMDcwOGFhYTkifQ.eyJ0eXBlIjoibWV0YSIsImF1ZCI6IjIwOGMxYjJhNjBiNTkyZTRmNTQ2OGJkNTY4MDRlOTA1YmZmNDFiODc0NTkyOGY0ZWFmMTM2ZWEyZTRkNWVlNWIiLCJob3N0bmFtZSI6InJ1bmFydC1mb3VuZHJ5LnBhZ2VzLmRldiIsInJlZGlyZWN0X3VybCI6Ii9hcGkvd2hvYW1pIiwic2VydmljZV90b2tlbl9zdGF0dXMiOmZhbHNlLCJpc193YXJwIjpmYWxzZSwiaXNfZ2F0ZXdheSI6ZmFsc2UsImV4cCI6MTc2MDAzOTE3MCwibmJmIjoxNzYwMDM4ODcwLCJpYXQiOjE3NjAwMzg4NzAsImF1dGhfc3RhdHVzIjoiTk9ORSIsIm10bHNfYXV0aCI6eyJjZXJ0X2lzc3Vlcl9kbiI6IiIsImNlcnRfc2VyaWFsIjoiIiwiY2VydF9pc3N1ZXJfc2tpIjoiIiwiY2VydF9wcmVzZW50ZWQiOmZhbHNlLCJjb21tb25fbmFtZSI6IiIsImF1dGhfc3RhdHVzIjoiTk9ORSJ9LCJyZWFsX2NvdW50cnkiOiJVUyIsImFwcF9zZXNzaW9uX2hhc2giOiJlN2VkZTA3ZjQ4ZDc5YTdkNjczODU5ZDYyYzhmNTBmYjgxYzFlNmE1MGRjNzEwZWQ5MWE0NDc0OTdkYTE1ZWNmIn0.KPuGOeswB2gE8CS6wv8M1btoxfuDvhj8RFlitEDYp0L8GLvgkxAIBjI5sYH42SYMDPjln-mHM0Sq3rsLb-nBNowmjHs8FAZKrhTYxtzA3tP-ECfWpg9vSPEPoYFD3xw_NklU-2ha89zMNXfl6e_r5aMfkA4yYQyTzoxCbAVc66I0xdUouChl6--d-L_WhA-k7I8kfdJArP2UsuST_XMsxDIY0luSVxKY9ZIDZGFfEftWQJuVLNCGSdZP3NeJkD2M92KeIM_POl60kyNgFIWOMHgOVDtvSlZnaVuhlX4nyuGZ4hgYJn0a9hCephhZk01Gr6I2VMlndtvErY9DG1EJdA&redirect_url=%2Fapi%2Fwhoami
+cache-control: private, max-age=0, no-store, no-cache, must-revalidate, post-check=0, pre-check=0
+access-control-allow-credentials: true
+expires: Thu, 01 Jan 1970 00:00:01 GMT
+report-to: {"group":"cf-nel","max_age":604800,"endpoints":[{"url":"https://a.nel.cloudflare.com/report/v4?s=CZdcKiYSqoYEUb1Sg%2BR1aoH4M9q7pujq974wlG%2FiwsBxuKyovmoyXXa%2B7ZXIO7hcyp0aKdNXFAgZIUNtP72BEizcYUal2UZxkAjzZfJEtSG2NSkBfgc%3D"}]}
+nel: {"report_to":"cf-nel","success_fraction":0.0,"max_age":604800}
+server: cloudflare
+set-cookie: CF_AppSession=83fb600cfbd6cbd7; HttpOnly; Secure; Path=/; Expires=Fri, 10 Oct 2025 19:41:10 GMT
+cf-ray: 98c05a9abac03712-MIA
+alt-svc: h3=":443"; ma=86400
+

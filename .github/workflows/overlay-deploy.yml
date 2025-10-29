@@ -1,0 +1,733 @@
+name: Overlay Deploy
+on:
+  workflow_dispatch:
+    inputs:
+      run_t3_smokes:
+        description: "Run T3 auth smokes on preview"
+        required: false
+        default: "true"
+      promote_to_prod:
+        description: "Promote overlay to production if T3 passes"
+        required: false
+        default: "true"
+  pull_request:
+    branches: [ chore/bootstrap-git ]
+# touch: force workflow re-index
+permissions:
+  contents: read
+  actions: write
+  deployments: write
+jobs:
+  overlay:
+    runs-on: ubuntu-latest
+    outputs:
+      WORKER_URL: ${{ steps.resolve_worker.outputs.worker_url }}
+      WORKER_ENV: ${{ steps.resolve_worker.outputs.worker_env }}
+    env:
+      CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+      CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+      ACCESS_CLIENT_ID: ${{ secrets.ACCESS_CLIENT_ID }}
+      ACCESS_CLIENT_SECRET: ${{ secrets.ACCESS_CLIENT_SECRET }}
+      RUNART_ROLES_KV_PREVIEW: ${{ secrets.RUNART_ROLES_KV_PREVIEW }}
+      RUNART_ROLES_KV_PROD: ${{ secrets.RUNART_ROLES_KV_PROD }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Detect pages-preview dispatch capability
+        id: detect_preview_dispatch
+        shell: bash
+        run: |
+          set -e
+          FILE=".github/workflows/pages-preview.yml"
+          if [ -f "$FILE" ] && grep -q "workflow_dispatch:" "$FILE"; then
+            echo "PREVIEW_DISPATCHABLE=1" >> $GITHUB_ENV
+            echo "dispatchable=1" >> $GITHUB_OUTPUT
+          else
+            echo "PREVIEW_DISPATCHABLE=0" >> $GITHUB_ENV
+            echo "dispatchable=0" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Prepare workspace
+        shell: bash
+        run: |
+          set -e
+          rm -rf canary_overlay
+          mkdir -p canary_overlay
+
+      - name: Preflight secrets
+        shell: bash
+        run: |
+          set -e
+          check() { [ -n "$1" ] || { echo "::error::Missing secret: $2"; exit 1; }; }
+          check "$CLOUDFLARE_ACCOUNT_ID" "CLOUDFLARE_ACCOUNT_ID"
+          check "$CLOUDFLARE_API_TOKEN" "CLOUDFLARE_API_TOKEN"
+          echo "ACCESS_CLIENT_ID: $([[ -n \"$ACCESS_CLIENT_ID\" ]] && echo OK || echo MISSING)"
+          echo "ACCESS_CLIENT_SECRET: $([[ -n \"$ACCESS_CLIENT_SECRET\" ]] && echo OK || echo MISSING)"
+          echo "RUNART_ROLES_KV_PREVIEW: $([[ -n \"$RUNART_ROLES_KV_PREVIEW\" ]] && echo $RUNART_ROLES_KV_PREVIEW || echo MISSING)"
+          echo "RUNART_ROLES_KV_PROD: $([[ -n \"$RUNART_ROLES_KV_PROD\" ]] && echo $RUNART_ROLES_KV_PROD || echo MISSING)"
+
+      - name: Ensure KV namespaces (create if missing)
+        if: ${{ !env.RUNART_ROLES_KV_PREVIEW || !env.RUNART_ROLES_KV_PROD }}
+        shell: bash
+        run: |
+          set -e
+          api() { curl -sS -H "Authorization: Bearer $CLOUDFLARE_API_TOKEN" -H "Content-Type: application/json" "$@"; }
+          list=$(api "https://api.cloudflare.com/client/v4/accounts/$CLOUDFLARE_ACCOUNT_ID/storage/kv/namespaces?per_page=100")
+          get_id() { echo "$list" | jq -r --arg t "$1" '.result[]?|select(.title==$t)|.id' | head -n1; }
+          prev_id=${RUNART_ROLES_KV_PREVIEW:-$(get_id runart_roles_preview)}
+          prod_id=${RUNART_ROLES_KV_PROD:-$(get_id runart_roles_prod)}
+          create_ns(){ api -X POST "https://api.cloudflare.com/client/v4/accounts/$CLOUDFLARE_ACCOUNT_ID/storage/kv/namespaces" -d "{\"title\":\"$1\"}"; }
+          if [ -z "$prev_id" ]; then prev_id=$(create_ns runart_roles_preview | jq -r '.result.id'); fi
+          if [ -z "$prod_id" ]; then prod_id=$(create_ns runart_roles_prod | jq -r '.result.id'); fi
+          echo "KV_PREVIEW_ID=$prev_id" >> $GITHUB_ENV
+          echo "KV_PROD_ID=$prod_id" >> $GITHUB_ENV
+          echo "Preview KV: $prev_id"
+          echo "Prod KV: $prod_id"
+
+      - name: Backfill repo secrets for KV IDs (if gh available)
+        shell: bash
+        run: |
+          set -e
+          which gh && {
+            [ -n "$KV_PREVIEW_ID" ] && gh secret set RUNART_ROLES_KV_PREVIEW -b"$KV_PREVIEW_ID" || true
+            [ -n "$KV_PROD_ID" ] && gh secret set RUNART_ROLES_KV_PROD -b"$KV_PROD_ID" || true
+          } || echo "gh CLI not available; ensure repo secrets set manually."
+
+      - name: Resolve KV IDs from secrets/env
+        shell: bash
+        run: |
+          set -e
+          PREVIEW_ID="${RUNART_ROLES_KV_PREVIEW:-$KV_PREVIEW_ID}"
+          PROD_ID="${RUNART_ROLES_KV_PROD:-$KV_PROD_ID}"
+          [ -n "$PREVIEW_ID" ] || { echo "::error::Missing RUNART_ROLES_KV_PREVIEW"; exit 1; }
+          [ -n "$PROD_ID" ] || { echo "::error::Missing RUNART_ROLES_KV_PROD"; exit 1; }
+          echo "PREVIEW_ID=$PREVIEW_ID" >> $GITHUB_ENV
+          echo "PROD_ID=$PROD_ID" >> $GITHUB_ENV
+
+      - name: Preflight KV namespace IDs
+        shell: bash
+        run: |
+          set -e
+          validate() {
+            local label="$1"; local id="$2"
+            resp=$(curl -sS -H "Authorization: Bearer $CLOUDFLARE_API_TOKEN" "https://api.cloudflare.com/client/v4/accounts/$CLOUDFLARE_ACCOUNT_ID/storage/kv/namespaces/$id")
+            ok=$(echo "$resp" | jq -r '.success')
+            if [[ "$ok" != "true" ]]; then
+              echo "::error::KV namespace $label ($id) inválido o inaccesible"
+              echo "$resp"
+              exit 1
+            fi
+            found=$(echo "$resp" | jq -r '.result.id // empty')
+            if [[ -z "$found" || "$found" != "$id" ]]; then
+              echo "::error::KV namespace $label ($id) respuesta inconsistente"
+              echo "$resp"
+              exit 1
+            fi
+            echo "KV $label OK ($id)"
+          }
+          validate "PREVIEW" "$PREVIEW_ID"
+          validate "PROD" "$PROD_ID"
+
+
+      - name: Sanitize overlay KV demo seeds
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p canary_overlay/kv
+          sanitize_ns() {
+            local ns_id="$1"
+            local label="$2"
+            local keys_file="canary_overlay/kv/${label}_keys.json"
+            local removed_file="canary_overlay/kv/${label}_removed.txt"
+            echo "# namespace ${label} (${ns_id})" > "$removed_file"
+            resp=$(curl -sS -H "Authorization: Bearer $CLOUDFLARE_API_TOKEN" "https://api.cloudflare.com/client/v4/accounts/$CLOUDFLARE_ACCOUNT_ID/storage/kv/namespaces/${ns_id}/keys?limit=1000")
+            echo "$resp" > "$keys_file"
+            if [[ $(echo "$resp" | jq -r '.success // false') != "true" ]]; then
+              echo "::warning::No se pudo listar claves en ${label}" >&2
+              echo "list_error" >> "$removed_file"
+              return
+            fi
+            mapfile -t keys < <(echo "$resp" | jq -r '.result[]?.name')
+            local removed=0
+            for key in "${keys[@]}"; do
+              if [[ "$key" == "runart_roles" ]]; then
+                continue
+              fi
+              if [[ "$key" =~ (demo|seed|sample) ]] && [[ "$key" =~ (banner|role|org) ]]; then
+                encoded=$(jq -rn --arg v "$key" '$v|@uri')
+                del_resp=$(curl -sS -X DELETE -H "Authorization: Bearer $CLOUDFLARE_API_TOKEN" "https://api.cloudflare.com/client/v4/accounts/$CLOUDFLARE_ACCOUNT_ID/storage/kv/namespaces/${ns_id}/values/${encoded}")
+                if [[ $(echo "$del_resp" | jq -r '.success // false') == "true" ]]; then
+                  echo "$key" >> "$removed_file"
+                  removed=$((removed+1))
+                else
+                  echo "::warning::Fallo al eliminar ${key} (${label})" >&2
+                fi
+              fi
+            done
+            echo "removed=${removed}" >> "$removed_file"
+          }
+
+          sanitize_ns "$PREVIEW_ID" "preview"
+          sanitize_ns "$PROD_ID" "prod"
+
+
+      - name: Setup Node & Wrangler
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+      - run: npm i -g wrangler@4
+
+      - name: Generate overlay files (ephemeral)
+        shell: bash
+        run: |
+          set -e
+          STATIC_ROLES_JSON=$(jq -c '.' apps/briefing/access/roles.json)
+          cat > wrangler.toml <<EOF
+          name = "runart-overlay-api"
+          main = "worker.js"
+          compatibility_date = "2024-10-01"
+
+          [vars]
+          RUNART_ENV = "overlay"
+
+          [[env.preview.kv_namespaces]]
+          binding = "RUNART_ROLES"
+          id = "${PREVIEW_ID}"
+
+          [env.preview]
+          # No routes - usar worker directo
+          [env.preview.vars]
+          RUNART_ENV = "preview"
+
+          [[env.prod.kv_namespaces]]
+          binding = "RUNART_ROLES"
+          id = "${PROD_ID}"
+
+          [env.prod]
+          # No routes - usar worker directo
+          [env.prod.vars]
+          RUNART_ENV = "production"
+          EOF
+
+          # Importante: heredoc sin comillas para expandir ${STATIC_ROLES_JSON}
+          cat > worker.js <<EOF
+          const RUNART_ROLES_KEY = "runart_roles";
+          const CACHE_TTL_MS = 30_000;
+          const PREVIEW_ALLOWED_OVERRIDES = new Set(["owner", "client_admin", "client", "team", "visitor"]);
+          const STATIC_ROLES = ${STATIC_ROLES_JSON};
+
+          const normalizeValue = (value) => (typeof value === "string" ? value.trim().toLowerCase() : "");
+
+          const normalizeCollection = (collection, { treatAsDomain = false } = {}) => {
+            if (!Array.isArray(collection)) return [];
+            const seen = new Set();
+            const result = [];
+
+            for (const raw of collection) {
+              const normalized = normalizeValue(raw);
+              if (!normalized) continue;
+
+              const value = treatAsDomain
+                ? normalized.includes("@")
+                  ? normalized.split("@").pop()
+                  : normalized
+                : normalized;
+
+              if (seen.has(value)) continue;
+              seen.add(value);
+              result.push(value);
+            }
+
+            return result;
+          };
+
+          const extractList = (roles, keys = []) => {
+            for (const key of keys) {
+              if (Array.isArray(roles?.[key])) return roles[key];
+            }
+            return [];
+          };
+
+          const buildRolesState = (roles) => {
+            const owners = normalizeCollection(extractList(roles, ["owners", "owner", "admins", "administradores"]));
+            const clientAdmins = normalizeCollection(
+              extractList(roles, ["client_admins", "clientes_admin", "clientes_admins", "admin_clients"])
+            );
+            const clients = normalizeCollection(extractList(roles, ["clients", "clientes", "client"]));
+            const team = normalizeCollection(extractList(roles, ["team", "teams", "equipo"]));
+            const teamDomains = normalizeCollection(extractList(roles, ["team_domains", "equipo_domains", "domains_equipo"]), {
+              treatAsDomain: true,
+            });
+
+            return {
+              owners,
+              client_admins: clientAdmins,
+              clients,
+              team,
+              team_domains: teamDomains,
+              ownersSet: new Set(owners),
+              clientAdminsSet: new Set(clientAdmins),
+              clientsSet: new Set(clients),
+              teamSet: new Set(team),
+              teamDomainsSet: new Set(teamDomains),
+            };
+          };
+
+          const parseCsv = (value) => {
+            if (!value) return [];
+            return value
+              .split(",")
+              .map((item) => normalizeValue(item))
+              .filter(Boolean);
+          };
+
+          const getDomain = (email) => {
+            if (!email || !email.includes("@")) return null;
+            return email.split("@").pop().toLowerCase();
+          };
+
+          let rolesCache = {
+            state: buildRolesState(STATIC_ROLES || {}),
+            fetchedAt: 0,
+            source: STATIC_ROLES ? "static" : "static-empty",
+          };
+
+          const jsonResponse = (data, status = 200) =>
+            new Response(JSON.stringify(data, null, 2), {
+              status,
+              headers: {
+                "content-type": "application/json; charset=utf-8",
+                "cache-control": "no-store, max-age=0",
+              },
+            });
+
+          const loadRoles = async (env) => {
+            const now = Date.now();
+            if (now - rolesCache.fetchedAt < CACHE_TTL_MS && rolesCache.source !== "static-missing") {
+              return rolesCache;
+            }
+
+            if (env?.RUNART_ROLES?.get) {
+              try {
+                const stored = await env.RUNART_ROLES.get(RUNART_ROLES_KEY, { type: "json" });
+                if (stored) {
+                  rolesCache = {
+                    state: buildRolesState(stored),
+                    fetchedAt: now,
+                    source: "kv",
+                  };
+                  return rolesCache;
+                }
+                rolesCache = {
+                  state: buildRolesState(STATIC_ROLES || {}),
+                  fetchedAt: now,
+                  source: "kv-empty",
+                };
+                return rolesCache;
+              } catch (error) {
+                rolesCache = {
+                  state: rolesCache.state,
+                  fetchedAt: now,
+                  source: "kv-error",
+                  error: String(error && error.message ? error.message : error),
+                };
+                return rolesCache;
+              }
+            }
+
+            rolesCache = {
+              state: buildRolesState(STATIC_ROLES || {}),
+              fetchedAt: now,
+              source: STATIC_ROLES ? "static" : "static-empty",
+            };
+            return rolesCache;
+          };
+
+          const getEmailFromRequest = (request) =>
+            request.headers.get("x-runart-email") ||
+            request.headers.get("x-runart-test-email") ||
+            request.headers.get("cf-access-authenticated-user-email") ||
+            request.headers.get("cf-access-email") ||
+            null;
+
+          const resolveWhoami = async (request, env) => {
+            const envName = (env.RUNART_ENV || "overlay").trim().toLowerCase() || "overlay";
+            const headers = request.headers;
+            const serviceTokenPresent = Boolean(
+              headers.get("cf-access-client-id") && headers.get("cf-access-client-secret")
+            );
+            const emailRaw = getEmailFromRequest(request);
+            const email = emailRaw ? normalizeValue(emailRaw) : null;
+
+            const { state, source, fetchedAt, error } = await loadRoles(env);
+            const admins = new Set(parseCsv(env.ACCESS_ADMINS));
+            const clientAdminsEnv = new Set(parseCsv(env.ACCESS_CLIENT_ADMINS));
+
+            let role = "visitor";
+            let matchedBy = "default";
+            let matchedSource = null;
+
+            if (email) {
+              if (admins.has(email)) {
+                role = "owner";
+                matchedBy = "env.access_admins";
+                matchedSource = "env";
+              } else if (clientAdminsEnv.has(email)) {
+                role = "client_admin";
+                matchedBy = "env.access_client_admins";
+                matchedSource = "env";
+              } else if (state.ownersSet.has(email)) {
+                role = "owner";
+                matchedBy = "kv.owners";
+                matchedSource = "kv";
+              } else if (state.clientAdminsSet.has(email)) {
+                role = "client_admin";
+                matchedBy = "kv.client_admins";
+                matchedSource = "kv";
+              } else if (state.clientsSet.has(email)) {
+                role = "client";
+                matchedBy = "kv.clients";
+                matchedSource = "kv";
+              } else if (state.teamSet.has(email)) {
+                role = "team";
+                matchedBy = "kv.team";
+                matchedSource = "kv";
+              } else {
+                const domain = getDomain(email);
+                if (domain && state.teamDomainsSet.has(domain)) {
+                  role = "team";
+                  matchedBy = "kv.team_domains";
+                  matchedSource = "kv";
+                }
+              }
+            }
+
+            let previewOverrideApplied = false;
+            let previewOverride = null;
+            const headerRoleRaw = headers.get("x-runart-role");
+            if (headerRoleRaw) {
+              const normalizedRole = normalizeValue(headerRoleRaw);
+              if (!email && envName === "preview" && serviceTokenPresent) {
+                if (PREVIEW_ALLOWED_OVERRIDES.has(normalizedRole)) {
+                  role = normalizedRole;
+                  matchedBy = "preview.header_override";
+                  matchedSource = "header";
+                  previewOverrideApplied = true;
+                }
+              }
+              previewOverride = normalizedRole || null;
+            }
+
+            return {
+              env: envName,
+              email,
+              role,
+              matchedBy,
+              matchedSource,
+              previewOverrideApplied,
+              previewOverride,
+              hasIdentity: Boolean(email),
+              rolesSource: source,
+              rolesError: error || null,
+              rolesFetchedAt: fetchedAt ? new Date(fetchedAt).toISOString() : null,
+            };
+          };
+
+          export default {
+            async fetch(req, env) {
+              const url = new URL(req.url);
+              const path = url.pathname;
+              const method = req.method.toUpperCase();
+
+              if (method === "OPTIONS") {
+                return new Response(null, {
+                  status: 204,
+                  headers: {
+                    "access-control-allow-origin": "*",
+                    "access-control-allow-methods": "GET,OPTIONS",
+                    "access-control-allow-headers": "*",
+                    "cache-control": "no-store",
+                  },
+                });
+              }
+
+              if (path === "/api/health") {
+                const { source, fetchedAt, error } = await loadRoles(env);
+                return jsonResponse({
+                  ok: true,
+                  env: (env.RUNART_ENV || "overlay").trim().toLowerCase() || "overlay",
+                  roles_source: source,
+                  roles_refreshed_at: fetchedAt ? new Date(fetchedAt).toISOString() : null,
+                  roles_error: error || null,
+                  ts: new Date().toISOString(),
+                });
+              }
+
+              if (path === "/api/whoami") {
+                const info = await resolveWhoami(req, env);
+                return jsonResponse({
+                  ok: true,
+                  env: info.env,
+                  email: info.email,
+                  role: info.role,
+                  matched_by: info.matchedBy,
+                  matched_source: info.matchedSource,
+                  preview_override_applied: info.previewOverrideApplied,
+                  preview_override: info.previewOverride,
+                  has_identity: info.hasIdentity,
+                  roles_source: info.rolesSource,
+                  roles_error: info.rolesError,
+                  roles_fetched_at: info.rolesFetchedAt,
+                  ts: new Date().toISOString(),
+                });
+              }
+
+              if (path === "/api/debug/roles") {
+                const info = await loadRoles(env);
+                return jsonResponse({
+                  ok: true,
+                  env: (env.RUNART_ENV || "overlay").trim().toLowerCase() || "overlay",
+                  source: info.source,
+                  fetched_at: info.fetchedAt ? new Date(info.fetchedAt).toISOString() : null,
+                  roles: {
+                    owners: Array.from(info.state.ownersSet),
+                    client_admins: Array.from(info.state.clientAdminsSet),
+                    clients: Array.from(info.state.clientsSet),
+                    team: Array.from(info.state.teamSet),
+                    team_domains: Array.from(info.state.teamDomainsSet),
+                  },
+                  ts: new Date().toISOString(),
+                });
+              }
+
+              if (path.startsWith("/api/")) {
+                return jsonResponse({ ok: false, error: "Not Found", path }, 404);
+              }
+
+              return new Response("ok", {
+                status: 200,
+                headers: { "content-type": "text/plain; charset=utf-8", "cache-control": "no-store" },
+              });
+            },
+          };
+          EOF
+
+      - name: Deploy overlay to Preview
+        id: deploy_preview
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p canary_overlay
+          supports_json=$(wrangler deploy --help 2>&1 | grep -c -- '--json' || true)
+          if [ "$supports_json" -gt 0 ]; then
+            wrangler deploy --env preview --json > canary_overlay/deploy.json
+          else
+            wrangler deploy --env preview | tee canary_overlay/deploy.log
+          fi
+
+      - name: Resolve overlay worker URL
+        id: resolve_worker
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p canary_overlay
+          worker_url=""
+          if wrangler deployments --help 2>&1 | grep -q 'list'; then
+            # Soportar salida JSON como array u objeto
+            worker_url=$(wrangler deployments list --env preview --json | jq -r 'if type=="array" then (.[0].url // empty) else (.deployments[0].url // .result.deployments[0].url // .result[0].url // .url // empty) end' || true)
+          fi
+          if [ -z "$worker_url" ] && [ -f canary_overlay/deploy.json ]; then
+            worker_url=$(jq -r 'if type=="array" then (.[0].url // empty) else (.url // .result.url // .deployment.url // .result[0].url // empty) end' canary_overlay/deploy.json || true)
+          fi
+          if [ -z "$worker_url" ] && [ -f canary_overlay/deploy.log ]; then
+            worker_url=$(grep -o "https://runart-overlay-api-preview\.[a-zA-Z0-9-]*\.workers\.dev" canary_overlay/deploy.log | head -1)
+          fi
+          if [ -z "$worker_url" ]; then
+            # Último recurso: listar deployments en texto plano y extraer URL
+            worker_url=$(wrangler deployments list --env preview 2>/dev/null | grep -o 'https://[^ ]*\.workers\.dev' | head -1 || true)
+          fi
+          if [ -z "$worker_url" ]; then
+            echo "::error::Could not determine overlay worker URL after deployment"
+            ls -R canary_overlay || true
+            exit 1
+          fi
+          echo "Testing overlay worker at: $worker_url"
+          echo "$worker_url" > canary_overlay/url.txt
+          echo "WORKER_URL=$worker_url" >> $GITHUB_ENV
+          echo "WORKER_ENV=preview" >> $GITHUB_ENV
+          {
+            echo "worker_url=$worker_url"
+            echo "worker_env=preview"
+          } >> "$GITHUB_OUTPUT"
+          jq --null-input --arg url "$worker_url" '{url: $url, env: "preview", captured_at: now|strftime("%Y-%m-%dT%H:%M:%SZ")}' > canary_overlay/metadata.json
+
+      - name: Get latest Preview URL (Pages API)  
+        shell: bash
+        run: |
+          set -e
+          resp=$(curl -sS -H "Authorization: Bearer $CLOUDFLARE_API_TOKEN" \
+            "https://api.cloudflare.com/client/v4/accounts/$CLOUDFLARE_ACCOUNT_ID/pages/projects/runart-foundry/deployments?per_page=1")
+          url=$(echo "$resp" | jq -r '.result[0].url')
+          [ -n "$url" ] || { echo "::error::No preview_url"; echo "$resp"; exit 1; }
+          echo "PREVIEW_URL=$url" >> $GITHUB_ENV
+          echo "Preview URL: $url"
+
+      - name: Canary check (overlay worker)
+        id: canary_overlay
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p canary_overlay
+          echo "Testing overlay worker at: $WORKER_URL"
+          curl -fsS -D canary_overlay/headers.all "$WORKER_URL/api/health" -o canary_overlay/body.json
+          head -20 canary_overlay/headers.all > canary_overlay/headers.txt
+          mv canary_overlay/headers.all canary_overlay/headers_raw.txt
+          cp canary_overlay/body.json canary_overlay/body_pretty.json
+          if command -v jq >/dev/null 2>&1; then
+            jq '.' canary_overlay/body.json > canary_overlay/body_pretty.json
+          fi
+          body_env=$(jq -r '.env // empty' canary_overlay/body.json || true)
+          if [ -z "$body_env" ]; then
+            echo "::error::API /api/health no retornó 'env'"
+            exit 1
+          fi
+          if [ "$body_env" != "$WORKER_ENV" ]; then
+            echo "::error::Se esperaba env=$WORKER_ENV pero API devolvió $body_env"
+            exit 1
+          fi
+          echo "$WORKER_URL" > canary_overlay/url.txt
+          echo "env=$body_env" > canary_overlay/result.txt
+
+      - name: Upload canary overlay artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: overlay-canary-${{ github.run_id }}
+          path: canary_overlay
+          retention-days: 14
+
+      - name: Update 082 (Overlay canary)
+        shell: bash
+        run: |
+          set -e
+          TS=$(date -u +%Y%m%dT%H%M%SZ)
+          FILE="apps/briefing/docs/internal/briefing_system/ci/082_reestructuracion_local.md"
+          {
+            echo "\n### [${TS}] — Overlay Canary"
+            echo "- WORKER_URL: ${WORKER_URL}"
+            echo "- WORKER_ENV: ${WORKER_ENV}"
+            echo "- Evidencias (artifact): overlay-canary-${GITHUB_RUN_ID}/"
+          } >> "$FILE"
+      - name: Run T3 via pages-preview.yml
+        if: ${{ steps.detect_preview_dispatch.outputs.dispatchable == '1' && github.event.inputs.run_t3_smokes == 'true' }}
+        uses: actions/github-script@v7
+        continue-on-error: true
+        with:
+          script: |
+            try {
+              await github.rest.actions.createWorkflowDispatch({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                workflow_id: "pages-preview.yml",
+                ref: context.ref.replace("refs/heads/","")
+              });
+              core.info(`Triggered pages-preview.yml with ref ${context.ref}`);
+            } catch (err) {
+              core.warning(`No se pudo disparar pages-preview.yml: ${err?.message || err}`);
+            }
+
+      - name: Wait for T3 run to complete (best-effort)
+        id: wait_t3
+        if: ${{ steps.detect_preview_dispatch.outputs.dispatchable == '1' && github.event.inputs.run_t3_smokes == 'true' }}
+        shell: bash
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          set -euo pipefail
+          owner='${{ github.repository_owner }}'
+          repo='${{ github.event.repository.name }}'
+          branch='${{ github.ref_name }}'
+          workflow='pages-preview.yml'
+          api="https://api.github.com/repos/${owner}/${repo}/actions/workflows/${workflow}/runs?branch=${branch}&event=workflow_dispatch&per_page=5"
+          echo "Esperando T3 (pages-preview) en ${branch}…"
+          start_ts=$(date -u +%s)
+          deadline=$(( start_ts + 20*60 ))
+          t3_run_id=""
+          poll_once() {
+            curl -sS -H "Authorization: Bearer $GH_TOKEN" -H "Accept: application/vnd.github+json" "$api" | jq -r '.workflow_runs[] | "\(.id) \(.status) \(.conclusion) \(.created_at)"'
+          }
+          while :; do
+            now=$(date -u +%s)
+            [ $now -gt $deadline ] && { echo "::warning::Timeout esperando T3"; break; }
+            mapfile -t runs < <(poll_once || true)
+            if [ ${#runs[@]} -eq 0 ]; then sleep 5; continue; fi
+            # Tomar el más reciente (ya viene ordenado), seleccionar primero
+            read -r rid status concl created <<<"${runs[0]}"
+            t3_run_id="$rid"
+            echo "T3 run id=$t3_run_id status=$status concl=$concl created=$created"
+            if [ "$status" = "completed" ]; then
+              break
+            fi
+            sleep 10
+          done
+          echo "t3_run_id=${t3_run_id}" >> "$GITHUB_OUTPUT"
+          # Obtener conclusión final si existe
+          if [ -n "$t3_run_id" ]; then
+            run_api="https://api.github.com/repos/${owner}/${repo}/actions/runs/${t3_run_id}"
+            concl=$(curl -sS -H "Authorization: Bearer $GH_TOKEN" -H "Accept: application/vnd.github+json" "$run_api" | jq -r '.conclusion // empty')
+            echo "t3_status=${concl}" >> "$GITHUB_OUTPUT"
+            echo "T3 conclusion: ${concl}"
+          else
+            echo "t3_status=unknown" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: If T3 PASS and input says so, deploy overlay to PROD
+        if: ${{ github.event.inputs.promote_to_prod == 'true' && steps.wait_t3.outputs.t3_status == 'success' }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          echo "Promoviendo overlay a producción…"
+          wrangler deploy --env prod
+          echo "Verificando /api/health en producción…"
+          # Resolver URL de prod similar a preview
+          mkdir -p canary_overlay_prod
+          prod_url=""
+          if wrangler deployments --help 2>&1 | grep -q 'list'; then
+            prod_url=$(wrangler deployments list --env prod --json | jq -r 'if type=="array" then (.[0].url // empty) else (.deployments[0].url // .result.deployments[0].url // .result[0].url // .url // empty) end' || true)
+          fi
+          if [ -z "$prod_url" ]; then
+            prod_url=$(wrangler deployments list --env prod 2>/dev/null | grep -o 'https://[^ ]*\.workers\.dev' | head -1 || true)
+          fi
+          [ -n "$prod_url" ] || { echo "::error::No se pudo determinar URL de producción"; exit 1; }
+          echo "$prod_url" > canary_overlay_prod/url.txt
+          curl -fsS -D canary_overlay_prod/headers.all "$prod_url/api/health" -o canary_overlay_prod/body.json
+          head -20 canary_overlay_prod/headers.all > canary_overlay_prod/headers.txt
+          if command -v jq >/dev/null 2>&1; then jq '.' canary_overlay_prod/body.json > canary_overlay_prod/body_pretty.json; fi
+          penv=$(jq -r '.env // empty' canary_overlay_prod/body.json || true)
+          if [ "$penv" != "production" ]; then
+            echo "::error::Se esperaba env=production pero API devolvió '$penv'"; exit 1;
+          fi
+          echo "env=$penv" > canary_overlay_prod/result.txt
+
+      - name: Upload canary overlay PROD artifacts
+        if: ${{ github.event.inputs.promote_to_prod == 'true' && steps.wait_t3.outputs.t3_status == 'success' }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: overlay-canary-prod-${{ github.run_id }}
+          path: canary_overlay_prod
+          retention-days: 30
+
+      - name: Update 082 (Overlay PROD)
+        if: ${{ github.event.inputs.promote_to_prod == 'true' && steps.wait_t3.outputs.t3_status == 'success' }}
+        shell: bash
+        run: |
+          set -e
+          TS=$(date -u +%Y%m%dT%H%M%SZ)
+          FILE="apps/briefing/docs/internal/briefing_system/ci/082_reestructuracion_local.md"
+          PROD_URL=$(cat canary_overlay_prod/url.txt)
+          {
+            echo "\n### [${TS}] — Overlay PROD"
+            echo "- WORKER_URL: ${PROD_URL}"
+            echo "- WORKER_ENV: production"
+            echo "- Evidencias (artifact): overlay-canary-prod-${GITHUB_RUN_ID}/"
+          } >> "$FILE"

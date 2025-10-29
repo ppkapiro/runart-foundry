@@ -1,0 +1,40 @@
+[
+  {
+    "id": "main-es",
+    "name": "Main Menu ES",
+    "lang": "es",
+    "items": [
+      { "id": 1, "title": "Inicio", "url": "/", "order": 0 },
+      { "id": 2, "title": "Servicios", "url": "/servicios/", "order": 1 },
+      { "id": 3, "title": "Blog", "url": "/blog/", "order": 2 }
+    ]
+  },
+  {
+    "id": "main-en",
+    "name": "Main Menu EN",
+    "lang": "en",
+    "items": [
+      { "id": 1, "title": "Home", "url": "/en/", "order": 0 },
+      { "id": 2, "title": "Services", "url": "/en/services/", "order": 1 },
+      { "id": 3, "title": "Blog", "url": "/en/blog/", "order": 2 }
+    ]
+  },
+  {
+    "id": "footer-es",
+    "name": "Footer Menu ES",
+    "lang": "es",
+    "items": [
+      { "id": 1, "title": "Privacidad", "url": "/privacidad/", "order": 0 },
+      { "id": 2, "title": "Términos", "url": "/terminos/", "order": 1 }
+    ]
+  },
+  {
+    "id": "footer-en",
+    "name": "Footer Menu EN",
+    "lang": "en",
+    "items": [
+      { "id": 1, "title": "Privacy", "url": "/en/privacy/", "order": 0 },
+      { "id": 2, "title": "Terms", "url": "/en/terms/", "order": 1 }
+    ]
+  }
+]

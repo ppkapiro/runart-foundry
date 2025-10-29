@@ -1,0 +1,31 @@
+name: Sync Status (staging placeholder)
+
+on:
+  workflow_dispatch: {}
+  schedule:
+    - cron: '15 3 * * *'
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install deps
+        run: |
+          python -m pip install --upgrade pip
+          pip install requests
+      - name: Sync Briefing Status → docs/ops/status.json
+        env:
+          BASE_URL: ${{ secrets.STAGING_BASE_URL }}
+        run: |
+          python tools/sync_status.py
+      - name: Upload log artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: sync_status_logs
+          path: docs/ops/logs/sync_status_*.log

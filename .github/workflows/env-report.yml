@@ -1,6 +1,7 @@
 name: Environment Report
 
 on:
+  workflow_dispatch:
   pull_request:
     paths:
       - '*'

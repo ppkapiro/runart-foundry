@@ -1,0 +1,6 @@
+{
+  "project": "runart-foundry",
+  "buildOutputDirectory": "site",
+  "functions": "functions",
+  "routes": "functions/_routes.json"
+}

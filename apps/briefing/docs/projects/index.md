@@ -1,5 +1,8 @@
 # Proyectos — Archivos fuente
 
+<!-- canonical-crosslink: pr-01 -->
+> Fuente canónica de Briefing: ver `docs/live/` → [Índice](../../../../docs/live/index.md) · Hubs: [Arquitectura](../../../../docs/live/architecture/index.md), [Operaciones](../../../../docs/live/operations/index.md), [UI/Roles](../../../../docs/live/ui_roles/index.md).
+
 Estos archivos YAML son la fuente de verdad para las fichas del briefing. Usa la plantilla y el esquema como referencia antes de promover contenido desde el inbox.
 
 ## Plantillas y esquema

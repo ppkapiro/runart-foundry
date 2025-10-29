@@ -1,0 +1,6 @@
+{
+	"project": "runart-foundry",
+	"buildOutputDirectory": "apps/briefing/site",
+	"functions": "apps/briefing/functions",
+	"routes": "apps/briefing/_routes.json"
+}

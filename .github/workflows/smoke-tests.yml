@@ -1,0 +1,195 @@
+name: Smoke Tests — Content Validation
+
+on:
+  schedule:
+    - cron: '30 13 * * *'  # Ejecuta diariamente a las 9:30am Miami (13:30 UTC)
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  issues: write
+
+jobs:
+  smoke-tests:
+    name: Content Smoke Tests
+    runs-on: ubuntu-latest
+    env:
+      BASE_URL: ${{ vars.WP_BASE_URL }}
+      WP_USER: ${{ secrets.WP_USER }}
+      WP_APP_PASSWORD: ${{ secrets.WP_APP_PASSWORD }}
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Preparar autenticación
+        run: |
+          set -euo pipefail
+          AUTH=$(printf "%s:%s" "$WP_USER" "$WP_APP_PASSWORD" | base64)
+          echo "AUTH=$AUTH" >> $GITHUB_ENV
+          echo "::add-mask::$WP_APP_PASSWORD"
+          echo "::add-mask::$AUTH"
+
+      - name: Test 1 - Verificar páginas críticas
+        id: pages_test
+        run: |
+          set -euo pipefail
+          BASE="$BASE_URL"
+          AUTH="$AUTH"
+          
+          echo "Obteniendo lista de páginas..."
+          PAGES=$(curl -sS -H "Authorization: Basic $AUTH" "$BASE/wp-json/wp/v2/pages?per_page=100" || echo "[]")
+          
+          TOTAL_PAGES=$(echo "$PAGES" | jq '. | length')
+          PUBLISHED_PAGES=$(echo "$PAGES" | jq '[.[] | select(.status=="publish")] | length')
+          
+          echo "pages_total=$TOTAL_PAGES" >> $GITHUB_OUTPUT
+          echo "pages_published=$PUBLISHED_PAGES" >> $GITHUB_OUTPUT
+          
+          if [ "$TOTAL_PAGES" -gt 0 ]; then
+            echo "status=PASS" >> $GITHUB_OUTPUT
+            echo "✅ Páginas encontradas: $TOTAL_PAGES ($PUBLISHED_PAGES publicadas)"
+          else
+            echo "status=WARN" >> $GITHUB_OUTPUT
+            echo "❌ No se encontraron páginas"
+            exit 1
+          fi
+
+      - name: Test 2 - Verificar menús con items
+        id: menus_test
+        run: |
+          set -euo pipefail
+          BASE="$BASE_URL"
+          AUTH="$AUTH"
+          
+          echo "Obteniendo menús..."
+          MENUS=$(curl -sS -H "Authorization: Basic $AUTH" "$BASE/wp-json/wp/v2/menus" || echo "[]")
+          
+          TOTAL_MENUS=$(echo "$MENUS" | jq '. | length')
+          echo "menus_total=$TOTAL_MENUS" >> $GITHUB_OUTPUT
+          
+          if [ "$TOTAL_MENUS" -gt 0 ]; then
+            # Verificar que los menús tienen items
+            MENU_ID=$(echo "$MENUS" | jq -r '.[0].id')
+            MENU_ITEMS=$(curl -sS -H "Authorization: Basic $AUTH" "$BASE/wp-json/wp/v2/menu-items?menus=$MENU_ID" || echo "[]")
+            MENU_ITEMS_COUNT=$(echo "$MENU_ITEMS" | jq '. | length')
+            
+            echo "menu_items_count=$MENU_ITEMS_COUNT" >> $GITHUB_OUTPUT
+            
+            if [ "$MENU_ITEMS_COUNT" -gt 0 ]; then
+              echo "status=PASS" >> $GITHUB_OUTPUT
+              echo "✅ Menús encontrados: $TOTAL_MENUS (primer menú tiene $MENU_ITEMS_COUNT items)"
+            else
+              echo "status=WARN" >> $GITHUB_OUTPUT
+              echo "⚠️  Menús existen pero el primero está vacío"
+            fi
+          else
+            echo "status=WARN" >> $GITHUB_OUTPUT
+            echo "menu_items_count=0" >> $GITHUB_OUTPUT
+            echo "❌ No se encontraron menús"
+            exit 1
+          fi
+
+      - name: Test 3 - Verificar manifest de media
+        id: media_test
+        continue-on-error: true
+        run: |
+          set -euo pipefail
+          
+          if [ -f "content/media/manifest.json" ]; then
+            MEDIA_COUNT=$(jq '. | length' content/media/manifest.json 2>/dev/null || echo "0")
+            echo "media_count=$MEDIA_COUNT" >> $GITHUB_OUTPUT
+            
+            if [ "$MEDIA_COUNT" -gt 0 ]; then
+              echo "status=PASS" >> $GITHUB_OUTPUT
+              echo "✅ Manifest de media encontrado con $MEDIA_COUNT entradas"
+            else
+              echo "status=WARN" >> $GITHUB_OUTPUT
+              echo "⚠️  Manifest existe pero está vacío"
+            fi
+          else
+            echo "status=WARN" >> $GITHUB_OUTPUT
+            echo "media_count=0" >> $GITHUB_OUTPUT
+            echo "⚠️  Manifest de media no encontrado (puede ser normal)"
+            
+          fi
+
+      - name: Test 4 - Verificar posts recientes
+        id: posts_test
+        continue-on-error: true
+        run: |
+          set -euo pipefail
+          BASE="$BASE_URL"
+          AUTH="$AUTH"
+          
+          echo "Obteniendo posts..."
+          POSTS=$(curl -sS -H "Authorization: Basic $AUTH" "$BASE/wp-json/wp/v2/posts?per_page=10" || echo "[]")
+          
+          TOTAL_POSTS=$(echo "$POSTS" | jq '. | length')
+          echo "posts_total=$TOTAL_POSTS" >> $GITHUB_OUTPUT
+          
+          if [ "$TOTAL_POSTS" -gt 0 ]; then
+            echo "status=PASS" >> $GITHUB_OUTPUT
+            echo "✅ Posts encontrados: $TOTAL_POSTS"
+          else
+            echo "status=WARN" >> $GITHUB_OUTPUT
+            echo "⚠️  No hay posts (puede ser normal)"
+          fi
+
+      - name: Generar reporte de smoke tests
+        if: always()
+        run: |
+          set -euo pipefail
+          mkdir -p _reports/smokes
+          DATE=$(date +%Y%m%d_%H%M)
+          
+          PAGES_STATUS="${{ steps.pages_test.outputs.status || 'SKIP' }}"
+          MENUS_STATUS="${{ steps.menus_test.outputs.status || 'SKIP' }}"
+          MEDIA_STATUS="${{ steps.media_test.outputs.status || 'SKIP' }}"
+          POSTS_STATUS="${{ steps.posts_test.outputs.status || 'SKIP' }}"
+          
+          # Determinar estado general
+          if [[ "$PAGES_STATUS" == "FAIL" || "$MENUS_STATUS" == "FAIL" || "$MEDIA_STATUS" == "FAIL" ]]; then
+            OVERALL="FAIL ❌"
+          elif [[ "$PAGES_STATUS" == "WARN" || "$MENUS_STATUS" == "WARN" || "$MEDIA_STATUS" == "WARN" || "$POSTS_STATUS" == "WARN" ]]; then
+            OVERALL="WARN ⚠️"
+          else
+            OVERALL="PASS ✅"
+          fi
+          
+          cat > "_reports/smokes/smoke_${DATE}.md" <<EOF
+          # 🧪 Smoke Tests — Content Validation
+          **Fecha:** $(date)
+          **Estado General:** $OVERALL
+          **Workflow:** smoke-tests.yml
+          
+          ## Resultados
+          
+          ### 1. Páginas Críticas
+          - **Estado:** $PAGES_STATUS
+          - **Total páginas:** ${{ steps.pages_test.outputs.pages_total || '0' }}
+          - **Publicadas:** ${{ steps.pages_test.outputs.pages_published || '0' }}
+          
+          ### 2. Menús y Navegación
+          - **Estado:** $MENUS_STATUS
+          - **Total menús:** ${{ steps.menus_test.outputs.menus_total || '0' }}
+          - **Items en primer menú:** ${{ steps.menus_test.outputs.menu_items_count || '0' }}
+          
+          ### 3. Media Manifest
+          - **Estado:** $MEDIA_STATUS
+          - **Entradas en manifest:** ${{ steps.media_test.outputs.media_count || '0' }}
+          
+          ### 4. Posts Recientes
+          - **Estado:** $POSTS_STATUS
+          - **Total posts:** ${{ steps.posts_test.outputs.posts_total || '0' }}
+          
+          ## Resumen
+          $OVERALL
+          EOF
+          
+          git config user.name "github-actions"
+          git config user.email "actions@github.com"
+          git add _reports/smokes/smoke_${DATE}.md
+          git commit -m "Smoke tests ${DATE}: $OVERALL" || echo "Sin cambios"
+          git push origin main || true
+          
+          echo "📊 Reporte generado: _reports/smokes/smoke_${DATE}.md"

@@ -1,0 +1,1192 @@
+[
+  {
+    "id": "2a1dd6a5-2b1c-43ce-9d54-4852fd875efc",
+    "short_id": "2a1dd6a5",
+    "project_id": "440eb224-2b2a-48ac-a14e-0768769198a2",
+    "project_name": "runart-foundry",
+    "environment": "production",
+    "url": "https://2a1dd6a5.runart-foundry.pages.dev",
+    "created_on": "2025-10-24T15:16:55.34609Z",
+    "modified_on": "2025-10-24T15:16:57.950157Z",
+    "latest_stage": {
+      "name": "deploy",
+      "started_on": null,
+      "ended_on": "2025-10-24T15:16:57.950157Z",
+      "status": "success"
+    },
+    "deployment_trigger": {
+      "type": "ad_hoc",
+      "metadata": {
+        "branch": "main",
+        "commit_hash": "a676f6ff4f5dde20e4cc20c692137b1abc41e73c",
+        "commit_message": "forensics: add prod content download with Access auth",
+        "commit_dirty": false
+      }
+    },
+    "stages": [
+      {
+        "name": "queued",
+        "started_on": "2025-10-24T15:16:55.34609Z",
+        "ended_on": null,
+        "status": "active"
+      },
+      {
+        "name": "initialize",
+        "started_on": null,
+        "ended_on": null,
+        "status": "idle"
+      },
+      {
+        "name": "clone_repo",
+        "started_on": null,
+        "ended_on": null,
+        "status": "idle"
+      },
+      {
+        "name": "build",
+        "started_on": null,
+        "ended_on": null,
+        "status": "idle"
+      },
+      {
+        "name": "deploy",
+        "started_on": null,
+        "ended_on": "2025-10-24T15:16:57.950157Z",
+        "status": "success"
+      }
+    ],
+    "build_config": {
+      "build_command": "npm run build",
+      "destination_dir": "site",
+      "build_caching": true,
+      "root_dir": "apps/briefing",
+      "web_analytics_tag": null,
+      "web_analytics_token": null
+    },
+    "source": {
+      "type": "github",
+      "config": {
+        "owner": "ppkapiro",
+        "repo_name": "runart-foundry",
+        "production_branch": "main",
+        "pr_comments_enabled": false
+      }
+    },
+    "env_vars": {
+      "ACCESS_ADMINS": {
+        "type": "plain_text",
+        "value": "ppcapiro@gmail.com"
+      },
+      "ACCESS_DEV_OVERRIDE": {
+        "type": "plain_text",
+        "value": "0"
+      },
+      "ACCESS_EQUIPO_DOMAINS": {
+        "type": "plain_text",
+        "value": "runart.com,studio.com"
+      },
+      "MOD_REQUIRED": {
+        "type": "plain_text",
+        "value": "1"
+      },
+      "ORIGIN_ALLOWED": {
+        "type": "plain_text",
+        "value": "https://runart-foundry.pages.dev"
+      },
+      "RUNART_ENV": {
+        "type": "plain_text",
+        "value": "production"
+      }
+    },
+    "kv_namespaces": {
+      "DECISIONES": {
+        "namespace_id": "6418ac6ace59487c97bda9c3a50ab10e"
+      },
+      "LOG_EVENTS": {
+        "namespace_id": "6418ac6ace59487c97bda9c3a50ab10e"
+      },
+      "RUNART_ROLES": {
+        "namespace_id": "26b8c3ca432946e2a093dcd33163f9e2"
+      }
+    },
+    "compatibility_date": "2025-10-01",
+    "compatibility_flags": [],
+    "build_image_major_version": 3,
+    "usage_model": null,
+    "aliases": null,
+    "is_skipped": false,
+    "production_branch": "main",
+    "uses_functions": false
+  },
+  {
+    "id": "2c210826-46d1-446e-b1f6-af99dbdb0818",
+    "short_id": "2c210826",
+    "project_id": "440eb224-2b2a-48ac-a14e-0768769198a2",
+    "project_name": "runart-foundry",
+    "environment": "production",
+    "url": "https://2c210826.runart-foundry.pages.dev",
+    "created_on": "2025-10-24T14:58:10.044152Z",
+    "modified_on": "2025-10-24T14:58:12.372791Z",
+    "latest_stage": {
+      "name": "deploy",
+      "started_on": null,
+      "ended_on": "2025-10-24T14:58:12.372791Z",
+      "status": "success"
+    },
+    "deployment_trigger": {
+      "type": "ad_hoc",
+      "metadata": {
+        "branch": "main",
+        "commit_hash": "893b7593e67694982a4f065a547024e916a9b3dd",
+        "commit_message": "test: trigger deploy para validar fix Access (68a7cd6)",
+        "commit_dirty": false
+      }
+    },
+    "stages": [
+      {
+        "name": "queued",
+        "started_on": "2025-10-24T14:58:10.044152Z",
+        "ended_on": null,
+        "status": "active"
+      },
+      {
+        "name": "initialize",
+        "started_on": null,
+        "ended_on": null,
+        "status": "idle"
+      },
+      {
+        "name": "clone_repo",
+        "started_on": null,
+        "ended_on": null,
+        "status": "idle"
+      },
+      {
+        "name": "build",
+        "started_on": null,
+        "ended_on": null,
+        "status": "idle"
+      },
+      {
+        "name": "deploy",
+        "started_on": null,
+        "ended_on": "2025-10-24T14:58:12.372791Z",
+        "status": "success"
+      }
+    ],
+    "build_config": {
+      "build_command": "npm run build",
+      "destination_dir": "site",
+      "build_caching": true,
+      "root_dir": "apps/briefing",
+      "web_analytics_tag": null,
+      "web_analytics_token": null
+    },
+    "source": {
+      "type": "github",
+      "config": {
+        "owner": "ppkapiro",
+        "repo_name": "runart-foundry",
+        "production_branch": "main",
+        "pr_comments_enabled": false
+      }
+    },
+    "env_vars": {
+      "ACCESS_ADMINS": {
+        "type": "plain_text",
+        "value": "ppcapiro@gmail.com"
+      },
+      "ACCESS_DEV_OVERRIDE": {
+        "type": "plain_text",
+        "value": "0"
+      },
+      "ACCESS_EQUIPO_DOMAINS": {
+        "type": "plain_text",
+        "value": "runart.com,studio.com"
+      },
+      "MOD_REQUIRED": {
+        "type": "plain_text",
+        "value": "1"
+      },
+      "ORIGIN_ALLOWED": {
+        "type": "plain_text",
+        "value": "https://runart-foundry.pages.dev"
+      },
+      "RUNART_ENV": {
+        "type": "plain_text",
+        "value": "production"
+      }
+    },
+    "kv_namespaces": {
+      "DECISIONES": {
+        "namespace_id": "6418ac6ace59487c97bda9c3a50ab10e"
+      },
+      "LOG_EVENTS": {
+        "namespace_id": "6418ac6ace59487c97bda9c3a50ab10e"
+      },
+      "RUNART_ROLES": {
+        "namespace_id": "26b8c3ca432946e2a093dcd33163f9e2"
+      }
+    },
+    "compatibility_date": "2025-10-01",
+    "compatibility_flags": [],
+    "build_image_major_version": 3,
+    "usage_model": null,
+    "aliases": null,
+    "is_skipped": false,
+    "production_branch": "main",
+    "uses_functions": false
+  },
+  {
+    "id": "5583d937-9abb-426f-90c8-0fa9936b9fed",
+    "short_id": "5583d937",
+    "project_id": "440eb224-2b2a-48ac-a14e-0768769198a2",
+    "project_name": "runart-foundry",
+    "environment": "production",
+    "url": "https://5583d937.runart-foundry.pages.dev",
+    "created_on": "2025-10-23T23:48:23.937002Z",
+    "modified_on": "2025-10-23T23:48:26.169019Z",
+    "latest_stage": {
+      "name": "deploy",
+      "started_on": null,
+      "ended_on": "2025-10-23T23:48:26.169019Z",
+      "status": "success"
+    },
+    "deployment_trigger": {
+      "type": "ad_hoc",
+      "metadata": {
+        "branch": "main",
+        "commit_hash": "6bfb386bc85151718923474a4a5ead874eb1ffcc",
+        "commit_message": "ci(pages): add permissions.deployments=write to fix 403 on creating GitHub Deployment via cloudflare/pages-action",
+        "commit_dirty": false
+      }
+    },
+    "stages": [
+      {
+        "name": "queued",
+        "started_on": "2025-10-23T23:48:23.937002Z",
+        "ended_on": null,
+        "status": "active"
+      },
+      {
+        "name": "initialize",
+        "started_on": null,
+        "ended_on": null,
+        "status": "idle"
+      },
+      {
+        "name": "clone_repo",
+        "started_on": null,
+        "ended_on": null,
+        "status": "idle"
+      },
+      {
+        "name": "build",
+        "started_on": null,
+        "ended_on": null,
+        "status": "idle"
+      },
+      {
+        "name": "deploy",
+        "started_on": null,
+        "ended_on": "2025-10-23T23:48:26.169019Z",
+        "status": "success"
+      }
+    ],
+    "build_config": {
+      "build_command": "npm run build",
+      "destination_dir": "site",
+      "build_caching": true,
+      "root_dir": "apps/briefing",
+      "web_analytics_tag": null,
+      "web_analytics_token": null
+    },
+    "source": {
+      "type": "github",
+      "config": {
+        "owner": "ppkapiro",
+        "repo_name": "runart-foundry",
+        "production_branch": "main",
+        "pr_comments_enabled": false
+      }
+    },
+    "env_vars": {
+      "ACCESS_ADMINS": {
+        "type": "plain_text",
+        "value": "ppcapiro@gmail.com"
+      },
+      "ACCESS_DEV_OVERRIDE": {
+        "type": "plain_text",
+        "value": "0"
+      },
+      "ACCESS_EQUIPO_DOMAINS": {
+        "type": "plain_text",
+        "value": "runart.com,studio.com"
+      },
+      "MOD_REQUIRED": {
+        "type": "plain_text",
+        "value": "1"
+      },
+      "ORIGIN_ALLOWED": {
+        "type": "plain_text",
+        "value": "https://runart-foundry.pages.dev"
+      },
+      "RUNART_ENV": {
+        "type": "plain_text",
+        "value": "production"
+      }
+    },
+    "kv_namespaces": {
+      "DECISIONES": {
+        "namespace_id": "6418ac6ace59487c97bda9c3a50ab10e"
+      },
+      "LOG_EVENTS": {
+        "namespace_id": "6418ac6ace59487c97bda9c3a50ab10e"
+      },
+      "RUNART_ROLES": {
+        "namespace_id": "26b8c3ca432946e2a093dcd33163f9e2"
+      }
+    },
+    "compatibility_date": "2025-10-01",
+    "compatibility_flags": [],
+    "build_image_major_version": 3,
+    "usage_model": null,
+    "aliases": null,
+    "is_skipped": false,
+    "production_branch": "main",
+    "uses_functions": false
+  },
+  {
+    "id": "be3fedb1-6b2c-4b5f-a579-330b075f4f40",
+    "short_id": "be3fedb1",
+    "project_id": "440eb224-2b2a-48ac-a14e-0768769198a2",
+    "project_name": "runart-foundry",
+    "environment": "production",
+    "url": "https://be3fedb1.runart-foundry.pages.dev",
+    "created_on": "2025-10-23T22:54:39.323852Z",
+    "modified_on": "2025-10-23T22:54:41.416499Z",
+    "latest_stage": {
+      "name": "deploy",
+      "started_on": null,
+      "ended_on": "2025-10-23T22:54:41.416499Z",
+      "status": "success"
+    },
+    "deployment_trigger": {
+      "type": "ad_hoc",
+      "metadata": {
+        "branch": "main",
+        "commit_hash": "d5307526d11efa90d30d22aa0b3f333f63920c01",
+        "commit_message": "feat(briefing): Sprint 3 completado — Hardening + Observabilidad\r\n\r\n**Sprint 3 — 100% objetivos cumplidos:**\r\n\r\n🔄 Rollback Automático:\r\n- tools/auto_rollback.py (171 líneas) con detección fallos + restauración backup\r\n- Integración workflow (if: failure() → rollback + alertas)\r\n- 6 tests unitarios (backup, restore, revert, execute)\r\n\r\n📸 Snapshots Históricos:\r\n- .g\n\n[commit_message truncated]",
+        "commit_dirty": false
+      }
+    },
+    "stages": [
+      {
+        "name": "queued",
+        "started_on": "2025-10-23T22:54:39.323852Z",
+        "ended_on": null,
+        "status": "active"
+      },
+      {
+        "name": "initialize",
+        "started_on": null,
+        "ended_on": null,
+        "status": "idle"
+      },
+      {
+        "name": "clone_repo",
+        "started_on": null,
+        "ended_on": null,
+        "status": "idle"
+      },
+      {
+        "name": "build",
+        "started_on": null,
+        "ended_on": null,
+        "status": "idle"
+      },
+      {
+        "name": "deploy",
+        "started_on": null,
+        "ended_on": "2025-10-23T22:54:41.416499Z",
+        "status": "success"
+      }
+    ],
+    "build_config": {
+      "build_command": "npm run build",
+      "destination_dir": "site",
+      "build_caching": true,
+      "root_dir": "apps/briefing",
+      "web_analytics_tag": null,
+      "web_analytics_token": null
+    },
+    "source": {
+      "type": "github",
+      "config": {
+        "owner": "ppkapiro",
+        "repo_name": "runart-foundry",
+        "production_branch": "main",
+        "pr_comments_enabled": false
+      }
+    },
+    "env_vars": {
+      "ACCESS_ADMINS": {
+        "type": "plain_text",
+        "value": "ppcapiro@gmail.com"
+      },
+      "ACCESS_DEV_OVERRIDE": {
+        "type": "plain_text",
+        "value": "0"
+      },
+      "ACCESS_EQUIPO_DOMAINS": {
+        "type": "plain_text",
+        "value": "runart.com,studio.com"
+      },
+      "MOD_REQUIRED": {
+        "type": "plain_text",
+        "value": "1"
+      },
+      "ORIGIN_ALLOWED": {
+        "type": "plain_text",
+        "value": "https://runart-foundry.pages.dev"
+      },
+      "RUNART_ENV": {
+        "type": "plain_text",
+        "value": "production"
+      }
+    },
+    "kv_namespaces": {
+      "DECISIONES": {
+        "namespace_id": "6418ac6ace59487c97bda9c3a50ab10e"
+      },
+      "LOG_EVENTS": {
+        "namespace_id": "6418ac6ace59487c97bda9c3a50ab10e"
+      },
+      "RUNART_ROLES": {
+        "namespace_id": "26b8c3ca432946e2a093dcd33163f9e2"
+      }
+    },
+    "compatibility_date": "2025-10-01",
+    "compatibility_flags": [],
+    "build_image_major_version": 3,
+    "usage_model": null,
+    "aliases": null,
+    "is_skipped": false,
+    "production_branch": "main",
+    "uses_functions": false
+  },
+  {
+    "id": "91c38046-ffad-4d37-9a01-59624c35bdc9",
+    "short_id": "91c38046",
+    "project_id": "440eb224-2b2a-48ac-a14e-0768769198a2",
+    "project_name": "runart-foundry",
+    "environment": "production",
+    "url": "https://91c38046.runart-foundry.pages.dev",
+    "created_on": "2025-10-23T22:28:52.757619Z",
+    "modified_on": "2025-10-23T22:28:55.397126Z",
+    "latest_stage": {
+      "name": "deploy",
+      "started_on": null,
+      "ended_on": "2025-10-23T22:28:55.397126Z",
+      "status": "success"
+    },
+    "deployment_trigger": {
+      "type": "ad_hoc",
+      "metadata": {
+        "branch": "main",
+        "commit_hash": "10d49f0d1804adf639d222632839aad1e73615a0",
+        "commit_message": "Merge feat/briefing-status-integration-research → main — Sprint 2 activation\r\n\r\nIntegración completa Briefing + status.json + auto-posts:\r\n\r\nComponentes activados:\r\n- tools/render_status.py (status.json → apps/briefing/docs/status/index.md)\r\n- tools/commits_to_posts.py (git log → apps/briefing/docs/news/*.md)\r\n- .github/workflows/briefing-status-publish.yml (pipeline CI/CD\n\n[commit_message truncated]",
+        "commit_dirty": false
+      }
+    },
+    "stages": [
+      {
+        "name": "queued",
+        "started_on": "2025-10-23T22:28:52.757619Z",
+        "ended_on": null,
+        "status": "active"
+      },
+      {
+        "name": "initialize",
+        "started_on": null,
+        "ended_on": null,
+        "status": "idle"
+      },
+      {
+        "name": "clone_repo",
+        "started_on": null,
+        "ended_on": null,
+        "status": "idle"
+      },
+      {
+        "name": "build",
+        "started_on": null,
+        "ended_on": null,
+        "status": "idle"
+      },
+      {
+        "name": "deploy",
+        "started_on": null,
+        "ended_on": "2025-10-23T22:28:55.397126Z",
+        "status": "success"
+      }
+    ],
+    "build_config": {
+      "build_command": "npm run build",
+      "destination_dir": "site",
+      "build_caching": true,
+      "root_dir": "apps/briefing",
+      "web_analytics_tag": null,
+      "web_analytics_token": null
+    },
+    "source": {
+      "type": "github",
+      "config": {
+        "owner": "ppkapiro",
+        "repo_name": "runart-foundry",
+        "production_branch": "main",
+        "pr_comments_enabled": false
+      }
+    },
+    "env_vars": {
+      "ACCESS_ADMINS": {
+        "type": "plain_text",
+        "value": "ppcapiro@gmail.com"
+      },
+      "ACCESS_DEV_OVERRIDE": {
+        "type": "plain_text",
+        "value": "0"
+      },
+      "ACCESS_EQUIPO_DOMAINS": {
+        "type": "plain_text",
+        "value": "runart.com,studio.com"
+      },
+      "MOD_REQUIRED": {
+        "type": "plain_text",
+        "value": "1"
+      },
+      "ORIGIN_ALLOWED": {
+        "type": "plain_text",
+        "value": "https://runart-foundry.pages.dev"
+      },
+      "RUNART_ENV": {
+        "type": "plain_text",
+        "value": "production"
+      }
+    },
+    "kv_namespaces": {
+      "DECISIONES": {
+        "namespace_id": "6418ac6ace59487c97bda9c3a50ab10e"
+      },
+      "LOG_EVENTS": {
+        "namespace_id": "6418ac6ace59487c97bda9c3a50ab10e"
+      },
+      "RUNART_ROLES": {
+        "namespace_id": "26b8c3ca432946e2a093dcd33163f9e2"
+      }
+    },
+    "compatibility_date": "2025-10-01",
+    "compatibility_flags": [],
+    "build_image_major_version": 3,
+    "usage_model": null,
+    "aliases": null,
+    "is_skipped": false,
+    "production_branch": "main",
+    "uses_functions": false
+  },
+  {
+    "id": "37d4c7a4-5c2c-4aec-af18-aece165bfc11",
+    "short_id": "37d4c7a4",
+    "project_id": "440eb224-2b2a-48ac-a14e-0768769198a2",
+    "project_name": "runart-foundry",
+    "environment": "production",
+    "url": "https://37d4c7a4.runart-foundry.pages.dev",
+    "created_on": "2025-10-23T21:47:42.62933Z",
+    "modified_on": "2025-10-23T21:47:44.916535Z",
+    "latest_stage": {
+      "name": "deploy",
+      "started_on": null,
+      "ended_on": "2025-10-23T21:47:44.916535Z",
+      "status": "success"
+    },
+    "deployment_trigger": {
+      "type": "ad_hoc",
+      "metadata": {
+        "branch": "main",
+        "commit_hash": "2904b08aa027860a22d933eaa05b011991554887",
+        "commit_message": "docs(status): merge PR-06 — status.json + briefing documentado (strict OK)\r\n\r\nCo-authored-by: Pepe Capiro <tu-correo@ejemplo.com>",
+        "commit_dirty": false
+      }
+    },
+    "stages": [
+      {
+        "name": "queued",
+        "started_on": "2025-10-23T21:47:42.62933Z",
+        "ended_on": null,
+        "status": "active"
+      },
+      {
+        "name": "initialize",
+        "started_on": null,
+        "ended_on": null,
+        "status": "idle"
+      },
+      {
+        "name": "clone_repo",
+        "started_on": null,
+        "ended_on": null,
+        "status": "idle"
+      },
+      {
+        "name": "build",
+        "started_on": null,
+        "ended_on": null,
+        "status": "idle"
+      },
+      {
+        "name": "deploy",
+        "started_on": null,
+        "ended_on": "2025-10-23T21:47:44.916535Z",
+        "status": "success"
+      }
+    ],
+    "build_config": {
+      "build_command": "npm run build",
+      "destination_dir": "site",
+      "build_caching": true,
+      "root_dir": "apps/briefing",
+      "web_analytics_tag": null,
+      "web_analytics_token": null
+    },
+    "source": {
+      "type": "github",
+      "config": {
+        "owner": "ppkapiro",
+        "repo_name": "runart-foundry",
+        "production_branch": "main",
+        "pr_comments_enabled": false
+      }
+    },
+    "env_vars": {
+      "ACCESS_ADMINS": {
+        "type": "plain_text",
+        "value": "ppcapiro@gmail.com"
+      },
+      "ACCESS_DEV_OVERRIDE": {
+        "type": "plain_text",
+        "value": "0"
+      },
+      "ACCESS_EQUIPO_DOMAINS": {
+        "type": "plain_text",
+        "value": "runart.com,studio.com"
+      },
+      "MOD_REQUIRED": {
+        "type": "plain_text",
+        "value": "1"
+      },
+      "ORIGIN_ALLOWED": {
+        "type": "plain_text",
+        "value": "https://runart-foundry.pages.dev"
+      },
+      "RUNART_ENV": {
+        "type": "plain_text",
+        "value": "production"
+      }
+    },
+    "kv_namespaces": {
+      "DECISIONES": {
+        "namespace_id": "6418ac6ace59487c97bda9c3a50ab10e"
+      },
+      "LOG_EVENTS": {
+        "namespace_id": "6418ac6ace59487c97bda9c3a50ab10e"
+      },
+      "RUNART_ROLES": {
+        "namespace_id": "26b8c3ca432946e2a093dcd33163f9e2"
+      }
+    },
+    "compatibility_date": "2025-10-01",
+    "compatibility_flags": [],
+    "build_image_major_version": 3,
+    "usage_model": null,
+    "aliases": null,
+    "is_skipped": false,
+    "production_branch": "main",
+    "uses_functions": false
+  },
+  {
+    "id": "2edede8a-01e2-4529-b3aa-5ce3af0ab7ed",
+    "short_id": "2edede8a",
+    "project_id": "440eb224-2b2a-48ac-a14e-0768769198a2",
+    "project_name": "runart-foundry",
+    "environment": "production",
+    "url": "https://2edede8a.runart-foundry.pages.dev",
+    "created_on": "2025-10-23T19:59:59.874622Z",
+    "modified_on": "2025-10-23T20:00:12.426408Z",
+    "latest_stage": {
+      "name": "deploy",
+      "started_on": null,
+      "ended_on": "2025-10-23T20:00:12.426408Z",
+      "status": "success"
+    },
+    "deployment_trigger": {
+      "type": "ad_hoc",
+      "metadata": {
+        "branch": "main",
+        "commit_hash": "f37b491d9296ff4a422208a2c82d845c276e33cb",
+        "commit_message": "PR-02.1 — Root Alignment Aplicado (enlaces y roles canónicos) (#62)\r\n\r\ndocs(root-alignment): merge PR-02.1 — implementación real completada (enlaces y roles canónicos aplicados)",
+        "commit_dirty": false
+      }
+    },
+    "stages": [
+      {
+        "name": "queued",
+        "started_on": "2025-10-23T19:59:59.874622Z",
+        "ended_on": null,
+        "status": "active"
+      },
+      {
+        "name": "initialize",
+        "started_on": null,
+        "ended_on": null,
+        "status": "idle"
+      },
+      {
+        "name": "clone_repo",
+        "started_on": null,
+        "ended_on": null,
+        "status": "idle"
+      },
+      {
+        "name": "build",
+        "started_on": null,
+        "ended_on": null,
+        "status": "idle"
+      },
+      {
+        "name": "deploy",
+        "started_on": null,
+        "ended_on": "2025-10-23T20:00:12.426408Z",
+        "status": "success"
+      }
+    ],
+    "build_config": {
+      "build_command": "npm run build",
+      "destination_dir": "site",
+      "build_caching": true,
+      "root_dir": "apps/briefing",
+      "web_analytics_tag": null,
+      "web_analytics_token": null
+    },
+    "source": {
+      "type": "github",
+      "config": {
+        "owner": "ppkapiro",
+        "repo_name": "runart-foundry",
+        "production_branch": "main",
+        "pr_comments_enabled": false
+      }
+    },
+    "env_vars": {
+      "ACCESS_ADMINS": {
+        "type": "plain_text",
+        "value": "ppcapiro@gmail.com"
+      },
+      "ACCESS_DEV_OVERRIDE": {
+        "type": "plain_text",
+        "value": "0"
+      },
+      "ACCESS_EQUIPO_DOMAINS": {
+        "type": "plain_text",
+        "value": "runart.com,studio.com"
+      },
+      "MOD_REQUIRED": {
+        "type": "plain_text",
+        "value": "1"
+      },
+      "ORIGIN_ALLOWED": {
+        "type": "plain_text",
+        "value": "https://runart-foundry.pages.dev"
+      },
+      "RUNART_ENV": {
+        "type": "plain_text",
+        "value": "production"
+      }
+    },
+    "kv_namespaces": {
+      "DECISIONES": {
+        "namespace_id": "6418ac6ace59487c97bda9c3a50ab10e"
+      },
+      "LOG_EVENTS": {
+        "namespace_id": "6418ac6ace59487c97bda9c3a50ab10e"
+      },
+      "RUNART_ROLES": {
+        "namespace_id": "26b8c3ca432946e2a093dcd33163f9e2"
+      }
+    },
+    "compatibility_date": "2025-10-01",
+    "compatibility_flags": [],
+    "build_image_major_version": 3,
+    "usage_model": null,
+    "aliases": null,
+    "is_skipped": false,
+    "production_branch": "main",
+    "uses_functions": false
+  },
+  {
+    "id": "33904859-1026-459e-afbd-0bf7880ecabc",
+    "short_id": "33904859",
+    "project_id": "440eb224-2b2a-48ac-a14e-0768769198a2",
+    "project_name": "runart-foundry",
+    "environment": "production",
+    "url": "https://33904859.runart-foundry.pages.dev",
+    "created_on": "2025-10-23T19:12:54.508773Z",
+    "modified_on": "2025-10-23T19:12:57.094686Z",
+    "latest_stage": {
+      "name": "deploy",
+      "started_on": null,
+      "ended_on": "2025-10-23T19:12:57.094686Z",
+      "status": "success"
+    },
+    "deployment_trigger": {
+      "type": "ad_hoc",
+      "metadata": {
+        "branch": "main",
+        "commit_hash": "e777b24de0583c14da94524a51f3f2970df05f2e",
+        "commit_message": "docs: borradores PR-01 y PR-02 — enrutado canónico y raíz alineada (drafts)",
+        "commit_dirty": true
+      }
+    },
+    "stages": [
+      {
+        "name": "queued",
+        "started_on": "2025-10-23T19:12:54.508773Z",
+        "ended_on": null,
+        "status": "active"
+      },
+      {
+        "name": "initialize",
+        "started_on": null,
+        "ended_on": null,
+        "status": "idle"
+      },
+      {
+        "name": "clone_repo",
+        "started_on": null,
+        "ended_on": null,
+        "status": "idle"
+      },
+      {
+        "name": "build",
+        "started_on": null,
+        "ended_on": null,
+        "status": "idle"
+      },
+      {
+        "name": "deploy",
+        "started_on": null,
+        "ended_on": "2025-10-23T19:12:57.094686Z",
+        "status": "success"
+      }
+    ],
+    "build_config": {
+      "build_command": "npm run build",
+      "destination_dir": "site",
+      "build_caching": true,
+      "root_dir": "apps/briefing",
+      "web_analytics_tag": null,
+      "web_analytics_token": null
+    },
+    "source": {
+      "type": "github",
+      "config": {
+        "owner": "ppkapiro",
+        "repo_name": "runart-foundry",
+        "production_branch": "main",
+        "pr_comments_enabled": false
+      }
+    },
+    "env_vars": {
+      "ACCESS_ADMINS": {
+        "type": "plain_text",
+        "value": "ppcapiro@gmail.com"
+      },
+      "ACCESS_DEV_OVERRIDE": {
+        "type": "plain_text",
+        "value": "0"
+      },
+      "ACCESS_EQUIPO_DOMAINS": {
+        "type": "plain_text",
+        "value": "runart.com,studio.com"
+      },
+      "MOD_REQUIRED": {
+        "type": "plain_text",
+        "value": "1"
+      },
+      "ORIGIN_ALLOWED": {
+        "type": "plain_text",
+        "value": "https://runart-foundry.pages.dev"
+      },
+      "RUNART_ENV": {
+        "type": "plain_text",
+        "value": "production"
+      }
+    },
+    "kv_namespaces": {
+      "DECISIONES": {
+        "namespace_id": "6418ac6ace59487c97bda9c3a50ab10e"
+      },
+      "LOG_EVENTS": {
+        "namespace_id": "6418ac6ace59487c97bda9c3a50ab10e"
+      },
+      "RUNART_ROLES": {
+        "namespace_id": "26b8c3ca432946e2a093dcd33163f9e2"
+      }
+    },
+    "compatibility_date": "2025-10-01",
+    "compatibility_flags": [],
+    "build_image_major_version": 3,
+    "usage_model": null,
+    "aliases": null,
+    "is_skipped": false,
+    "production_branch": "main",
+    "uses_functions": false
+  },
+  {
+    "id": "453d1cea-c7a5-4a2e-8047-30b949041a65",
+    "short_id": "453d1cea",
+    "project_id": "440eb224-2b2a-48ac-a14e-0768769198a2",
+    "project_name": "runart-foundry",
+    "environment": "production",
+    "url": "https://453d1cea.runart-foundry.pages.dev",
+    "created_on": "2025-10-23T19:07:42.177085Z",
+    "modified_on": "2025-10-23T19:07:45.606164Z",
+    "latest_stage": {
+      "name": "deploy",
+      "started_on": null,
+      "ended_on": "2025-10-23T19:07:45.606164Z",
+      "status": "success"
+    },
+    "deployment_trigger": {
+      "type": "ad_hoc",
+      "metadata": {
+        "branch": "main",
+        "commit_hash": "4cb2baf4a5df57bf01e64a694330df466739aac7",
+        "commit_message": "docs: borradores PR-01/PR-02 — enrutado Briefing y raíz alineada (plan Fase 2)",
+        "commit_dirty": true
+      }
+    },
+    "stages": [
+      {
+        "name": "queued",
+        "started_on": "2025-10-23T19:07:42.177085Z",
+        "ended_on": null,
+        "status": "active"
+      },
+      {
+        "name": "initialize",
+        "started_on": null,
+        "ended_on": null,
+        "status": "idle"
+      },
+      {
+        "name": "clone_repo",
+        "started_on": null,
+        "ended_on": null,
+        "status": "idle"
+      },
+      {
+        "name": "build",
+        "started_on": null,
+        "ended_on": null,
+        "status": "idle"
+      },
+      {
+        "name": "deploy",
+        "started_on": null,
+        "ended_on": "2025-10-23T19:07:45.606164Z",
+        "status": "success"
+      }
+    ],
+    "build_config": {
+      "build_command": "npm run build",
+      "destination_dir": "site",
+      "build_caching": true,
+      "root_dir": "apps/briefing",
+      "web_analytics_tag": null,
+      "web_analytics_token": null
+    },
+    "source": {
+      "type": "github",
+      "config": {
+        "owner": "ppkapiro",
+        "repo_name": "runart-foundry",
+        "production_branch": "main",
+        "pr_comments_enabled": false
+      }
+    },
+    "env_vars": {
+      "ACCESS_ADMINS": {
+        "type": "plain_text",
+        "value": "ppcapiro@gmail.com"
+      },
+      "ACCESS_DEV_OVERRIDE": {
+        "type": "plain_text",
+        "value": "0"
+      },
+      "ACCESS_EQUIPO_DOMAINS": {
+        "type": "plain_text",
+        "value": "runart.com,studio.com"
+      },
+      "MOD_REQUIRED": {
+        "type": "plain_text",
+        "value": "1"
+      },
+      "ORIGIN_ALLOWED": {
+        "type": "plain_text",
+        "value": "https://runart-foundry.pages.dev"
+      },
+      "RUNART_ENV": {
+        "type": "plain_text",
+        "value": "production"
+      }
+    },
+    "kv_namespaces": {
+      "DECISIONES": {
+        "namespace_id": "6418ac6ace59487c97bda9c3a50ab10e"
+      },
+      "LOG_EVENTS": {
+        "namespace_id": "6418ac6ace59487c97bda9c3a50ab10e"
+      },
+      "RUNART_ROLES": {
+        "namespace_id": "26b8c3ca432946e2a093dcd33163f9e2"
+      }
+    },
+    "compatibility_date": "2025-10-01",
+    "compatibility_flags": [],
+    "build_image_major_version": 3,
+    "usage_model": null,
+    "aliases": null,
+    "is_skipped": false,
+    "production_branch": "main",
+    "uses_functions": false
+  },
+  {
+    "id": "0e959f7f-f02c-4e5f-9742-e741200df60e",
+    "short_id": "0e959f7f",
+    "project_id": "440eb224-2b2a-48ac-a14e-0768769198a2",
+    "project_name": "runart-foundry",
+    "environment": "production",
+    "url": "https://0e959f7f.runart-foundry.pages.dev",
+    "created_on": "2025-10-23T18:53:39.550151Z",
+    "modified_on": "2025-10-23T18:53:42.862112Z",
+    "latest_stage": {
+      "name": "deploy",
+      "started_on": null,
+      "ended_on": "2025-10-23T18:53:42.862112Z",
+      "status": "success"
+    },
+    "deployment_trigger": {
+      "type": "ad_hoc",
+      "metadata": {
+        "branch": "main",
+        "commit_hash": "db6bc3096f3193d4a1566476911b33d1b0cd6b01",
+        "commit_message": "docs: remoto canónico aprobado + guardarraíles + plan Fase 2 (sin cambios de contenido)",
+        "commit_dirty": true
+      }
+    },
+    "stages": [
+      {
+        "name": "queued",
+        "started_on": "2025-10-23T18:53:39.550151Z",
+        "ended_on": null,
+        "status": "active"
+      },
+      {
+        "name": "initialize",
+        "started_on": null,
+        "ended_on": null,
+        "status": "idle"
+      },
+      {
+        "name": "clone_repo",
+        "started_on": null,
+        "ended_on": null,
+        "status": "idle"
+      },
+      {
+        "name": "build",
+        "started_on": null,
+        "ended_on": null,
+        "status": "idle"
+      },
+      {
+        "name": "deploy",
+        "started_on": null,
+        "ended_on": "2025-10-23T18:53:42.862112Z",
+        "status": "success"
+      }
+    ],
+    "build_config": {
+      "build_command": "npm run build",
+      "destination_dir": "site",
+      "build_caching": true,
+      "root_dir": "apps/briefing",
+      "web_analytics_tag": null,
+      "web_analytics_token": null
+    },
+    "source": {
+      "type": "github",
+      "config": {
+        "owner": "ppkapiro",
+        "repo_name": "runart-foundry",
+        "production_branch": "main",
+        "pr_comments_enabled": false
+      }
+    },
+    "env_vars": {
+      "ACCESS_ADMINS": {
+        "type": "plain_text",
+        "value": "ppcapiro@gmail.com"
+      },
+      "ACCESS_DEV_OVERRIDE": {
+        "type": "plain_text",
+        "value": "0"
+      },
+      "ACCESS_EQUIPO_DOMAINS": {
+        "type": "plain_text",
+        "value": "runart.com,studio.com"
+      },
+      "MOD_REQUIRED": {
+        "type": "plain_text",
+        "value": "1"
+      },
+      "ORIGIN_ALLOWED": {
+        "type": "plain_text",
+        "value": "https://runart-foundry.pages.dev"
+      },
+      "RUNART_ENV": {
+        "type": "plain_text",
+        "value": "production"
+      }
+    },
+    "kv_namespaces": {
+      "DECISIONES": {
+        "namespace_id": "6418ac6ace59487c97bda9c3a50ab10e"
+      },
+      "LOG_EVENTS": {
+        "namespace_id": "6418ac6ace59487c97bda9c3a50ab10e"
+      },
+      "RUNART_ROLES": {
+        "namespace_id": "26b8c3ca432946e2a093dcd33163f9e2"
+      }
+    },
+    "compatibility_date": "2025-10-01",
+    "compatibility_flags": [],
+    "build_image_major_version": 3,
+    "usage_model": null,
+    "aliases": null,
+    "is_skipped": false,
+    "production_branch": "main",
+    "uses_functions": false
+  }
+]

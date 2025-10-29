@@ -1,0 +1,46 @@
+{
+  "result": {
+    "id": "147b8030-5bc4-45f9-8d59-c0779556aa20",
+    "name": "runart-briefing-direct",
+    "subdomain": "runart-briefing-direct.pages.dev",
+    "domains": [
+      "runart-briefing-direct.pages.dev"
+    ],
+    "build_config": {
+      "web_analytics_tag": null,
+      "web_analytics_token": null
+    },
+    "deployment_configs": {
+      "preview": {
+        "env_vars": null,
+        "fail_open": true,
+        "always_use_latest_compatibility_date": false,
+        "compatibility_date": "2025-10-24",
+        "compatibility_flags": [],
+        "build_image_major_version": 3,
+        "usage_model": "standard"
+      },
+      "production": {
+        "env_vars": null,
+        "fail_open": true,
+        "always_use_latest_compatibility_date": false,
+        "compatibility_date": "2025-10-24",
+        "compatibility_flags": [],
+        "build_image_major_version": 3,
+        "usage_model": "standard"
+      }
+    },
+    "latest_deployment": null,
+    "canonical_deployment": null,
+    "created_on": "2025-10-24T20:35:09.843803Z",
+    "production_branch": "production",
+    "production_script_name": "pages-worker--8673190-production",
+    "preview_script_name": "pages-worker--8673190-preview",
+    "uses_functions": null,
+    "framework": "",
+    "framework_version": ""
+  },
+  "success": true,
+  "errors": [],
+  "messages": []
+}

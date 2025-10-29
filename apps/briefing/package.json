@@ -2,7 +2,38 @@
   "name": "briefing",
   "version": "0.1.0",
   "private": true,
+  "type": "module",
   "scripts": {
-  "build": "python -m pip install --upgrade pip && pip install -r requirements.txt && mkdocs build --strict -d site"
+  "build": "python -m pip install --upgrade pip && pip install -r requirements.txt && mkdocs build --strict -d site && node scripts/postbuild-cleanup.mjs",
+    "test:bootstrap": "node --unhandled-rejections=strict --no-warnings tests/scripts/ping-bootstrap.mjs",
+    "test:imports": "node tools/check-bare-specifiers.mjs",
+    "test:setup": "node --unhandled-rejections=strict --no-warnings tests/scripts/setup-mocks.mjs",
+    "test:unit": "node --test --test-timeout=30000 tests/unit/*.mjs",
+    "test:unit:smoke": "node --test --test-timeout=30000 tests/unit/smoke-imports.mjs",
+    "test:vitest": "vitest run",
+    "test:vitest:watch": "vitest watch",
+    "lint": "eslint functions/**/*.js",
+    "lint:fix": "eslint functions/**/*.js --fix",
+    "test:e2e": "node tests/scripts/run-smokes.mjs",
+    "smokes:prod": "node ./tests/scripts/run-smokes-prod.mjs",
+    "smokes:prod:auth": "RUN_AUTH_SMOKES=1 node ./tests/scripts/run-smokes-prod.mjs",
+    "verify:access:preview": "node ../../tools/diagnostics/verify_access_service_token.mjs",
+    "canary:post": "bash ../../tools/diagnostics/postprocess_canary_summary.sh",
+    "access:deepcheck": "node ../../tools/diagnostics/access_deepcheck.mjs",
+    "access:export-envs": "bash ../../tools/diagnostics/export_access_envs.sh",
+    "diag:host": "bash ../../tools/diagnostics/preview_host_resolver.sh",
+    "diag:whoami": "bash ../../tools/diagnostics/verify_whoami_with_token.sh",
+    "cf:register-branch": "node ../../tools/diagnostics/cf_register_branch_hostname.mjs",
+    "run:preview-validation": "bash ../../tools/diagnostics/run_preview_validation.sh"
+  },
+  "devDependencies": {
+    "@cloudflare/workers-types": "^4.20251004.0",
+    "eslint": "^8.57.0",
+    "miniflare": "^4.20251004.0",
+    "msw": "^2.3.1",
+    "nock": "^14.0.0",
+    "playwright": "^1.47.0",
+    "undici": "^6.19.2",
+    "vitest": "^1.6.0"
   }
 }

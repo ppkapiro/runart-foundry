@@ -1,0 +1,185 @@
+name: Monitor Deploys (Copilot)
+
+on:
+  schedule:
+    - cron: '*/10 * * * *'  # cada 10 minutos
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  actions: read
+
+concurrency:
+  group: monitor-deploys
+  cancel-in-progress: true
+
+jobs:
+  monitor:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Python 3.11 (para rollback/notifier)
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Instalar GitHub CLI
+        uses: actions/gh-actions/install-gh-cli@v2
+
+      - name: Verificar últimos runs de deploy
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          set -euo pipefail
+          echo "=== Monitoreo Deploys ==="
+          gh run list --limit 20 --json name,headBranch,status,conclusion,createdAt,updatedAt,workflowDatabaseId,databaseId > tmp_runs.json
+          jq -r '.[] | select(.name|test("Deploy to Cloudflare Pages")) | [.name,.status,.conclusion,.createdAt,.updatedAt] | @tsv' tmp_runs.json > tmp_deploys.tsv
+          jq -r '.[] | select(.name|test("Verify Production")) | [.name,.status,.conclusion,.createdAt,.updatedAt] | @tsv' tmp_runs.json > tmp_verify.tsv
+
+          # Resumen de últimos 10 (OK/FAIL)
+          DEP_OK=$(awk -F '\t' '$3=="success"{c++} END{print c+0}' tmp_deploys.tsv)
+          DEP_KO=$(awk -F '\t' '$3!="success"{c++} END{print c+0}' tmp_deploys.tsv)
+          VER_OK=$(awk -F '\t' '$3=="success"{c++} END{print c+0}' tmp_verify.tsv)
+          VER_KO=$(awk -F '\t' '$3!="success"{c++} END{print c+0}' tmp_verify.tsv)
+          echo "DEP_OK=$DEP_OK"   >> $GITHUB_ENV
+          echo "DEP_KO=$DEP_KO"    >> $GITHUB_ENV
+          echo "VER_OK=$VER_OK"    >> $GITHUB_ENV
+          echo "VER_KO=$VER_KO"    >> $GITHUB_ENV
+
+      - name: Registrar resultados en meta-log
+        run: |
+          set -euo pipefail
+          TS=$(date -u +%FT%TZ)
+          {
+            echo "\n---";
+            echo "### Monitoreo ${TS}";
+            echo "";
+            echo "Resumen: Deploy OK=${DEP_OK:-0} FAIL=${DEP_KO:-0} | Verify OK=${VER_OK:-0} FAIL=${VER_KO:-0} (últimos 10)";
+            echo "";
+            echo "#### Deploy Actions";
+            if [ -s tmp_deploys.tsv ]; then
+              awk 'BEGIN{FS="\t"; OFS=" | "; print "name | status | conclusion | createdAt | updatedAt"} {print $1,$2,$3,$4,$5}' tmp_deploys.tsv;
+            else
+              echo "(sin datos)";
+            fi
+            echo "";
+            echo "#### Verify Actions";
+            if [ -s tmp_verify.tsv ]; then
+              awk 'BEGIN{FS="\t"; OFS=" | "; print "name | status | conclusion | createdAt | updatedAt"} {print $1,$2,$3,$4,$5}' tmp_verify.tsv;
+            else
+              echo "(sin datos)";
+            fi
+          } >> docs/_meta/BRIEFING_STATUS_PIPELINE_RUN.md
+
+      - name: Subir artefactos de monitoreo
+        uses: actions/upload-artifact@v4
+        with:
+          name: monitor-evidence-${{ github.run_id }}
+          path: |
+            tmp_runs.json
+            tmp_deploys.tsv
+            tmp_verify.tsv
+
+      - name: Commit meta-log update
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add docs/_meta/BRIEFING_STATUS_PIPELINE_RUN.md
+          git commit -m "docs(meta): update deploy monitor [skip ci]" || true
+          git push || true
+
+      - name: Detectar fallo o deploy pendiente (tolerante a Access)
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          set -euo pipefail
+          DEPLOY_FAIL=$(grep -E "\tfailure\t|\tcancelled\t" tmp_deploys.tsv || true)
+          # Verificación puede fallar por Access si no hay secrets; comprobar conclusión
+          VERIFY_FAIL=$(grep -E "\tfailure\t|\tcancelled\t" tmp_verify.tsv || true)
+          
+          # Si hay deploy FAIL, siempre es problema real
+          if [ -n "$DEPLOY_FAIL" ]; then
+            echo "⚠️ Deploy FAIL detectado. Ejecutando rollback y alerta…"
+            echo "$(date -u +%FT%TZ) — Deploy FAIL detectado" >> docs/_meta/BRIEFING_STATUS_PIPELINE_RUN.md
+            python3 tools/auto_rollback.py || true
+            python3 tools/notify.py --channel=slack   --title="Deploy FAILED" --message="Falló un deploy. Se aplicó rollback automático." --level=ERROR || true
+            python3 tools/notify.py --channel=discord --title="Deploy FAILED" --message="Falló un deploy. Se aplicó rollback automático." --level=ERROR || true
+            git add docs/_meta/BRIEFING_STATUS_PIPELINE_RUN.md || true
+            git commit -m "rollback: deploy fail [skip ci]" || true
+            git push || true
+          elif [ -n "$VERIFY_FAIL" ]; then
+            # Verificación falló; comprobar si es por Access (sin secrets) o error real
+            # Buscar en meta si dice "auth: no-headers" o "SKIP (Access protegido"
+            SKIP_ACCESS=$(tail -n 100 docs/_meta/BRIEFING_STATUS_PIPELINE_RUN.md | grep -E "SKIP \(Access protegido|auth: no-headers" | wc -l || true)
+            if [ "$SKIP_ACCESS" -gt 0 ]; then
+              echo "ℹ️  Verify SKIP/PARTIAL detectado (Access protegido, no secrets); no es error real."
+            else
+              # Verify falló con headers disponibles → problema real
+              echo "⚠️ Verify FAIL real detectado (con headers disponibles). Ejecutando alerta…"
+              echo "$(date -u +%FT%TZ) — Verify FAIL detectado" >> docs/_meta/BRIEFING_STATUS_PIPELINE_RUN.md
+              python3 tools/notify.py --channel=slack   --title="Verify FAILED" --message="Falló verificación post-deploy con Access auth. Revisar logs." --level=WARNING || true
+              python3 tools/notify.py --channel=discord --title="Verify FAILED" --message="Falló verificación post-deploy con Access auth. Revisar logs." --level=WARNING || true
+              git add docs/_meta/BRIEFING_STATUS_PIPELINE_RUN.md || true
+              git commit -m "alert: verify fail [skip ci]" || true
+              git push || true
+            fi
+          else
+            echo "✅ Todos los workflows de deploy/verificación OK (o SKIP por Access protegido)."
+          fi
+
+      - name: Auto-trigger si hay cambio reciente en main
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          set -euo pipefail
+          LATEST_SHA=$(git rev-parse HEAD)
+          LAST_RUN=$(tail -n 200 docs/_meta/BRIEFING_STATUS_PIPELINE_RUN.md | grep -E "^#### Deploy Actions|Deploy ejecutado|Deploy a Cloudflare Pages — inicio" | tail -n1 || true)
+          # Ventana anti-colisión: si hay runs en progreso/cola en últimos 15 min, no disparar
+          NOW_SECS=$(date -u +%s)
+          BUSY=$(jq -r '.[] | select(.name|test("Deploy to Cloudflare Pages")) | select(.status=="in_progress" or .status=="queued") | .updatedAt' tmp_runs.json | \
+                 xargs -I{} date -u -d {} +%s 2>/dev/null | awk -v now="$NOW_SECS" '{ if (now-$1 < 900) { print 1; exit } }')
+          if [ "$BUSY" = "1" ]; then
+            echo "Saltado: deploy en progreso/cola (ventana 15m)." >> docs/_meta/BRIEFING_STATUS_PIPELINE_RUN.md
+            exit 0
+          fi
+
+          # Ventana anti-carrera: si el último deploy success terminó hace <5m, no disparar
+          LAST_OK_END=$(jq -r '.[] | select(.name|test("Deploy to Cloudflare Pages")) | select(.conclusion=="success") | .updatedAt' tmp_runs.json | head -n1)
+          if [ -n "$LAST_OK_END" ]; then
+            LAST_OK_SECS=$(date -u -d "$LAST_OK_END" +%s || echo 0)
+            if [ $(( NOW_SECS - LAST_OK_SECS )) -lt 300 ]; then
+              echo "Saltado: ventana anti-carrera (<5m desde último success)." >> docs/_meta/BRIEFING_STATUS_PIPELINE_RUN.md
+              exit 0
+            fi
+          fi
+
+          if ! echo "$LAST_RUN" | grep -q "$LATEST_SHA"; then
+            echo "Nuevo commit detectado: $LATEST_SHA — ejecutando deploy."
+            gh workflow run "Deploy to Cloudflare Pages (Briefing)" || true
+          fi
+
+      - name: Resumen diario (23:50 UTC)
+        run: |
+          set -euo pipefail
+          HMS=$(date -u +%H%M)
+          if [ "$HMS" = "2350" ]; then
+            OK_DEP=$(grep -c "\tsuccess\t" tmp_deploys.tsv || true)
+            KO_DEP=$(grep -E "\tfailure\t|\tcancelled\t" tmp_deploys.tsv | wc -l || true)
+            OK_VER=$(grep -c "\tsuccess\t" tmp_verify.tsv || true)
+            KO_VER=$(grep -E "\tfailure\t|\tcancelled\t" tmp_verify.tsv | wc -l || true)
+            {
+              echo "\n#### Resumen diario (UTC)";
+              echo "Deploy OK=${OK_DEP} | FAIL=${KO_DEP}";
+              echo "Verify OK=${OK_VER} | FAIL=${KO_VER}";
+            } >> docs/_meta/BRIEFING_STATUS_PIPELINE_RUN.md
+            git config user.name "github-actions[bot]"
+            git config user.email "github-actions[bot]@users.noreply.github.com"
+            git add docs/_meta/BRIEFING_STATUS_PIPELINE_RUN.md
+            git commit -m "docs(meta): resumen diario monitor deploys [skip ci]" || true
+            git push || true
+          else
+            echo "No es ventana de resumen diario (23:50 UTC)."
+          fi

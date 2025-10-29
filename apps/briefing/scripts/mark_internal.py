@@ -49,8 +49,9 @@ def split_front_matter(text: str) -> tuple[dict, str]:
 
     try:
         data = yaml.safe_load(front) or {}
-    except yaml.YAMLError as exc:  # pragma: no cover
-        raise RuntimeError(f"Front matter inválido: {exc}") from exc
+    except yaml.YAMLError:
+        # Treat malformed front matter as plain content so legacy docs without YAML blocks do not halt the build.
+        return {}, text
 
     if not isinstance(data, dict):
         data = {}
@@ -115,6 +116,13 @@ def write_access_map(entries: Iterable[AccessEntry]) -> None:
 
 
 def main() -> None:
+    import os
+    if os.environ.get("AUTH_MODE", "").lower() == "none":
+        # Modo local: generar mapa pero no fallar por faltas de .interno
+        entries, _ = collect_entries()
+        write_access_map(entries)
+        print("[mark_internal] Modo local (AUTH_MODE=none): validaciones de acceso desactivadas.")
+        return
     entries, missing = collect_entries()
     write_access_map(entries)
 

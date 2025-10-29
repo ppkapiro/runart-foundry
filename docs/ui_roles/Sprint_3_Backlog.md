@@ -1,0 +1,50 @@
+# Sprint 3 — Backlog (actualizado 2025-10-21 17:52:17)
+
+- S3-01 — MVP Admin (maquetado + dataset + mapa CCE↔campos)
+  - Objetivo: Entregar portada Admin con CCEs e i18n
+  - DoD: admin_portada.md + admin_vista.json listos
+  - Dependencias: S2-06
+  - Evidencia: docs/ui_roles/admin_portada.md
+  - Responsable: Admin/UX
+- S3-02 — Endurecimiento View-as (políticas, TTL, logging, casos de prueba)
+  - Objetivo: Endurecer View-as con políticas, TTL, logging y casos de prueba
+  - DoD: view_as_spec.md endurecido + QA_cases_viewas.md
+  - Dependencias: S2-04
+  - Evidencia: docs/ui_roles/view_as_spec.md
+  - Responsable: PM/Tech Lead
+- S3-03 — QA View-as (ejecución de casos y evidencia)
+  - Objetivo: Ejecutar casos de prueba View-as
+  - DoD: Todos los casos en QA_cases_viewas.md pasados
+  - Dependencias: S3-02
+  - Evidencia: docs/ui_roles/QA_cases_viewas.md
+  - Responsable: QA
+- S3-04 — Depuración — Duplicados
+  - Objetivo: Eliminar duplicados detectados
+  - DoD: Duplicados resueltos en REPORTE_DEPURACION_F7.md
+  - Dependencias: S2-06
+  - Evidencia: docs/ui_roles/REPORTE_DEPURACION_F7.md
+  - Responsable: Admin/Tech Lead
+- S3-05 — Depuración — Legados + Tombstones + Redirecciones
+  - Objetivo: Archivar legados, crear tombstones, definir redirecciones
+  - DoD: Legados archivados; tombstones creados; redirecciones documentadas
+  - Dependencias: S3-04
+  - Evidencia: docs/ui_roles/REPORTE_DEPURACION_F7.md
+  - Responsable: Admin/Tech Lead
+- S3-06 — Actualización Matriz + Glosario
+  - Objetivo: Limpiar matriz y glosario de obsolescencias
+  - DoD: Matriz/glosario sin duplicados/obsolescencias
+  - Dependencias: S3-04, S3-05
+  - Evidencia: docs/ui_roles/content_matrix_template.md
+  - Responsable: PM/UX
+- S3-07 — Tokens/i18n — ajuste menor si AA lo exige
+  - Objetivo: Ajustar tokens si AA detecta problemas
+  - DoD: AA validado; TOKENS_UI.md actualizado si aplica
+  - Dependencias: S3-01
+  - Evidencia: docs/ui_roles/TOKENS_UI.md
+  - Responsable: UX
+- S3-08 — Evidencias Fase 7 y cierre de bitácora
+  - Objetivo: Compilar evidencias y cerrar Fase 7
+  - DoD: EVIDENCIAS_FASE7.md + cierre en bitácora
+  - Dependencias: S3-01..S3-07
+  - Evidencia: docs/ui_roles/EVIDENCIAS_FASE7.md
+  - Responsable: PM

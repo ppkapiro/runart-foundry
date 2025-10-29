@@ -1,6 +1,7 @@
 # Sensibles / entorno
 .env
 .env.*
+.env.staging.local
 .dev.vars
 **/.dev.vars
 secrets/
@@ -17,6 +18,7 @@ sandbox/
 dist/
 build/
 out/
+_dist/
 node_modules/
 __pycache__/
 *.pyc
@@ -68,3 +70,14 @@ ENV/
 # Lighthouse/Axe: Excluir reportes JSON grandes (opcional)
 audits/lighthouse/*.json
 audits/axe/*.json
+logs/*.txt
+
+# Repo-level artifacts y temporales (añadidos por auditoría 2025-10-22)
+_artifacts/
+_tmp/
+ci_artifacts/
+.pytest_cache/
+Thumbs.db
+
+# Ops logs (no versionar evidencias crudas)
+docs/ops/logs/

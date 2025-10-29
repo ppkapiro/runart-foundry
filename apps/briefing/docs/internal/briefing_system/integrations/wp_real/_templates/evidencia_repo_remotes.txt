@@ -1,0 +1,39 @@
+=== INVENTARIO REPO (Remotes / Branch / Workflows) ===
+Fecha de captura: 2025-10-20 15:19:37 EDT
+
+Directorio raíz del repo: /home/pepe/work/runartfoundry
+
+git remote -v:
+origin	git@github.com:ppkapiro/runart-foundry.git (fetch)
+origin	git@github.com:ppkapiro/runart-foundry.git (push)
+upstream	git@github.com:RunArtFoundry/runart-foundry.git (fetch)
+upstream	git@github.com:RunArtFoundry/runart-foundry.git (push)
+
+Branch actual:
+feat/fase7-evidencias-auto
+
+Workflows detectados en .github/workflows:
+auto-open-pr-on-deploy-branches.yml
+briefing_deploy.yml
+ci.yml
+cleanup-test-resources.yml
+docs-lint.yml
+env-report.yml
+healthcheck.yml
+overlay-deploy.yml
+pages-deploy.yml
+pages-preview-guard.yml
+pages-preview.yml
+pages-preview2.yml
+pages-prod.yml
+rotate-app-password.yml
+rotate-reminder.yml
+run-repair.yml
+run_canary_diagnostics.yml
+run_canary_smokes.yml
+status-update.yml
+structure-guard.yml
+verify-home.yml
+verify-media.yml
+verify-menus.yml
+verify-settings.yml

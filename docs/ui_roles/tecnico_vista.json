@@ -1,0 +1,18 @@
+{
+  "incidencias": [
+    {"fecha": "2025-10-20", "titulo": "Timeout en API /briefing", "estado": "Resuelta"},
+    {"fecha": "2025-10-21", "titulo": "Log excesivo en staging", "estado": "En revisión"}
+  ],
+  "logs": [
+    {"id": "LOG-T-1", "tipo": "txt", "url": "./logs/staging_20251021.log"},
+    {"id": "LOG-T-2", "tipo": "json", "url": "./logs/api_errors_20251020.json"}
+  ],
+  "parametros": [
+    {"clave": "DB_MAX_CONNECTIONS", "valor": "100"},
+    {"clave": "CACHE_TTL", "valor": "300s"}
+  ],
+  "cambios": [
+    {"fecha": "2025-10-19", "asunto": "Actualización de Node 18 → 20"},
+    {"fecha": "2025-10-21", "asunto": "Migración BD staging → producción"}
+  ]
+}

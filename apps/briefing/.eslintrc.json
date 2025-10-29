@@ -1,0 +1,48 @@
+{
+  "env": {
+    "es2022": true,
+    "node": true
+  },
+  "parserOptions": {
+    "ecmaVersion": 2022,
+    "sourceType": "module",
+    "ecmaFeatures": {
+      "impliedStrict": true
+    }
+  },
+  "extends": ["eslint:recommended"],
+  "rules": {
+    "no-console": "off",
+    "no-unused-vars": ["warn", { "argsIgnorePattern": "^_" }],
+    "no-restricted-syntax": [
+      "error",
+      {
+        "selector": "Program > VariableDeclaration[kind='const'] > VariableDeclarator > CallExpression[callee.object.name='Math'][callee.property.name='random']",
+        "message": "Math.random() is not allowed in global scope (Cloudflare Pages Functions restriction). Use deterministic RNG inside handlers."
+      },
+      {
+        "selector": "Program > VariableDeclaration[kind='const'] > VariableDeclarator > CallExpression[callee.object.name='Date'][callee.property.name='now']",
+        "message": "Date.now() is not allowed in global scope (Cloudflare Pages Functions restriction). Defer to request handlers."
+      },
+      {
+        "selector": "Program > VariableDeclaration[kind='const'] > VariableDeclarator > NewExpression[callee.name='Response']",
+        "message": "new Response() is not allowed in global scope (Cloudflare Pages Functions restriction). Use factory functions inside handlers."
+      },
+      {
+        "selector": "Program > VariableDeclaration[kind='const'] > VariableDeclarator > MemberExpression[object.name='crypto']",
+        "message": "crypto.* is not allowed in global scope (Cloudflare Pages Functions restriction). Use inside handlers only."
+      }
+    ]
+  },
+  "overrides": [
+    {
+      "files": ["tests/**/*.js", "tests/**/*.mjs"],
+      "env": {
+        "node": true
+      },
+      "rules": {
+        "no-restricted-syntax": "off"
+      }
+    }
+  ]
+}

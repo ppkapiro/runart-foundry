@@ -1,0 +1,179 @@
+name: Status Audit (Weekly)
+
+on:
+  schedule:
+    # Lunes a las 09:00 UTC
+    - cron: '0 9 * * 1'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  audit-status:
+    name: Audit status.json Consistency
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+          token: ${{ secrets.GITHUB_TOKEN }}
+      
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      
+      - name: Create backup of current status.json
+        run: |
+          cp docs/status.json docs/status.json.old
+          echo "📸 Backup creado: status.json.old"
+      
+      - name: Regenerate status.json
+        run: |
+          echo "🔄 Regenerando status.json desde repositorio..."
+          python3 scripts/gen_status.py
+          echo "✅ status.json regenerado"
+      
+      - name: Compare and detect drift
+        id: drift_check
+        run: |
+          echo "🔍 Comparando versión committed vs regenerada..."
+          
+          # Extraer conteos de ambos archivos
+          old_live=$(jq -r '.docs_live_count' docs/status.json.old)
+          new_live=$(jq -r '.docs_live_count' docs/status.json)
+          old_archive=$(jq -r '.archive_count' docs/status.json.old)
+          new_archive=$(jq -r '.archive_count' docs/status.json)
+          
+          echo "Comparación:"
+          echo "  docs_live_count: ${old_live} → ${new_live}"
+          echo "  archive_count: ${old_archive} → ${new_archive}"
+          
+          # Calcular drift
+          if [ "$old_live" != "$new_live" ] || [ "$old_archive" != "$new_archive" ]; then
+            echo "⚠️  DRIFT DETECTADO"
+            echo "drift_detected=true" >> $GITHUB_OUTPUT
+            
+            # Calcular delta
+            delta_live=$((new_live - old_live))
+            delta_archive=$((new_archive - old_archive))
+            
+            echo "drift_message=Live docs: ${delta_live:+$delta_live} (${old_live}→${new_live}), Archive: ${delta_archive:+$delta_archive} (${old_archive}→${new_archive})" >> $GITHUB_OUTPUT
+          else
+            echo "✅ No se detectó drift"
+            echo "drift_detected=false" >> $GITHUB_OUTPUT
+          fi
+      
+      - name: Log audit results
+        if: always()
+        run: |
+          timestamp=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
+          commit_hash=$(git rev-parse --short HEAD)
+          
+          mkdir -p docs/_meta
+          
+          cat >> docs/_meta/status_audit.log << EOF
+          [${timestamp}] Audit semanal
+          Commit: ${commit_hash}
+          Drift detectado: ${{ steps.drift_check.outputs.drift_detected }}
+          ${{ steps.drift_check.outputs.drift_message }}
+          ---
+          EOF
+          
+          echo "📝 Log de auditoría actualizado"
+      
+      - name: Commit audit log
+        run: |
+          git config --local user.email "github-actions[bot]@users.noreply.github.com"
+          git config --local user.name "github-actions[bot]"
+          
+          git add docs/_meta/status_audit.log
+          git add docs/status.json.old
+          
+          if git diff --staged --quiet; then
+            echo "ℹ️  No hay cambios para commitear"
+            exit 0
+          fi
+          
+          git commit -m "chore(audit): registro semanal status.json [skip ci]
+
+          Drift detectado: ${{ steps.drift_check.outputs.drift_detected }}
+          ${{ steps.drift_check.outputs.drift_message }}
+          
+          Ejecutado: $(date -u +"%Y-%m-%dT%H:%M:%SZ")"
+          
+          git push
+          
+          echo "✅ Audit log commiteado"
+      
+      - name: Create issue if drift detected
+        if: steps.drift_check.outputs.drift_detected == 'true'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            github.rest.issues.create({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              title: `⚠️ Drift detectado en status.json (auditoría semanal)`,
+              body: `## 🔍 Auditoría Semanal — Drift Detectado
+              
+              **Fecha:** ${new Date().toISOString()}
+              **Commit:** \`${context.sha.substring(0, 8)}\`
+              
+              ### Cambios Detectados
+              
+              ${{ steps.drift_check.outputs.drift_message }}
+              
+              ### Acción Requerida
+              
+              - [ ] Revisar conteo de archivos en \`docs/live/\` y \`docs/archive/\`
+              - [ ] Verificar que no hay archivos no rastreados
+              - [ ] Ejecutar \`python3 scripts/gen_status.py\` localmente
+              - [ ] Comparar con \`docs/status.json\` commiteado
+              
+              ### Logs
+              
+              Ver \`docs/_meta/status_audit.log\` para histórico completo.
+              `,
+              labels: ['scope/automation', 'type/bug', 'priority/medium']
+            })
+      
+      - name: Send drift alert
+        if: steps.drift_check.outputs.drift_detected == 'true'
+        run: |
+          echo "📢 Enviando alertas de drift..."
+          
+          drift_msg="${{ steps.drift_check.outputs.drift_message }}"
+          
+          python3 tools/notify.py \
+            --channel=slack \
+            --title="Drift Detectado en status.json" \
+            --message="Auditoría semanal: ${drift_msg}" \
+            --level=WARN \
+            || echo "⚠️  Notificación Slack no disponible"
+          
+          python3 tools/notify.py \
+            --channel=discord \
+            --title="Drift Detectado en status.json" \
+            --message="Auditoría semanal: ${drift_msg}" \
+            --level=WARN \
+            || echo "⚠️  Notificación Discord no disponible"
+      
+      - name: Summary
+        if: always()
+        run: |
+          echo "## 🔍 Status Audit — Resumen" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**Drift detectado:** ${{ steps.drift_check.outputs.drift_detected }}" >> $GITHUB_STEP_SUMMARY
+          
+          if [ "${{ steps.drift_check.outputs.drift_detected }}" == "true" ]; then
+            echo "" >> $GITHUB_STEP_SUMMARY
+            echo "### ⚠️ Cambios Detectados" >> $GITHUB_STEP_SUMMARY
+            echo "${{ steps.drift_check.outputs.drift_message }}" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "" >> $GITHUB_STEP_SUMMARY
+            echo "✅ Status.json consistente con repositorio" >> $GITHUB_STEP_SUMMARY
+          fi

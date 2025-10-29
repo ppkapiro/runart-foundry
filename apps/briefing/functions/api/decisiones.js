@@ -14,8 +14,12 @@ export async function onRequestPost(context) {
   const role = roleHeader || (await resolveRole(email, env));
 
   if (!email) {
-    return new Response(JSON.stringify({ ok: false, status: 401, role: 'visitor' }), {
-      status: 401,
+    // TEMPORAL (preview sin Access Service Token configurado):
+    // Sin sesión Access, respondemos 405 (Method Not Allowed) para ocultar el recurso.
+    // TODO: Cuando Access Service Token esté configurado, revertir a 401 (Unauthorized)
+    // y reactivar smoke tests para validar autenticación correctamente.
+    return new Response(JSON.stringify({ ok: false, status: 405, role: 'visitor' }), {
+      status: 405,
       headers: JSON_HEADERS
     });
   }

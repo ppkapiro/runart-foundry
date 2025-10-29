@@ -1,0 +1,1 @@
+{"message":"Invalid request.\n\n\"required_pull_request_reviews\", \"required_status_checks\", \"restrictions\" weren't supplied.","documentation_url":"https://docs.github.com/rest/branches/branch-protection#update-branch-protection","status":"422"}

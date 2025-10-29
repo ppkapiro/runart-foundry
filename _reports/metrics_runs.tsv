@@ -1,0 +1,1619 @@
+[OK] Métricas exportadas a _reports/metrics_runs.tsv
+096	Verify Home	completed	success	27
+18690905544	Deploy Production (Cloudflare)	completed	success	70
+18690905538	Docs Lint	completed	success	35
+18690905534	Status & Changelog Update	completed	success	17
+18690905523	Pages Deploy Fallback	completed	failure	32
+18690905514	Guard - Require Cloudflare Pages Preview	completed	skipped	3
+18690905507	Structure & Governance Guard	completed	success	19
+18690850237	Verify Media	completed	success	18
+18690849940	Verify Menus	completed	failure	24
+18690849050	Verify Home	completed	failure	22
+18690846158	Status & Changelog Update	completed	success	22
+18690846150	Guard - Require Cloudflare Pages Preview	completed	skipped	1
+18690846148	Deploy Production (Cloudflare)	completed	success	69
+18690846146	Pages Deploy Fallback	completed	failure	27
+18690846137	Structure & Governance Guard	completed	success	17
+18690846127	Docs Lint	completed	success	28
+18690783136	Verify Media	completed	failure	17
+18690782620	Verify Menus	completed	failure	20
+18690782104	Verify Home	completed	failure	22
+18690761794	Verify Settings	completed	success	18
+18690758548	Docs Lint	completed	success	29
+18690758543	Pages Deploy Fallback	completed	failure	303
+18690758533	Guard - Require Cloudflare Pages Preview	completed	skipped	1
+18690758522	Status & Changelog Update	completed	success	19
+18690758516	Deploy Production (Cloudflare)	completed	success	76
+18690758505	Structure & Governance Guard	completed	success	21
+18690700764	Verify Settings	completed	failure	19
+18690696830	Pages Deploy Fallback	completed	failure	32
+18690696821	Deploy Production (Cloudflare)	completed	success	74
+18690696817	Docs Lint	completed	success	30
+18690696814	Guard - Require Cloudflare Pages Preview	completed	skipped	1
+18690696805	Status & Changelog Update	completed	success	16
+18690696794	Structure & Governance Guard	completed	success	29
+18690602480	Debug Auth	completed	success	16
+18690599954	Status & Changelog Update	completed	success	20
+18690599915	Docs Lint	completed	success	41
+18690599861	Pages Deploy Fallback	completed	failure	30
+18690599860	Guard - Require Cloudflare Pages Preview	completed	skipped	1
+18690599858	Deploy Production (Cloudflare)	completed	success	66
+18690599847	Structure & Governance Guard	completed	success	15
+18690565304	Verify Settings	completed	failure	16
+18690542854	audit-and-remediate	completed	success	41
+18690517073	Verify Media	completed	failure	21
+18690516546	Verify Menus	completed	failure	19
+18690516012	Verify Settings	completed	failure	16
+18690515528	Verify Home	completed	failure	22
+18690389345	Verify Media	completed	failure	17
+18690387879	Verify Menus	completed	failure	24
+18690386364	Verify Settings	completed	failure	19
+18690385007	Verify Home	completed	failure	18
+18690284426	Verify Media	completed	failure	21
+18690282983	Verify Menus	completed	failure	27
+18690281524	Verify Settings	completed	failure	16
+18690279934	Verify Home	completed	failure	20
+18690024761	Healthcheck API	completed	failure	13
+18689950017	Pages Deploy Fallback	completed	failure	33
+18689950015	Deploy Production (Cloudflare)	completed	success	64
+18689950009	Status & Changelog Update	completed	success	17
+18689950007	Structure & Governance Guard	completed	success	13
+18689950005	Guard - Require Cloudflare Pages Preview	completed	skipped	1
+18689950003	Docs Lint	completed	success	30
+18689571294	Guard - Require Cloudflare Pages Preview	completed	skipped	1
+18689571286	Deploy Production (Cloudflare)	completed	success	77
+18689571279	Structure & Governance Guard	completed	success	17
+18689571278	Docs Lint	completed	success	30
+18689571272	Pages Deploy Fallback	completed	failure	35
+18689571271	Status & Changelog Update	completed	success	20
+18689571266	CI — Briefing	completed	success	123
+18689511287	Verify Media	completed	failure	122
+18689509715	Verify Menus	completed	failure	20
+18689508366	Verify Settings	completed	failure	20
+18689507120	Verify Home	completed	failure	21
+18689342855	Healthcheck API	completed	failure	15
+18688714742	audit-and-remediate	completed	success	42
+18688259899	Healthcheck API	completed	failure	17
+18687579181	Healthcheck API	completed	failure	18
+18686843457	audit-and-remediate	completed	success	44
+18686425892	Healthcheck API	completed	failure	18
+18686018142	Healthcheck API	completed	failure	16
+18685509423	audit-and-remediate	completed	success	35
+18684777086	Healthcheck API	completed	failure	19
+18684511731	Docs Lint	completed	success	30
+18684511703	CI — Briefing	completed	success	120
+18684511691	Deploy Production (Cloudflare)	completed	success	78
+18684511689	Structure & Governance Guard	completed	success	18
+18684511686	Pages Deploy Fallback	completed	failure	29
+18684511681	Status & Changelog Update	completed	success	18
+18684511675	Guard - Require Cloudflare Pages Preview	completed	skipped	2
+18684458318	Verify Home	completed	failure	16
+18684403851	Verify Media	completed	failure	17
+18684400340	Verify Menus	completed	failure	17
+18684397486	Verify Settings	completed	failure	15
+18684394379	Verify Home	completed	failure	16
+18684256775	Structure & Governance Guard	completed	success	16
+18684256767	Deploy Production (Cloudflare)	completed	success	78
+18684256764	Docs Lint	completed	success	33
+18684256761	Guard - Require Cloudflare Pages Preview	completed	skipped	1
+18684256760	Pages Deploy Fallback	completed	failure	29
+18684256759	CI — Briefing	completed	success	110
+18684256756	Status & Changelog Update	completed	success	18
+18684209676	Guard - Require Cloudflare Pages Preview	completed	skipped	1
+18684209644	Structure & Governance Guard	completed	success	17
+18684209615	Docs Lint	completed	success	29
+18684209611	Pages Deploy Fallback	completed	failure	28
+18684209605	Status & Changelog Update	completed	success	16
+18684209603	Deploy Production (Cloudflare)	completed	success	70
+18684152709	Verify Menus	completed	failure	19
+18683926823	audit-and-remediate	completed	success	41
+18683507192	Healthcheck API	completed	failure	17
+18682407920	Healthcheck API	completed	failure	16
+18681950444	audit-and-remediate	completed	success	36
+18681655349	Healthcheck API	completed	failure	24
+18681188655	Healthcheck API	completed	failure	17
+18680588916	audit-and-remediate	completed	success	40
+18680176982	Healthcheck API	completed	failure	14
+18679634643	Healthcheck API	completed	failure	15
+18679041520	audit-and-remediate	completed	success	39
+18678611761	Healthcheck API	completed	failure	15
+18678191453	Healthcheck API	completed	failure	14
+18677570836	audit-and-remediate	completed	success	46
+18677353515	Healthcheck API	completed	failure	16
+18676436585	Healthcheck API	completed	failure	16
+18675962793	audit-and-remediate	completed	success	45
+18675618217	Healthcheck API	completed	failure	12
+18675324907	Healthcheck API	completed	failure	19
+18675119935	Verify Home	completed	failure	15
+18674858840	audit-and-remediate	completed	success	39
+18674679802	Healthcheck API	completed	failure	15
+18674058215	Healthcheck API	completed	failure	20
+18673650903	audit-and-remediate	completed	success	41
+18673400414	Healthcheck API	completed	failure	19
+18673084259	Healthcheck API	completed	failure	16
+18672713634	audit-and-remediate	completed	success	38
+18672426591	Healthcheck API	completed	failure	13
+18672224049	Healthcheck API	completed	failure	15
+18672108690	Verify Media	completed	failure	21
+18671875739	Cleanup Test Resources	completed	success	27
+18671873438	Healthcheck API	completed	failure	18
+18671471059	audit-and-remediate	completed	success	41
+18670766710	Healthcheck API	completed	failure	14
+18670308446	Verify Home	completed	failure	16
+18670168258	Verify Settings	completed	failure	16
+18669868611	Verify Menus	completed	failure	17
+18669595714	audit-and-remediate	completed	success	36
+18669058826	Healthcheck API	completed	failure	24
+18667860985	Healthcheck API	completed	failure	19
+18667515767	audit-and-remediate	completed	success	39
+18667348117	Deploy Production (Cloudflare)	completed	success	80
+18667348112	Structure & Governance Guard	completed	success	19
+18667348110	Pages Deploy Fallback	completed	failure	27
+18667348101	Guard - Require Cloudflare Pages Preview	completed	skipped	1
+18667348086	Docs Lint	completed	success	32
+18667348083	CI — Briefing	completed	success	121
+18667348082	Status & Changelog Update	completed	success	15
+18667347005	Docs Lint	completed	success	31
+18667346977	Structure & Governance Guard	completed	success	15
+18667346975	CI — Briefing	completed	success	52
+18667346974	Deploy Preview (Cloudflare)	completed	failure	45
+18667346973	Guard - Require Cloudflare Pages Preview	completed	success	14
+18667262040	Healthcheck API	completed	failure	19
+18667230031	audit-and-remediate	completed	success	50
+18667229826	Verify Media	completed	failure	16
+18667229646	Verify Menus	completed	failure	18
+18667229383	Verify Settings	completed	failure	15
+18667229165	Verify Home	completed	failure	22
+18667168901	Deploy Production (Cloudflare)	completed	success	75
+18667168898	Docs Lint	completed	success	37
+18667168897	Status & Changelog Update	completed	success	19
+18667168896	Structure & Governance Guard	completed	success	19
+18667168895	Pages Deploy Fallback	completed	failure	30
+18667168893	CI — Briefing	completed	success	120
+18667168890	Guard - Require Cloudflare Pages Preview	completed	skipped	1
+18667126471	release-template	completed	success	18
+18667116949	release-template	completed	failure	16
+18667110932	Pages Deploy Fallback	completed	failure	33
+18667110927	Guard - Require Cloudflare Pages Preview	completed	skipped	1
+18667110924	CI — Briefing	completed	success	118
+18667110922	Status & Changelog Update	completed	success	23
+18667110921	Deploy Production (Cloudflare)	completed	success	74
+18667110916	Docs Lint	completed	success	30
+18667110906	Structure & Governance Guard	completed	success	21
+18667109898	CI — Briefing	completed	success	58
+18667109859	Guard - Require Cloudflare Pages Preview	completed	success	19
+18667109856	Structure & Governance Guard	completed	success	17
+18667109855	Docs Lint	completed	success	35
+18667109852	Environment Report	completed	success	24
+18667109851	Deploy Preview (Cloudflare)	completed	success	74
+18666902471	Docs Lint	completed	success	34
+18666902462	CI — Briefing	completed	success	111
+18666902455	Structure & Governance Guard	completed	success	16
+18666902416	Guard - Require Cloudflare Pages Preview	completed	skipped	1
+18666902404	Deploy Production (Cloudflare)	completed	success	76
+18666902391	Pages Deploy Fallback	completed	failure	28
+18666902385	Status & Changelog Update	completed	success	16
+18666849746	audit-and-remediate	completed	success	33
+18666844732	Pages Deploy Fallback	completed	failure	28
+18666844731	Status & Changelog Update	completed	success	19
+18666844722	Structure & Governance Guard	completed	success	15
+18666844718	Guard - Require Cloudflare Pages Preview	completed	skipped	1
+18666844714	Deploy Production (Cloudflare)	completed	success	84
+18666844713	Docs Lint	completed	success	36
+18666844712	CI — Briefing	completed	success	121
+18666833256	Healthcheck API	completed	failure	14
+18666779264	publish-mvp-rest	completed	success	14
+18666777397	audit-and-remediate	completed	failure	25
+18666771906	Deploy Production (Cloudflare)	completed	success	78
+18666771868	Guard - Require Cloudflare Pages Preview	completed	skipped	1
+18666771866	CI — Briefing	completed	success	123
+18666771857	Pages Deploy Fallback	completed	failure	33
+18666771856	Status & Changelog Update	completed	success	17
+18666771841	Structure & Governance Guard	completed	success	16
+18666771838	Docs Lint	completed	success	33
+18666767282	CI — Briefing	completed	success	52
+18666767270	Guard - Require Cloudflare Pages Preview	completed	success	14
+18666767268	Deploy Preview (Cloudflare)	completed	success	73
+18666767266	Structure & Governance Guard	completed	success	16
+18666767265	Docs Lint	completed	success	33
+18666459908	Deploy Production (Cloudflare)	completed	success	75
+18666459862	Status & Changelog Update	completed	success	20
+18666459847	Structure & Governance Guard	completed	success	17
+18666459846	Guard - Require Cloudflare Pages Preview	completed	skipped	1
+18666459842	Docs Lint	completed	success	30
+18666459833	Pages Deploy Fallback	completed	failure	28
+18666459832	CI — Briefing	completed	success	110
+18666449433	Rotate Application Password	completed	failure	16
+18666449085	Verify Settings	completed	failure	18
+18666448670	Verify Menus	completed	failure	18
+18666448393	Verify Media	completed	failure	16
+18666448070	Verify Home	completed	failure	15
+18666442829	Status & Changelog Update	completed	success	18
+18666442814	CI — Briefing	completed	success	113
+18666442809	Docs Lint	completed	success	34
+18666442806	Structure & Governance Guard	completed	success	20
+18666442800	Pages Deploy Fallback	completed	failure	33
+18666442799	Deploy Production (Cloudflare)	completed	success	80
+18666442792	Guard - Require Cloudflare Pages Preview	completed	skipped	1
+18666078916	Healthcheck API	completed	failure	20
+18665541089	Healthcheck API	completed	failure	14
+18664794119	Healthcheck API	completed	failure	18
+18664295789	Healthcheck API	completed	failure	14
+18663399451	Healthcheck API	completed	failure	21
+18662749856	Healthcheck API	completed	failure	28
+18662024953	Healthcheck API	completed	failure	17
+18661723867	Healthcheck API	completed	failure	17
+18661461075	Verify Home	completed	failure	19
+18660913318	Healthcheck API	completed	failure	11
+18660596000	Deploy Production (Cloudflare)	completed	success	66
+18660595983	Docs Lint	completed	success	24
+18660595973	Structure & Governance Guard	completed	success	20
+18660595969	CI — Briefing	completed	success	82
+18660595968	Pages Deploy Fallback	completed	failure	16
+18660595966	Status & Changelog Update	completed	success	17
+18660595955	Guard - Require Cloudflare Pages Preview	completed	skipped	1
+18660480810	Verify Media	completed	failure	12
+18660480292	Verify Menus	completed	failure	12
+18660478866	Verify Settings	completed	failure	15
+18660477895	Verify Home	completed	failure	11
+18660213297	Pages Deploy Fallback	completed	failure	17
+18660213265	Deploy Production (Cloudflare)	completed	success	64
+18660213255	Status & Changelog Update	completed	success	10
+18660213248	Structure & Governance Guard	completed	success	11
+18660213247	Docs Lint	completed	success	22
+18660213244	Guard - Require Cloudflare Pages Preview	completed	skipped	1
+18660170458	Verify Settings	completed	failure	13
+18660169846	Verify Media	completed	failure	13
+18660169333	Verify Menus	completed	failure	12
+18660168964	Verify Home	completed	failure	13
+18660156065	Guard - Require Cloudflare Pages Preview	completed	skipped	1
+18660156018	Status & Changelog Update	completed	success	10
+18660156014	Structure & Governance Guard	completed	success	8
+18660156007	Deploy Production (Cloudflare)	completed	success	64
+18660156005	CI — Briefing	completed	success	97
+18660156001	Pages Deploy Fallback	completed	failure	17
+18660155999	Docs Lint	completed	success	23
+18660088198	Healthcheck API	completed	failure	9
+18659840594	Verify Media	completed	failure	17
+18659840082	Verify Menus	completed	failure	17
+18659839829	Verify Settings	completed	failure	13
+18659839554	Verify Home	completed	failure	15
+18659817913	Deploy Production (Cloudflare)	completed	success	64
+18659817912	Status & Changelog Update	completed	success	12
+18659817906	Pages Deploy Fallback	completed	failure	16
+18659817903	Structure & Governance Guard	completed	success	11
+18659817895	Docs Lint	completed	success	22
+18659817889	Guard - Require Cloudflare Pages Preview	completed	skipped	1
+18659594268	Verify Settings	completed	failure	8
+18659593779	Verify Media	completed	failure	10
+18659593447	Verify Menus	completed	failure	13
+18659593244	Verify Home	completed	failure	8
+18659590543	Status & Changelog Update	completed	success	11
+18659590542	Guard - Require Cloudflare Pages Preview	completed	skipped	0
+18659590538	Docs Lint	completed	success	27
+18659590530	Pages Deploy Fallback	completed	failure	13
+18659590521	Structure & Governance Guard	completed	success	10
+18659590519	Deploy Production (Cloudflare)	completed	success	65
+18659582160	Deploy Preview (Cloudflare)	completed	failure	37
+18659582149	Guard - Require Cloudflare Pages Preview	completed	success	8
+18659582148	Structure & Governance Guard	completed	success	12
+18659582138	Docs Lint	completed	success	27
+18659271441	Structure & Governance Guard	completed	success	9
+18659271409	CI — Briefing	completed	success	98
+18659271408	Status & Changelog Update	completed	success	13
+18659271405	Pages Deploy Fallback	completed	failure	19
+18659271404	Deploy Production (Cloudflare)	completed	success	64
+18659271399	Guard - Require Cloudflare Pages Preview	completed	skipped	1
+18659271395	Docs Lint	completed	success	24
+18659266829	Environment Report	completed	success	13
+18659266817	Guard - Require Cloudflare Pages Preview	completed	success	9
+18659266812	Structure & Governance Guard	completed	success	9
+18659266810	Docs Lint	completed	success	21
+18659266794	Deploy Preview (Cloudflare)	completed	failure	37
+18659266792	CI — Briefing	completed	success	38
+18659219172	Healthcheck API	completed	failure	8
+18658840963	Healthcheck API	completed	failure	14
+18657959007	Structure & Governance Guard	completed	success	10
+18657958983	Pages Deploy Fallback	completed	failure	19
+18657958961	Guard - Require Cloudflare Pages Preview	completed	skipped	1
+18657958955	Docs Lint	completed	success	24
+18657958952	CI — Briefing	completed	success	93
+18657958933	Deploy Production (Cloudflare)	completed	success	58
+18657958930	Status & Changelog Update	completed	success	13
+18657876716	Structure & Governance Guard	completed	success	13
+18657876710	CI — Briefing	completed	success	41
+18657876708	Docs Lint	completed	success	22
+18657876689	Deploy Preview (Cloudflare)	completed	success	80
+18657876688	Environment Report	completed	success	16
+18657876680	Guard - Require Cloudflare Pages Preview	completed	success	8
+18657787415	Healthcheck API	completed	failure	10
+18657545541	CI — Briefing	completed	success	43
+18657545479	Structure & Governance Guard	completed	success	10
+18657545459	Guard - Require Cloudflare Pages Preview	completed	success	9
+18657545446	Deploy Preview (Cloudflare)	completed	success	59
+18657545434	Environment Report	completed	success	11
+18657545428	Docs Lint	completed	success	25
+18657210271	CI — Briefing	completed	success	42
+18657210260	Environment Report	completed	success	16
+18657210256	Structure & Governance Guard	completed	success	11
+18657210249	Deploy Preview (Cloudflare)	completed	failure	61
+18657210242	Docs Lint	completed	success	22
+18657210225	Guard - Require Cloudflare Pages Preview	completed	success	24
+18657160284	Healthcheck API	completed	failure	7
+18657102121	Guard - Require Cloudflare Pages Preview	completed	success	11
+18657102101	CI — Briefing	completed	success	41
+18657102062	Environment Report	completed	success	12
+18657102061	Deploy Preview (Cloudflare)	completed	failure	56
+18657102045	Docs Lint	completed	success	23
+18657102040	Structure & Governance Guard	completed	success	9
+18656989816	Environment Report	completed	success	19
+18656989766	Structure & Governance Guard	completed	success	10
+18656989749	CI — Briefing	completed	success	47
+18656989747	Docs Lint	completed	success	36
+18656989736	Deploy Preview (Cloudflare)	completed	failure	51
+18656989732	Guard - Require Cloudflare Pages Preview	completed	success	10
+18656823273	Structure & Governance Guard	completed	success	10
+18656823234	Deploy Preview (Cloudflare)	completed	failure	56
+18656823229	Environment Report	completed	success	14
+18656823222	Docs Lint	completed	success	29
+18656823214	CI — Briefing	completed	success	39
+18656823212	Guard - Require Cloudflare Pages Preview	completed	success	9
+18656176109	Healthcheck API	completed	failure	8
+18655589809	Healthcheck API	completed	failure	8
+18655363380	Deploy Production (Cloudflare)	completed	success	66
+18655363347	Docs Lint	completed	success	22
+18655363340	Pages Deploy Fallback	completed	failure	18
+18655363317	Guard - Require Cloudflare Pages Preview	completed	skipped	1
+18655363307	Structure & Governance Guard	completed	success	10
+18655363301	Status & Changelog Update	completed	success	10
+18655323559	Structure & Governance Guard	completed	success	9
+18655323545	Status & Changelog Update	completed	success	13
+18655323516	Pages Deploy Fallback	completed	failure	17
+18655323509	Guard - Require Cloudflare Pages Preview	completed	skipped	1
+18655323496	Docs Lint	completed	success	27
+18655323460	Deploy Production (Cloudflare)	completed	success	50
+18654470994	Healthcheck API	completed	failure	7
+18654003279	Healthcheck API	completed	failure	12
+18652864451	Healthcheck API	completed	failure	15
+18651678363	Healthcheck API	completed	failure	10
+18650628886	Healthcheck API	completed	failure	21
+18649936320	Healthcheck API	completed	failure	12
+18649521886	Healthcheck API	completed	failure	9
+18648603152	Healthcheck API	completed	failure	15
+18648127838	Healthcheck API	completed	failure	8
+18647513220	Healthcheck API	completed	failure	12
+18646943867	Healthcheck API	completed	failure	11
+18646273499	Healthcheck API	completed	failure	9
+18645509232	Healthcheck API	completed	failure	8
+18644763507	Healthcheck API	completed	failure	11
+18644501489	Healthcheck API	completed	failure	13
+18643853267	Healthcheck API	completed	failure	8
+18643263635	Healthcheck API	completed	failure	9
+18642624164	Healthcheck API	completed	failure	5
+18642345682	Healthcheck API	completed	failure	8
+18641902843	Healthcheck API	completed	failure	8
+18641266912	Healthcheck API	completed	failure	8
+18640199769	Healthcheck API	completed	failure	16
+18638635827	Healthcheck API	completed	failure	12
+18637684580	Healthcheck API	completed	failure	6
+18637325860	Healthcheck API	completed	failure	7
+18637078191	Healthcheck API	completed	failure	10
+18636668165	Healthcheck API	completed	failure	7
+18636376040	Healthcheck API	completed	failure	7
+18636021452	Healthcheck API	completed	failure	11
+18635762077	Healthcheck API	completed	failure	7
+18635372538	Healthcheck API	completed	failure	7
+18635086329	Healthcheck API	completed	failure	9
+18634748077	Healthcheck API	completed	failure	8
+18634550714	Healthcheck API	completed	failure	10
+18634079432	Healthcheck API	completed	failure	8
+18633799232	Healthcheck API	completed	failure	8
+18633428824	Healthcheck API	completed	failure	11
+18633205786	Healthcheck API	completed	failure	7
+18632772061	Healthcheck API	completed	failure	8
+18632470502	Healthcheck API	completed	failure	8
+18632116167	Healthcheck API	completed	failure	9
+18631853648	Healthcheck API	completed	failure	10
+18631454277	Healthcheck API	completed	failure	6
+18631201528	Healthcheck API	completed	failure	10
+18630966540	Healthcheck API	completed	failure	11
+18630716206	Healthcheck API	completed	failure	10
+18630234077	Healthcheck API	completed	failure	8
+18629783945	Healthcheck API	completed	failure	7
+18629443157	Healthcheck API	completed	failure	13
+18629216783	Healthcheck API	completed	failure	16
+18628813096	Healthcheck API	completed	failure	10
+18628533608	Healthcheck API	completed	failure	9
+18628177776	Healthcheck API	completed	failure	12
+18627954733	Healthcheck API	completed	failure	9
+18627532803	Healthcheck API	completed	failure	9
+18627257173	Healthcheck API	completed	failure	10
+18626910215	Healthcheck API	completed	failure	9
+18626741087	Healthcheck API	completed	failure	22
+18626410236	Healthcheck API	completed	failure	10
+18626076269	Healthcheck API	completed	failure	6
+18625691246	Healthcheck API	completed	failure	10
+18625505048	Healthcheck API	completed	failure	10
+18625227895	Healthcheck API	completed	failure	11
+18624824915	Healthcheck API	completed	failure	9
+18624173080	Healthcheck API	completed	failure	10
+18623120926	Healthcheck API	completed	failure	10
+18622400428	Healthcheck API	completed	failure	12
+18622087702	Healthcheck API	completed	failure	12
+18621861021	Healthcheck API	completed	failure	11
+18621498703	Healthcheck API	completed	failure	11
+18621234616	Healthcheck API	completed	failure	7
+18620904947	Healthcheck API	completed	failure	10
+18620656870	Healthcheck API	completed	failure	7
+18620302433	Healthcheck API	completed	failure	11
+18620033894	Healthcheck API	completed	failure	14
+18619710931	Healthcheck API	completed	failure	6
+18619516123	Healthcheck API	completed	failure	8
+18619068203	Healthcheck API	completed	failure	10
+18618797227	Healthcheck API	completed	failure	6
+18618436245	Healthcheck API	completed	failure	10
+18618225450	Healthcheck API	completed	failure	10
+18617819958	Healthcheck API	completed	failure	10
+18617543963	Healthcheck API	completed	failure	6
+18617197320	Healthcheck API	completed	failure	8
+18616941422	Healthcheck API	completed	failure	11
+18616573568	Healthcheck API	completed	failure	10
+18616343173	Healthcheck API	completed	failure	12
+18616128817	Healthcheck API	completed	failure	11
+18615901737	Healthcheck API	completed	failure	6
+18615459751	Healthcheck API	completed	failure	7
+18615061502	Healthcheck API	completed	failure	8
+18614747068	Healthcheck API	completed	failure	9
+18614536522	Healthcheck API	completed	failure	8
+18614155968	Healthcheck API	completed	failure	9
+18613903894	Healthcheck API	completed	failure	9
+18613566468	Healthcheck API	completed	failure	8
+18613351176	Healthcheck API	completed	failure	7
+18613048243	Healthcheck API	completed	failure	8
+18612675763	Healthcheck API	completed	failure	8
+18612342241	Healthcheck API	completed	failure	8
+18612168319	Healthcheck API	completed	failure	8
+18611827575	Healthcheck API	completed	failure	10
+18611475749	Healthcheck API	completed	failure	9
+18611090050	Healthcheck API	completed	failure	7
+18610873658	Healthcheck API	completed	failure	10
+18610555357	Healthcheck API	completed	failure	9
+18610270542	Healthcheck API	completed	failure	9
+18609855565	Healthcheck API	completed	failure	6
+18609220358	Healthcheck API	completed	failure	13
+18608118101	Healthcheck API	completed	failure	10
+18607245487	Healthcheck API	completed	failure	10
+18606788834	Healthcheck API	completed	failure	15
+18606445887	Healthcheck API	completed	failure	7
+18605840064	Healthcheck API	completed	failure	8
+18605356015	Healthcheck API	completed	failure	7
+18604738536	Healthcheck API	completed	failure	10
+18604253834	Healthcheck API	completed	failure	10
+18603482445	Healthcheck API	completed	failure	8
+18602887663	Healthcheck API	completed	failure	10
+18602213152	Healthcheck API	completed	failure	8
+18601828407	Healthcheck API	completed	failure	8
+18600874826	Healthcheck API	completed	failure	6
+18600304067	Healthcheck API	completed	failure	12
+18599504677	Healthcheck API	completed	failure	7
+18599093226	Healthcheck API	completed	failure	11
+18598141813	Healthcheck API	completed	failure	17
+18597563302	Healthcheck API	completed	failure	14
+18596628492	Healthcheck API	completed	failure	22
+18596079188	Healthcheck API	completed	failure	6
+18595034816	Healthcheck API	completed	failure	21
+18594528785	Healthcheck API	completed	failure	20
+18593488038	Healthcheck API	completed	failure	16
+18592390516	Healthcheck API	completed	failure	15
+18591388170	Healthcheck API	completed	failure	14
+18590689416	Healthcheck API	completed	failure	11
+18590232398	Healthcheck API	completed	failure	13
+18589318913	Healthcheck API	completed	failure	8
+18588774920	Healthcheck API	completed	failure	14
+18587875678	Healthcheck API	completed	failure	15
+18587452863	Healthcheck API	completed	failure	18
+18586699472	Healthcheck API	completed	failure	19
+18585852656	Healthcheck API	completed	failure	7
+18585108588	Healthcheck API	completed	failure	10
+18584799907	Healthcheck API	completed	failure	16
+18584169473	Healthcheck API	completed	failure	15
+18583569793	Healthcheck API	completed	failure	17
+18582941009	Healthcheck API	completed	failure	16
+18582627453	Healthcheck API	completed	failure	16
+18582007218	Healthcheck API	completed	failure	6
+18581776803	Healthcheck API	completed	failure	14
+18581248291	Healthcheck API	completed	failure	17
+18580348704	Healthcheck API	completed	failure	13
+18578798041	Healthcheck API	completed	failure	13
+18577690995	Healthcheck API	completed	failure	8
+18577112709	Healthcheck API	completed	failure	15
+18576630026	Healthcheck API	completed	failure	14
+18575946281	Healthcheck API	completed	failure	19
+18575359152	Healthcheck API	completed	failure	14
+18574659338	Healthcheck API	completed	failure	14
+18574132711	Healthcheck API	completed	failure	16
+18573256814	Healthcheck API	completed	failure	14
+18572545219	Healthcheck API	completed	failure	21
+18571837363	Healthcheck API	completed	failure	17
+18571466191	Healthcheck API	completed	failure	18
+18570638713	Healthcheck API	completed	failure	14
+18569792067	Healthcheck API	completed	failure	16
+18568879275	Healthcheck API	completed	failure	9
+18568446528	Healthcheck API	completed	failure	18
+18567606872	Healthcheck API	completed	failure	10
+18566759939	Healthcheck API	completed	failure	10
+18565898803	Healthcheck API	completed	failure	11
+18565099901	Healthcheck API	completed	failure	10
+18563891929	Healthcheck API	completed	failure	10
+18563415176	Healthcheck API	completed	failure	12
+18562195121	Healthcheck API	completed	failure	11
+18560929370	Healthcheck API	completed	failure	5
+18559831372	Healthcheck API	completed	failure	15
+18559036800	Healthcheck API	completed	failure	8
+18558584182	Healthcheck API	completed	failure	11
+18557581103	Healthcheck API	completed	failure	9
+18557010006	Healthcheck API	completed	failure	6
+18556007954	Healthcheck API	completed	failure	9
+18555597299	Healthcheck API	completed	failure	9
+18554760337	Healthcheck API	completed	failure	9
+18553856379	Healthcheck API	completed	failure	9
+18553051830	Healthcheck API	completed	failure	8
+18552743125	Healthcheck API	completed	failure	11
+18552082115	Healthcheck API	completed	failure	10
+18551443695	Healthcheck API	completed	failure	11
+18550797497	Healthcheck API	completed	failure	9
+18550480853	Healthcheck API	completed	failure	9
+18549856621	Healthcheck API	completed	failure	10
+18549653548	Healthcheck API	completed	failure	9
+18549130072	Healthcheck API	completed	failure	9
+18548213857	Healthcheck API	completed	failure	9
+18546631756	Healthcheck API	completed	failure	8
+18545998601	Docs Lint	completed	success	33
+18545998581	Guard - Require Cloudflare Pages Preview	completed	skipped	1
+18545998579	Structure & Governance Guard	completed	success	11
+18545998576	Pages Deploy Fallback	completed	failure	19
+18545998563	Deploy Production (Cloudflare)	completed	success	55
+18545998556	Status & Changelog Update	completed	success	19
+18545936311	Structure & Governance Guard	completed	success	14
+18545936307	Deploy Production (Cloudflare)	completed	success	65
+18545936306	CI — Briefing	completed	success	91
+18545936304	Guard - Require Cloudflare Pages Preview	completed	skipped	1
+18545936302	Pages Deploy Fallback	completed	failure	16
+18545936301	Docs Lint	completed	success	25
+18545936299	Status & Changelog Update	completed	success	9
+18545900743	Docs Lint	completed	success	24
+18545900740	Structure & Governance Guard	completed	success	28
+18545900738	Guard - Require Cloudflare Pages Preview	completed	skipped	1
+18545900737	Status & Changelog Update	completed	success	16
+18545900735	Pages Deploy Fallback	completed	failure	18
+18545900732	Deploy Production (Cloudflare)	completed	success	49
+18545900729	CI — Briefing	completed	failure	85
+18545885040	Environment Report	completed	success	16
+18545885035	Guard - Require Cloudflare Pages Preview	completed	success	10
+18545885034	Docs Lint	completed	success	24
+18545885030	Deploy Preview (Cloudflare)	completed	success	65
+18545885028	CI — Briefing	completed	success	44
+18545885026	Structure & Governance Guard	completed	success	28
+18545745926	Docs Lint	completed	success	28
+18545745888	Guard - Require Cloudflare Pages Preview	completed	success	13
+18545745886	Structure & Governance Guard	completed	failure	29
+18545745874	Environment Report	completed	success	15
+18545745866	Deploy Preview (Cloudflare)	completed	success	55
+18545745865	CI — Briefing	completed	success	44
+18545640252	Structure & Governance Guard	completed	failure	28
+18545640236	CI — Briefing	completed	success	40
+18545640235	Environment Report	completed	success	14
+18545640225	Docs Lint	completed	success	23
+18545640222	Guard - Require Cloudflare Pages Preview	completed	success	9
+18545640218	Deploy Preview (Cloudflare)	completed	success	60
+18545584355	Docs Lint	completed	success	23
+18545584316	CI — Briefing	completed	success	35
+18545584314	Environment Report	completed	success	13
+18545584307	Structure & Governance Guard	completed	failure	26
+18545584306	Guard - Require Cloudflare Pages Preview	completed	success	12
+18545584305	Deploy Preview (Cloudflare)	completed	failure	65
+18545503022	Healthcheck API	completed	failure	13
+18545455047	Structure & Governance Guard	completed	failure	29
+18545455042	Environment Report	completed	success	16
+18545455028	Docs Lint	completed	success	27
+18545455014	CI — Briefing	completed	success	42
+18545455012	Guard - Require Cloudflare Pages Preview	completed	success	13
+18545455009	Deploy Preview (Cloudflare)	completed	failure	54
+18545352243	CI — Briefing	completed	success	37
+18545352221	Deploy Preview (Cloudflare)	completed	failure	51
+18545352220	Environment Report	completed	success	13
+18545352217	Guard - Require Cloudflare Pages Preview	completed	success	11
+18545352208	Docs Lint	completed	success	23
+18545352196	Structure & Governance Guard	completed	failure	28
+18545210926	Docs Lint	completed	success	23
+18545210904	Environment Report	completed	success	16
+18545210896	Structure & Governance Guard	completed	failure	29
+18545210891	Deploy Preview (Cloudflare)	completed	failure	60
+18545210889	CI — Briefing	completed	success	45
+18545210887	Guard - Require Cloudflare Pages Preview	completed	success	12
+18545210127	Deploy Preview (Cloudflare)	completed	failure	58
+18544964198	Deploy Preview (Cloudflare)	completed	failure	54
+18544962720	Structure & Governance Guard	completed	failure	25
+18544962672	Deploy Preview (Cloudflare)	completed	failure	53
+18544962666	CI — Briefing	completed	success	41
+18544962660	Environment Report	completed	success	18
+18544962658	Guard - Require Cloudflare Pages Preview	completed	success	10
+18544962652	Docs Lint	completed	success	22
+18544955379	Healthcheck API	completed	failure	9
+18544848690	Deploy Preview (Cloudflare)	completed	failure	55
+18544845932	Docs Lint	completed	success	22
+18544845929	Environment Report	completed	success	15
+18544845925	Guard - Require Cloudflare Pages Preview	completed	success	10
+18544845924	Deploy Preview (Cloudflare)	completed	failure	44
+18544845912	CI — Briefing	completed	success	43
+18544845910	Structure & Governance Guard	completed	failure	27
+18544671052	Deploy Preview (Cloudflare)	completed	failure	42
+18544661308	Environment Report	completed	success	15
+18544661269	Structure & Governance Guard	completed	failure	26
+18544661261	Guard - Require Cloudflare Pages Preview	completed	success	10
+18544661260	Deploy Preview (Cloudflare)	completed	failure	41
+18544661249	CI — Briefing	completed	success	35
+18544661248	Docs Lint	completed	success	22
+18544650558	Deploy Preview (Cloudflare)	completed	failure	10
+18544618798	Deploy Preview (Cloudflare)	completed	failure	7
+18544522250	Healthcheck API	completed	failure	8
+18544489594	Deploy Preview (Cloudflare)	completed	failure	8
+18544488243	Docs Lint	completed	success	25
+18544488223	Deploy Preview (Cloudflare)	completed	failure	10
+18544488208	CI — Briefing	completed	success	41
+18544488206	Guard - Require Cloudflare Pages Preview	completed	success	8
+18544488194	Structure & Governance Guard	completed	success	11
+18544159069	Deploy Preview (Cloudflare)	completed	success	51
+18544156667	Structure & Governance Guard	completed	success	10
+18544156661	Guard - Require Cloudflare Pages Preview	completed	success	14
+18544156659	Docs Lint	completed	success	21
+18544156647	CI — Briefing	completed	success	39
+18544156646	Deploy Preview (Cloudflare)	completed	success	64
+18543880130	Deploy Preview (Cloudflare)	completed	success	52
+18543836788	Healthcheck API	completed	failure	9
+18543827144	Deploy Preview (Cloudflare)	completed	success	62
+18543675535	Deploy Preview (Cloudflare)	completed	success	52
+18543672936	Docs Lint	completed	success	27
+18543672924	Deploy Preview (Cloudflare)	completed	success	61
+18543672923	Structure & Governance Guard	completed	success	13
+18543672914	Guard - Require Cloudflare Pages Preview	completed	success	11
+18543672905	CI — Briefing	completed	success	37
+18543615017	Deploy Preview (Cloudflare)	completed	success	67
+18543408671	Deploy Preview (Cloudflare)	completed	success	53
+18543377203	Deploy Preview (Cloudflare)	completed	failure	37
+18543241597	Healthcheck API	completed	failure	9
+18542515452	Healthcheck API	completed	failure	10
+18542099209	Deploy Preview (Cloudflare)	completed	failure	31
+18542004047	Healthcheck API	completed	failure	13
+18541076084	Healthcheck API	completed	failure	9
+18541050889	Run Canary Diagnostics	completed	success	25
+18540927697	Deploy Preview (Cloudflare)	completed	failure	36
+18540925285	Guard - Require Cloudflare Pages Preview	completed	success	11
+18540925284	Structure & Governance Guard	completed	success	11
+18540925274	CI — Briefing	completed	success	35
+18540925270	Deploy Preview (Cloudflare)	completed	failure	39
+18540925265	Docs Lint	completed	success	27
+18540372399	Healthcheck API	completed	failure	8
+18539973857	Deploy Preview (Cloudflare)	completed	failure	41
+18539973790	CI — Briefing	completed	success	51
+18539973788	Guard - Require Cloudflare Pages Preview	completed	success	11
+18539973787	Structure & Governance Guard	completed	success	11
+18539973778	Docs Lint	completed	success	28
+18539630366	Healthcheck API	completed	failure	10
+18539241352	Healthcheck API	completed	failure	8
+18538417392	Healthcheck API	completed	failure	10
+18537525354	Healthcheck API	completed	failure	7
+18537432420	Docs Lint	completed	success	24
+18537432419	Deploy Preview (Cloudflare)	completed	failure	35
+18537432408	Guard - Require Cloudflare Pages Preview	completed	success	15
+18537432402	CI — Briefing	completed	success	43
+18537432396	Structure & Governance Guard	completed	success	11
+18536610334	Healthcheck API	completed	failure	9
+18536109460	Healthcheck API	completed	failure	10
+18535891873	Run Canary Diagnostics	completed	success	29
+18535256819	Run Canary Diagnostics	completed	success	41
+18535040235	Healthcheck API	completed	failure	8
+18534342473	Healthcheck API	completed	failure	11
+18533550296	Healthcheck API	completed	failure	22
+18532743942	Healthcheck API	completed	failure	9
+18532410948	Run Canary Diagnostics	completed	success	25
+18531972377	Run Canary Diagnostics	completed	success	22
+18531904950	Run Canary Diagnostics	completed	success	29
+18531772622	Run Canary Diagnostics	completed	success	24
+18531505942	Healthcheck API	completed	failure	7
+18531037100	Healthcheck API	completed	failure	8
+18529820112	Healthcheck API	completed	failure	16
+18528546121	Healthcheck API	completed	failure	9
+18527399174	Healthcheck API	completed	failure	9
+18526630498	Healthcheck API	completed	failure	10
+18526174470	Healthcheck API	completed	failure	7
+18525149261	Healthcheck API	completed	failure	7
+18524569495	Healthcheck API	completed	failure	10
+18523554590	Healthcheck API	completed	failure	8
+18523136122	Healthcheck API	completed	failure	9
+18522290620	Healthcheck API	completed	failure	9
+18521397776	Healthcheck API	completed	failure	9
+18520572723	Healthcheck API	completed	failure	10
+18520264828	Healthcheck API	completed	failure	14
+18519605827	Healthcheck API	completed	failure	10
+18518958274	Healthcheck API	completed	failure	8
+18518302458	Healthcheck API	completed	failure	13
+18517973749	Healthcheck API	completed	failure	10
+18517508038	Healthcheck API	completed	failure	11
+18517146467	Healthcheck API	completed	failure	7
+18516630497	Healthcheck API	completed	failure	8
+18515685815	Healthcheck API	completed	failure	8
+18514092473	Healthcheck API	completed	failure	9
+18512931058	Healthcheck API	completed	failure	20
+18512380888	Healthcheck API	completed	failure	11
+18512160966	Run Canary Diagnostics	completed	success	29
+18512159629	Deploy Production (Cloudflare)	completed	success	65
+18512159610	Docs Lint	completed	success	21
+18512159606	Structure & Governance Guard	completed	success	10
+18512159599	Pages Deploy Fallback	completed	failure	48
+18512159597	Status & Changelog Update	completed	success	10
+18512159595	Guard - Require Cloudflare Pages Preview	completed	skipped	1
+18512033463	Run Canary Diagnostics	completed	success	24
+18512031340	Deploy Production (Cloudflare)	completed	success	55
+18512031322	Pages Deploy Fallback	completed	failure	55
+18512031319	CI — Briefing	completed	failure	80
+18512031317	Structure & Governance Guard	completed	success	12
+18512031315	Guard - Require Cloudflare Pages Preview	completed	skipped	1
+18512031311	Status & Changelog Update	completed	success	11
+18512031305	Docs Lint	completed	success	22
+18511971887	Healthcheck API	completed	failure	7
+18511864617	Run Canary Diagnostics	completed	success	23
+18511862631	Deploy Production (Cloudflare)	completed	success	56
+18511862619	Guard - Require Cloudflare Pages Preview	completed	skipped	1
+18511862617	Status & Changelog Update	completed	success	10
+18511862616	Docs Lint	completed	success	24
+18511862610	Pages Deploy Fallback	completed	failure	36
+18511862609	Structure & Governance Guard	completed	success	10
+18511828991	Run Canary Diagnostics	completed	failure	28
+18511827075	Pages Deploy Fallback	completed	failure	49
+18511827041	Status & Changelog Update	completed	success	10
+18511827039	Structure & Governance Guard	completed	success	7
+18511827036	Deploy Production (Cloudflare)	completed	success	60
+18511827029	Docs Lint	completed	success	24
+18511827023	Guard - Require Cloudflare Pages Preview	completed	skipped	1
+18511798026	Run Canary Diagnostics	completed	failure	24
+18511797225	Docs Lint	completed	success	26
+18511797196	Pages Deploy Fallback	completed	failure	44
+18511797191	Status & Changelog Update	completed	success	9
+18511797188	Deploy Production (Cloudflare)	completed	success	50
+18511797185	Structure & Governance Guard	completed	success	9
+18511797179	Guard - Require Cloudflare Pages Preview	completed	skipped	0
+18511758130	Run Canary Diagnostics	completed	failure	21
+18511757000	Guard - Require Cloudflare Pages Preview	completed	skipped	1
+18511756999	Status & Changelog Update	completed	success	10
+18511756995	Deploy Production (Cloudflare)	completed	success	52
+18511756986	Pages Deploy Fallback	completed	failure	36
+18511756982	Docs Lint	completed	success	23
+18511756980	Structure & Governance Guard	completed	success	9
+18511746988	Deploy Production (Cloudflare)	completed	success	50
+18511746980	Docs Lint	completed	success	22
+18511746961	Guard - Require Cloudflare Pages Preview	completed	skipped	1
+18511746952	Pages Deploy Fallback	completed	failure	34
+18511746948	Status & Changelog Update	completed	success	12
+18511746947	Structure & Governance Guard	completed	success	8
+18511631656	Run Canary Diagnostics	completed	failure	19
+18511561176	Run Canary Diagnostics	completed	failure	19
+18511556320	Docs Lint	completed	success	23
+18511556309	Structure & Governance Guard	completed	success	9
+18511556300	Deploy Production (Cloudflare)	completed	success	64
+18511556284	Guard - Require Cloudflare Pages Preview	completed	skipped	1
+18511556283	Status & Changelog Update	completed	success	12
+18511556279	Pages Deploy Fallback	completed	failure	43
+18511511210	Run Canary Diagnostics	completed	failure	18
+18511508793	Status & Changelog Update	completed	success	12
+18511508770	Docs Lint	completed	success	24
+18511508763	Deploy Production (Cloudflare)	completed	success	51
+18511508759	Pages Deploy Fallback	completed	failure	38
+18511508758	Guard - Require Cloudflare Pages Preview	completed	skipped	1
+18511508753	Structure & Governance Guard	completed	success	10
+18511464823	Run Canary Diagnostics	completed	failure	17
+18511460383	Guard - Require Cloudflare Pages Preview	completed	skipped	1
+18511460359	Docs Lint	completed	success	21
+18511460355	Deploy Production (Cloudflare)	completed	success	56
+18511460351	Status & Changelog Update	completed	success	8
+18511460350	Structure & Governance Guard	completed	success	9
+18511460343	Pages Deploy Fallback	completed	failure	36
+18511392089	Run Canary Diagnostics	completed	failure	29
+18511389331	Status & Changelog Update	completed	success	11
+18511389330	Deploy Production (Cloudflare)	completed	success	50
+18511389325	Pages Deploy Fallback	completed	failure	45
+18511389323	Guard - Require Cloudflare Pages Preview	completed	skipped	1
+18511389321	Docs Lint	completed	success	30
+18511389311	Structure & Governance Guard	completed	success	9
+18511328842	Run Canary Diagnostics	completed	failure	30
+18511321919	Deploy Production (Cloudflare)	completed	success	58
+18511321905	Status & Changelog Update	completed	success	11
+18511321889	Structure & Governance Guard	completed	success	9
+18511321884	Guard - Require Cloudflare Pages Preview	completed	skipped	1
+18511321883	Docs Lint	completed	success	23
+18511321872	Pages Deploy Fallback	completed	failure	42
+18511266716	Healthcheck API	completed	failure	9
+18511055623	Run Canary Diagnostics	completed	failure	16
+18511047428	Status & Changelog Update	completed	success	12
+18511047406	Deploy Production (Cloudflare)	completed	success	61
+18511047404	Guard - Require Cloudflare Pages Preview	completed	skipped	1
+18511047389	Docs Lint	completed	success	21
+18511047386	Structure & Governance Guard	completed	success	14
+18511047378	Pages Deploy Fallback	completed	failure	39
+18510910957	Deploy Preview (Cloudflare)	completed	success	56
+18510910932	Guard - Require Cloudflare Pages Preview	completed	success	9
+18510910928	Structure & Governance Guard	completed	success	12
+18510818312	Run Canary Diagnostics	completed	failure	11
+18510809877	Pages Deploy Fallback	completed	failure	40
+18510809870	Guard - Require Cloudflare Pages Preview	completed	skipped	1
+18510809859	Structure & Governance Guard	completed	success	10
+18510809855	Status & Changelog Update	completed	success	11
+18510809852	Deploy Production (Cloudflare)	completed	success	54
+18510809842	Docs Lint	completed	success	23
+18510798630	Structure & Governance Guard	completed	success	9
+18510798629	Guard - Require Cloudflare Pages Preview	completed	success	12
+18510798620	Deploy Preview (Cloudflare)	completed	success	61
+18510710673	Run Canary Diagnostics	completed	failure	10
+18510698130	CI — Briefing	completed	failure	70
+18510698125	Guard - Require Cloudflare Pages Preview	completed	skipped	1
+18510698121	Deploy Production (Cloudflare)	completed	success	62
+18510698115	Docs Lint	completed	success	25
+18510698114	Pages Deploy Fallback	completed	failure	41
+18510698113	Status & Changelog Update	completed	success	9
+18510698112	Structure & Governance Guard	completed	success	14
+18510693092	Guard - Require Cloudflare Pages Preview	completed	success	9
+18510693088	Structure & Governance Guard	completed	success	15
+18510693072	Deploy Preview (Cloudflare)	completed	success	63
+18510693063	CI — Briefing	completed	success	38
+18510693053	Docs Lint	completed	success	26
+18507169346	Cloudflare Tokens Verification	completed	failure	15
+18507169341	Guard - Require Cloudflare Pages Preview	completed	success	10
+18507169340	Deploy Preview (Cloudflare)	completed	success	65
+18507169324	CI — Briefing	completed	success	36
+18507169321	Structure & Governance Guard	completed	success	15
+18507169320	Docs Lint	completed	success	27
+18506969876	Cloudflare Tokens Verification	completed	failure	15
+18506969868	Docs Lint	completed	success	27
+18506969866	CI — Briefing	completed	success	46
+18506969854	Structure & Governance Guard	completed	success	16
+18506969847	Guard - Require Cloudflare Pages Preview	completed	success	12
+18506969842	Deploy Preview (Cloudflare)	completed	success	55
+18501966985	Structure & Governance Guard	completed	success	12
+18501966979	CI — Briefing	completed	success	44
+18501966977	Guard - Require Cloudflare Pages Preview	completed	success	12
+18501966960	Deploy Preview (Cloudflare)	completed	success	65
+18501966958	Docs Lint	completed	success	20
+18501822950	Docs Lint	completed	success	24
+18501822927	Guard - Require Cloudflare Pages Preview	completed	success	13
+18501822901	CI — Briefing	completed	success	38
+18501822884	Deploy Preview (Cloudflare)	completed	failure	54
+18501822883	Structure & Governance Guard	completed	success	14
+18501734565	Guard - Require Cloudflare Pages Preview	completed	success	9
+18501734524	Structure & Governance Guard	completed	success	14
+18501734518	Docs Lint	completed	success	22
+18501734510	Deploy Preview (Cloudflare)	completed	failure	65
+18501734506	CI — Briefing	completed	success	52
+18501670186	CI — Briefing	completed	success	45
+18501670178	Structure & Governance Guard	completed	success	11
+18501670164	Guard - Require Cloudflare Pages Preview	completed	success	9
+18501670162	Docs Lint	completed	success	19
+18501670154	Deploy Preview (Cloudflare)	completed	failure	63
+18501534537	Deploy Preview (Cloudflare)	completed	failure	59
+18501534518	Structure & Governance Guard	completed	success	14
+18501534446	Docs Lint	completed	success	26
+18501534439	CI — Briefing	completed	success	41
+18501534438	Guard - Require Cloudflare Pages Preview	completed	success	11
+18501471177	Structure & Governance Guard	completed	success	13
+18501471153	Deploy Preview (Cloudflare)	completed	failure	68
+18501471150	Docs Lint	completed	success	29
+18501471146	CI — Briefing	completed	success	40
+18501471138	Guard - Require Cloudflare Pages Preview	completed	success	9
+18500785590	Docs Lint	completed	success	43
+18500785589	Guard - Require Cloudflare Pages Preview	completed	success	10
+18500785587	CI — Briefing	completed	success	43
+18500785586	Deploy Preview (Cloudflare)	completed	failure	54
+18500785580	Structure & Governance Guard	completed	success	13
+18500558524	Overlay Deploy	completed	success	56
+18500556148	.github/workflows/pages-preview.yml	completed	failure	0
+18500504272	Overlay Deploy	completed	failure	45
+18500499731	.github/workflows/pages-preview.yml	completed	failure	0
+18500460658	Overlay Deploy	completed	failure	29
+18500379527	Overlay Deploy	completed	failure	35
+18500349528	Overlay Deploy	completed	failure	40
+18500346929	.github/workflows/pages-preview.yml	completed	failure	0
+18500296216	Overlay Deploy	completed	failure	40
+18500292475	.github/workflows/pages-preview.yml	completed	failure	0
+18500248725	Overlay Deploy	completed	failure	45
+18500152498	.github/workflows/pages-preview.yml	completed	failure	0
+18498724675	Overlay Deploy	completed	failure	40
+18498722524	Structure & Governance Guard	completed	success	12
+18498722485	Status & Changelog Update	completed	success	15
+18498722482	Guard - Require Cloudflare Pages Preview	completed	skipped	1
+18498722479	Docs Lint	completed	success	23
+18498722474	Deploy Production (Cloudflare)	completed	success	68
+18498722428	Pages Deploy Fallback	completed	failure	38
+18498721911	.github/workflows/pages-preview.yml	completed	failure	0
+18498715045	Deploy Production (Cloudflare)	completed	success	65
+18498715041	Structure & Governance Guard	completed	success	11
+18498715032	Pages Deploy Fallback	completed	failure	47
+18498715023	Guard - Require Cloudflare Pages Preview	completed	skipped	1
+18498715015	Status & Changelog Update	completed	success	9
+18498715009	Docs Lint	completed	success	29
+18498714393	.github/workflows/pages-preview.yml	completed	failure	0
+18498642124	Overlay Deploy	completed	failure	45
+18498588203	Overlay Deploy	completed	failure	43
+18498511112	Overlay Deploy	completed	failure	33
+18498509051	Structure & Governance Guard	completed	success	12
+18498509046	Guard - Require Cloudflare Pages Preview	completed	skipped	1
+18498509036	Status & Changelog Update	completed	success	11
+18498509027	Pages Deploy Fallback	completed	failure	43
+18498509024	Deploy Production (Cloudflare)	completed	success	65
+18498509015	Docs Lint	completed	success	27
+18498508397	.github/workflows/pages-preview.yml	completed	failure	0
+18498468353	Overlay Deploy	completed	failure	42
+18498462161	Status & Changelog Update	completed	success	10
+18498462111	Guard - Require Cloudflare Pages Preview	completed	skipped	1
+18498462110	Docs Lint	completed	success	20
+18498462092	Pages Deploy Fallback	completed	failure	41
+18498462086	Structure & Governance Guard	completed	success	9
+18498462085	Deploy Production (Cloudflare)	completed	success	67
+18498461612	.github/workflows/pages-preview.yml	completed	failure	0
+18498415394	Overlay Deploy	completed	failure	32
+18480782313	Guard - Require Cloudflare Pages Preview	completed	skipped	1
+18480782305	Pages Deploy Fallback	completed	failure	43
+18480782295	Status & Changelog Update	completed	success	11
+18480782294	Structure & Governance Guard	completed	success	10
+18480782290	Docs Lint	completed	success	21
+18480782281	Deploy Production (Cloudflare)	completed	success	59
+18480782015	.github/workflows/pages-preview.yml	completed	failure	0
+18480772964	Pages Deploy Fallback	completed	failure	49
+18480772958	Guard - Require Cloudflare Pages Preview	completed	skipped	1
+18480772949	Structure & Governance Guard	completed	success	9
+18480772948	Docs Lint	completed	success	26
+18480772945	Status & Changelog Update	completed	success	14
+18480772939	Deploy Production (Cloudflare)	completed	success	60
+18480772697	.github/workflows/pages-preview.yml	completed	failure	0
+18480657486	Pages Deploy Fallback	completed	failure	43
+18480657485	Guard - Require Cloudflare Pages Preview	completed	skipped	1
+18480657475	Status & Changelog Update	completed	success	12
+18480657474	Structure & Governance Guard	completed	success	10
+18480657466	Docs Lint	completed	success	25
+18480657463	Deploy Production (Cloudflare)	completed	success	62
+18480657203	.github/workflows/pages-preview.yml	completed	failure	0
+18480627572	Structure & Governance Guard	completed	success	12
+18480627568	Guard - Require Cloudflare Pages Preview	completed	failure	193
+18480624007	.github/workflows/pages-preview.yml	completed	failure	0
+18480622332	Docs Lint	completed	success	22
+18480622325	Pages Deploy Fallback	completed	failure	44
+18480622324	Structure & Governance Guard	completed	success	9
+18480622319	CI — Briefing	completed	failure	86
+18480622317	Status & Changelog Update	completed	success	11
+18480622314	Deploy Production (Cloudflare)	completed	success	48
+18480622313	Guard - Require Cloudflare Pages Preview	completed	skipped	1
+18480622150	.github/workflows/pages-preview.yml	completed	failure	0
+18480582333	Deploy Production (Cloudflare)	completed	success	58
+18480581702	Docs Lint	completed	success	26
+18480581697	Deploy Production (Cloudflare)	completed	success	63
+18480581690	Status & Changelog Update	completed	success	8
+18480581680	Guard - Require Cloudflare Pages Preview	completed	skipped	1
+18480581679	Pages Deploy Fallback	completed	failure	45
+18480581676	Structure & Governance Guard	completed	success	11
+18480581461	.github/workflows/pages-preview.yml	completed	failure	0
+18480474849	Deploy Production (Cloudflare)	completed	success	60
+18480474847	Pages Deploy Fallback	completed	failure	36
+18480474842	Structure & Governance Guard	completed	success	10
+18480474841	Docs Lint	completed	success	24
+18480474840	Briefing Deploy (LEGACY)	completed	skipped	1
+18480474837	Status & Changelog Update	completed	success	11
+18480474836	CI — Briefing	completed	failure	76
+18480474834	Guard - Require Cloudflare Pages Preview	completed	skipped	1
+18480474558	.github/workflows/pages-preview.yml	completed	failure	0
+18480307898	Deploy Production (Cloudflare)	completed	success	62
+18480303672	Promote main and deploy prod	completed	success	24
+18480301308	.github/workflows/pages-preview.yml	completed	failure	0
+18480294538	Overlay Deploy	completed	failure	28
+18480258752	.github/workflows/pages-preview.yml	completed	failure	0
+18480176394	Deploy Production (Cloudflare)	completed	success	53
+18480172298	Promote main and deploy prod	completed	failure	76
+18480170462	.github/workflows/pages-preview.yml	completed	failure	0
+18480169477	Overlay Deploy	completed	failure	32
+18480168793	.github/workflows/pages-preview.yml	completed	failure	0
+18480144141	.github/workflows/pages-preview.yml	completed	failure	0
+18480100099	Deploy Production (Cloudflare)	completed	failure	34
+18480097399	Promote main and deploy prod	completed	failure	51
+18480032532	Deploy Production (Cloudflare)	completed	failure	36
+18480027670	Promote main and deploy prod	completed	failure	54
+18480009392	.github/workflows/pages-preview.yml	completed	failure	0
+18479993390	Deploy Production (Cloudflare)	completed	failure	40
+18479989191	Promote main and deploy prod	completed	failure	21
+18479987496	.github/workflows/pages-preview.yml	completed	failure	0
+18479986030	Overlay Deploy	completed	failure	26
+18479952826	.github/workflows/pages-preview.yml	completed	failure	0
+18479861758	Deploy Production (Cloudflare)	completed	failure	35
+18479857935	Promote main and deploy prod	completed	failure	18
+18479855906	.github/workflows/pages-preview.yml	completed	failure	0
+18479835591	Promote main and deploy prod	completed	failure	18
+18479833374	.github/workflows/pages-preview.yml	completed	failure	0
+18479819280	Promote main and deploy prod	completed	failure	10
+18479818454	.github/workflows/pages-preview.yml	completed	failure	0
+18479794563	Promote main and deploy prod	completed	failure	11
+18479793653	.github/workflows/pages-preview.yml	completed	failure	0
+18478767972	Deploy Production (Cloudflare)	completed	failure	40
+18478766446	.github/workflows/pages-preview.yml	completed	failure	0
+18478707982	Deploy Production (Cloudflare)	completed	failure	40
+18478706204	.github/workflows/pages-preview.yml	completed	failure	0
+18478652814	Deploy Production (Cloudflare)	completed	failure	28
+18478646951	.github/workflows/pages-preview.yml	completed	failure	0
+18478402999	Overlay Deploy	completed	failure	31
+18478308405	.github/workflows/env-report.yml	completed	failure	0
+18478308264	.github/workflows/pages-prod.yml	completed	failure	0
+18478308138	.github/workflows/pages-preview.yml	completed	failure	0
+18478307997	.github/workflows/briefing_deploy.yml	completed	failure	0
+18478307696	.github/workflows/docs-lint.yml	completed	failure	0
+18477452300	Overlay Deploy	completed	failure	31
+18477450853	CI — Briefing	completed	failure	27
+18477450838	Guard - Require Cloudflare Pages Preview	completed	failure	190
+18477450829	Overlay Deploy	completed	failure	44
+18477450827	Structure & Governance Guard	completed	success	21
+18477450485	.github/workflows/pages-prod.yml	completed	failure	0
+18477450343	.github/workflows/pages-preview.yml	completed	failure	0
+18477450179	.github/workflows/env-report.yml	completed	failure	0
+18477450009	.github/workflows/docs-lint.yml	completed	failure	0
+18477449879	.github/workflows/briefing_deploy.yml	completed	failure	0
+18477413834	Overlay Deploy	completed	failure	32
+18477360581	Overlay Deploy	completed	failure	28
+18477357873	Structure & Governance Guard	completed	success	21
+18477357831	Overlay Deploy	completed	failure	36
+18477357830	Guard - Require Cloudflare Pages Preview	completed	failure	185
+18477357825	CI — Briefing	completed	failure	29
+18477357336	.github/workflows/pages-prod.yml	completed	failure	0
+18477357189	.github/workflows/docs-lint.yml	completed	failure	0
+18477357053	.github/workflows/briefing_deploy.yml	completed	failure	0
+18477356938	.github/workflows/pages-preview.yml	completed	failure	0
+18477356760	.github/workflows/env-report.yml	completed	failure	0
+18477302339	Overlay Deploy	completed	failure	40
+18477302328	Guard - Require Cloudflare Pages Preview	completed	failure	186
+18477302313	Structure & Governance Guard	completed	success	20
+18477302265	CI — Briefing	completed	failure	32
+18477301683	.github/workflows/pages-prod.yml	completed	failure	0
+18477301554	.github/workflows/pages-preview.yml	completed	failure	0
+18477301379	.github/workflows/env-report.yml	completed	failure	0
+18477301182	.github/workflows/docs-lint.yml	completed	failure	0
+18477301024	.github/workflows/briefing_deploy.yml	completed	failure	0
+18477293848	Overlay Deploy	completed	failure	35
+18477293828	CI — Briefing	completed	failure	28
+18477293820	Structure & Governance Guard	completed	success	19
+18477293804	Guard - Require Cloudflare Pages Preview	completed	failure	186
+18477293428	.github/workflows/pages-prod.yml	completed	failure	0
+18477293299	.github/workflows/pages-preview.yml	completed	failure	0
+18477293188	.github/workflows/env-report.yml	completed	failure	0
+18477293053	.github/workflows/docs-lint.yml	completed	failure	0
+18477292917	.github/workflows/briefing_deploy.yml	completed	failure	0
+18477094257	Overlay Deploy	completed	failure	30
+18477092280	CI — Briefing	completed	failure	25
+18477092279	Overlay Deploy	completed	failure	32
+18477092275	Structure & Governance Guard	completed	success	21
+18477092271	Guard - Require Cloudflare Pages Preview	completed	failure	189
+18477091576	.github/workflows/docs-lint.yml	completed	failure	0
+18477091356	.github/workflows/briefing_deploy.yml	completed	failure	0
+18477091215	.github/workflows/pages-preview.yml	completed	failure	0
+18477091068	.github/workflows/pages-prod.yml	completed	failure	0
+18477090898	.github/workflows/env-report.yml	completed	failure	0
+18477024130	Overlay Deploy	completed	failure	41
+18477016236	CI — Briefing	completed	failure	29
+18477016229	Guard - Require Cloudflare Pages Preview	completed	failure	188
+18477016212	Overlay Deploy	completed	failure	39
+18477016211	Structure & Governance Guard	completed	success	21
+18477015477	.github/workflows/pages-preview.yml	completed	failure	0
+18477015316	.github/workflows/pages-prod.yml	completed	failure	0
+18477015097	.github/workflows/docs-lint.yml	completed	failure	0
+18477014916	.github/workflows/briefing_deploy.yml	completed	failure	0
+18477014743	.github/workflows/env-report.yml	completed	failure	0
+18476964389	Overlay Deploy	completed	failure	31
+18476962852	Guard - Require Cloudflare Pages Preview	completed	failure	196
+18476962807	Overlay Deploy	completed	failure	34
+18476962804	Structure & Governance Guard	completed	success	25
+18476962791	CI — Briefing	completed	failure	29
+18476962199	.github/workflows/pages-preview.yml	completed	failure	0
+18476961984	.github/workflows/pages-prod.yml	completed	failure	0
+18476961770	.github/workflows/briefing_deploy.yml	completed	failure	0
+18476961501	.github/workflows/docs-lint.yml	completed	failure	0
+18476961349	.github/workflows/env-report.yml	completed	failure	0
+18476922260	Overlay Deploy	completed	failure	25
+18476879097	Overlay Deploy	completed	failure	30
+18476879096	Guard - Require Cloudflare Pages Preview	completed	failure	187
+18476879092	CI — Briefing	completed	failure	26
+18476879088	Structure & Governance Guard	completed	success	21
+18476878263	.github/workflows/briefing_deploy.yml	completed	failure	0
+18476878109	.github/workflows/env-report.yml	completed	failure	0
+18476877928	.github/workflows/pages-preview.yml	completed	failure	0
+18476877771	.github/workflows/pages-prod.yml	completed	failure	0
+18476877565	.github/workflows/docs-lint.yml	completed	failure	0
+18476842334	CI — Briefing	completed	failure	13
+18476842331	Guard - Require Cloudflare Pages Preview	completed	failure	188
+18476842318	Overlay Deploy	completed	failure	26
+18476842309	Structure & Governance Guard	completed	success	19
+18476841404	.github/workflows/pages-preview.yml	completed	failure	0
+18476841250	.github/workflows/pages-prod.yml	completed	failure	0
+18476841088	.github/workflows/docs-lint.yml	completed	failure	0
+18476840874	.github/workflows/briefing_deploy.yml	completed	failure	0
+18476840703	.github/workflows/env-report.yml	completed	failure	0
+18476821448	Overlay Deploy	completed	failure	36
+18476821444	Guard - Require Cloudflare Pages Preview	completed	failure	191
+18476821432	CI — Briefing	completed	failure	13
+18476821429	Structure & Governance Guard	completed	success	22
+18476821178	.github/workflows/docs-lint.yml	completed	failure	0
+18476821097	.github/workflows/pages-prod.yml	completed	failure	0
+18476820983	.github/workflows/pages-preview.yml	completed	failure	0
+18476820902	.github/workflows/briefing_deploy.yml	completed	failure	0
+18476820824	.github/workflows/env-report.yml	completed	failure	0
+18476793309	Overlay Deploy	completed	failure	35
+18476639026	Overlay Deploy	completed	failure	31
+18476637824	CI — Briefing	completed	failure	10
+18476637800	Overlay Deploy	completed	failure	23
+18476637788	Guard - Require Cloudflare Pages Preview	completed	cancelled	151
+18476637776	Structure & Governance Guard	completed	success	21
+18476637384	.github/workflows/docs-lint.yml	completed	failure	0
+18476637267	.github/workflows/pages-preview.yml	completed	failure	0
+18476637152	.github/workflows/pages-prod.yml	completed	failure	0
+18476637041	.github/workflows/env-report.yml	completed	failure	0
+18476636909	.github/workflows/briefing_deploy.yml	completed	failure	0
+18476511220	Guard - Require Cloudflare Pages Preview	completed	failure	187
+18476511210	Structure & Governance Guard	completed	success	21
+18476511205	Overlay Deploy	completed	failure	32
+18476511203	CI — Briefing	completed	failure	31
+18476498215	.github/workflows/env-report.yml	completed	failure	0
+18476498096	.github/workflows/pages-preview.yml	completed	failure	0
+18476497991	.github/workflows/briefing_deploy.yml	completed	failure	0
+18476497881	.github/workflows/docs-lint.yml	completed	failure	0
+18476497759	.github/workflows/pages-prod.yml	completed	failure	0
+18475769945	Overlay Deploy	completed	failure	35
+18475757637	.github/workflows/pages-preview.yml	completed	failure	0
+18475757438	.github/workflows/pages-prod.yml	completed	failure	0
+18475668906	Overlay Deploy	completed	failure	38
+18475668879	CI — Briefing	completed	success	41
+18475664121	.github/workflows/pages-preview.yml	completed	failure	0
+18475663971	.github/workflows/pages-prod.yml	completed	failure	0
+18475368293	.github/workflows/pages-prod.yml	completed	failure	0
+18475118305	.github/workflows/pages-prod.yml	completed	failure	0
+18473783635	Deploy Preview (Cloudflare)	completed	failure	63
+18473780223	.github/workflows/pages-prod.yml	completed	failure	0
+18473719948	Deploy Preview (Cloudflare)	completed	failure	72
+18473717155	.github/workflows/pages-prod.yml	completed	failure	0
+18473673245	Deploy Preview (Cloudflare)	completed	failure	21
+18473651812	Deploy Preview (Cloudflare)	completed	failure	17
+18473625055	Deploy Preview (Cloudflare)	completed	failure	24
+18473614208	.github/workflows/pages-prod.yml	completed	failure	0
+18473592181	Deploy Preview (Cloudflare)	completed	failure	24
+18473579987	.github/workflows/pages-prod.yml	completed	failure	0
+18473542187	Deploy Preview (Cloudflare)	completed	failure	56
+18473426572	Deploy Preview (Cloudflare)	completed	failure	59
+18473424345	.github/workflows/pages-prod.yml	completed	failure	0
+18473160521	CI — Briefing	completed	success	38
+18473160346	Deploy Preview (Cloudflare)	completed	failure	69
+18473159298	.github/workflows/pages-prod.yml	completed	failure	0
+18473104439	Deploy Preview (Cloudflare)	completed	failure	70
+18473104139	CI — Briefing	completed	success	46
+18473103304	.github/workflows/pages-prod.yml	completed	failure	0
+18473064200	Deploy Preview (Cloudflare)	completed	failure	59
+18473064186	CI — Briefing	completed	success	45
+18473063258	.github/workflows/pages-prod.yml	completed	failure	0
+18473028981	CI — Briefing	completed	success	38
+18473028904	Deploy Preview (Cloudflare)	completed	failure	62
+18473027964	.github/workflows/pages-prod.yml	completed	failure	0
+18472992898	Deploy Preview (Cloudflare)	completed	failure	51
+18472917793	Deploy Preview2 (CloudFed)	completed	success	67
+18472917482	Deploy Preview (Cloudflare)	completed	failure	67
+18472280396	Deploy Preview (Cloudflare)	completed	success	59
+18472280055	CI — Briefing	completed	success	39
+18472278744	.github/workflows/pages-prod.yml	completed	failure	0
+18472230969	Deploy Preview (Cloudflare)	completed	failure	52
+18472230787	CI — Briefing	completed	success	36
+18472229572	.github/workflows/pages-prod.yml	completed	failure	0
+18472188885	Deploy Preview (Cloudflare)	completed	failure	58
+18472187854	CI — Briefing	completed	success	43
+18472186692	.github/workflows/pages-prod.yml	completed	failure	0
+18472136534	Deploy Preview (Cloudflare)	completed	failure	65
+18472136495	CI — Briefing	completed	success	34
+18472135153	.github/workflows/pages-prod.yml	completed	failure	0
+18472098393	Deploy Preview2 (CloudFed)	completed	success	65
+18472097851	Deploy Preview (Cloudflare)	completed	failure	60
+18472069323	CI — Briefing	completed	success	43
+18472067926	.github/workflows/pages-prod.yml	completed	failure	0
+18471916187	Deploy Preview2 (CloudFed)	completed	success	57
+18471915501	Deploy Preview (Cloudflare)	completed	failure	63
+18471719981	Deploy Preview (Cloudflare)	completed	failure	97
+18471711780	.github/workflows/pages-prod.yml	completed	failure	0
+18471480373	Deploy Preview (Cloudflare)	completed	failure	51
+18414305468	Deploy Preview (Cloudflare)	completed	failure	31
+18414305003	Briefing Deploy (LEGACY)	completed	skipped	1
+18414305001	Environment Report	completed	success	11
+18414305000	CI — Briefing	completed	success	44
+18414304980	Deploy Preview (Cloudflare)	completed	failure	32
+18414304979	Docs Lint	completed	success	22
+18414304978	Guard - Require Cloudflare Pages Preview	completed	skipped	1
+18414304976	Structure & Governance Guard	completed	success	23
+18414304283	Deploy Preview (Cloudflare)	completed	failure	34
+18414304049	.github/workflows/pages-prod.yml	completed	failure	0
+18414164175	Environment Report	completed	success	16
+18414164166	Guard - Require Cloudflare Pages Preview	completed	skipped	1
+18414164160	CI — Briefing	completed	success	37
+18414164156	Docs Lint	completed	success	29
+18414164154	Structure & Governance Guard	completed	success	22
+18414164153	Briefing Deploy (LEGACY)	completed	skipped	1
+18414164145	Deploy Preview (Cloudflare)	completed	failure	37
+18414163323	Deploy Preview (Cloudflare)	completed	failure	36
+18414163085	.github/workflows/pages-prod.yml	completed	failure	0
+18414061288	Environment Report	completed	success	16
+18414061269	CI — Briefing	completed	success	35
+18414061267	Structure & Governance Guard	completed	success	22
+18414061266	Docs Lint	completed	success	24
+18414061262	Briefing Deploy (LEGACY)	completed	skipped	1
+18414061256	Deploy Preview (Cloudflare)	completed	failure	39
+18414061243	Guard - Require Cloudflare Pages Preview	completed	skipped	1
+18414060527	Deploy Preview (Cloudflare)	completed	failure	43
+18414060311	.github/workflows/pages-prod.yml	completed	failure	0
+18414010453	Docs Lint	completed	success	19
+18414010387	Deploy Preview (Cloudflare)	completed	failure	8
+18414010378	CI — Briefing	completed	success	42
+18414010377	Briefing Deploy (LEGACY)	completed	skipped	1
+18414010374	Environment Report	completed	success	30
+18414010372	Structure & Governance Guard	completed	success	20
+18414010365	Guard - Require Cloudflare Pages Preview	completed	skipped	1
+18414009430	Deploy Preview (Cloudflare)	completed	failure	9
+18414009192	.github/workflows/pages-prod.yml	completed	failure	0
+18413926345	Structure & Governance Guard	completed	success	20
+18413926340	CI — Briefing	completed	success	35
+18413926329	Environment Report	completed	success	12
+18413926321	Docs Lint	completed	success	20
+18413926319	Guard - Require Cloudflare Pages Preview	completed	skipped	1
+18413926312	Briefing Deploy (LEGACY)	completed	skipped	0
+18413925412	.github/workflows/pages-prod.yml	completed	failure	0
+18413925248	.github/workflows/pages-preview.yml	completed	failure	0
+18413712943	CI — Briefing	completed	success	39
+18413712881	Structure & Governance Guard	completed	success	22
+18413712879	Environment Report	completed	success	13
+18413712871	Docs Lint	completed	success	26
+18413712853	Briefing Deploy (LEGACY)	completed	skipped	2
+18413712851	Guard - Require Cloudflare Pages Preview	completed	skipped	1
+18413711961	.github/workflows/pages-prod.yml	completed	failure	0
+18413711837	.github/workflows/pages-preview.yml	completed	failure	0
+18413130193	CI — Briefing	completed	success	56
+18413130188	Guard - Require Cloudflare Pages Preview	completed	skipped	1
+18413130184	Environment Report	completed	success	15
+18413130183	Structure & Governance Guard	completed	success	21
+18413130182	Docs Lint	completed	success	30
+18413130166	Briefing Deploy (LEGACY)	completed	skipped	1
+18413129174	.github/workflows/pages-preview.yml	completed	failure	0
+18413128874	.github/workflows/pages-prod.yml	completed	failure	0
+18413105089	CI — Briefing	completed	success	38
+18413105084	Environment Report	completed	success	13
+18413093929	Environment Report	completed	success	13
+18413093898	Guard - Require Cloudflare Pages Preview	completed	failure	186
+18413093845	Docs Lint	completed	success	27
+18413093832	CI — Briefing	completed	success	39
+18413093827	Briefing Deploy (LEGACY)	completed	skipped	1
+18413093825	Structure & Governance Guard	completed	success	21
+18413092509	.github/workflows/pages-prod.yml	completed	failure	0
+18413092382	.github/workflows/pages-preview.yml	completed	failure	0
+18412775039	Environment Report	completed	success	14
+18412775031	Structure & Governance Guard	completed	success	21
+18412775019	Briefing Deploy (LEGACY)	completed	skipped	1
+18412775007	Docs Lint	completed	success	30
+18412775005	Guard - Require Cloudflare Pages Preview	completed	failure	188
+18412774979	CI — Briefing	completed	success	43
+18412773958	.github/workflows/pages-preview.yml	completed	failure	0
+18412773806	.github/workflows/pages-prod.yml	completed	failure	0
+18412493235	Guard - Require Cloudflare Pages Preview	completed	cancelled	185
+18412493226	Structure & Governance Guard	completed	success	22
+18412493225	Environment Report	completed	success	12
+18412493221	Briefing Deploy (LEGACY)	completed	skipped	1
+18412493218	Docs Lint	completed	success	25
+18412493215	CI — Briefing	completed	success	42
+18412167150	.github/workflows/pages-preview.yml	completed	failure	0
+18412166969	.github/workflows/pages-prod.yml	completed	failure	0
+18411801552	.github/workflows/pages-prod.yml	completed	failure	0
+18411801089	.github/workflows/pages-preview.yml	completed	failure	0
+18411535662	.github/workflows/pages-preview.yml	completed	failure	0
+18411535505	.github/workflows/pages-prod.yml	completed	failure	0
+18410930723	.github/workflows/pages-preview.yml	completed	failure	0
+18405798638	Pages Preview2 Deploy	completed	failure	12
+18353070748	Guard - Require Cloudflare Pages Preview	completed	skipped	3
+18353070743	CI — Briefing	completed	failure	65
+18353070736	Pages Deploy Fallback	completed	success	541
+18353070719	Structure & Governance Guard	completed	success	8
+18353070709	Docs Lint	completed	success	27
+18353070707	Status & Changelog Update	completed	success	8
+18353048070	Structure & Governance Guard	completed	success	9
+18353048055	Docs Lint	completed	success	25
+18353048040	Guard - Require Cloudflare Pages Preview	completed	success	10
+18353048037	CI — Briefing	completed	success	38
+18352732816	Structure & Governance Guard	completed	success	10
+18352732800	Pages Deploy Fallback	completed	success	544
+18352732700	Guard - Require Cloudflare Pages Preview	completed	skipped	1
+18352732606	CI — Briefing	completed	failure	80
+18352732589	Docs Lint	completed	success	21
+18352732564	Status & Changelog Update	completed	success	14
+18352701009	Guard - Require Cloudflare Pages Preview	completed	success	53
+18352701001	Docs Lint	completed	success	22
+18352700980	Structure & Governance Guard	completed	success	8
+18352700974	CI — Briefing	completed	success	37
+18352398892	Structure & Governance Guard	completed	success	8
+18352398887	Guard - Require Cloudflare Pages Preview	completed	skipped	2
+18352398884	Pages Deploy Fallback	completed	success	541
+18352398881	Docs Lint	completed	success	23
+18352398878	Status & Changelog Update	completed	success	9
+18352374834	Structure & Governance Guard	completed	success	9
+18352374795	Guard - Require Cloudflare Pages Preview	completed	success	38
+18351954779	Status & Changelog Update	completed	success	8
+18351954770	Docs Lint	completed	success	25
+18351954756	Structure & Governance Guard	completed	success	9
+18351954749	Guard - Require Cloudflare Pages Preview	completed	skipped	1
+18351954739	Pages Deploy Fallback	completed	success	525
+18351924650	Guard - Require Cloudflare Pages Preview	completed	success	52
+18351924644	Structure & Governance Guard	completed	success	10
+18351563561	CI — Briefing	completed	failure	73
+18351563555	Pages Deploy Fallback	completed	cancelled	484
+18351563553	Status & Changelog Update	completed	success	9
+18351563549	Docs Lint	completed	success	21
+18351563547	Structure & Governance Guard	completed	success	10
+18351563541	Guard - Require Cloudflare Pages Preview	completed	skipped	15
+18351535622	Environment Report	completed	success	13
+18351535619	Structure & Governance Guard	completed	success	9
+18351535616	Guard - Require Cloudflare Pages Preview	completed	success	9
+18351535611	CI — Briefing	completed	success	38
+18351535610	Docs Lint	completed	success	20
+18350511237	Status & Changelog Update	completed	success	12
+18350511199	Guard - Require Cloudflare Pages Preview	completed	skipped	1
+18350511194	Docs Lint	completed	success	20
+18350511187	Structure & Governance Guard	completed	success	9
+18350511174	CI — Briefing	completed	failure	79
+18348924350	Status & Changelog Update	completed	success	10
+18348924334	Guard - Require Cloudflare Pages Preview	completed	skipped	1
+18348924315	Docs Lint	completed	success	28
+18348924285	CI — Briefing	completed	failure	75
+18348924276	Structure & Governance Guard	completed	success	9
+18347016025	Guard - Require Cloudflare Pages Preview	completed	skipped	0
+18347015997	Status & Changelog Update	completed	success	11
+18347015974	Structure & Governance Guard	completed	success	8
+18347015971	Docs Lint	completed	success	18
+18346537875	CI — Briefing	completed	failure	75
+18346537856	Status & Changelog Update	completed	success	14
+18346537850	Structure & Governance Guard	completed	success	11
+18346537833	Guard - Require Cloudflare Pages Preview	completed	skipped	3
+18346537826	Docs Lint	completed	success	20
+18317846612	Guard - Require Cloudflare Pages Preview	completed	skipped	1
+18317846549	Docs Lint	completed	success	25
+18317846518	CI — Briefing	completed	failure	60
+18317846509	Status & Changelog Update	completed	success	9
+18317846505	Structure & Governance Guard	completed	success	9
+18317801305	Docs Lint	completed	success	23
+18317801283	CI — Briefing	completed	success	40
+18317801277	Structure & Governance Guard	completed	success	10
+18317801276	Guard - Require Cloudflare Pages Preview	completed	success	59
+18317748972	CI — Briefing	completed	failure	9
+18317748968	Environment Report	completed	success	15
+18298558466	Structure & Governance Guard	completed	success	10
+18298558462	Status & Changelog Update	completed	success	8
+18298558458	Docs Lint	completed	success	23
+18298558455	Guard - Require Cloudflare Pages Preview	completed	skipped	1
+18298548798	Guard - Require Cloudflare Pages Preview	completed	success	51
+18298548791	Structure & Governance Guard	completed	success	7
+18298548774	Docs Lint	completed	success	19
+18298548321	Docs Lint	completed	success	24
+18298548317	Structure & Governance Guard	completed	success	7
+18298548315	Auto Open PR on Deploy Branches	completed	success	10
+18298548313	Guard - Require Cloudflare Pages Preview	completed	skipped	1
+18298505383	Structure & Governance Guard	completed	success	8
+18298505375	Docs Lint	completed	success	23
+18298505368	Guard - Require Cloudflare Pages Preview	completed	success	50
+18298504719	Docs Lint	completed	success	17
+18298504717	Structure & Governance Guard	completed	success	8
+18298504714	Guard - Require Cloudflare Pages Preview	completed	skipped	1
+18298504711	Auto Open PR on Deploy Branches	completed	success	12
+18298485689	Guard - Require Cloudflare Pages Preview	completed	skipped	1
+18298485671	Docs Lint	completed	success	23
+18298485550	Auto Open PR on Deploy Branches	completed	success	11
+18298485493	Structure & Governance Guard	completed	success	11
+18298484983	Structure & Governance Guard	completed	success	10
+18298484976	Docs Lint	completed	success	26
+18298484965	Guard - Require Cloudflare Pages Preview	completed	failure	13
+18298325237	Structure & Governance Guard	completed	success	8
+18298325235	Guard - Require Cloudflare Pages Preview	completed	failure	23
+18298325227	Docs Lint	completed	success	24
+18298324532	Guard - Require Cloudflare Pages Preview	completed	skipped	2
+18298324470	Docs Lint	completed	success	24
+18298324469	Auto Open PR on Deploy Branches	completed	success	10
+18298324467	Structure & Governance Guard	completed	success	9
+18298289830	Structure & Governance Guard	completed	success	9
+18298289816	Docs Lint	completed	success	23
+18298289811	Auto Open PR on Deploy Branches	completed	success	13
+18298289797	Guard - Require Cloudflare Pages Preview	completed	failure	20
+18298272909	Structure & Governance Guard	completed	success	10
+18298272901	Status & Changelog Update	completed	success	21
+18298272892	Guard - Require Cloudflare Pages Preview	completed	failure	23
+18298272885	Docs Lint	completed	success	19
+18298263480	Guard - Require Cloudflare Pages Preview	completed	success	22
+18298263471	Structure & Governance Guard	completed	success	9
+18298005427	Structure & Governance Guard	completed	success	9
+18298005421	Status & Changelog Update	completed	success	10
+18297985552	Status & Changelog Update	completed	success	9
+18297985535	Structure & Governance Guard	completed	success	8
+18297921921	Auto Open PR on Deploy Branches	completed	success	10
+18297896849	Structure & Governance Guard	completed	success	7
+18297896845	Status & Changelog Update	completed	success	8
+18297883345	Structure & Governance Guard	completed	success	8
+18297883343	Status & Changelog Update	completed	success	10
+18297867582	Status & Changelog Update	completed	success	8
+18297867576	Structure & Governance Guard	completed	success	13
+18297839434	Status & Changelog Update	completed	success	10
+18297839431	Structure & Governance Guard	completed	success	9
+18297709612	Status & Changelog Update	completed	success	11
+18297709600	Structure & Governance Guard	completed	success	9
+18297657080	Docs Lint	completed	success	20
+18297657079	Guard - Require Cloudflare Pages Preview	completed	success	20
+18297657071	Structure & Governance Guard	completed	success	9
+18297656685	Auto Open PR on Deploy Branches	completed	success	9
+18297546761	Structure & Governance Guard	completed	success	10
+18297546755	Guard - Require Cloudflare Pages Preview	completed	success	21
+18297546748	Docs Lint	completed	success	20
+18297546273	Auto Open PR on Deploy Branches	completed	success	13
+18297481542	Auto Open PR on Deploy Branches	completed	failure	11
+18297239782	Auto Open PR on Deploy Branches	completed	failure	11
+18297231308	Structure & Governance Guard	completed	success	8
+18297231306	Status & Changelog Update	completed	success	11
+18297144125	Docs Lint	completed	success	27
+18297144082	Structure & Governance Guard	completed	success	10
+18297144081	Guard - Require Cloudflare Pages Preview	completed	success	19
+18297143522	Auto Open PR on Deploy Branches	completed	success	7
+18297133208	Structure & Governance Guard	completed	success	10
+18297133172	Status & Changelog Update	completed	success	13
+18296828295	Structure & Governance Guard	completed	success	8
+18296828282	Guard - Require Cloudflare Pages Preview	completed	failure	19
+18296828281	Docs Lint	completed	success	30
+18296827965	Auto Open PR on Deploy Branches	completed	success	11
+18296143541	Guard - Require Cloudflare Pages Preview	completed	success	18
+18296143534	Structure & Governance Guard	completed	success	10
+18296143532	Docs Lint	completed	success	20
+18296142776	Auto Open PR on Deploy Branches	completed	success	10
+18296083945	Docs Lint	completed	success	19
+18296083909	Guard - Require Cloudflare Pages Preview	completed	success	19
+18296083891	Structure & Governance Guard	completed	success	9
+18296082823	Auto Open PR on Deploy Branches	completed	success	12
+18295770111	Auto Open PR on Deploy Branches	completed	success	15
+18295559875	Auto Open PR on Deploy Branches	completed	failure	13
+18295435329	Structure & Governance Guard	completed	success	8
+18295435315	Status & Changelog Update	completed	success	9
+18295198434	Status & Changelog Update	completed	success	8
+18295198417	Structure & Governance Guard	completed	success	10
+18295130822	Structure & Governance Guard	completed	success	8
+18295130755	Status & Changelog Update	completed	success	15
+18293883129	CI — Briefing	completed	failure	12
+18293883105	Structure & Governance Guard	completed	success	9
+18293883094	Briefing — Deploy to Cloudflare Pages	completed	failure	16
+18293883078	Status & Changelog Update	completed	success	11
+18288309141	Structure & Governance Guard	completed	success	10
+18288309093	Docs Lint	completed	success	23
+18287746533	Status & Changelog Update	completed	success	9
+18287575781	CI — Briefing	completed	failure	65
+18287575780	Briefing — Deploy to Cloudflare Pages	completed	success	54
+18287575770	Status & Changelog Update	completed	success	10
+18287575768	Structure & Governance Guard	completed	success	14
+18287363171	Docs Lint	completed	success	44
+18287363169	Environment Report	completed	success	13
+18287363143	CI — Briefing	completed	success	33
+18287363139	Briefing — Deploy to Cloudflare Pages	completed	success	50
+18287363136	Structure & Governance Guard	completed	success	17
+18286979918	Structure & Governance Guard	completed	success	19
+18286979902	Environment Report	completed	success	13
+18286979893	Briefing — Deploy to Cloudflare Pages	completed	success	56
+18286979886	Docs Lint	completed	failure	28
+18286979882	CI — Briefing	completed	success	40
+18286812831	Briefing — Deploy to Cloudflare Pages	completed	success	59
+18286812769	Docs Lint	completed	failure	24
+18286812736	Structure & Governance Guard	completed	failure	18
+18286812734	CI — Briefing	completed	success	41
+18286812724	Environment Report	completed	success	16
+18286431077	Briefing — Deploy to Cloudflare Pages	completed	success	49
+18286430990	CI — Briefing	completed	success	36
+18286430983	Environment Report	completed	success	15
+18286430969	Docs Lint	completed	failure	28
+18286430959	Structure & Governance Guard	completed	failure	17
+18285965036	CI — Briefing	completed	success	36
+18285964998	Environment Report	completed	failure	16
+18285964984	Docs Lint	completed	failure	21
+18285154767	CI — Briefing	completed	success	33
+18285154757	Environment Report	completed	failure	17
+18285154740	Docs Lint	completed	failure	13
+18248848075	Structure & Governance Guard	completed	success	7
+18248848074	Briefing — Deploy to Cloudflare Pages	completed	success	56
+18248848071	CI — Briefing	completed	success	40
+18248712915	Structure & Governance Guard	completed	success	9
+18247411026	Structure & Governance Guard	completed	success	10
+18246877230	Structure & Governance Guard	completed	success	10
+18246877208	Briefing — Deploy to Cloudflare Pages	completed	success	53
+18246877195	CI — Briefing	completed	failure	60
+18246854515	Briefing — Deploy to Cloudflare Pages	completed	success	60
+18246854514	Structure & Governance Guard	completed	success	10
+18246854501	CI — Briefing	completed	success	32
+18246673891	CI — Briefing	completed	failure	77
+18246673890	Structure & Governance Guard	completed	success	9
+18246659484	CI — Briefing	completed	success	36
+18246659482	Structure & Governance Guard	completed	success	7
+18246620911	Structure & Governance Guard	completed	success	8
+18246620904	CI — Briefing	completed	failure	40
+18246601041	CI — Briefing	completed	failure	30
+18246601034	Structure & Governance Guard	completed	success	8
+18246528276	CI — Briefing	completed	failure	33
+18245862666	Briefing — Deploy to Cloudflare Pages	completed	success	49
+18245862663	Structure & Governance Guard	completed	success	6
+18245850220	Briefing — Deploy to Cloudflare Pages	completed	success	101
+18245850219	Structure & Governance Guard	completed	success	8
+18245840219	Briefing — Deploy to Cloudflare Pages	completed	success	48
+18245840209	Structure & Governance Guard	completed	success	8
+18245792017	Briefing — Deploy to Cloudflare Pages	completed	success	53
+18245792001	Structure & Governance Guard	completed	success	6
+18245775354	Structure & Governance Guard	completed	success	9
+18245775352	Briefing — Deploy to Cloudflare Pages	completed	success	41
+18235758406	Briefing — Deploy to Cloudflare Pages	completed	success	48
+18235758399	Structure & Governance Guard	completed	success	10
+18235436396	Briefing — Deploy to Cloudflare Pages	completed	success	42
+18235436368	Structure & Governance Guard	completed	success	8
+18235136697	Briefing — Deploy to Cloudflare Pages	completed	success	45
+18235136688	Structure & Governance Guard	completed	success	12
+18235097858	Structure & Governance Guard	completed	success	12
+18235097833	Briefing — Deploy to Cloudflare Pages	completed	success	58
+18233311203	Structure & Governance Guard	completed	success	8
+18233311190	Briefing — Deploy to Cloudflare Pages	completed	success	75
+18232908247	Briefing — Deploy to Cloudflare Pages	completed	success	40
+18232908228	Structure & Governance Guard	completed	success	10
+18232490585	Structure & Governance Guard	completed	success	9
+18232490581	Briefing — Deploy to Cloudflare Pages	completed	success	54
+18231290082	Structure & Governance Guard	completed	success	10
+18231290048	Briefing — Deploy to Cloudflare Pages	completed	success	66
+18231071602	Structure & Governance Guard	completed	success	10
+18231071596	Briefing — Deploy to Cloudflare Pages	completed	success	56
+18230631359	Briefing — Deploy to Cloudflare Pages	completed	success	59
+18230631357	Structure & Governance Guard	completed	success	8
+18229717478	Briefing — Deploy to Cloudflare Pages	completed	success	42
+18229717477	Structure & Governance Guard	completed	success	7
+18229453774	Briefing — Deploy to Cloudflare Pages	completed	success	52
+18229453765	Structure & Governance Guard	completed	success	8
+18227752135	Briefing — Deploy to Cloudflare Pages	completed	success	46
+18227752127	Structure & Governance Guard	completed	success	19
+18206062409	Briefing — Deploy to Cloudflare Pages	completed	success	44
+18206062404	Structure & Governance Guard	completed	success	20
+18205984280	Briefing — Deploy to Cloudflare Pages	completed	success	61
+18205984277	Structure & Governance Guard	completed	success	9
+18205737172	Briefing — Deploy to Cloudflare Pages	completed	success	55
+18205737171	Structure & Governance Guard	completed	success	12
+18205729870	Structure & Governance Guard	completed	success	9
+18205729845	Briefing — Deploy to Cloudflare Pages	completed	success	50
+18205707313	Structure & Governance Guard	completed	success	13
+18205694606	Structure & Governance Guard	completed	success	9
+18205582148	Briefing — Deploy to Cloudflare Pages	completed	success	31
+18205582119	Structure & Governance Guard	completed	success	8
+18205559636	Briefing — Deploy to Cloudflare Pages	completed	failure	9
+18205559611	Structure & Governance Guard	completed	success	7
+18205535598	Structure & Governance Guard	completed	success	7
+18205406762	Structure & Governance Guard	completed	success	7
+18205021373	Briefing — Deploy to Cloudflare Pages	completed	success	31
+18205021350	Structure & Governance Guard	completed	success	8
+18204828354	Structure & Governance Guard	completed	success	8
+18204828346	Briefing — Deploy to Cloudflare Pages	completed	success	33
+18204793459	Structure & Governance Guard	completed	success	9
+18204793304	Briefing — Deploy to Cloudflare Pages	completed	failure	11
+18204584440	Briefing — Deploy to Cloudflare Pages	completed	failure	7
+18204584438	Structure & Governance Guard	completed	success	7
+18204539439	Briefing — Deploy to Cloudflare Pages	completed	failure	10
+18204539434	Structure & Governance Guard	completed	success	9
+18204451820	Structure & Governance Guard	completed	success	8
+18204451798	Briefing — Deploy to Cloudflare Pages	completed	failure	11
+18204448148	Structure & Governance Guard	completed	success	7
+18204367636	Structure & Governance Guard	completed	success	13
+18204367629	Briefing — Deploy to Cloudflare Pages	completed	failure	10
+18203850131	Structure & Governance Guard	completed	success	10
+18203834965	Structure & Governance Guard	completed	success	10
+18203798159	Structure & Governance Guard	completed	success	15
+18203690931	Structure & Governance Guard	completed	success	12
+18203667083	Structure & Governance Guard	completed	success	11

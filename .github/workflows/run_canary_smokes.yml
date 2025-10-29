@@ -1,0 +1,147 @@
+name: Run Canary Smokes
+
+on:
+  workflow_dispatch:
+    inputs:
+      preview_host:
+        description: "Cloudflare Pages preview host (https://<...>.pages.dev)"
+        required: true
+        type: string
+      owner:
+        description: "Correo owner en whitelist"
+        default: "ppcapiro@gmail.com"
+        required: true
+        type: string
+      team:
+        description: "Correo team en whitelist"
+        default: "officemagerhealthkendall@gmail.com"
+        required: true
+        type: string
+      client_admin:
+        description: "Correo client admin en whitelist"
+        default: "musicmanagercuba@gmail.com"
+        required: true
+        type: string
+      client:
+        description: "Correo client en whitelist"
+        default: "shop.artmarketpremium@gmail.com"
+        required: true
+        type: string
+      control_legacy:
+        description: "Correo control legacy fuera de whitelist"
+        default: "runartfoundry@gmail.com"
+        required: true
+        type: string
+
+jobs:
+  canary:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    env:
+      # Usamos el token canónico auditado; NO se imprime.
+      CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+      PREVIEW_HOST: ${{ inputs.preview_host }}
+      OWNER: ${{ inputs.owner }}
+      TEAM: ${{ inputs.team }}
+      CLIENT_ADMIN: ${{ inputs.client_admin }}
+      CLIENT: ${{ inputs.client }}
+      CONTROL_LEGACY: ${{ inputs.control_legacy }}
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install deps
+        run: npm ci
+
+      - name: Print context (safe)
+        run: |
+          echo "Host: ${PREVIEW_HOST}"
+          echo "Emails: ${OWNER} | ${TEAM} | ${CLIENT_ADMIN} | ${CLIENT} (control: ${CONTROL_LEGACY})"
+
+      - name: Run smokes (no export KV)
+        run: |
+          TS=$(date -u +%Y%m%dT%H%M%SZ)
+          OUT_DIR="apps/briefing/_reports/roles_canary_preview"
+          RUN_DIR="${OUT_DIR}/smokes_${TS}"
+          mkdir -p "${RUN_DIR}"
+          node apps/briefing/scripts/smoke_canary_emails.mjs "${PREVIEW_HOST}" \
+            "${OWNER}" "${TEAM}" "${CLIENT_ADMIN}" "${CLIENT}" \
+            --control "${CONTROL_LEGACY}" \
+            --out "${RUN_DIR}"
+
+      - name: Fetch whoami headers (best effort)
+        run: |
+          TS_NOW=$(date -u +%Y%m%dT%H%M%SZ)
+          OUT_DIR="apps/briefing/_reports/roles_canary_preview"
+          RUN_DIR=$(ls -d ${OUT_DIR}/smokes_* | tail -n1)
+          if [ -f apps/briefing/scripts/fetch_whoami_headers.mjs ]; then
+            node apps/briefing/scripts/fetch_whoami_headers.mjs "${PREVIEW_HOST}" "${OWNER}"          > "${RUN_DIR}/whoami_headers_owner.txt" 2>/dev/null || true
+            node apps/briefing/scripts/fetch_whoami_headers.mjs "${PREVIEW_HOST}" "${TEAM}"           > "${RUN_DIR}/whoami_headers_team.txt" 2>/dev/null || true
+            node apps/briefing/scripts/fetch_whoami_headers.mjs "${PREVIEW_HOST}" "${CLIENT_ADMIN}"   > "${RUN_DIR}/whoami_headers_client_admin.txt" 2>/dev/null || true
+            node apps/briefing/scripts/fetch_whoami_headers.mjs "${PREVIEW_HOST}" "${CLIENT}"         > "${RUN_DIR}/whoami_headers_client.txt" 2>/dev/null || true
+            node apps/briefing/scripts/fetch_whoami_headers.mjs "${PREVIEW_HOST}" "${CONTROL_LEGACY}" > "${RUN_DIR}/whoami_headers_control_legacy.txt" 2>/dev/null || true
+          fi
+
+      - name: Build RESUMEN (GO/NO-GO checklist)
+        id: resumen
+        run: |
+          OUT_DIR="apps/briefing/_reports/roles_canary_preview"
+          RUN_DIR=$(ls -d ${OUT_DIR}/smokes_* | tail -n1)
+          TS=$(echo "${RUN_DIR}" | sed -E 's#.*/smokes_([0-9TZ]+).*#\1#')
+          RESUMEN="${OUT_DIR}/RESUMEN_${TS}.md"
+          {
+            echo "# Pipeline Canario — Resumen (${TS} UTC)"
+            echo
+            echo "Host: ${PREVIEW_HOST}"
+            echo
+            echo "## Criterios de éxito"
+            echo "- Whitelist (4 correos) → X-RunArt-Canary: 1, X-RunArt-Resolver: unified, rol correcto"
+            echo "- Fuera de whitelist (control) → X-RunArt-Canary: 0, X-RunArt-Resolver: legacy"
+            echo "- **Cero ascensos indebidos** a owner/admin"
+            echo
+            echo "## Artefactos"
+            echo "- Evidencias smokes: ${RUN_DIR}/"
+            echo "- Headers: whoami_headers_*.txt (si disponibles)"
+            echo
+            echo "## Observaciones de headers"
+            echo
+            echo "| Caso | X-RunArt-Canary | X-RunArt-Resolver | Archivo |"
+            echo "|------|------------------|-------------------|---------|"
+            for f in owner client_admin team client control_legacy; do
+              FILE="${RUN_DIR}/whoami_headers_${f}.txt"
+              CANARY=$(grep -i 'X-RunArt-Canary' "$FILE" 2>/dev/null | head -n1 | awk -F': ' '{print $2}' | tr -d '\r' | tr '[:upper:]' '[:lower:]')
+              RESOLV=$(grep -i 'X-RunArt-Resolver' "$FILE" 2>/dev/null | head -n1 | awk -F': ' '{print $2}' | tr -d '\r' | tr '[:upper:]' '[:lower:]')
+              LABEL=$(echo "$f" | sed 's/_/ /')
+              echo "| ${LABEL} | ${CANARY:-?} | ${RESOLV:-?} | $(basename "$FILE" 2>/dev/null || echo '-') |"
+            done
+            echo
+            echo "## Veredicto (marcar)"
+            echo "- [ ] **GO** → Activar canario global en preview (ROLE_RESOLVER_SOURCE=\"utils\") y correr smokes completos."
+            echo "- [ ] **NO-GO** → Mantener legacy; crear INCIDENT_${TS}/ con evidencias y abrir issue."
+          } > "${RESUMEN}"
+
+          echo "resumen_path=${RESUMEN}" >> $GITHUB_OUTPUT
+
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: roles_canary_preview_${{ github.run_id }}
+          path: |
+            apps/briefing/_reports/roles_canary_preview/
+
+      - name: Job Summary
+        run: |
+          echo "## Canary Smokes — Resultado" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**Host**: ${PREVIEW_HOST}" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "Artefactos: roles_canary_preview_${{ github.run_id }}" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "Revisa el archivo RESUMEN en los artefactos para marcar GO/NO-GO." >> $GITHUB_STEP_SUMMARY

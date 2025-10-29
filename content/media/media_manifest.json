@@ -1,0 +1,38 @@
+[
+  {
+    "id": "logo-primary",
+    "filename": "logo-primary.svg",
+    "type": "image/svg+xml",
+    "size": 2048,
+    "hash": "abc123def456",
+    "featured_in": [ "home_header", "pages/about" ],
+    "test": false
+  },
+  {
+    "id": "hero-es",
+    "filename": "hero-es.jpg",
+    "type": "image/jpeg",
+    "size": 204800,
+    "hash": "xyz789uvw012",
+    "featured_in": [ "home_hero_es" ],
+    "test": false
+  },
+  {
+    "id": "hero-en",
+    "filename": "hero-en.jpg",
+    "type": "image/jpeg",
+    "size": 204800,
+    "hash": "qrs345tno678",
+    "featured_in": [ "home_hero_en" ],
+    "test": false
+  },
+  {
+    "id": "test-media-001",
+    "filename": "test-auto-media-001.jpg",
+    "type": "image/jpeg",
+    "size": 51200,
+    "hash": "test001abc",
+    "featured_in": [],
+    "test": true
+  }
+]

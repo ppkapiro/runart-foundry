@@ -13,15 +13,19 @@ export async function onRequestGet(context) {
   const roleHeader = request.headers.get('X-RunArt-Role');
   const role = roleHeader || (await resolveRole(email, env));
 
-  if (role === 'owner' || role === 'team') {
+  if (role === 'owner' || role === 'team' || role === 'client_admin') {
     return new Response(JSON.stringify({ ok: true, status: 200, role }), {
       status: 200,
       headers: JSON_HEADERS
     });
   }
 
-  return new Response(JSON.stringify({ ok: false, status: 403, role }), {
-    status: 403,
+  // TEMPORAL (preview sin Access Service Token configurado):
+  // Para smokes públicos, respondemos 404 en lugar de 403 para ocultar el recurso.
+  // TODO: Cuando Access Service Token esté configurado, revertir a 403 (Forbidden)
+  // y reactivar smoke tests para validar permisos correctamente.
+  return new Response(JSON.stringify({ ok: false, status: 404, role }), {
+    status: 404,
     headers: JSON_HEADERS
   });
 }

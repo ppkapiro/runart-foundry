@@ -1,0 +1,117 @@
+name: Verify Production (Briefing)
+
+on:
+  workflow_run:
+    workflows: ["Deploy to Cloudflare Pages (Briefing)"]
+    types: [completed]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  verify:
+    if: ${{ github.event.workflow_run.conclusion == 'success' || github.event_name == 'workflow_dispatch' }}
+    runs-on: ubuntu-latest
+    env:
+      CF_CLIENT_ID: ${{ secrets.CF_ACCESS_CLIENT_ID != '' && secrets.CF_ACCESS_CLIENT_ID || secrets.ACCESS_CLIENT_ID_PREVIEW }}
+      CF_CLIENT_SECRET: ${{ secrets.CF_ACCESS_CLIENT_SECRET != '' && secrets.CF_ACCESS_CLIENT_SECRET || secrets.ACCESS_CLIENT_SECRET_PREVIEW }}
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Secrets presence check (no print values)
+        id: secrets_check
+        run: |
+          mkdir -p docs/_meta/_access_diag
+          if [ -n "$CF_CLIENT_ID" ] && [ -n "$CF_CLIENT_SECRET" ]; then
+            echo "✅ ClientId: PRESENT"
+            echo "✅ ClientSecret: PRESENT"
+            echo "has_secrets=true" >> $GITHUB_OUTPUT
+            echo "with-Access" > docs/_meta/_access_diag/verify_headers_mode.txt
+          else
+            echo "⚠️  ClientId: MISSING"
+            echo "⚠️  ClientSecret: MISSING"
+            echo "has_secrets=false" >> $GITHUB_OUTPUT
+            echo "no-headers" > docs/_meta/_access_diag/verify_headers_mode.txt
+          fi
+
+      - name: Validate Access policy (by API)
+        if: steps.secrets_check.outputs.has_secrets == 'true'
+        env:
+          CF_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CF_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          ACCESS_APP_HOST: runart-foundry.pages.dev
+          REQUIRE_SERVICE_TOKEN: 'true'
+        run: |
+          python3 tools/validate_access_policy.py || echo "⚠️  Access policy validation failed (non-blocking)"
+        continue-on-error: true
+
+      - name: Verify production with Access headers (fallback-aware)
+        id: verify
+        run: |
+          check() {
+            local path="$1"
+            local grep_pattern="$2"
+            if [ -n "$CF_CLIENT_ID" ] && [ -n "$CF_CLIENT_SECRET" ]; then
+              if [ -n "$grep_pattern" ]; then
+                curl -sS -H "CF-Access-Client-Id: $CF_CLIENT_ID" -H "CF-Access-Client-Secret: $CF_CLIENT_SECRET" \
+                  "https://runart-foundry.pages.dev$path" | grep -E "$grep_pattern" >/dev/null
+              else
+                curl -sSf -H "CF-Access-Client-Id: $CF_CLIENT_ID" -H "CF-Access-Client-Secret: $CF_CLIENT_SECRET" \
+                  "https://runart-foundry.pages.dev$path" >/dev/null
+              fi
+            else
+              echo "⚠️  Sin headers; verificación parcial"
+              curl -sSI "https://runart-foundry.pages.dev$path" | head -n 1
+              return 1
+            fi
+          }
+          
+          VERIFY_OK=true
+          check "/" || VERIFY_OK=false
+          echo "✅ / checked"
+          
+          check "/status/" "KPIs|Documentos|Estado Operativo" || VERIFY_OK=false
+          echo "✅ /status/ checked"
+          
+          check "/news/" "Auto-Post|Actualización|docs|news" || VERIFY_OK=false
+          echo "✅ /news/ checked"
+          
+          check "/status/history/" "canvas|Chart" || VERIFY_OK=false
+          echo "✅ /status/history/ checked"
+          
+          if [ "$VERIFY_OK" = "true" ]; then
+            echo "verify_result=OK" >> $GITHUB_OUTPUT
+          else
+            echo "verify_result=PARTIAL" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Append verify result to meta
+        run: |
+          TS=$(date -u +%FT%TZ)
+          AUTH_MODE=$(cat docs/_meta/_access_diag/verify_headers_mode.txt 2>/dev/null || echo "unknown")
+          RESULT="${{ steps.verify.outputs.verify_result }}"
+          echo "" >> docs/_meta/BRIEFING_STATUS_PIPELINE_RUN.md
+          echo "- Verify prod: $TS | auth: $AUTH_MODE | result: $RESULT" >> docs/_meta/BRIEFING_STATUS_PIPELINE_RUN.md
+
+      - name: Upload Access diagnostics
+        uses: actions/upload-artifact@v4
+        with:
+          name: access-diagnostics-${{ github.run_id }}
+          path: docs/_meta/_access_diag/
+        if: always()
+
+      - name: Commit verification log
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add docs/_meta/BRIEFING_STATUS_PIPELINE_RUN.md docs/_meta/_access_diag/ || true
+          git commit -m "docs(meta): log post-deploy verification [skip ci]" || true
+          git push || true

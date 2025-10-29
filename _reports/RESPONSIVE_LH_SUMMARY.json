@@ -1,0 +1,509 @@
+{
+  "date": "20251028",
+  "base": "https://staging.runartfoundry.com",
+  "runsPerPage": 2,
+  "thresholds": {
+    "performance": 80,
+    "accessibility": 90,
+    "bestPractices": 90,
+    "cls": 0.1,
+    "inpMs": 200,
+    "lcpMs": 3000
+  },
+  "pages": [
+    {
+      "route": "/",
+      "url": "https://staging.runartfoundry.com/?v=now",
+      "runs": 2,
+      "performance": {
+        "avg": 96.5,
+        "sd": 1.5
+      },
+      "accessibility": {
+        "avg": 93,
+        "sd": 0
+      },
+      "bestPractices": {
+        "avg": 93,
+        "sd": 0
+      },
+      "seo": {
+        "avg": 61,
+        "sd": 0
+      },
+      "lcpMs": {
+        "avg": 2046.7405500000002,
+        "sd": 265.1050499999999
+      },
+      "cls": {
+        "avg": 0,
+        "sd": 0
+      },
+      "inpMs": {
+        "avg": 0,
+        "sd": 0
+      },
+      "gates": {
+        "pass": true,
+        "fails": []
+      },
+      "recommendations": []
+    },
+    {
+      "route": "/en/",
+      "url": "https://staging.runartfoundry.com/en/?v=now",
+      "runs": 2,
+      "performance": {
+        "avg": 97,
+        "sd": 2
+      },
+      "accessibility": {
+        "avg": 93,
+        "sd": 0
+      },
+      "bestPractices": {
+        "avg": 93,
+        "sd": 0
+      },
+      "seo": {
+        "avg": 61,
+        "sd": 0
+      },
+      "lcpMs": {
+        "avg": 1879.2063499999997,
+        "sd": 361.77724999999987
+      },
+      "cls": {
+        "avg": 0,
+        "sd": 0
+      },
+      "inpMs": {
+        "avg": 0,
+        "sd": 0
+      },
+      "gates": {
+        "pass": true,
+        "fails": []
+      },
+      "recommendations": []
+    },
+    {
+      "route": "/es/",
+      "url": "https://staging.runartfoundry.com/es/?v=now",
+      "runs": 2,
+      "performance": {
+        "avg": 99,
+        "sd": 0
+      },
+      "accessibility": {
+        "avg": 93,
+        "sd": 0
+      },
+      "bestPractices": {
+        "avg": 93,
+        "sd": 0
+      },
+      "seo": {
+        "avg": 69,
+        "sd": 0
+      },
+      "lcpMs": {
+        "avg": 1503.0254,
+        "sd": 1.105099999999993
+      },
+      "cls": {
+        "avg": 0,
+        "sd": 0
+      },
+      "inpMs": {
+        "avg": 0,
+        "sd": 0
+      },
+      "gates": {
+        "pass": true,
+        "fails": []
+      },
+      "recommendations": []
+    },
+    {
+      "route": "/en/about/",
+      "url": "https://staging.runartfoundry.com/en/about/?v=now",
+      "runs": 2,
+      "performance": {
+        "avg": 99.5,
+        "sd": 0.5
+      },
+      "accessibility": {
+        "avg": 93,
+        "sd": 0
+      },
+      "bestPractices": {
+        "avg": 93,
+        "sd": 0
+      },
+      "seo": {
+        "avg": 69,
+        "sd": 0
+      },
+      "lcpMs": {
+        "avg": 1510.46245,
+        "sd": 15.43204999999989
+      },
+      "cls": {
+        "avg": 0,
+        "sd": 0
+      },
+      "inpMs": {
+        "avg": 0,
+        "sd": 0
+      },
+      "gates": {
+        "pass": true,
+        "fails": []
+      },
+      "recommendations": []
+    },
+    {
+      "route": "/es/about/",
+      "url": "https://staging.runartfoundry.com/es/about/?v=now",
+      "runs": 2,
+      "performance": {
+        "avg": 99,
+        "sd": 0
+      },
+      "accessibility": {
+        "avg": 93,
+        "sd": 0
+      },
+      "bestPractices": {
+        "avg": 93,
+        "sd": 0
+      },
+      "seo": {
+        "avg": 69,
+        "sd": 0
+      },
+      "lcpMs": {
+        "avg": 1500.66925,
+        "sd": 1.40524999999991
+      },
+      "cls": {
+        "avg": 0,
+        "sd": 0
+      },
+      "inpMs": {
+        "avg": 0,
+        "sd": 0
+      },
+      "gates": {
+        "pass": true,
+        "fails": []
+      },
+      "recommendations": []
+    },
+    {
+      "route": "/en/services/",
+      "url": "https://staging.runartfoundry.com/en/services/?v=now",
+      "runs": 2,
+      "performance": {
+        "avg": 99.5,
+        "sd": 0.5
+      },
+      "accessibility": {
+        "avg": 93,
+        "sd": 0
+      },
+      "bestPractices": {
+        "avg": 93,
+        "sd": 0
+      },
+      "seo": {
+        "avg": 69,
+        "sd": 0
+      },
+      "lcpMs": {
+        "avg": 1515.96145,
+        "sd": 17.356950000000097
+      },
+      "cls": {
+        "avg": 0,
+        "sd": 0
+      },
+      "inpMs": {
+        "avg": 0,
+        "sd": 0
+      },
+      "gates": {
+        "pass": true,
+        "fails": []
+      },
+      "recommendations": []
+    },
+    {
+      "route": "/es/services/",
+      "url": "https://staging.runartfoundry.com/es/services/?v=now",
+      "runs": 2,
+      "performance": {
+        "avg": 100,
+        "sd": 0
+      },
+      "accessibility": {
+        "avg": 93,
+        "sd": 0
+      },
+      "bestPractices": {
+        "avg": 93,
+        "sd": 0
+      },
+      "seo": {
+        "avg": 69,
+        "sd": 0
+      },
+      "lcpMs": {
+        "avg": 1530.82355,
+        "sd": 6.859950000000026
+      },
+      "cls": {
+        "avg": 0,
+        "sd": 0
+      },
+      "inpMs": {
+        "avg": 0,
+        "sd": 0
+      },
+      "gates": {
+        "pass": true,
+        "fails": []
+      },
+      "recommendations": []
+    },
+    {
+      "route": "/en/projects/",
+      "url": "https://staging.runartfoundry.com/en/projects/?v=now",
+      "runs": 2,
+      "performance": {
+        "avg": 99.5,
+        "sd": 0.5
+      },
+      "accessibility": {
+        "avg": 93,
+        "sd": 0
+      },
+      "bestPractices": {
+        "avg": 93,
+        "sd": 0
+      },
+      "seo": {
+        "avg": 69,
+        "sd": 0
+      },
+      "lcpMs": {
+        "avg": 1518.5156,
+        "sd": 21.055599999999913
+      },
+      "cls": {
+        "avg": 0,
+        "sd": 0
+      },
+      "inpMs": {
+        "avg": 0,
+        "sd": 0
+      },
+      "gates": {
+        "pass": true,
+        "fails": []
+      },
+      "recommendations": []
+    },
+    {
+      "route": "/es/projects/",
+      "url": "https://staging.runartfoundry.com/es/projects/?v=now",
+      "runs": 2,
+      "performance": {
+        "avg": 100,
+        "sd": 0
+      },
+      "accessibility": {
+        "avg": 93,
+        "sd": 0
+      },
+      "bestPractices": {
+        "avg": 93,
+        "sd": 0
+      },
+      "seo": {
+        "avg": 69,
+        "sd": 0
+      },
+      "lcpMs": {
+        "avg": 1519.8209,
+        "sd": 14.00389999999993
+      },
+      "cls": {
+        "avg": 0,
+        "sd": 0
+      },
+      "inpMs": {
+        "avg": 0,
+        "sd": 0
+      },
+      "gates": {
+        "pass": true,
+        "fails": []
+      },
+      "recommendations": []
+    },
+    {
+      "route": "/en/blog/",
+      "url": "https://staging.runartfoundry.com/en/blog/?v=now",
+      "runs": 2,
+      "performance": {
+        "avg": 99.5,
+        "sd": 0.5
+      },
+      "accessibility": {
+        "avg": 90,
+        "sd": 0
+      },
+      "bestPractices": {
+        "avg": 93,
+        "sd": 0
+      },
+      "seo": {
+        "avg": 57.99999999999999,
+        "sd": 0
+      },
+      "lcpMs": {
+        "avg": 1548.45455,
+        "sd": 24.772449999999935
+      },
+      "cls": {
+        "avg": 0,
+        "sd": 0
+      },
+      "inpMs": {
+        "avg": 0,
+        "sd": 0
+      },
+      "gates": {
+        "pass": true,
+        "fails": []
+      },
+      "recommendations": []
+    },
+    {
+      "route": "/es/blog-2/",
+      "url": "https://staging.runartfoundry.com/es/blog-2/?v=now",
+      "runs": 2,
+      "performance": {
+        "avg": 100,
+        "sd": 0
+      },
+      "accessibility": {
+        "avg": 90,
+        "sd": 0
+      },
+      "bestPractices": {
+        "avg": 93,
+        "sd": 0
+      },
+      "seo": {
+        "avg": 57.99999999999999,
+        "sd": 0
+      },
+      "lcpMs": {
+        "avg": 1497.7591,
+        "sd": 4.354800000000068
+      },
+      "cls": {
+        "avg": 0,
+        "sd": 0
+      },
+      "inpMs": {
+        "avg": 0,
+        "sd": 0
+      },
+      "gates": {
+        "pass": true,
+        "fails": []
+      },
+      "recommendations": []
+    },
+    {
+      "route": "/en/contact/",
+      "url": "https://staging.runartfoundry.com/en/contact/?v=now",
+      "runs": 2,
+      "performance": {
+        "avg": 99.5,
+        "sd": 0.5
+      },
+      "accessibility": {
+        "avg": 93,
+        "sd": 0
+      },
+      "bestPractices": {
+        "avg": 93,
+        "sd": 0
+      },
+      "seo": {
+        "avg": 69,
+        "sd": 0
+      },
+      "lcpMs": {
+        "avg": 1575.46175,
+        "sd": 41.95425
+      },
+      "cls": {
+        "avg": 0,
+        "sd": 0
+      },
+      "inpMs": {
+        "avg": 0,
+        "sd": 0
+      },
+      "gates": {
+        "pass": true,
+        "fails": []
+      },
+      "recommendations": []
+    },
+    {
+      "route": "/es/contacto/",
+      "url": "https://staging.runartfoundry.com/es/contacto/?v=now",
+      "runs": 2,
+      "performance": {
+        "avg": 99.5,
+        "sd": 0.5
+      },
+      "accessibility": {
+        "avg": 93,
+        "sd": 0
+      },
+      "bestPractices": {
+        "avg": 93,
+        "sd": 0
+      },
+      "seo": {
+        "avg": 69,
+        "sd": 0
+      },
+      "lcpMs": {
+        "avg": 1539.804025,
+        "sd": 2.4152250000001914
+      },
+      "cls": {
+        "avg": 0,
+        "sd": 0
+      },
+      "inpMs": {
+        "avg": 0,
+        "sd": 0
+      },
+      "gates": {
+        "pass": true,
+        "fails": []
+      },
+      "recommendations": []
+    }
+  ]
+}

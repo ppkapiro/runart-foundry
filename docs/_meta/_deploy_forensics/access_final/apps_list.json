@@ -1,0 +1,257 @@
+{
+  "result": [
+    {
+      "id": "245b2206-b75b-4018-b2d7-349f102920bf",
+      "uid": "245b2206-b75b-4018-b2d7-349f102920bf",
+      "type": "self_hosted",
+      "name": "RUN Briefing (Direct)",
+      "aud": "76585272ad0badca5b2d47c1698f2ba32398f0a5edd8f3b013a148221da0cb9e",
+      "created_at": "2025-10-24T21:02:17Z",
+      "updated_at": "2025-10-24T21:17:58Z",
+      "domain": "runart-briefing-direct.pages.dev",
+      "self_hosted_domains": [
+        "runart-briefing-direct.pages.dev"
+      ],
+      "destinations": [
+        {
+          "type": "public",
+          "uri": "runart-briefing-direct.pages.dev"
+        }
+      ],
+      "app_launcher_visible": true,
+      "allowed_idps": [],
+      "tags": [],
+      "auto_redirect_to_identity": false,
+      "policies": [
+        {
+          "created_at": "2025-10-24T21:13:02Z",
+          "decision": "non_identity",
+          "exclude": [],
+          "id": "e65fbd51-9fa8-4d01-865b-ecdffdba0a6d",
+          "include": [
+            {
+              "service_token": {
+                "token_id": "26112c8f-1dda-4480-8436-f1b3e5b38ce8"
+              }
+            }
+          ],
+          "name": "Allow CI RunArt Production (Direct)",
+          "require": [],
+          "session_duration": "24h",
+          "uid": "e65fbd51-9fa8-4d01-865b-ecdffdba0a6d",
+          "updated_at": "2025-10-24T21:32:58Z",
+          "reusable": true,
+          "precedence": 1
+        },
+        {
+          "created_at": "2025-10-02T16:37:30Z",
+          "decision": "allow",
+          "exclude": [
+            {
+              "service_token": {
+                "token_id": "4ed8b5ca-4bc5-4cba-a35d-f386ab45796a"
+              }
+            },
+            {
+              "service_token": {
+                "token_id": "c7c58a8e-f3fa-4d5f-bbef-573b652ae750"
+              }
+            }
+          ],
+          "id": "c74c373b-92ab-4efa-882e-eb93f9ff02a0",
+          "include": [
+            {
+              "email": {
+                "email": "ppcapiro@gmail.com"
+              }
+            },
+            {
+              "email": {
+                "email": "runartfoundry@gmail.com"
+              }
+            },
+            {
+              "email": {
+                "email": "musicmanagercuba@gmail.com"
+              }
+            },
+            {
+              "email": {
+                "email": "officemagerhealthkendall@gmail.com"
+              }
+            },
+            {
+              "email": {
+                "email": "shop.artmarketpremium@gmail.com"
+              }
+            }
+          ],
+          "name": "RUN Briefing Policy",
+          "require": [
+            {
+              "login_method": {
+                "id": "492a448d-ef94-4875-92a8-38c144a7e86e"
+              }
+            }
+          ],
+          "session_duration": "24h",
+          "uid": "c74c373b-92ab-4efa-882e-eb93f9ff02a0",
+          "updated_at": "2025-10-24T21:33:17Z",
+          "reusable": true,
+          "precedence": 2
+        }
+      ],
+      "session_duration": "24h",
+      "enable_binding_cookie": false,
+      "http_only_cookie_attribute": false,
+      "options_preflight_bypass": false
+    },
+    {
+      "id": "6ad64bb6-9ecf-4b2b-907f-2de8ebfa87d3",
+      "uid": "6ad64bb6-9ecf-4b2b-907f-2de8ebfa87d3",
+      "type": "self_hosted",
+      "name": "RUN Briefing",
+      "aud": "208c1b2a60b592e4f5468bd56804e905bff41b8745928f4eaf136ea2e4d5ee5b",
+      "created_at": "2025-10-02T16:35:24Z",
+      "updated_at": "2025-10-15T19:10:20Z",
+      "domain": "runart-foundry.pages.dev/*",
+      "self_hosted_domains": [
+        "runart-foundry.pages.dev/*"
+      ],
+      "destinations": [
+        {
+          "type": "public",
+          "uri": "runart-foundry.pages.dev/*"
+        }
+      ],
+      "app_launcher_visible": true,
+      "allowed_idps": [],
+      "tags": [],
+      "auto_redirect_to_identity": false,
+      "policies": [
+        {
+          "created_at": "2025-10-15T18:08:20Z",
+          "decision": "non_identity",
+          "exclude": [],
+          "id": "8e2337e3-385e-4f9c-98dc-26f2a85b7fbd",
+          "include": [
+            {
+              "service_token": {
+                "token_id": "4ed8b5ca-4bc5-4cba-a35d-f386ab45796a"
+              }
+            },
+            {
+              "service_token": {
+                "token_id": "c7c58a8e-f3fa-4d5f-bbef-573b652ae750"
+              }
+            }
+          ],
+          "name": "Allow CI Diagnostics Preview",
+          "require": [],
+          "session_duration": "730h",
+          "uid": "8e2337e3-385e-4f9c-98dc-26f2a85b7fbd",
+          "updated_at": "2025-10-15T19:22:07Z",
+          "reusable": true,
+          "precedence": 1
+        },
+        {
+          "created_at": "2025-10-15T14:06:37Z",
+          "decision": "allow",
+          "exclude": [],
+          "id": "693262c4-003c-4a56-a577-ab67b403b667",
+          "include": [
+            {
+              "service_token": {
+                "token_id": "c7c58a8e-f3fa-4d5f-bbef-573b652ae750"
+              }
+            },
+            {
+              "service_token": {
+                "token_id": "4ed8b5ca-4bc5-4cba-a35d-f386ab45796a"
+              }
+            }
+          ],
+          "name": "CI RunArt Access",
+          "require": [],
+          "session_duration": "24h",
+          "uid": "693262c4-003c-4a56-a577-ab67b403b667",
+          "updated_at": "2025-10-15T19:01:55Z",
+          "reusable": true,
+          "precedence": 2
+        },
+        {
+          "created_at": "2025-10-02T16:37:30Z",
+          "decision": "allow",
+          "exclude": [
+            {
+              "service_token": {
+                "token_id": "4ed8b5ca-4bc5-4cba-a35d-f386ab45796a"
+              }
+            },
+            {
+              "service_token": {
+                "token_id": "c7c58a8e-f3fa-4d5f-bbef-573b652ae750"
+              }
+            }
+          ],
+          "id": "c74c373b-92ab-4efa-882e-eb93f9ff02a0",
+          "include": [
+            {
+              "email": {
+                "email": "ppcapiro@gmail.com"
+              }
+            },
+            {
+              "email": {
+                "email": "runartfoundry@gmail.com"
+              }
+            },
+            {
+              "email": {
+                "email": "musicmanagercuba@gmail.com"
+              }
+            },
+            {
+              "email": {
+                "email": "officemagerhealthkendall@gmail.com"
+              }
+            },
+            {
+              "email": {
+                "email": "shop.artmarketpremium@gmail.com"
+              }
+            }
+          ],
+          "name": "RUN Briefing Policy",
+          "require": [
+            {
+              "login_method": {
+                "id": "492a448d-ef94-4875-92a8-38c144a7e86e"
+              }
+            }
+          ],
+          "session_duration": "24h",
+          "uid": "c74c373b-92ab-4efa-882e-eb93f9ff02a0",
+          "updated_at": "2025-10-24T21:33:17Z",
+          "reusable": true,
+          "precedence": 3
+        }
+      ],
+      "session_duration": "24h",
+      "service_auth_401_redirect": true,
+      "enable_binding_cookie": false,
+      "http_only_cookie_attribute": false,
+      "options_preflight_bypass": false
+    }
+  ],
+  "success": true,
+  "errors": [],
+  "messages": [],
+  "result_info": {
+    "page": 1,
+    "per_page": 100,
+    "count": 2,
+    "total_count": 2,
+    "total_pages": 1
+  }
+}

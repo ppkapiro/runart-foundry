@@ -10,8 +10,8 @@ preview_id = "e68d7a05dce645478e25c397d4c34c08"
 
 [[kv_namespaces]]
 binding = "LOG_EVENTS"
-id = "6418ac6ace59487c97bda9c3a50ab10e"
-preview_id = "e68d7a05dce645478e25c397d4c34c08"
+id = "9fbb7e6c2d6a4c1cb3ad2b3cce4040f5"
+preview_id = "5c809442ad5a4a5cb4bcca714c70fabf"
 
 [[kv_namespaces]]
 binding = "RUNART_ROLES"
@@ -24,4 +24,35 @@ ORIGIN_ALLOWED = "https://runart-foundry.pages.dev"
 ACCESS_ADMINS = "ppcapiro@gmail.com"
 ACCESS_EQUIPO_DOMAINS = "runart.com,studio.com"
 RUNART_ENV = "production"
+ACCESS_DEV_OVERRIDE = "0"
+
+[env.preview.vars]
+RUNART_ENV = "preview"
+ACCESS_TEST_MODE = "1"
+MOD_REQUIRED = "1"
+ORIGIN_ALLOWED = "https://runart-foundry.pages.dev"
+ACCESS_ADMINS = "ppcapiro@gmail.com"
+ACCESS_EQUIPO_DOMAINS = "runart.com,studio.com"
+ACCESS_DEV_OVERRIDE = "0"
+
+# KV bindings explícitos para preview (silencia warnings de herencia)
+[[env.preview.kv_namespaces]]
+binding = "DECISIONES"
+id = "e68d7a05dce645478e25c397d4c34c08"
+
+[[env.preview.kv_namespaces]]
+binding = "LOG_EVENTS"
+id = "5c809442ad5a4a5cb4bcca714c70fabf"
+
+[[env.preview.kv_namespaces]]
+binding = "RUNART_ROLES"
+id = "7d80b07de98e4d9b9d5fd85516901ef6"
+
+
+[env.production.vars]
+RUNART_ENV = "production"
+MOD_REQUIRED = "1"
+ORIGIN_ALLOWED = "https://runart-foundry.pages.dev"
+ACCESS_ADMINS = "ppcapiro@gmail.com"
+ACCESS_EQUIPO_DOMAINS = "runart.com,studio.com"
 ACCESS_DEV_OVERRIDE = "0"

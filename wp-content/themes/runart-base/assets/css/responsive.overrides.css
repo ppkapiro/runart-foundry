@@ -1,0 +1,273 @@
+/*
+ * Responsive Overrides — v0.3.1.3 (surgical)
+ * Mantiene paleta/tipografías; solo corrige layout y accesibilidad táctil.
+ * v0.3.1.2: Chrome-specific fix — fit-content → flex:0 0 auto
+ * v0.3.1.3: Chrome mobile nav overflow encapsulation (body scroll elimination)
+ */
+
+:root {
+  --header-h: clamp(56px, 6vw, 88px);
+  --container-max: 1200px;
+  --container-pad-x: clamp(16px, 4vw, 32px);
+  --gap-sm: clamp(12px, 2.8vw, 20px);
+  --gap-md: clamp(16px, 4vw, 28px);
+  --gap-lg: clamp(24px, 6vw, 40px);
+}
+
+/* Contener desbordes horizontales de forma segura */
+html, body { overflow-x: clip; }
+
+/* Tipografía fluida mínima (no cambia familia ni pesos) */
+body { font-size: clamp(15px, 1.6vw, 17px); line-height: 1.6; }
+h1 { font-size: clamp(28px, 4.6vw, 44px); line-height: 1.15; }
+h2 { font-size: clamp(24px, 3.8vw, 36px); line-height: 1.2; }
+h3 { font-size: clamp(20px, 3.2vw, 28px); line-height: 1.3; }
+h4, h5, h6 { line-height: 1.35; }
+
+/* Contenedores fluidos (Chrome-safe: incluir padding en el cálculo) */
+.container, .wrap, .inner {
+  inline-size: min(100%, var(--container-max));
+  box-sizing: border-box;
+  padding-inline: var(--container-pad-x);
+  margin-inline: auto;
+}
+
+/* Safe areas iOS */
+body { padding-bottom: env(safe-area-inset-bottom, 0); }
+.site-header, header { padding-top: max(env(safe-area-inset-top, 0px), 0); }
+
+/* Offset para anclas bajo header sticky */
+:where(h2, h3, h4, [id]) { scroll-margin-top: var(--header-h); }
+
+/* Grid helpers */
+.grid-auto { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 280px), 1fr)); gap: var(--gap-md); }
+
+/* Ajustes de grids existentes */
+.blog-grid, .services-grid, .projects-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 280px), 1fr)); gap: var(--gap-lg); }
+
+/* Imágenes responsivas y placeholders para evitar CLS */
+img { max-width: 100%; height: auto; }
+.blog-card-image, .service-card-image, .project-card-image { aspect-ratio: 16 / 9; overflow: hidden; border-radius: 8px; }
+.blog-card-image img, .service-card-image img, .project-card-image img { width: 100%; height: 100%; object-fit: cover; display: block; }
+
+/* Cards: espaciados táctiles */
+.blog-card, .service-card, .project-card { display: flex; flex-direction: column; gap: var(--gap-sm); }
+.blog-card .blog-read-more, .btn, button, .menu a { min-height: 44px; display: inline-flex; align-items: center; }
+
+/* Formularios: evitar zoom iOS y asegurar targets */
+input, select, textarea { font-size: 16px; min-height: 44px; }
+button, .btn { padding: 10px 16px; }
+
+/* Header sticky estable (no cambia estilos, solo robustez) */
+main { padding-top: min(4vh, var(--header-h)); }
+
+/* Touch: desactivar hovers en coarse pointers */
+@media (hover: none) and (pointer: coarse) {
+  a:hover, button:hover { filter: none; transform: none; }
+  .blog-card:hover, .service-card:hover, .project-card:hover { box-shadow: none; transform: none; }
+}
+
+/* Breakpoints quirúrgicos */
+@media (max-width: 430px) {
+  .hero-title { font-size: clamp(24px, 7vw, 32px); }
+  .hero-subtitle { font-size: clamp(14px, 3.8vw, 16px); }
+  .archive-header, .blog-header { text-align: left; }
+}
+
+@media (max-width: 390px) {
+  .container, .wrap { padding-inline: 14px; }
+}
+
+/* ========================================================================
+   LANGUAGE SWITCHER FIX — v0.3.1.2 (Chrome-safe)
+   Corrige overflow, alineación y tap targets en móvil/desktop
+   v0.3.1.2: Reemplazado min-width:fit-content por flex:0 0 auto para Chrome
+   ======================================================================== */
+
+/* Header container: límites estrictos para evitar overflow */
+.site-header .container {
+  inline-size: 100%;
+  max-inline-size: var(--container-max, 1400px);
+  box-sizing: border-box;
+}
+
+/* Contenedor del switcher: Chrome-safe flex item */
+.site-lang-switcher {
+  display: inline-flex !important;
+  align-items: center;
+  gap: 8px;
+  margin-left: auto;
+  /* Chrome fix: flex:0 0 auto en vez de min-width:fit-content */
+  flex: 0 0 auto;
+  max-inline-size: 9rem; /* ≈ 144px */
+  overflow: clip;
+  white-space: nowrap;
+}
+
+/* Fallback para navegadores sin soporte de overflow:clip */
+@supports not (overflow: clip) {
+  .site-lang-switcher {
+    overflow: hidden;
+  }
+}
+
+/* Los <li> directos del switcher (Polylang no usa <ul> wrapper) */
+.site-lang-switcher > li,
+.site-lang-switcher li {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+/* Enlaces de banderas: tap targets accesibles */
+.site-lang-switcher a {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 40px;
+  min-height: 40px;
+  padding: 8px;
+  border-radius: 6px;
+  transition: background 0.2s, opacity 0.2s;
+  opacity: 0.75;
+}
+
+.site-lang-switcher a:hover,
+.site-lang-switcher a:focus-visible {
+  background: rgba(195, 0, 0, 0.08);
+  opacity: 1;
+}
+
+.site-lang-switcher a:focus-visible {
+  outline: 2px solid var(--color-primary, #c30000);
+  outline-offset: 2px;
+}
+
+/* Íconos/banderas: tamaño fluido con aspect-ratio cuadrado (cross-UA stable) */
+.site-lang-switcher a img,
+.site-lang-switcher img {
+  inline-size: clamp(18px, 2.2vw, 22px) !important;
+  block-size: clamp(18px, 2.2vw, 22px) !important;
+  aspect-ratio: 1 / 1; /* Cuadrado para evitar deformación entre navegadores */
+  object-fit: cover;
+  border-radius: 3px;
+  display: block;
+}
+
+/* Desactivar transform/escalado en móvil */
+@media (hover: none) and (pointer: coarse) {
+  .site-lang-switcher a:hover {
+    transform: none;
+    filter: none;
+  }
+}
+
+/* Móvil ≤430px: asegurar compactado */
+@media (max-width: 430px) {
+  .site-lang-switcher {
+    gap: 6px;
+    max-inline-size: 5.5rem; /* ~88px */
+  }
+  
+  .site-lang-switcher a {
+    min-width: 36px;
+    min-height: 36px;
+    padding: 6px;
+  }
+  
+  .site-lang-switcher img {
+    inline-size: clamp(16px, 4vw, 18px) !important;
+    block-size: clamp(16px, 4vw, 18px) !important;
+  }
+  
+  /* ========================================================================
+     v0.3.1.3 Chrome mobile nav overflow encapsulation
+     Previene propagación de scroll del .site-nav al body
+     ======================================================================== */
+  
+  /* Anti-scroll global para el body en eje inline (manteniendo pan-y) */
+  html, body {
+    overscroll-behavior-inline: none; /* Evita chaining al viewport */
+    touch-action: pan-y pinch-zoom;   /* Deshabilita pan-x a nivel de página */
+    overflow-x: hidden;               /* Fuerza eliminación de scroll lateral del body en Chrome móvil */
+  }
+  
+  /* Paso 1: Contener overflow en header y container */
+  .site-header {
+    overflow-x: clip;
+    overflow-y: visible;
+    max-inline-size: 100%;
+    contain: paint; /* Aísla overflow del header al propio contexto de pintura */
+    isolation: isolate;
+  }
+  
+  .site-header .container {
+    overflow-x: clip;
+    overflow-y: visible;
+    max-inline-size: 100%;
+    inline-size: 100%;
+  }
+  
+  /* Fallback para navegadores sin soporte de overflow:clip */
+  @supports not (overflow: clip) {
+    .site-header,
+    .site-header .container {
+      overflow-x: hidden;
+    }
+  }
+  
+  /* Paso 2: Encapsular scroll dentro del .site-nav */
+  .site-nav {
+    /* Limitar ancho relativo al contenedor para no empujar el layout viewport */
+    max-inline-size: calc(100% - 9rem); /* reserva ≈ logo (3–4rem) + switcher (5–6rem) */
+    overflow-x: auto;
+    overflow-y: hidden;
+    -webkit-overflow-scrolling: touch;
+    overscroll-behavior-inline: contain; /* Prevenir propagación del scroll */
+    overscroll-behavior-block: none;
+  touch-action: pan-x; /* Permite scroll horizontal SOLO dentro del nav */
+    
+  /* Contención fuerte para evitar que el ancho contribuya al scrollWidth del documento */
+  contain: size layout paint;
+    min-inline-size: 0;
+    
+    /* Asegurar que no se salga del contenedor */
+    flex-shrink: 1;
+    flex-grow: 0;
+  }
+  
+  /* Paso 3: Lista interna del nav puede crecer sin romper contenedor */
+  .site-nav ul,
+  .site-nav > ul {
+    inline-size: max-content;
+    min-inline-size: 0;
+    display: flex;
+    flex-wrap: nowrap;
+    white-space: nowrap; /* Evitar wraps inesperados que expandan el ancho */
+    padding-inline: 0;
+    margin-inline: 0;
+  }
+  
+  /* Paso 4: Items del menú no se encogen ni crecen */
+  .site-nav li,
+  .site-nav > ul > li {
+    flex: 0 0 auto;
+    min-inline-size: 0;
+  }
+}
+
+/* Móvil extremo ≤380px: tap targets mínimos */
+@media (max-width: 380px) {
+  .site-header .container {
+    padding: 0.75rem 12px;
+  }
+  
+  .site-lang-switcher {
+    max-inline-size: 4.75rem; /* ~76px */
+  }
+  
+  /* v0.3.1.3: Ajustar ancho del nav para viewports extremos */
+  .site-nav {
+    max-inline-size: calc(100% - 8rem);
+  }
+}

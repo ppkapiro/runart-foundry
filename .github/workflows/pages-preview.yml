@@ -1,0 +1,239 @@
+name: Deploy Preview (Cloudflare)
+
+on:
+  pull_request:
+    branches:
+      - develop
+      - main
+      - deploy/**
+  workflow_dispatch:
+
+jobs:
+  build-and-deploy:
+    name: Build & Deploy Preview
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      deployments: write
+      statuses: write
+    env:
+      CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+      CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+      CF_PROJECT_NAME: runart-foundry
+      RUNART_ENV: preview
+      HAS_ACCESS_CLIENT_ID: ${{ secrets.ACCESS_CLIENT_ID != '' }}
+      HAS_ACCESS_CLIENT_SECRET: ${{ secrets.ACCESS_CLIENT_SECRET != '' }}
+    steps:
+      - name: Validate secrets
+        run: |
+          missing=()
+          for name in CLOUDFLARE_API_TOKEN CLOUDFLARE_ACCOUNT_ID; do
+            if [ -z "${!name}" ]; then missing+=("$name"); fi
+          done
+          if [ -z "${CF_PROJECT_NAME}" ]; then missing+=("CF_PROJECT_NAME"); fi
+          if [ ${#missing[@]} -gt 0 ]; then
+            echo "ERROR: faltan secrets: ${missing[*]}" >&2
+            exit 1
+          fi
+      - name: Verify Cloudflare token (v2)
+        run: |
+          set -euo pipefail
+          echo "Account esperado: ${CLOUDFLARE_ACCOUNT_ID}"
+          response=$(curl -sS -X GET "https://api.cloudflare.com/client/v4/user/tokens/verify" \
+            -H "Authorization: Bearer ${CLOUDFLARE_API_TOKEN}" \
+            -H "Content-Type: application/json")
+          echo "$response"
+          status=$(echo "$response" | jq -r '.result.status // empty')
+          account_id=$(echo "$response" | jq -r '.result.account.id // empty')
+          echo "account_id extraído: ${account_id:-<empty>}"
+          if [ "$status" != "active" ]; then
+            echo "::error::Cloudflare API token inactivo (status=${status:-empty})." >&2
+            exit 1
+          fi
+          # Algunas respuestas no incluyen .result.account.id; solo comparar si viene poblado
+          if [ -n "$account_id" ] && [ -n "${CLOUDFLARE_ACCOUNT_ID}" ] && [ "$account_id" != "${CLOUDFLARE_ACCOUNT_ID}" ]; then
+            echo "::error::Token pertenece a otra cuenta (${account_id}). Esperado: ${CLOUDFLARE_ACCOUNT_ID}" >&2
+            exit 1
+          fi
+          echo "Token verificado correctamente."
+      - name: Echo project name (debug)
+        run: |
+          echo "CF_PROJECT_NAME=${CF_PROJECT_NAME}"
+      - name: Checkout repository
+        uses: actions/checkout@v4
+      - name: Setup Python 3.11
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Setup Node.js 20
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      - name: Install dependencies
+        working-directory: apps/briefing
+        run: npm ci
+      - name: Build site
+        working-directory: apps/briefing
+        run: npm run build
+      - name: Smoke tests (unit imports)
+        working-directory: apps/briefing
+        run: npm run test:unit:smoke
+      - name: Deploy preview branch
+        id: deploy-preview
+        uses: cloudflare/pages-action@v1
+        with:
+          gitHubToken: ${{ secrets.GITHUB_TOKEN }}
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          projectName: ${{ env.CF_PROJECT_NAME }}
+          directory: site
+          branch: ${{ github.head_ref }}
+          wranglerVersion: '3'
+          workingDirectory: apps/briefing
+      - name: Extract preview URL
+        id: extract-preview-url
+        env:
+          CF_API: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CF_ACCOUNT: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          CF_PROJECT: ${{ env.CF_PROJECT_NAME }}
+        run: |
+          set -euo pipefail
+          BRANCH='${{ github.head_ref }}'
+          URL="${{ steps.deploy-preview.outputs.preview_url }}"
+          if [ -z "$URL" ]; then
+            ALT_URL="${{ steps.deploy-preview.outputs.url }}"
+            if [ -n "$ALT_URL" ]; then URL="$ALT_URL"; fi
+          fi
+          if [ -z "$URL" ]; then
+            echo "Fallback: consultando Cloudflare Pages API para última URL de ${CF_PROJECT}…"
+            resp=$(curl -sS -H "Authorization: Bearer ${CF_API}" "https://api.cloudflare.com/client/v4/accounts/${CF_ACCOUNT}/pages/projects/${CF_PROJECT}/deployments?per_page=20")
+            # 1) Intentar por rama si el API la anota
+            URL=$(echo "$resp" | jq -r --arg b "$BRANCH" '[.result[] | select(.deployment_trigger.metadata.branch==$b)] | sort_by(.created_on) | last | (.url // .aliases[0] // empty)')
+            # 2) Si sigue vacío, tomar el último deployment (por fecha)
+            if [ -z "$URL" ]; then
+              URL=$(echo "$resp" | jq -r '[.result[]] | sort_by(.created_on) | last | (.url // .aliases[0] // empty)')
+            fi
+          fi
+          echo "preview_url=${URL}"
+          test -n "$URL" || { echo "preview_url vacío: ni la acción ni la API devolvieron URL"; exit 1; }
+          # Prohibir alias preview.* explícitamente (permitimos alias por rama como feat-*.pages.dev)
+          if echo "$URL" | grep -qiE '^https?://preview[.]'; then
+            echo "ERROR: Se detectó alias 'preview.*' (no válido por defecto). Use URL hash del deploy."; exit 1;
+          fi
+          echo "PREVIEW_BASE_URL=$URL" >> "$GITHUB_ENV"
+          ts="$(date -u +%Y%m%dT%H%M%SZ)"
+          echo "SMOKES_TS=$ts" >> "$GITHUB_ENV"
+          echo "ts=$ts" >> "$GITHUB_OUTPUT"
+          echo "Preview base URL: $URL"
+        shell: bash
+      - name: Precheck preview DNS/HTTP
+        run: |
+          set -e
+          echo "Preview: $PREVIEW_BASE_URL"
+          HOST=$(echo "$PREVIEW_BASE_URL" | sed 's#https\?://##' | cut -d/ -f1)
+          echo "Host: $HOST"
+
+          resolve() {
+            getent hosts "$HOST" >/dev/null && return 0
+            dig +short "$HOST" @1.1.1.1 | grep -qE '^[0-9.]+$' && return 0
+            return 1
+          }
+
+          tries=0; max=6
+          until resolve; do
+            tries=$((tries+1))
+            echo "DNS intento $tries/$max…"
+            sleep $((tries*2))
+            [ $tries -ge $max ] && { echo "DNS no resuelve: $HOST"; exit 1; }
+          done
+          echo "DNS OK"
+
+          tries=0; max=3
+          until curl -sI --max-time 10 "$PREVIEW_BASE_URL" >/dev/null; do
+            tries=$((tries+1))
+            echo "HTTP intento $tries/$max…"
+            sleep $((tries*2))
+            [ $tries -ge $max ] && { echo "HTTP no responde: $PREVIEW_BASE_URL"; exit 1; }
+          done
+          echo "HTTP OK"
+        shell: bash
+      - name: Public smoke (Access 30x expected)
+        run: |
+          set -eo pipefail
+          TS="${SMOKES_TS}"
+          REPORT="apps/briefing/_reports/smokes_preview_${TS}"
+          mkdir -p "$REPORT"
+          RESULT="FAIL"
+          if PROD_URL="$PREVIEW_BASE_URL" BASE_URL="$PREVIEW_BASE_URL" make -C apps/briefing test-smoke-prod | tee "$REPORT/smokes_stdout_public.txt"; then
+            RESULT="PASS"
+          fi
+          curl -sSL "$PREVIEW_BASE_URL" -o "${REPORT}/index.html" || true
+          {
+            echo "# Smokes Preview — ${SMOKES_TS}"
+            echo "- Base URL: ${PREVIEW_BASE_URL}"
+            echo "- Público (Access 30x): ${RESULT}"
+            echo "- Autenticado (Service Token): PENDING"
+            echo "- Evidencias: _reports/smokes_preview_${SMOKES_TS}/"
+          } > "${REPORT}/SUMMARY.md"
+          echo "SMOKES_PREVIEW_PUBLIC=$RESULT" >> "$GITHUB_ENV"
+          if [ "$RESULT" != "PASS" ]; then
+            echo "::error::Public smoke (Access 30x) reportó $RESULT. Revisar smokes_stdout_public.txt"
+            exit 1
+          fi
+        shell: bash
+      - name: Auth smoke (Service Token)
+        if: ${{ env.HAS_ACCESS_CLIENT_ID == 'true' && env.HAS_ACCESS_CLIENT_SECRET == 'true' }}
+        run: |
+          set -eo pipefail
+          TS="${SMOKES_TS}"
+          REPORT="apps/briefing/_reports/smokes_preview_${TS}"
+          mkdir -p "$REPORT"
+          RESULT="FAIL"
+          if PROD_URL="$PREVIEW_BASE_URL" \
+            BASE_URL="$PREVIEW_BASE_URL" \
+            ACCESS_CLIENT_ID="${{ secrets.ACCESS_CLIENT_ID }}" \
+            ACCESS_CLIENT_SECRET="${{ secrets.ACCESS_CLIENT_SECRET }}" \
+            make -C apps/briefing test-smoke-wrapper | tee "$REPORT/smokes_stdout_auth.txt"; then
+            RESULT="PASS"
+          fi
+          sed -i "s/Autenticado (Service Token): PENDING/Autenticado (Service Token): ${RESULT}/" "$REPORT/SUMMARY.md"
+          echo "SMOKES_PREVIEW_AUTH=$RESULT" >> "$GITHUB_ENV"
+          if [ "$RESULT" != "PASS" ]; then
+            echo "::error::Authenticated smoke (Service Token) reportó $RESULT"
+            exit 1
+          fi
+        shell: bash
+      - name: Auth smoke (SKIPPED — missing secrets)
+        if: ${{ !(env.HAS_ACCESS_CLIENT_ID == 'true' && env.HAS_ACCESS_CLIENT_SECRET == 'true') }}
+        run: |
+          echo "Auth smoke SKIPPED: falta ACCESS_CLIENT_ID/ACCESS_CLIENT_SECRET"
+          TS="${SMOKES_TS}"
+          REPORT="apps/briefing/_reports/smokes_preview_${TS}"
+          mkdir -p "$REPORT"
+          if [ -f "$REPORT/SUMMARY.md" ]; then
+            sed -i "s/Autenticado (Service Token): PENDING/Autenticado (Service Token): SKIPPED/" "$REPORT/SUMMARY.md"
+          else
+            {
+              echo "# Smokes Preview — ${TS}"
+              echo "- Base URL: ${PREVIEW_BASE_URL}"
+              echo "- Público (Access 30x): SKIPPED"
+              echo "- Autenticado (Service Token): SKIPPED"
+              echo "- Evidencias: _reports/smokes_preview_${TS}/"
+            } > "$REPORT/SUMMARY.md"
+          fi
+          echo "SMOKES_PREVIEW_AUTH=SKIPPED" >> "$GITHUB_ENV"
+      - name: Update 082 with preview smokes
+        run: |
+          set -e
+          REPORT_DIR="_reports/smokes_preview_${SMOKES_TS}/"
+          PUBLIC_STATUS="${SMOKES_PREVIEW_PUBLIC:-UNKNOWN}"
+          AUTH_STATUS="${SMOKES_PREVIEW_AUTH:-SKIPPED}"
+          printf "\n## Smokes Preview — %s\n- Público (Access 30x): %s\n- Autenticado (Service Token): %s\n- Evidencias: \`%s\`\n" \
+            "$SMOKES_TS" "$PUBLIC_STATUS" "$AUTH_STATUS" "$REPORT_DIR" \
+            >> apps/briefing/docs/internal/briefing_system/ci/082_reestructuracion_local.md
+        shell: bash
+      - name: Upload preview smoke artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: smokes_preview_${{ steps.extract-preview-url.outputs.ts }}
+          path: apps/briefing/_reports/smokes_preview_${{ steps.extract-preview-url.outputs.ts }}/

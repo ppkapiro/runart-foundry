@@ -1,37 +1,62 @@
-name: Pages Preview2 Deploy
+name: Deploy Preview2 (CloudFed)
 
 on:
   push:
-    branches: [ develop ]
+    branches:
+      - develop
+      - deploy/preview2
   workflow_dispatch:
 
 jobs:
-  deploy-preview2:
+  build-and-deploy:
+    name: Build & Deploy Preview2
     runs-on: ubuntu-latest
     permissions:
       contents: read
       deployments: write
-      id-token: write
+      statuses: write
+    env:
+      CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+      CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+      CF_PROJECT_NAME: runart-foundry
+      TARGET_BRANCH: preview2
+      RUNART_ENV: preview2
     steps:
-      - name: Checkout
+      - name: Validate secrets
+        run: |
+          missing=()
+          for name in CLOUDFLARE_API_TOKEN CLOUDFLARE_ACCOUNT_ID; do
+            if [ -z "${!name}" ]; then missing+=("$name"); fi
+          done
+          if [ ${#missing[@]} -gt 0 ]; then
+            echo "ERROR: faltan secrets: ${missing[*]}" >&2
+            exit 1
+          fi
+      - name: Checkout repository
         uses: actions/checkout@v4
-
-      - name: Setup Node
+      - name: Setup Python 3.11
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Setup Node.js 20
         uses: actions/setup-node@v4
         with:
-          node-version: 18
-
+          node-version: '20'
+      - name: Install dependencies
+        working-directory: apps/briefing
+        run: npm ci
       - name: Build site
-        run: |
-          npm ci
-          npm run build
-
-      - name: Deploy to Cloudflare Pages (Preview2)
+        working-directory: apps/briefing
+        run: npm run build
+      - name: Run unit smoke tests
+        working-directory: apps/briefing
+        run: npm run test:unit:smoke
+      - name: Deploy to CloudFed staging
         uses: cloudflare/pages-action@v1
         with:
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
-          projectName: runart-foundry-preview2
-          directory: site
-          gitHubToken: ${{ secrets.GITHUB_TOKEN }}
-          branch: develop
+          projectName: ${{ env.CF_PROJECT_NAME }}
+          directory: ./apps/briefing/site
+          branch: ${{ env.TARGET_BRANCH }}
+          wranglerVersion: '3'

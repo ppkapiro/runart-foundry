@@ -29,7 +29,8 @@ document.addEventListener('DOMContentLoaded', async () => {
     'Decisiones',
     'Inbox (Decisiones)',
     'Reportes (interno)',
-    'Herramientas'
+    'Herramientas',
+    'Administrar roles'
   ];
   const internalHrefPatterns = [
     'decisiones/',
@@ -68,53 +69,74 @@ document.addEventListener('DOMContentLoaded', async () => {
         item.classList.add('interno');
         const customClass = navMap.get(text);
         if (customClass) item.classList.add(customClass);
+        if (text.startsWith('Administrar roles')) {
+          item.classList.add('owner-only');
+        }
       }
     }
   });
 
   const updateInternalNav = (viewRole) => {
-    const showInternal = ['admin', 'equipo'].includes(viewRole);
+    const allowed = new Set(['owner', 'team', 'client_admin']);
+    const ownerOnly = new Set(['owner', 'client_admin']);
+    const showInternal = allowed.has(viewRole);
     document.querySelectorAll('nav .interno').forEach((item) => {
       if (showInternal) item.removeAttribute('hidden');
       else item.setAttribute('hidden', 'hidden');
     });
+    document.querySelectorAll('nav .owner-only').forEach((item) => {
+      if (ownerOnly.has(viewRole)) item.removeAttribute('hidden');
+      else item.setAttribute('hidden', 'hidden');
+    });
   };
 
-  const applyView = (viewRole) => {
+  const normalizeRole = (raw) => {
+    const value = (raw || '').toLowerCase();
+    if (!value) return 'visitor';
+    if (value === 'propietario' || value === 'admin') return 'owner';
+    if (value === 'equipo' || value === 'team') return 'team';
+    if (value === 'cliente_admin' || value === 'client_admin' || value === 'client-admin') return 'client_admin';
+    if (value === 'cliente' || value === 'client') return 'client';
+    if (value === 'visitante' || value === 'visitor') return 'visitor';
+    return value;
+  };
+
+  const applyView = (viewRoleRaw) => {
+    const viewRole = normalizeRole(viewRoleRaw);
     html.setAttribute('data-viewas', viewRole);
-    if (viewRole === 'cliente') html.classList.add('role-cliente');
+    if (viewRole === 'client') html.classList.add('role-cliente');
     else html.classList.remove('role-cliente');
-    updateInternalNav(viewRole === 'admin' ? 'admin' : viewRole);
+    updateInternalNav(viewRole);
   };
 
   try {
     const res = await fetch('/api/whoami', { credentials: 'include' });
     if (!res.ok) throw new Error('whoami not ok');
     const data = await res.json();
-    const role = (data.role || 'visitante').toLowerCase();
+    const role = normalizeRole(data.role || data.rol || 'visitor');
     if (typeof window.runartSetEnv === 'function') {
       window.runartSetEnv(data.env);
     }
 
     html.dataset.role = role;
-    if (role === 'cliente') html.classList.add('role-cliente');
+    if (role === 'client') html.classList.add('role-cliente');
     else html.classList.remove('role-cliente');
 
-    if (role === 'admin') {
+    if (role === 'owner') {
       const box = document.createElement('div');
       box.className = 'viewas-toggle';
       box.innerHTML = `
         <label style="margin-right:4px">Ver como</label>
         <select id="viewas">
-          <option value="admin">admin</option>
-          <option value="equipo">equipo</option>
-          <option value="cliente">cliente</option>
+          <option value="owner">owner</option>
+          <option value="team">team</option>
+          <option value="client">client</option>
         </select>`;
       document.body.appendChild(box);
 
       const sel = box.querySelector('#viewas');
       const saved = localStorage.getItem('runart:viewas');
-      if (saved) sel.value = saved;
+      if (saved) sel.value = normalizeRole(saved);
 
       applyView(sel.value);
 
@@ -127,8 +149,8 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
   } catch (e) {
     console.warn('whoami failed', e);
-    html.dataset.role = 'visitante';
-    applyView('visitante');
+    html.dataset.role = 'visitor';
+    applyView('visitor');
     if (typeof window.runartSetEnv === 'function') {
       window.runartSetEnv();
     }
@@ -174,7 +196,8 @@ document.addEventListener('DOMContentLoaded', () => {
     const html = document.documentElement;
     const role = (html?.dataset?.role || '').toLowerCase();
     const path = window.location?.pathname || '';
-    if (role === 'admin' || role === 'equipo') {
+    const loggableRoles = new Set(['admin', 'equipo', 'owner', 'team', 'client_admin']);
+    if (loggableRoles.has(role)) {
       fetch('/api/log_event', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },

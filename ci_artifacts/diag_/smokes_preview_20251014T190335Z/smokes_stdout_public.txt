@@ -1,0 +1,27 @@
+make: Entering directory '/home/runner/work/runart-foundry/runart-foundry/apps/briefing'
+Ejecutando smoke tests para producción (reconoce Access redirects como PASS)
+🔍 Ejecutando smoke tests para producción con Cloudflare Access
+📍 Base URL: https://09ae72bd.runart-foundry.pages.dev
+🔐 Access JWT: no configurado
+
+🧪 Test 1: Página raíz
+✅ GET / (HTTP 200)
+
+🧪 Test 2: API whoami
+✅ GET /api/whoami (HTTP 200)
+
+🧪 Test 3: API inbox
+✅ GET /api/inbox (HTTP 404)
+
+🧪 Test 4: API decisiones sin token
+✅ POST /api/decisiones sin token (HTTP 405)
+
+🧪 Test 5: API decisiones con token sin sesión Access
+✅ POST /api/decisiones con token (HTTP 405)
+
+📊 === RESUMEN ===
+Total: 5 pruebas • 5 ✅ PASS • 0 ⚠️ WARN • 0 ❌ FAIL
+
+🎉 Todos los tests pasaron. Cloudflare Access está funcionando correctamente.
+💡 Los redirects 30x hacia Access indican que la protección está activa.
+make: Leaving directory '/home/runner/work/runart-foundry/runart-foundry/apps/briefing'

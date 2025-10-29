@@ -1,0 +1,189 @@
+name: install-wpcli-bridge
+
+on:
+  workflow_dispatch:
+    inputs:
+      run_id:
+        description: "Run ID que contiene el artifact con credenciales admin (por defecto: 18691911856)"
+        required: false
+        default: "18691911856"
+
+permissions:
+  contents: write
+
+env:
+  WP_BASE_URL: ${{ vars.WP_BASE_URL }}
+
+jobs:
+  install:
+    # Nota: si los secretos de admin están guardados como "Environment secrets",
+    # declara aquí el environment correspondiente (p.ej. "staging") para habilitarlos.
+    # Si no existe, GitHub creará el environment vacío y los secretos seguirán ausentes.
+    environment:
+      name: staging
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Empaquetar plugin (ZIP)
+        id: zip
+        run: |
+          set -euo pipefail
+          cd tools/wpcli-bridge-plugin
+          ZIP_NAME="runart-wpcli-bridge.zip"
+          zip -r "/tmp/${ZIP_NAME}" . -x "*.DS_Store"
+          echo "zip_path=/tmp/${ZIP_NAME}" >> $GITHUB_OUTPUT
+
+      - name: Determinar credenciales admin (solo secrets)
+        id: creds
+        env:
+          WP_ADMIN_USER: ${{ secrets['WP_ADMIN_USER'] }}
+          WP_ADMIN_PASS: ${{ secrets.WP_ADMIN_PASS }}
+          WP_ADMIN_USERNAME: ${{ secrets.WP_ADMIN_USERNAME }}
+          RUNART_ADMIN_USER: ${{ secrets.RUNART_ADMIN_USER }}
+          RUNART_ADMIN_PASS: ${{ secrets.RUNART_ADMIN_PASS }}
+          RUNART_ADMIN_PASSWORD: ${{ secrets.RUNART_ADMIN_PASSWORD }}
+          ADMIN_USER: ${{ secrets.ADMIN_USER }}
+          ADMIN_PASS: ${{ secrets.ADMIN_PASS }}
+        run: |
+          set -euo pipefail
+          FOUND_USER_KEY=""; FOUND_PASS_KEY=""
+          if [ -n "${WP_ADMIN_USER:-}" ]; then USER="$WP_ADMIN_USER"; FOUND_USER_KEY="WP_ADMIN_USER";
+          elif [ -n "${WP_ADMIN_USERNAME:-}" ]; then USER="$WP_ADMIN_USERNAME"; FOUND_USER_KEY="WP_ADMIN_USERNAME";
+          elif [ -n "${RUNART_ADMIN_USER:-}" ]; then USER="$RUNART_ADMIN_USER"; FOUND_USER_KEY="RUNART_ADMIN_USER";
+          elif [ -n "${ADMIN_USER:-}" ]; then USER="$ADMIN_USER"; FOUND_USER_KEY="ADMIN_USER"; else USER=""; fi
+
+          if [ -n "${WP_ADMIN_PASS:-}" ]; then PASS="$WP_ADMIN_PASS"; FOUND_PASS_KEY="WP_ADMIN_PASS";
+          elif [ -n "${RUNART_ADMIN_PASS:-}" ]; then PASS="$RUNART_ADMIN_PASS"; FOUND_PASS_KEY="RUNART_ADMIN_PASS";
+          elif [ -n "${RUNART_ADMIN_PASSWORD:-}" ]; then PASS="$RUNART_ADMIN_PASSWORD"; FOUND_PASS_KEY="RUNART_ADMIN_PASSWORD";
+          elif [ -n "${ADMIN_PASS:-}" ]; then PASS="$ADMIN_PASS"; FOUND_PASS_KEY="ADMIN_PASS";
+          elif [ -n "${ADMIN_PASSWORD:-}" ]; then PASS="$ADMIN_PASSWORD"; FOUND_PASS_KEY="ADMIN_PASSWORD"; else PASS=""; fi
+
+          if [ -n "$USER" ] && [ -n "$PASS" ]; then
+            echo "Usando credenciales desde Secrets ($FOUND_USER_KEY/$FOUND_PASS_KEY)"
+          else
+            echo "No se encontraron credenciales admin en secrets." >&2
+            echo "Configure secretos: WP_ADMIN_USER y WP_ADMIN_PASS (o variantes RUNART_ADMIN_USER/RUNART_ADMIN_PASS, ADMIN_USER/ADMIN_PASS)." >&2
+            echo "Si están guardados como Environment secrets, asegúrese de usar el environment 'staging' o ajuste el nombre del environment en este workflow." >&2
+            exit 11
+          fi
+          echo "::add-mask::$USER"
+          echo "::add-mask::$PASS"
+          echo "wp_user=$USER" >> $GITHUB_OUTPUT
+          echo "wp_pass=$PASS" >> $GITHUB_OUTPUT
+
+      - name: Login wp-admin y obtener nonce de subida
+        id: nonce
+        run: |
+          set -euo pipefail
+          BASE="$WP_BASE_URL"
+          USER="${{ steps.creds.outputs.wp_user }}"
+          PASS="${{ steps.creds.outputs.wp_pass }}"
+          COOKIEJAR=$(mktemp)
+          # Login
+          RESP_CODE=$(curl -sS -c "$COOKIEJAR" -o /dev/null -w "%{http_code}" \
+            -X POST "$BASE/wp-login.php" \
+            -H 'Content-Type: application/x-www-form-urlencoded' \
+            --data-urlencode "log=$USER" \
+            --data-urlencode "pwd=$PASS" \
+            --data-urlencode "wp-submit=Log In" \
+            --data-urlencode "redirect_to=$BASE/wp-admin/" \
+            --data-urlencode "testcookie=1")
+          echo "HTTP login code: $RESP_CODE"
+          if [ "$RESP_CODE" != "302" ] && [ "$RESP_CODE" != "200" ]; then
+            echo "Login no exitoso (esperado 302/200)." >&2
+            exit 4
+          fi
+          # Obtener página de subida de plugins para nonce
+          UPLOAD_HTML=$(curl -sS -b "$COOKIEJAR" "$BASE/wp-admin/plugin-install.php?tab=upload")
+          NONCE=$(echo "$UPLOAD_HTML" | grep -oE 'name=\"_wpnonce\" value=\"[^\"]+' | sed -E 's/.*value=\"//')
+          if [ -z "$NONCE" ]; then
+            echo "No se pudo extraer _wpnonce de la página de subida" >&2
+            exit 5
+          fi
+          echo "nonce=$NONCE" >> $GITHUB_OUTPUT
+          echo "cookiejar=$COOKIEJAR" >> $GITHUB_OUTPUT
+
+      - name: Subir plugin y activar
+        id: install
+        run: |
+          set -euo pipefail
+          BASE="$WP_BASE_URL"
+          COOKIEJAR="${{ steps.nonce.outputs.cookiejar }}"
+          NONCE="${{ steps.nonce.outputs.nonce }}"
+          ZIP_PATH="${{ steps.zip.outputs.zip_path }}"
+          # Subir plugin (con overwrite=1 por si ya existe)
+          HTTP_CODE=$(curl -sS -b "$COOKIEJAR" -o /tmp/upload.html -w "%{http_code}" \
+            -F "_wpnonce=$NONCE" \
+            -F "_wp_http_referer=/wp-admin/plugin-install.php?tab=upload" \
+            -F "pluginzip=@${ZIP_PATH}" \
+            -F "overwrite=1" \
+            "$BASE/wp-admin/update.php?action=upload-plugin")
+          echo "Upload HTTP: $HTTP_CODE"
+          # Buscar enlace de activar plugin en la página
+          ACTIVATE_URL=$(grep -oE 'href=\"[^\"]+plugins.php\?action=activate[^\"]+' /tmp/upload.html | sed -E 's/^href=\"//' | head -1)
+          if [ -z "$ACTIVATE_URL" ]; then
+            # Si no aparece, ir a plugins.php y buscar activación directa
+            PLUG_HTML=$(curl -sS -b "$COOKIEJAR" "$BASE/wp-admin/plugins.php")
+            ACTIVATE_URL=$(echo "$PLUG_HTML" | grep -oE 'href=\"[^\"]+plugins.php\?action=activate[^\"]+runart-wpcli-bridge[^\"]+' | sed -E 's/^href=\"//' | head -1)
+          fi
+          if [ -z "$ACTIVATE_URL" ]; then
+            echo "No se encontró enlace de activación; puede que ya esté activo" >&2
+          else
+            # Normalizar URL de activación (resolver &amp; y prefijo BASE si es relativa)
+            ACTIVATE_URL_CLEAN=$(printf "%s" "$ACTIVATE_URL" | sed 's/&amp;/\&/g')
+            case "$ACTIVATE_URL_CLEAN" in
+              http://*|https://*) FULL_URL="$ACTIVATE_URL_CLEAN" ;;
+              /*) FULL_URL="$BASE$ACTIVATE_URL_CLEAN" ;;
+              *) FULL_URL="$BASE/$ACTIVATE_URL_CLEAN" ;;
+            esac
+            curl -sS -b "$COOKIEJAR" "$FULL_URL" -o /dev/null
+          fi
+          # Verificar que el plugin aparezca activo en plugins.php
+          CHECK=$(curl -sS -b "$COOKIEJAR" "$BASE/wp-admin/plugins.php" | grep -i "RunArt WP-CLI Bridge" | wc -l)
+          if [ "$CHECK" -eq 0 ]; then
+            echo "Plugin no visible en plugins.php (puede ser tema de idioma), continuando..."
+          fi
+
+      - name: Validar endpoint del bridge (REST)
+        id: validate
+        env:
+          WP_USER: ${{ secrets.WP_USER }}
+          WP_APP_PASSWORD: ${{ secrets.WP_APP_PASSWORD }}
+        run: |
+          set -euo pipefail
+          URL="$WP_BASE_URL/wp-json/runart/v1/bridge/health"
+          AUTH="$WP_USER:$WP_APP_PASSWORD"
+          RESP=$(curl -sS -u "$AUTH" -H 'Content-Type: application/json' "$URL" || true)
+          echo "$RESP" | jq '.' || echo '{"ok":false,"error":"non_json"}'
+          OK=$(echo "$RESP" | jq -r '.ok // false' 2>/dev/null || echo false)
+          echo "ok=$OK" >> $GITHUB_OUTPUT
+          echo "$RESP" > bridge_install_validate.json
+
+      - name: Generar reporte de instalación
+        run: |
+          set -euo pipefail
+          mkdir -p _reports/bridge
+          TS=$(date -u +"%Y%m%d_%H%M")
+          STATUS=$(jq -r 'if (.ok // false) then "PASS" else "WARN" end' bridge_install_validate.json 2>/dev/null || echo WARN)
+          {
+            echo "# 🔗 WP-CLI Bridge Install Report"
+            echo "**Fecha:** $(date -u)"
+            echo "**Estado:** $STATUS"
+            echo
+            echo "## Validación"
+            echo '```json'
+            cat bridge_install_validate.json
+            echo '```'
+          } > "_reports/bridge/install_${TS}.md"
+
+      - name: Commit & Push report
+        if: always()
+        run: |
+          set -euo pipefail
+          git config user.name "github-actions"
+          git config user.email "github-actions@users.noreply.github.com"
+          git add _reports/bridge/
+          git commit -m "Bridge install report" || echo "Nada que commitear"
+          git push

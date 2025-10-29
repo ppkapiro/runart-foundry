@@ -1,0 +1,53 @@
+name: audit-and-remediate
+on:
+  schedule:
+    - cron: "*/60 * * * *"   # cada hora
+  workflow_dispatch:
+
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with: { python-version: "3.11" }
+      - name: Install deps
+        run: pip install pyyaml
+      - name: Run audit engine
+        run: python apps/briefing/modules/briefing_audit/audit_engine.py
+      - name: Upload audit artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: audit-latest
+          path: |
+            _reports/audit_artifacts/audit_latest.json
+            _reports/audit_artifacts/audit_latest.txt
+
+  remediate:
+    needs: audit
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Download audit
+        uses: actions/download-artifact@v4
+        with: { name: audit-latest, path: _tmp_audit }
+      - name: Decide actions
+        id: decide
+        run: |
+          LEVEL=$(grep '^LEVEL=' _tmp_audit/audit_latest.txt | cut -d= -f2)
+          FINDINGS=$(grep '^FINDINGS=' _tmp_audit/audit_latest.txt | cut -d= -f2)
+          echo "level=$LEVEL" >> $GITHUB_OUTPUT
+          echo "findings=$FINDINGS" >> $GITHUB_OUTPUT
+          echo "LEVEL=$LEVEL  FINDINGS=$FINDINGS"
+      - name: Remediate (HIGH)
+        if: contains(steps.decide.outputs.findings, 'auth_ko') || contains(steps.decide.outputs.findings, 'rest_timeout')
+        run: |
+          bash tools/remediate.sh retry_verify
+          bash tools/remediate.sh flush_cache
+          # Si persiste fallo en siguiente ciclo, el script de reglas contempla rotate
+      - name: Remediate (MEDIUM)
+        if: contains(steps.decide.outputs.findings, 'menus_drift') || contains(steps.decide.outputs.findings, 'media_missing')
+        run: |
+          bash tools/remediate.sh sync_menus
+          bash tools/remediate.sh sync_media

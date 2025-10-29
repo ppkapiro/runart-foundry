@@ -1,5 +1,5 @@
 site_name: RUN Art Foundry — Briefing Privado
-site_url: https://example.pages.dev/
+site_url: https://runart-foundry.pages.dev/
 site_description: Micrositio privado para documentación, auditorías y toma de decisiones con el cliente.
 repo_name: runart-briefing
 theme:
@@ -16,106 +16,146 @@ theme:
     primary: indigo
     accent: light blue
   custom_dir: overrides
-extra:
-  generator: false
-  social: []
-  # Paleta placeholder, ajustable más adelante vía CSS si se requiere.
-  nav_internal:
-    - title: "Editor de Fichas (beta)"
-      class: interno
-    - title: "Inbox"
-      class: interno
-    - title: "Exportaciones (MF)"
-      class: interno
 nav:
   - Inicio: index.md
-  - Operación:
-      - Entornos: internal/briefing_system/ops/environments.md
-      - "Tablero vivo": internal/briefing_system/ops/status.md
-      - "Historial de cambios": internal/briefing_system/ops/changelog.md
-      - "Registro de incidentes": internal/briefing_system/ops/incidents.md
-  - Plan & Roadmap: client_projects/runart_foundry/plan/index.md
-  - Fases: fases/index.md
-  - Auditoría: client_projects/runart_foundry/auditoria/index.md
-  - Proceso: proceso/index.md
-  - Decisiones:
-      - Índice de decisiones: decisiones/index.md
-      - Contenido sitio viejo (brief): decisiones/contenido-sitio-viejo.md
-      - "Ficha de Proyecto (formulario)": decisiones/ficha-proyecto.md
-  - Galería: galeria/index.md
-  - Inbox (Decisiones):
-      - "Bandeja general": inbox/index.md
-      - "Fichas recibidas": inbox/fichas.md
-  - Dashboards:
-      - "KPIs (cliente)": dashboards/cliente.md
-  - Acerca: acerca/index.md
-  - Reportes:
-      - Reportes (cliente):
-          - "Master Plan (Estrategia)": client_projects/runart_foundry/reports/2025-10-02_master_plan.md
-          - "Arquitectura": briefing_arquitectura.md
-          - "Corte de Control — Fase 2": client_projects/runart_foundry/reports/corte_control_fase2.md
-          - "Notas de Release (ARQ)": client_projects/runart_foundry/reports/ARQ_RELEASE_NOTES.md
-      - "Corte Fase ARQ": client_projects/runart_foundry/reports/corte_arq.md
-      - "Mapa de interfaces (ARQ)": arq/mapa_interfaces.md
-  - Reportes (interno):
-      - "Bitácora del briefing": client_projects/runart_foundry/reports/README.md
-      - "Auditoría inventario (2025-10-02)": client_projects/runart_foundry/reports/2025-10-02_repo_inventory.md
-  - Herramientas:
-      - "Editor de Fichas (beta)": editor/index.md
-      - "Inbox": inbox/index.md
-      - "Exportaciones (MF)": exports/index.md
-  - Documentación:
-      - "ADR-0001 — Briefing como panel interno": client_projects/runart_foundry/reports/adr/ADR-0001_briefing_como_panel_interno.md
-      - "Plan — Sistema Briefing (ARQ)": client_projects/runart_foundry/reports/plan_fase_arq.md
-      - "Fase 1 — Control de Fichas": client_projects/runart_foundry/reports/fase1_fichas.md
-      - "Permisos finos por rol": accesos/permisos.md
-      - Operaciones:
-          - "CI & gates": internal/briefing_system/ops/ci.md
-          - "Banderas de entorno": internal/briefing_system/ops/environments.md
-  - Arquitectura:
-    - "Índice": internal/briefing_system/architecture/_index.md
-    - "000 — Resumen ejecutivo": internal/briefing_system/architecture/000_overview.md
-    - "010 — Inventario actual": internal/briefing_system/architecture/010_inventory.md
-    - "020 — Estructura objetivo": internal/briefing_system/architecture/020_target_structure.md
-    - "030 — Convenciones y estándares": internal/briefing_system/architecture/030_conventions.md
-    - "040 — Workflows compartidos": internal/briefing_system/architecture/040_ci_shared.md
-    - "050 — Targets Make": internal/briefing_system/architecture/050_make_targets.md
-    - "060 — Plan de migración": internal/briefing_system/architecture/060_migration_plan.md
-    - "065 — Switch Cloudflare Pages": internal/briefing_system/architecture/065_switch_pages.md
-    - "070 — Registro de riesgos": internal/briefing_system/architecture/070_risks.md
-  - "Guía de estilos UI": ui/estilos.md
+  - Cliente · RunArt Foundry:
+      - Resumen general: client_projects/runart_foundry/index.md
+      - Plan y roadmap:
+          - Plan maestro: client_projects/runart_foundry/plan/index.md
+          - Cronograma de fases: fases/index.md
+          - Proceso operativo: proceso/index.md
+      - Auditorías y métricas:
+          - Auditoría general: client_projects/runart_foundry/auditoria/index.md
+          - Inventario del repositorio (2025-10-02): client_projects/runart_foundry/reports/2025-10-02_repo_inventory.md
+          - Resumen de cierre Fase 0: client_projects/runart_foundry/reports/2025-10-02_cierre_fase0.md
+      - Reportes estratégicos:
+          - Master Plan (Estrategia): client_projects/runart_foundry/reports/2025-10-02_master_plan.md
+          - Plan Fase 1 — Fichas: client_projects/runart_foundry/reports/2025-10-02_plan_fase1_fichas.md
+          - Corte de control — Fase 2: client_projects/runart_foundry/reports/corte_control_fase2.md
+          - Corte Fase ARQ: client_projects/runart_foundry/reports/corte_arq.md
+          - ARQ Release Notes: client_projects/runart_foundry/reports/ARQ_RELEASE_NOTES.md
+          - Cloudflare Access — Auditoría: client_projects/runart_foundry/reports/cloudflare_access_audit.md
+          - Cloudflare Access — Plan: client_projects/runart_foundry/reports/cloudflare_access_plan.md
+      - Decisiones y formularios:
+          - Índice de decisiones: decisiones/index.md
+          - Ficha de proyecto (formulario): decisiones/ficha-proyecto.md
+          - Contenido sitio viejo (brief): decisiones/contenido-sitio-viejo.md
+      - Galería y medios: galeria/index.md
+      - Inbox del cliente:
+          - Bandeja general: inbox/index.md
+          - Fichas recibidas: inbox/fichas.md
+      - Dashboards: dashboards/cliente.md
+      - Herramientas para cliente:
+          - Editor de fichas (beta): editor/index.md
+          - Guía rápida del editor: editor/editor.md
+          - Exportaciones automáticas: exports/index.md
+      - Press-kit:
+          - Press-kit v0 (ES): client_projects/runart_foundry/reports/presskit_v0.md
+          - Press-kit v1 (ES): client_projects/runart_foundry/reports/presskit_v1_ES.md
+          - Press-kit v1 (EN): client_projects/runart_foundry/reports/presskit_v1_EN.md
+      - Acerca del proyecto: acerca/index.md
+  - Equipo Técnico · Briefing System:
+      - Centro interno: internal/briefing_system/index.md
+      - Orquestador Camino Preview Real:
+          - Orquestador maestro: internal/briefing_system/plans/02_orquestador_camino_preview_real.md
+          - CP1 — Access & ENV: internal/briefing_system/deploy/2025-10-10_cp1_access_env.md
+          - CP2 — Roles y rutas: internal/briefing_system/deploy/2025-10-10_cp2_roles_y_rutas.md
+          - CP3 — Readiness Preview: internal/briefing_system/deploy/2025-10-10_cp3_readiness_preview.md
+          - CP4 — Demo & Navegación: internal/briefing_system/deploy/2025-10-10_cp4_demo_navegacion.md
+          - CP5 — Promoción Producción: internal/briefing_system/deploy/2025-10-10_cp5_promocion_produccion.md
+          - CP6 — Consolidación final: internal/briefing_system/deploy/2025-10-10_cp6_consolidacion_final.md
+      - Planificación y bitácoras:
+          - Plan estratégico de consolidación: internal/briefing_system/plans/Plan_Estrategico_Consolidacion_Runart_Briefing.md
+          - 🚀 Plan Camino Preview → Producción: internal/briefing_system/plans/2025-10-09_plan_camino_preview_produccion.md
+          - Bitácora 082 — Reestructuración local: internal/briefing_system/ci/082_reestructuracion_local.md
+          - Ecosistema operativo RunArt: internal/briefing_system/archives/Ecosistema_Operativo_Runart.md
+          - Estado de despliegues: internal/briefing_system/README_briefing.md
+          - Changelog APU: internal/briefing_system/changelog_apu.md
+      - Guías operativas:
+          - Guía Copilot — Ejecución por fases: internal/briefing_system/guides/Guia_Copilot_Ejecucion_Fases.md
+          - Guía QA y Validaciones: internal/briefing_system/guides/Guia_QA_y_Validaciones.md
+          - Guía de estructura del proyecto: internal/briefing_system/guides/Guia_Estructura_Proyecto_Runart.md
+          - Guía de administración de roles: internal/briefing_system/guides/Guia_Administracion_Roles.md
+      - Reportes internos:
+          - Proceso de creación del sistema documental guiado: internal/briefing_system/reports/2025-10-08_proceso_creacion_documentacion_guiada.md
+          - Fase 1 — Consolidación documental: internal/briefing_system/reports/2025-10-08_fase1_consolidacion_documental.md
+          - Fase 2 — Corrección técnica y normalización: internal/briefing_system/reports/2025-10-09_fase2_correccion_tecnica_y_normalizacion.md
+          - Fase 3 — Administración de roles y delegaciones: internal/briefing_system/reports/2025-10-09_fase3_administracion_roles_y_delegaciones.md
+          - Fase 4 — Consolidación y cierre operativo: internal/briefing_system/reports/2025-10-10_fase4_consolidacion_y_cierre.md
+          - Fase 5 — UI contextual y experiencias por rol: internal/briefing_system/reports/2025-10-11_fase5_ui_contextual_y_experiencias_por_rol.md
+          - Plantilla — Reporte de avance: internal/briefing_system/reports/Plantilla_Reporte_Avance.md
+      - Plantillas de trabajo:
+          - Plantilla — Tarea por fase: internal/briefing_system/templates/Plantilla_Tarea_Fase.md
+      - QA y Testing:
+          - 🧪 Orquestador de Pruebas (COMPLETED): internal/briefing_system/plans/00_orquestador_pruebas_runart_briefing.md
+          - T1 — Setup & Mocking: internal/briefing_system/tests/2025-10-10_etapa1_setup_y_mocking.md
+          - T2 — Unit & Integration: internal/briefing_system/tests/2025-10-10_etapa2_unit_integration_miniflare.md
+          - T3 — E2E Preview: internal/briefing_system/tests/2025-10-10_etapa3_e2e_cloudflare_pages.md
+          - T4 — QA Post-deploy Prod: internal/briefing_system/tests/2025-10-10_etapa4_postdeploy_produccion.md
+          - T5 — Consolidación Global: internal/briefing_system/tests/2025-10-10_etapa5_consolidacion_resultados.md
+      - Operación y soporte:
+          - Estado del sistema: internal/briefing_system/ops/status.md
+          - Entornos: internal/briefing_system/ops/environments.md
+          - Registro de incidentes: internal/briefing_system/ops/incidents.md
+          - Historial de cambios: internal/briefing_system/ops/changelog.md
+          - CI & guardias: internal/briefing_system/ops/ci.md
+          - Observabilidad y métricas: internal/briefing_system/ops/observabilidad.md
+          - Guardia QA y automatizaciones: internal/briefing_system/ops/qa_guardias.md
+          - Administrar roles (placeholder): internal/briefing_system/ops/roles_admin.md
+      - Auditorías internas:
+          - Auditoría general briefing (2025-10-08): internal/briefing_system/audits/2025-10-08_auditoria_general_briefing.md
+          - Auditoría de contenido (2025-10-08): internal/briefing_system/audits/2025-10-08_auditoria_contenido.md
+      - Arquitectura del briefing:
+          - Índice de arquitectura: internal/briefing_system/architecture/_index.md
+          - 000 — Resumen ejecutivo: internal/briefing_system/architecture/000_overview.md
+          - 010 — Inventario actual: internal/briefing_system/architecture/010_inventory.md
+          - 020 — Estructura objetivo: internal/briefing_system/architecture/020_target_structure.md
+          - 030 — Convenciones y estándares: internal/briefing_system/architecture/030_conventions.md
+          - 040 — Workflows compartidos: internal/briefing_system/architecture/040_ci_shared.md
+          - 050 — Targets Make: internal/briefing_system/architecture/050_make_targets.md
+          - 060 — Plan de migración: internal/briefing_system/architecture/060_migration_plan.md
+          - 065 — Switch Cloudflare Pages: internal/briefing_system/architecture/065_switch_pages.md
+          - 070 — Registro de riesgos: internal/briefing_system/architecture/070_risks.md
+          - 075 — Cleanup briefing: internal/briefing_system/architecture/075_cleanup_briefing.md
+          - Mapa de interfaces (legacy): arq/mapa_interfaces.md
+      - Accesos y roles: accesos/permisos.md
+      - Documentación de referencia:
+          - Arquitectura del briefing (v0): briefing_arquitectura.md
+          - Guía de estilos UI: ui/estilos.md
+          - UI contextual por rol:
+              - Resumen: internal/briefing_system/ui/index.md
+              - Contrato de datos: internal/briefing_system/ui/contrato_datos.md
+              - Dashboard owner: internal/briefing_system/ui/dash/owner.md
+              - Dashboard client admin: internal/briefing_system/ui/dash/client_admin.md
+              - Dashboard team: internal/briefing_system/ui/dash/team.md
+              - Dashboard client: internal/briefing_system/ui/dash/client.md
+              - Dashboard visitor: internal/briefing_system/ui/dash/visitor.md
   - Proyectos:
-      - "Índice de proyectos": projects/index.md
-      - "Plantilla Ficha Técnica (YAML)": projects/_template.yaml
-      - "Esquema de fichas (YAML)": projects/schema.yaml
-      - "Proyectos piloto (ES)":
-          - "Mons. Román (2015)": projects/mons-roman-2015.yaml
-          - "Raider (2018)": projects/raider-2018.yaml
-          - "Colaboración internacional (2018)": projects/colaboracion-internacional-01.yaml
-      - "Pilot projects (EN)":
-          - "Monsignor Agustín Román (2015)": projects/en/mons-roman-2015.yaml
-          - "Raider (2018)": projects/en/raider-2018.yaml
-          - "International collaboration (2018)": projects/en/colaboracion-internacional-01.yaml
-      - "Proyectos intermedios (ES)":
-          - "Carole A. Feuerman (2019)": projects/carole-feuerman-2019.yaml
-          - "Roberto Fabelo (2016)": projects/roberto-fabelo-2016.yaml
-          - "Pedro Pablo Oliva (2017)": projects/pedro-pablo-oliva-2017.yaml
-          - "Williams Carmona (2019)": projects/williams-carmona-2019.yaml
-          - "The-Merger (2020)": projects/the-merger-2020.yaml
-          - "Lawrence Holofcener (2015)": projects/lawrence-holofcener-2015.yaml
-          - "Proyecto Messi (2024)": projects/proyecto-messi-2024.yaml
-      - "Intermediate projects (EN)":
-          - "Carole A. Feuerman (2019)": projects/en/carole-feuerman-2019.yaml
-          - "Roberto Fabelo (2016)": projects/en/roberto-fabelo-2016.yaml
-          - "Pedro Pablo Oliva (2017)": projects/en/pedro-pablo-oliva-2017.yaml
-          - "Williams Carmona (2019)": projects/en/williams-carmona-2019.yaml
-          - "The-Merger (2020)": projects/en/the-merger-2020.yaml
-          - "Lawrence Holofcener (2015)": projects/en/lawrence-holofcener-2015.yaml
-          - "Messi Project (2024)": projects/en/proyecto-messi-2024.yaml
-  - Press-kit:
-      - "Press-kit v0 (ES)": client_projects/runart_foundry/reports/presskit_v0.md
-      - "Press-kit v1 (ES)": client_projects/runart_foundry/reports/presskit_v1_ES.md
-      - "Press-kit v1 (EN)": client_projects/runart_foundry/reports/presskit_v1_EN.md
+      - Índice de proyectos: projects/index.md
+      - Plantilla ficha técnica (YAML): projects/_template.yaml
+      - Esquema de fichas (YAML): projects/schema.yaml
+      - Proyectos en español:
+          - Mons. Román (2015): projects/mons-roman-2015.yaml
+          - Roberto Fabelo (2016): projects/roberto-fabelo-2016.yaml
+          - Pedro Pablo Oliva (2017): projects/pedro-pablo-oliva-2017.yaml
+          - Williams Carmona (2019): projects/williams-carmona-2019.yaml
+          - Carole A. Feuerman (2019): projects/carole-feuerman-2019.yaml
+          - The-Merger (2020): projects/the-merger-2020.yaml
+          - Lawrence Holofcener (2015): projects/lawrence-holofcener-2015.yaml
+          - Colaboración internacional (2018): projects/colaboracion-internacional-01.yaml
+          - Raider (2018): projects/raider-2018.yaml
+          - Proyecto Messi (2024): projects/proyecto-messi-2024.yaml
+      - Projects in English:
+          - Monsignor Agustín Román (2015): projects/en/mons-roman-2015.yaml
+          - Roberto Fabelo (2016): projects/en/roberto-fabelo-2016.yaml
+          - Pedro Pablo Oliva (2017): projects/en/pedro-pablo-oliva-2017.yaml
+          - Williams Carmona (2019): projects/en/williams-carmona-2019.yaml
+          - Carole A. Feuerman (2019): projects/en/carole-feuerman-2019.yaml
+          - The-Merger (2020): projects/en/the-merger-2020.yaml
+          - Lawrence Holofcener (2015): projects/en/lawrence-holofcener-2015.yaml
+          - International collaboration (2018): projects/en/colaboracion-internacional-01.yaml
+          - Raider (2018): projects/en/raider-2018.yaml
+          - Messi Project (2024): projects/en/proyecto-messi-2024.yaml
   - Smoke Test: _smoke.md
 plugins:
   - search
@@ -129,9 +169,12 @@ markdown_extensions:
         - ..
         - ../..
 extra_css:
-  - assets/extra.css
-  - assets/runart/userbar.css
+    - assets/extra.css
+    - assets/runart/userbar.css
+    - assets/runart/dashboards.css
 extra_javascript:
-  - assets/env-flag.js
-  - assets/runart/userbar.js
+    - assets/auth-mode.js
+    - assets/env-flag.js
+    - assets/runart/userbar.js
+    - assets/runart/dashboards.js
 # Evitar indexación por robots: robots.txt + meta en overrides/main.html

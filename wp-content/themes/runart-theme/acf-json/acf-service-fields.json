@@ -1,0 +1,157 @@
+{
+    "key": "group_runart_service",
+    "title": "Service Details",
+    "fields": [
+        {
+            "key": "field_service_icon",
+            "label": "Service Icon",
+            "name": "service_icon",
+            "type": "select",
+            "instructions": "Select Dashicon for service",
+            "required": 0,
+            "choices": {
+                "dashicons-hammer": "Hammer (Foundry)",
+                "dashicons-art": "Art (Patinas)",
+                "dashicons-admin-tools": "Tools (Restoration)",
+                "dashicons-lightbulb": "Lightbulb (Consulting)",
+                "dashicons-portfolio": "Portfolio (Editions)"
+            },
+            "default_value": "dashicons-art"
+        },
+        {
+            "key": "field_service_scope",
+            "label": "Service Scope",
+            "name": "service_scope",
+            "type": "repeater",
+            "instructions": "Key points of service scope",
+            "required": 0,
+            "layout": "table",
+            "button_label": "Add Scope Item",
+            "sub_fields": [
+                {
+                    "key": "field_scope_item",
+                    "label": "Scope Item",
+                    "name": "scope_item",
+                    "type": "text",
+                    "required": 1
+                }
+            ]
+        },
+        {
+            "key": "field_service_typical_cases",
+            "label": "Typical Cases",
+            "name": "typical_cases",
+            "type": "repeater",
+            "instructions": "Common use cases for this service",
+            "required": 0,
+            "layout": "table",
+            "button_label": "Add Case",
+            "sub_fields": [
+                {
+                    "key": "field_case_title",
+                    "label": "Case Title",
+                    "name": "case_title",
+                    "type": "text",
+                    "required": 1
+                },
+                {
+                    "key": "field_case_description",
+                    "label": "Description",
+                    "name": "case_description",
+                    "type": "textarea",
+                    "required": 0,
+                    "rows": 2
+                }
+            ]
+        },
+        {
+            "key": "field_service_faqs",
+            "label": "FAQs",
+            "name": "faqs",
+            "type": "repeater",
+            "instructions": "Frequently asked questions (3-5 recommended)",
+            "required": 0,
+            "layout": "block",
+            "button_label": "Add FAQ",
+            "sub_fields": [
+                {
+                    "key": "field_faq_question",
+                    "label": "Question",
+                    "name": "question",
+                    "type": "text",
+                    "required": 1
+                },
+                {
+                    "key": "field_faq_answer",
+                    "label": "Answer",
+                    "name": "answer",
+                    "type": "textarea",
+                    "required": 1,
+                    "rows": 3
+                }
+            ]
+        },
+        {
+            "key": "field_service_cta_text",
+            "label": "CTA Text",
+            "name": "cta_text",
+            "type": "text",
+            "instructions": "Custom call-to-action text",
+            "required": 0,
+            "default_value": "Inicia tu proyecto"
+        },
+        {
+            "key": "field_service_cta_url",
+            "label": "CTA URL",
+            "name": "cta_url",
+            "type": "url",
+            "instructions": "Call-to-action link (default: /contact/)",
+            "required": 0,
+            "default_value": "/contact/"
+        },
+        {
+            "key": "field_service_featured",
+            "label": "Featured Service",
+            "name": "featured",
+            "type": "true_false",
+            "instructions": "Show on homepage",
+            "required": 0,
+            "default_value": 0,
+            "ui": 1
+        },
+        {
+            "key": "field_service_seo_title",
+            "label": "SEO Title",
+            "name": "seo_title",
+            "type": "text",
+            "instructions": "Custom SEO title (55-60 characters)",
+            "required": 0,
+            "maxlength": 60
+        },
+        {
+            "key": "field_service_seo_description",
+            "label": "SEO Description",
+            "name": "seo_description",
+            "type": "textarea",
+            "instructions": "Meta description (140-155 characters)",
+            "required": 0,
+            "rows": 2,
+            "maxlength": 155
+        }
+    ],
+    "location": [
+        [
+            {
+                "param": "post_type",
+                "operator": "==",
+                "value": "service"
+            }
+        ]
+    ],
+    "menu_order": 0,
+    "position": "normal",
+    "style": "default",
+    "label_placement": "top",
+    "instruction_placement": "label",
+    "active": true
+}

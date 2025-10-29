@@ -1,0 +1,12 @@
+# Comando para exportar snapshot KV RUNART_ROLES (preview)
+# Sustituir <ACCOUNT_ID> y <NAMESPACE_ID_RUNART_ROLES_PREVIEW>
+# Requiere CLOUDFLARE_API_TOKEN con permiso Workers KV Read
+
+# Opción 1: Script API directo (recomendado para auditoría reproducible)
+node scripts/kv_export_namespace.mjs <ACCOUNT_ID> <NAMESPACE_ID_RUNART_ROLES_PREVIEW> > apps/briefing/_reports/kv_snapshot_preview_20251014T170900Z.json
+
+# Opción 2: wrangler (no trae valores masivos fácilmente, se documenta para referencia)
+# wrangler kv key list --namespace-id=<NAMESPACE_ID_RUNART_ROLES_PREVIEW> --preview | jq -r '.[].name' | while read k; do wrangler kv key get --namespace-id=<NAMESPACE_ID_RUNART_ROLES_PREVIEW> --preview --key "$k"; done
+
+# Después ejecutar auditoría:
+node scripts/kv_audit.mjs apps/briefing/_reports/kv_snapshot_preview_20251014T170900Z.json > apps/briefing/_reports/kv_audit_preview_20251014T170900Z.md

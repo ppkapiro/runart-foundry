@@ -1,0 +1,167 @@
+name: DEPRECATED — Pages Prod (manual only)
+
+# Archivado: usar pages-deploy.yml como flujo canónico
+
+on:
+  # DEPRECATED for prod; use pages-deploy.yml (canónico).
+  # Este workflow queda SOLO para uso manual de contingencia.
+  workflow_dispatch:
+    inputs:
+      collect_evidence:
+        description: "Guardar evidencias (resúmenes)"
+        required: false
+        default: true
+        type: boolean
+
+jobs:
+  build-and-deploy:
+    name: Build & Deploy Production
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      deployments: write
+      statuses: write
+    env:
+      CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+      CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+      CF_PROJECT_NAME: runart-foundry
+      TARGET_BRANCH: main
+      RUNART_ENV: production
+      AUS_XMOC: "1"
+      SMOKES_NONBLOCKING: "1"
+    steps:
+      - name: Validate secrets
+        run: |
+          missing=()
+          for name in CLOUDFLARE_API_TOKEN CLOUDFLARE_ACCOUNT_ID; do
+            if [ -z "${!name}" ]; then missing+=("$name"); fi
+          done
+          if [ ${#missing[@]} -gt 0 ]; then
+            echo "ERROR: faltan secrets: ${missing[*]}" >&2
+            exit 1
+          fi
+
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Python 3.11
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Setup Node.js 20
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install dependencies
+        working-directory: apps/briefing
+        run: npm ci
+
+      - name: Build site
+        working-directory: apps/briefing
+        run: npm run build
+
+      - name: "Guard: bloquear referencias a workers.dev en artefacto de producción"
+        run: |
+          set -e
+          FOUND=$(grep -RIl --exclude-dir=node_modules -nE 'https?://[^\s"]*workers\.dev' apps/briefing/site || true)
+          if [ -n "$FOUND" ]; then
+            echo "Se detectaron referencias a workers.dev en el artefacto de producción:" >&2
+            echo "$FOUND" >&2
+            echo "Elimina URLs workers.dev (solo se permiten para canaries internos)" >&2
+            exit 1
+          fi
+
+      - name: Run unit smoke tests
+        working-directory: apps/briefing
+        run: npm run test:unit:smoke
+
+      - name: Precheck prod DNS/HTTP (with 1.1.1.1 fallback & retries)
+        env:
+          PROD_URL: https://runart-foundry.pages.dev/
+        run: |
+          set -e
+          echo "Prod: $PROD_URL"
+          HOST=$(echo "$PROD_URL" | sed 's#https\?://##' | cut -d/ -f1)
+          echo "Host: $HOST"
+
+          resolve() {
+            getent hosts "$HOST" >/dev/null && return 0
+            dig +short "$HOST" @1.1.1.1 | grep -qE '^[0-9.]+$' && return 0
+            return 1
+          }
+
+          tries=0; max=6
+          until resolve; do
+            tries=$((tries+1))
+            echo "DNS intento $tries/$max…"
+            sleep $((tries*2))
+            [ $tries -ge $max ] && { echo "DNS no resuelve: $HOST"; exit 1; }
+          done
+          echo "DNS OK"
+
+          tries=0; max=3
+          until curl -sI --max-time 10 "$PROD_URL" >/dev/null; do
+            tries=$((tries+1))
+            echo "HTTP intento $tries/$max…"
+            sleep $((tries*2))
+            [ $tries -ge $max ] && { echo "HTTP no responde: $PROD_URL"; exit 1; }
+          done
+          echo "HTTP OK"
+
+      - name: Run Prod Smokes (No-Auth)
+        env:
+          PROD_BASE_URL: https://runart-foundry.pages.dev/
+        run: |
+          npm --prefix apps/briefing run smokes:prod
+        # Si los smokes fallan, se detiene el pipeline (exit code distinto de cero)
+
+      - name: Upload Prod Smokes Artifacts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: prod-smokes-${{ github.run_id }}
+          path: apps/briefing/_reports/tests/smokes_prod_*/
+          if-no-files-found: ignore
+
+      - name: Preflight Cloudflare API token (Pages)
+        run: |
+          set -e
+          echo "Verificando permisos del token para Cloudflare Pages (account=${CLOUDFLARE_ACCOUNT_ID}, project=${CF_PROJECT_NAME})…"
+          URL="https://api.cloudflare.com/client/v4/accounts/${CLOUDFLARE_ACCOUNT_ID}/pages/projects/${CF_PROJECT_NAME}"
+          HTTP_CODE=$(curl -sS -w '%{http_code}' -o /tmp/cf_pages_resp.json \
+            -H "Authorization: Bearer ${CLOUDFLARE_API_TOKEN}" -H "Content-Type: application/json" "$URL" || true)
+          if jq -e '.success==true' </tmp/cf_pages_resp.json >/dev/null 2>&1; then
+            echo "OK: acceso al proyecto de Pages confirmado"; exit 0;
+          fi
+          echo "ERROR: el token no puede acceder al proyecto de Pages o la cuenta/proyecto no coinciden" >&2
+          CODE=$(jq -r 'try .errors[0].code // .code // empty' </tmp/cf_pages_resp.json)
+          MSG=$(jq -r 'try .errors[0].message // .message // empty' </tmp/cf_pages_resp.json)
+          echo "Detalles API (http=${HTTP_CODE:-n/a}, code=${CODE:-n/a}, message='${MSG:-n/a}')" >&2
+          echo "Payload parcial:" >&2
+          head -c 500 </tmp/cf_pages_resp.json >&2 || true
+          echo >&2
+          echo "Sugerencias:" >&2
+          echo "- Verifica CLOUDFLARE_ACCOUNT_ID (debe ser la cuenta donde vive el proyecto 'runart-foundry')." >&2
+          echo "- Regenera el token en Cloudflare con permisos: Account -> Cloudflare Pages: Edit (y opcionalmente User->User Details Read, User->Memberships Read)." >&2
+          echo "- Actualiza el Secret de GitHub 'CLOUDFLARE_API_TOKEN' con el nuevo token." >&2
+          exit 1
+
+      - name: Deploy to Production
+        uses: cloudflare/pages-action@v1
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          accountId: ${{ env.CLOUDFLARE_ACCOUNT_ID }}
+          projectName: ${{ env.CF_PROJECT_NAME }}
+          directory: ./apps/briefing/site
+          branch: ${{ env.TARGET_BRANCH }}
+          wranglerVersion: '3'
+
+      - name: Update 082 (Prod, auth placeholder)
+        run: |
+          TS=$(date -u +%Y%m%dT%H%M%SZ)
+          FILE="apps/briefing/docs/internal/briefing_system/ci/082_reestructuracion_local.md"
+          { echo "## Smokes Producción (auth) — ${TS}";
+            echo "- Autenticado (Service Token): SKIPPED";
+            echo "- Evidencias: —"; } >> "$FILE"

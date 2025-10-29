@@ -1,0 +1,4 @@
+=== INFORMACIÓN DEL SERVIDOR (SSH) ===
+Fecha de captura: 2025-10-20 15:19:37 EDT
+
+(PENDIENTE) SSH no configurado (exporta WP_SSH_HOST y WP_SSH_PORT para habilitarlo)

@@ -1,0 +1,11 @@
+=== VERIFICACIÓN REST API ===
+Fecha de captura: 2025-10-20 15:19:37 EDT
+
+Endpoint base:
+GET https://runalfondry.com/wp-json/
+
+(fallo curl)
+
+Endpoint users/me (sin credenciales, se espera 401):
+GET https://runalfondry.com/wp-json/wp/v2/users/me
+(fallo curl)

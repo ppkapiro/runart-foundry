@@ -1,0 +1,16 @@
+{
+  "current": {
+    "decision": "non_identity",
+    "token_id": "26112c8f-1dda-4480-8436-f1b3e5b38ce8",
+    "name": "Allow CI RunArt Production (Direct)"
+  },
+  "expected": {
+    "decision": "non_identity",
+    "name": "Allow CI RunArt Production (Direct)"
+  },
+  "validation": {
+    "decision_ok": true,
+    "token_id_present": true,
+    "name_ok": true
+  }
+}

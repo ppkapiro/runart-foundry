@@ -1,127 +1,100 @@
-name: Pages Deploy Fallback
+name: Deploy to Cloudflare Pages (Briefing)
 
 on:
   push:
-    branches:
-      - main
+    branches: [ main ]
+    paths:
+      - 'apps/briefing/**'
+      - 'docs/**'
+      - '.github/workflows/pages-deploy.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  deployments: write
 
 jobs:
-  wait_native:
-    name: Wait for native Pages deployment
+  deploy:
     runs-on: ubuntu-latest
-    timeout-minutes: 10
-    outputs:
-      native_succeeded: ${{ steps.check.outputs.result }}
+    timeout-minutes: 20
+    concurrency:
+      group: deploy-prod
+      cancel-in-progress: true
+
     steps:
-      - name: Poll Cloudflare Pages check
-        id: check
-        uses: actions/github-script@v7
+      - uses: actions/checkout@v4
         with:
-          script: |
-            const timeoutMs = 8 * 60 * 1000; // 8 minutes
-            const intervalMs = 30000; // 30 seconds
-            const start = Date.now();
-
-            async function sleep(ms) {
-              return new Promise(resolve => setTimeout(resolve, ms));
-            }
-
-            async function getRun() {
-              const { data } = await github.rest.checks.listForRef({
-                owner: context.repo.owner,
-                repo: context.repo.repo,
-                ref: context.sha,
-                per_page: 100,
-              });
-              return data.check_runs.find(run => run.name === "Cloudflare Pages" && run.app && run.app.slug === "cloudflare-pages");
-            }
-
-            while (Date.now() - start < timeoutMs) {
-              const run = await getRun();
-              if (run) {
-                core.info(`Found Cloudflare Pages check (status=${run.status}, conclusion=${run.conclusion ?? 'pending'})`);
-                if (run.status === "completed") {
-                  if (run.conclusion === "success") {
-                    core.info("Native Cloudflare Pages deployment succeeded.");
-                    core.setOutput("result", "true");
-                    return "true";
-                  }
-                  core.warning(`Native Cloudflare Pages deployment ended with conclusion: ${run.conclusion}`);
-                  core.setOutput("result", "false");
-                  return "false";
-                }
-              } else {
-                core.info("Cloudflare Pages check not yet created. Waiting...");
-              }
-              await sleep(intervalMs);
-            }
-
-            core.warning("Timed out waiting for native Cloudflare Pages deployment to succeed.");
-            core.setOutput("result", "false");
-            return "false";
-
-  pages_fallback:
-    name: Cloudflare Pages fallback deploy
-    needs: wait_native
-    if: always() && needs.wait_native.outputs.native_succeeded != 'true'
-    runs-on: ubuntu-latest
-    timeout-minutes: 15
-    continue-on-error: true
-    steps:
-      - name: Check fallback secrets
-        id: secrets_check
-        run: |
-          missing=()
-          if [ -z "${{ secrets.CF_API_TOKEN }}" ]; then missing+=("CF_API_TOKEN"); fi
-          if [ -z "${{ secrets.CF_ACCOUNT_ID }}" ]; then missing+=("CF_ACCOUNT_ID"); fi
-
-          if [ ${#missing[@]} -gt 0 ]; then
-            echo "Missing secrets: ${missing[*]}"
-            echo "should_skip=true" >> "$GITHUB_OUTPUT"
-          else
-            echo "All required Cloudflare secrets are present."
-            echo "should_skip=false" >> "$GITHUB_OUTPUT"
-          fi
-
-      - name: Skip fallback deploy (missing secrets)
-        if: steps.secrets_check.outputs.should_skip == 'true'
-        run: echo "Skipping fallback deploy because required Cloudflare secrets are not configured."
-
-      - name: Checkout repository
-        if: steps.secrets_check.outputs.should_skip != 'true'
-        uses: actions/checkout@v4
+          fetch-depth: 1
 
       - name: Setup Python
-        if: steps.secrets_check.outputs.should_skip != 'true'
         uses: actions/setup-python@v5
         with:
           python-version: '3.11'
 
-      - name: Setup Node.js
-        if: steps.secrets_check.outputs.should_skip != 'true'
-        uses: actions/setup-node@v4
-        with:
-          node-version: '20'
+      - name: Install deps
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt || true
+          pip install mkdocs mkdocs-material jinja2 jsonschema
 
-      - name: Install dependencies
-        if: steps.secrets_check.outputs.should_skip != 'true'
+      - name: Build MkDocs (Briefing app)
         working-directory: apps/briefing
-        run: npm ci
+        run: |
+          mkdocs build -d site
+          test -d site && test -f site/index.html
 
-      - name: Build site
-        if: steps.secrets_check.outputs.should_skip != 'true'
-        working-directory: apps/briefing
-        env:
-          PIP_DISABLE_PIP_VERSION_CHECK: '1'
-        run: npm run build
+      - name: Registrar SHA para correlación
+        id: sha
+        run: |
+          echo "short=$(git rev-parse --short HEAD)" >> $GITHUB_OUTPUT
 
-      - name: Deploy to Cloudflare Pages (Production)
-        if: steps.secrets_check.outputs.should_skip != 'true'
+      - name: Deploy to Cloudflare Pages
         uses: cloudflare/pages-action@v1
         with:
-          apiToken: ${{ secrets.CF_API_TOKEN }}
-          accountId: ${{ secrets.CF_ACCOUNT_ID }}
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
           projectName: runart-foundry
-          directory: ./apps/briefing/site
+          directory: apps/briefing/site
           gitHubToken: ${{ secrets.GITHUB_TOKEN }}
           branch: main
+
+      - name: Output deploy URLs
+        id: note
+        run: |
+          echo "DEPLOY_MAIN=https://runart-foundry.pages.dev" >> $GITHUB_OUTPUT
+
+      - name: Append deploy note to meta
+        run: |
+          echo "" >> docs/_meta/BRIEFING_STATUS_PIPELINE_RUN.md
+          echo "- Deploy ejecutado: $(date -u +%FT%TZ) | SHA: ${{ steps.sha.outputs.short }} | dir: site" >> docs/_meta/BRIEFING_STATUS_PIPELINE_RUN.md
+          echo "  URL: https://runart-foundry.pages.dev" >> docs/_meta/BRIEFING_STATUS_PIPELINE_RUN.md
+
+      - name: Commit meta log
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add docs/_meta/BRIEFING_STATUS_PIPELINE_RUN.md
+          git commit -m "docs(meta): log deploy Pages [skip ci]" || true
+          git push || true
+
+      - name: Purge Cloudflare Cache (opcional)
+        env:
+          CF_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CF_ZONE_ID: ${{ secrets.CF_ZONE_ID }}
+        run: |
+          if [ -n "$CF_ZONE_ID" ]; then
+            echo "ℹ️  CF_ZONE_ID disponible; purgando cache..."
+            curl -sS -X POST "https://api.cloudflare.com/client/v4/zones/${CF_ZONE_ID}/purge_cache" \
+              -H "Authorization: Bearer ${CF_API_TOKEN}" \
+              -H "Content-Type: application/json" \
+              --data '{"purge_everything":true}' | tee purge_result.json
+            if grep -q '"success":true' purge_result.json; then
+              echo "✅ Cache purgada exitosamente"
+              echo "- Cache purge OK: $(date -u +%FT%TZ)" >> docs/_meta/BRIEFING_STATUS_PIPELINE_RUN.md
+            else
+              echo "⚠️  Purge falló; no crítico"
+            fi
+          else
+            echo "ℹ️  CF_ZONE_ID no configurado; saltando purge de cache (no crítico)"
+          fi
+        continue-on-error: true

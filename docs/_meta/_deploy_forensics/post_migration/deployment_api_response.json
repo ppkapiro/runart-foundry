@@ -1,0 +1,1124 @@
+{
+  "result": [
+    {
+      "id": "5a024d62-5ee8-4998-a0e9-4019856aea72",
+      "short_id": "5a024d62",
+      "project_id": "147b8030-5bc4-45f9-8d59-c0779556aa20",
+      "project_name": "runart-briefing-direct",
+      "environment": "production",
+      "url": "https://5a024d62.runart-briefing-direct.pages.dev",
+      "created_on": "2025-10-25T17:46:12.873913Z",
+      "modified_on": "2025-10-25T17:46:16.52051Z",
+      "latest_stage": {
+        "name": "deploy",
+        "started_on": null,
+        "ended_on": "2025-10-25T17:46:16.52051Z",
+        "status": "success"
+      },
+      "deployment_trigger": {
+        "type": "ad_hoc",
+        "metadata": {
+          "branch": "production",
+          "commit_hash": "dfa95cedfba3448d5f28039da59f27988c265bf5",
+          "commit_message": "direct-upload:dfa95cedfba3448d5f28039da59f27988c265bf5",
+          "commit_dirty": true
+        }
+      },
+      "stages": [
+        {
+          "name": "queued",
+          "started_on": "2025-10-25T17:46:12.873913Z",
+          "ended_on": null,
+          "status": "active"
+        },
+        {
+          "name": "initialize",
+          "started_on": null,
+          "ended_on": null,
+          "status": "idle"
+        },
+        {
+          "name": "clone_repo",
+          "started_on": null,
+          "ended_on": null,
+          "status": "idle"
+        },
+        {
+          "name": "build",
+          "started_on": null,
+          "ended_on": null,
+          "status": "idle"
+        },
+        {
+          "name": "deploy",
+          "started_on": null,
+          "ended_on": "2025-10-25T17:46:16.52051Z",
+          "status": "success"
+        }
+      ],
+      "build_config": {
+        "build_command": null,
+        "destination_dir": null,
+        "build_caching": null,
+        "root_dir": null,
+        "web_analytics_tag": null,
+        "web_analytics_token": null
+      },
+      "env_vars": {},
+      "compatibility_date": "2025-10-24",
+      "compatibility_flags": [],
+      "build_image_major_version": 3,
+      "usage_model": null,
+      "aliases": null,
+      "is_skipped": false,
+      "production_branch": "production",
+      "uses_functions": false
+    },
+    {
+      "id": "b30f38d6-6a0f-4118-97b9-7de267854608",
+      "short_id": "b30f38d6",
+      "project_id": "147b8030-5bc4-45f9-8d59-c0779556aa20",
+      "project_name": "runart-briefing-direct",
+      "environment": "production",
+      "url": "https://b30f38d6.runart-briefing-direct.pages.dev",
+      "created_on": "2025-10-25T17:28:30.756135Z",
+      "modified_on": "2025-10-25T17:28:33.442989Z",
+      "latest_stage": {
+        "name": "deploy",
+        "started_on": null,
+        "ended_on": "2025-10-25T17:28:33.442989Z",
+        "status": "success"
+      },
+      "deployment_trigger": {
+        "type": "ad_hoc",
+        "metadata": {
+          "branch": "production",
+          "commit_hash": "b47bf372d01750ad0af1b4048d841a8019aefe30",
+          "commit_message": "direct-upload:b47bf372d01750ad0af1b4048d841a8019aefe30",
+          "commit_dirty": true
+        }
+      },
+      "stages": [
+        {
+          "name": "queued",
+          "started_on": "2025-10-25T17:28:30.756135Z",
+          "ended_on": null,
+          "status": "active"
+        },
+        {
+          "name": "initialize",
+          "started_on": null,
+          "ended_on": null,
+          "status": "idle"
+        },
+        {
+          "name": "clone_repo",
+          "started_on": null,
+          "ended_on": null,
+          "status": "idle"
+        },
+        {
+          "name": "build",
+          "started_on": null,
+          "ended_on": null,
+          "status": "idle"
+        },
+        {
+          "name": "deploy",
+          "started_on": null,
+          "ended_on": "2025-10-25T17:28:33.442989Z",
+          "status": "success"
+        }
+      ],
+      "build_config": {
+        "build_command": null,
+        "destination_dir": null,
+        "build_caching": null,
+        "root_dir": null,
+        "web_analytics_tag": null,
+        "web_analytics_token": null
+      },
+      "env_vars": {},
+      "compatibility_date": "2025-10-24",
+      "compatibility_flags": [],
+      "build_image_major_version": 3,
+      "usage_model": null,
+      "aliases": null,
+      "is_skipped": false,
+      "production_branch": "production",
+      "uses_functions": false
+    },
+    {
+      "id": "7aa1c418-a50c-46a5-aa79-c3032089a326",
+      "short_id": "7aa1c418",
+      "project_id": "147b8030-5bc4-45f9-8d59-c0779556aa20",
+      "project_name": "runart-briefing-direct",
+      "environment": "production",
+      "url": "https://7aa1c418.runart-briefing-direct.pages.dev",
+      "created_on": "2025-10-25T17:19:45.026982Z",
+      "modified_on": "2025-10-25T17:19:47.982174Z",
+      "latest_stage": {
+        "name": "deploy",
+        "started_on": null,
+        "ended_on": "2025-10-25T17:19:47.982174Z",
+        "status": "success"
+      },
+      "deployment_trigger": {
+        "type": "ad_hoc",
+        "metadata": {
+          "branch": "production",
+          "commit_hash": "b2f197823971f3038328849692bd9b314eeda40a",
+          "commit_message": "direct-upload:b2f197823971f3038328849692bd9b314eeda40a",
+          "commit_dirty": true
+        }
+      },
+      "stages": [
+        {
+          "name": "queued",
+          "started_on": "2025-10-25T17:19:45.026982Z",
+          "ended_on": null,
+          "status": "active"
+        },
+        {
+          "name": "initialize",
+          "started_on": null,
+          "ended_on": null,
+          "status": "idle"
+        },
+        {
+          "name": "clone_repo",
+          "started_on": null,
+          "ended_on": null,
+          "status": "idle"
+        },
+        {
+          "name": "build",
+          "started_on": null,
+          "ended_on": null,
+          "status": "idle"
+        },
+        {
+          "name": "deploy",
+          "started_on": null,
+          "ended_on": "2025-10-25T17:19:47.982174Z",
+          "status": "success"
+        }
+      ],
+      "build_config": {
+        "build_command": null,
+        "destination_dir": null,
+        "build_caching": null,
+        "root_dir": null,
+        "web_analytics_tag": null,
+        "web_analytics_token": null
+      },
+      "env_vars": {},
+      "compatibility_date": "2025-10-24",
+      "compatibility_flags": [],
+      "build_image_major_version": 3,
+      "usage_model": null,
+      "aliases": null,
+      "is_skipped": false,
+      "production_branch": "production",
+      "uses_functions": false
+    },
+    {
+      "id": "e064e894-201d-472b-a1e7-705e6a1a4312",
+      "short_id": "e064e894",
+      "project_id": "147b8030-5bc4-45f9-8d59-c0779556aa20",
+      "project_name": "runart-briefing-direct",
+      "environment": "production",
+      "url": "https://e064e894.runart-briefing-direct.pages.dev",
+      "created_on": "2025-10-24T22:57:12.399038Z",
+      "modified_on": "2025-10-24T22:57:15.00662Z",
+      "latest_stage": {
+        "name": "deploy",
+        "started_on": null,
+        "ended_on": "2025-10-24T22:57:15.00662Z",
+        "status": "success"
+      },
+      "deployment_trigger": {
+        "type": "ad_hoc",
+        "metadata": {
+          "branch": "production",
+          "commit_hash": "ad9175039b24e680f4a69af80fd57272f9b66ec5",
+          "commit_message": "direct-upload:ad9175039b24e680f4a69af80fd57272f9b66ec5",
+          "commit_dirty": true
+        }
+      },
+      "stages": [
+        {
+          "name": "queued",
+          "started_on": "2025-10-24T22:57:12.399038Z",
+          "ended_on": null,
+          "status": "active"
+        },
+        {
+          "name": "initialize",
+          "started_on": null,
+          "ended_on": null,
+          "status": "idle"
+        },
+        {
+          "name": "clone_repo",
+          "started_on": null,
+          "ended_on": null,
+          "status": "idle"
+        },
+        {
+          "name": "build",
+          "started_on": null,
+          "ended_on": null,
+          "status": "idle"
+        },
+        {
+          "name": "deploy",
+          "started_on": null,
+          "ended_on": "2025-10-24T22:57:15.00662Z",
+          "status": "success"
+        }
+      ],
+      "build_config": {
+        "build_command": null,
+        "destination_dir": null,
+        "build_caching": null,
+        "root_dir": null,
+        "web_analytics_tag": null,
+        "web_analytics_token": null
+      },
+      "env_vars": {},
+      "compatibility_date": "2025-10-24",
+      "compatibility_flags": [],
+      "build_image_major_version": 3,
+      "usage_model": null,
+      "aliases": null,
+      "is_skipped": false,
+      "production_branch": "production",
+      "uses_functions": false
+    },
+    {
+      "id": "6ff75bec-1ced-471d-adcb-dec144056069",
+      "short_id": "6ff75bec",
+      "project_id": "147b8030-5bc4-45f9-8d59-c0779556aa20",
+      "project_name": "runart-briefing-direct",
+      "environment": "production",
+      "url": "https://6ff75bec.runart-briefing-direct.pages.dev",
+      "created_on": "2025-10-24T22:54:28.941818Z",
+      "modified_on": "2025-10-24T22:54:31.435343Z",
+      "latest_stage": {
+        "name": "deploy",
+        "started_on": null,
+        "ended_on": "2025-10-24T22:54:31.435343Z",
+        "status": "success"
+      },
+      "deployment_trigger": {
+        "type": "ad_hoc",
+        "metadata": {
+          "branch": "production",
+          "commit_hash": "9e76d0bb9d2967251f8ca783403df3f88f7adb80",
+          "commit_message": "direct-upload:9e76d0bb9d2967251f8ca783403df3f88f7adb80",
+          "commit_dirty": true
+        }
+      },
+      "stages": [
+        {
+          "name": "queued",
+          "started_on": "2025-10-24T22:54:28.941818Z",
+          "ended_on": null,
+          "status": "active"
+        },
+        {
+          "name": "initialize",
+          "started_on": null,
+          "ended_on": null,
+          "status": "idle"
+        },
+        {
+          "name": "clone_repo",
+          "started_on": null,
+          "ended_on": null,
+          "status": "idle"
+        },
+        {
+          "name": "build",
+          "started_on": null,
+          "ended_on": null,
+          "status": "idle"
+        },
+        {
+          "name": "deploy",
+          "started_on": null,
+          "ended_on": "2025-10-24T22:54:31.435343Z",
+          "status": "success"
+        }
+      ],
+      "build_config": {
+        "build_command": null,
+        "destination_dir": null,
+        "build_caching": null,
+        "root_dir": null,
+        "web_analytics_tag": null,
+        "web_analytics_token": null
+      },
+      "env_vars": {},
+      "compatibility_date": "2025-10-24",
+      "compatibility_flags": [],
+      "build_image_major_version": 3,
+      "usage_model": null,
+      "aliases": null,
+      "is_skipped": false,
+      "production_branch": "production",
+      "uses_functions": false
+    },
+    {
+      "id": "4f265aca-d87a-4a15-afe5-c78e52a768f9",
+      "short_id": "4f265aca",
+      "project_id": "147b8030-5bc4-45f9-8d59-c0779556aa20",
+      "project_name": "runart-briefing-direct",
+      "environment": "production",
+      "url": "https://4f265aca.runart-briefing-direct.pages.dev",
+      "created_on": "2025-10-24T22:51:46.686296Z",
+      "modified_on": "2025-10-24T22:51:48.622529Z",
+      "latest_stage": {
+        "name": "deploy",
+        "started_on": null,
+        "ended_on": "2025-10-24T22:51:48.622529Z",
+        "status": "success"
+      },
+      "deployment_trigger": {
+        "type": "ad_hoc",
+        "metadata": {
+          "branch": "production",
+          "commit_hash": "0ee805eb38bd803a0a74615b3aad7f1c85b3448e",
+          "commit_message": "direct-upload:0ee805eb38bd803a0a74615b3aad7f1c85b3448e",
+          "commit_dirty": true
+        }
+      },
+      "stages": [
+        {
+          "name": "queued",
+          "started_on": "2025-10-24T22:51:46.686296Z",
+          "ended_on": null,
+          "status": "active"
+        },
+        {
+          "name": "initialize",
+          "started_on": null,
+          "ended_on": null,
+          "status": "idle"
+        },
+        {
+          "name": "clone_repo",
+          "started_on": null,
+          "ended_on": null,
+          "status": "idle"
+        },
+        {
+          "name": "build",
+          "started_on": null,
+          "ended_on": null,
+          "status": "idle"
+        },
+        {
+          "name": "deploy",
+          "started_on": null,
+          "ended_on": "2025-10-24T22:51:48.622529Z",
+          "status": "success"
+        }
+      ],
+      "build_config": {
+        "build_command": null,
+        "destination_dir": null,
+        "build_caching": null,
+        "root_dir": null,
+        "web_analytics_tag": null,
+        "web_analytics_token": null
+      },
+      "env_vars": {},
+      "compatibility_date": "2025-10-24",
+      "compatibility_flags": [],
+      "build_image_major_version": 3,
+      "usage_model": null,
+      "aliases": null,
+      "is_skipped": false,
+      "production_branch": "production",
+      "uses_functions": false
+    },
+    {
+      "id": "58c80b9b-7792-4c3b-8c86-1005050d0933",
+      "short_id": "58c80b9b",
+      "project_id": "147b8030-5bc4-45f9-8d59-c0779556aa20",
+      "project_name": "runart-briefing-direct",
+      "environment": "production",
+      "url": "https://58c80b9b.runart-briefing-direct.pages.dev",
+      "created_on": "2025-10-24T22:49:01.18046Z",
+      "modified_on": "2025-10-24T22:49:03.86021Z",
+      "latest_stage": {
+        "name": "deploy",
+        "started_on": null,
+        "ended_on": "2025-10-24T22:49:03.86021Z",
+        "status": "success"
+      },
+      "deployment_trigger": {
+        "type": "ad_hoc",
+        "metadata": {
+          "branch": "production",
+          "commit_hash": "2c1262f280d78035d723e9147a233a7a4834320a",
+          "commit_message": "direct-upload:2c1262f280d78035d723e9147a233a7a4834320a",
+          "commit_dirty": true
+        }
+      },
+      "stages": [
+        {
+          "name": "queued",
+          "started_on": "2025-10-24T22:49:01.18046Z",
+          "ended_on": null,
+          "status": "active"
+        },
+        {
+          "name": "initialize",
+          "started_on": null,
+          "ended_on": null,
+          "status": "idle"
+        },
+        {
+          "name": "clone_repo",
+          "started_on": null,
+          "ended_on": null,
+          "status": "idle"
+        },
+        {
+          "name": "build",
+          "started_on": null,
+          "ended_on": null,
+          "status": "idle"
+        },
+        {
+          "name": "deploy",
+          "started_on": null,
+          "ended_on": "2025-10-24T22:49:03.86021Z",
+          "status": "success"
+        }
+      ],
+      "build_config": {
+        "build_command": null,
+        "destination_dir": null,
+        "build_caching": null,
+        "root_dir": null,
+        "web_analytics_tag": null,
+        "web_analytics_token": null
+      },
+      "env_vars": {},
+      "compatibility_date": "2025-10-24",
+      "compatibility_flags": [],
+      "build_image_major_version": 3,
+      "usage_model": null,
+      "aliases": null,
+      "is_skipped": false,
+      "production_branch": "production",
+      "uses_functions": false
+    },
+    {
+      "id": "0a4d545c-2aaf-4f9e-94d7-6f4c5dca255b",
+      "short_id": "0a4d545c",
+      "project_id": "147b8030-5bc4-45f9-8d59-c0779556aa20",
+      "project_name": "runart-briefing-direct",
+      "environment": "production",
+      "url": "https://0a4d545c.runart-briefing-direct.pages.dev",
+      "created_on": "2025-10-24T22:41:05.320932Z",
+      "modified_on": "2025-10-24T22:41:07.46917Z",
+      "latest_stage": {
+        "name": "deploy",
+        "started_on": null,
+        "ended_on": "2025-10-24T22:41:07.46917Z",
+        "status": "success"
+      },
+      "deployment_trigger": {
+        "type": "ad_hoc",
+        "metadata": {
+          "branch": "production",
+          "commit_hash": "89fc20f2c48354b5d5b1dfeac9585c3d919d5bde",
+          "commit_message": "direct-upload:89fc20f2c48354b5d5b1dfeac9585c3d919d5bde",
+          "commit_dirty": true
+        }
+      },
+      "stages": [
+        {
+          "name": "queued",
+          "started_on": "2025-10-24T22:41:05.320932Z",
+          "ended_on": null,
+          "status": "active"
+        },
+        {
+          "name": "initialize",
+          "started_on": null,
+          "ended_on": null,
+          "status": "idle"
+        },
+        {
+          "name": "clone_repo",
+          "started_on": null,
+          "ended_on": null,
+          "status": "idle"
+        },
+        {
+          "name": "build",
+          "started_on": null,
+          "ended_on": null,
+          "status": "idle"
+        },
+        {
+          "name": "deploy",
+          "started_on": null,
+          "ended_on": "2025-10-24T22:41:07.46917Z",
+          "status": "success"
+        }
+      ],
+      "build_config": {
+        "build_command": null,
+        "destination_dir": null,
+        "build_caching": null,
+        "root_dir": null,
+        "web_analytics_tag": null,
+        "web_analytics_token": null
+      },
+      "env_vars": {},
+      "compatibility_date": "2025-10-24",
+      "compatibility_flags": [],
+      "build_image_major_version": 3,
+      "usage_model": null,
+      "aliases": null,
+      "is_skipped": false,
+      "production_branch": "production",
+      "uses_functions": false
+    },
+    {
+      "id": "56847da1-de25-4e93-a603-637f66520bfa",
+      "short_id": "56847da1",
+      "project_id": "147b8030-5bc4-45f9-8d59-c0779556aa20",
+      "project_name": "runart-briefing-direct",
+      "environment": "production",
+      "url": "https://56847da1.runart-briefing-direct.pages.dev",
+      "created_on": "2025-10-24T22:30:55.22912Z",
+      "modified_on": "2025-10-24T22:30:57.516936Z",
+      "latest_stage": {
+        "name": "deploy",
+        "started_on": null,
+        "ended_on": "2025-10-24T22:30:57.516936Z",
+        "status": "success"
+      },
+      "deployment_trigger": {
+        "type": "ad_hoc",
+        "metadata": {
+          "branch": "production",
+          "commit_hash": "b1f48acbb373f22b6e2b03caa4c3e9900406da3f",
+          "commit_message": "direct-upload:b1f48acbb373f22b6e2b03caa4c3e9900406da3f",
+          "commit_dirty": true
+        }
+      },
+      "stages": [
+        {
+          "name": "queued",
+          "started_on": "2025-10-24T22:30:55.22912Z",
+          "ended_on": null,
+          "status": "active"
+        },
+        {
+          "name": "initialize",
+          "started_on": null,
+          "ended_on": null,
+          "status": "idle"
+        },
+        {
+          "name": "clone_repo",
+          "started_on": null,
+          "ended_on": null,
+          "status": "idle"
+        },
+        {
+          "name": "build",
+          "started_on": null,
+          "ended_on": null,
+          "status": "idle"
+        },
+        {
+          "name": "deploy",
+          "started_on": null,
+          "ended_on": "2025-10-24T22:30:57.516936Z",
+          "status": "success"
+        }
+      ],
+      "build_config": {
+        "build_command": null,
+        "destination_dir": null,
+        "build_caching": null,
+        "root_dir": null,
+        "web_analytics_tag": null,
+        "web_analytics_token": null
+      },
+      "env_vars": {},
+      "compatibility_date": "2025-10-24",
+      "compatibility_flags": [],
+      "build_image_major_version": 3,
+      "usage_model": null,
+      "aliases": null,
+      "is_skipped": false,
+      "production_branch": "production",
+      "uses_functions": false
+    },
+    {
+      "id": "9abcb74c-fe32-449c-8e56-1adce042eb82",
+      "short_id": "9abcb74c",
+      "project_id": "147b8030-5bc4-45f9-8d59-c0779556aa20",
+      "project_name": "runart-briefing-direct",
+      "environment": "production",
+      "url": "https://9abcb74c.runart-briefing-direct.pages.dev",
+      "created_on": "2025-10-24T22:28:03.355912Z",
+      "modified_on": "2025-10-24T22:28:06.566789Z",
+      "latest_stage": {
+        "name": "deploy",
+        "started_on": null,
+        "ended_on": "2025-10-24T22:28:06.566789Z",
+        "status": "success"
+      },
+      "deployment_trigger": {
+        "type": "ad_hoc",
+        "metadata": {
+          "branch": "production",
+          "commit_hash": "d4805deab782ab9b1b19c943eb8fe1b9cf939a10",
+          "commit_message": "direct-upload:d4805deab782ab9b1b19c943eb8fe1b9cf939a10",
+          "commit_dirty": true
+        }
+      },
+      "stages": [
+        {
+          "name": "queued",
+          "started_on": "2025-10-24T22:28:03.355912Z",
+          "ended_on": null,
+          "status": "active"
+        },
+        {
+          "name": "initialize",
+          "started_on": null,
+          "ended_on": null,
+          "status": "idle"
+        },
+        {
+          "name": "clone_repo",
+          "started_on": null,
+          "ended_on": null,
+          "status": "idle"
+        },
+        {
+          "name": "build",
+          "started_on": null,
+          "ended_on": null,
+          "status": "idle"
+        },
+        {
+          "name": "deploy",
+          "started_on": null,
+          "ended_on": "2025-10-24T22:28:06.566789Z",
+          "status": "success"
+        }
+      ],
+      "build_config": {
+        "build_command": null,
+        "destination_dir": null,
+        "build_caching": null,
+        "root_dir": null,
+        "web_analytics_tag": null,
+        "web_analytics_token": null
+      },
+      "env_vars": {},
+      "compatibility_date": "2025-10-24",
+      "compatibility_flags": [],
+      "build_image_major_version": 3,
+      "usage_model": null,
+      "aliases": null,
+      "is_skipped": false,
+      "production_branch": "production",
+      "uses_functions": false
+    },
+    {
+      "id": "28e13211-357f-4be8-8616-0b3f151e3978",
+      "short_id": "28e13211",
+      "project_id": "147b8030-5bc4-45f9-8d59-c0779556aa20",
+      "project_name": "runart-briefing-direct",
+      "environment": "production",
+      "url": "https://28e13211.runart-briefing-direct.pages.dev",
+      "created_on": "2025-10-24T22:15:24.588994Z",
+      "modified_on": "2025-10-24T22:15:27.491615Z",
+      "latest_stage": {
+        "name": "deploy",
+        "started_on": null,
+        "ended_on": "2025-10-24T22:15:27.491615Z",
+        "status": "success"
+      },
+      "deployment_trigger": {
+        "type": "ad_hoc",
+        "metadata": {
+          "branch": "production",
+          "commit_hash": "7a524d7da8f0a399eca9bb25c7407b648a2aeb7b",
+          "commit_message": "direct-upload:7a524d7da8f0a399eca9bb25c7407b648a2aeb7b",
+          "commit_dirty": true
+        }
+      },
+      "stages": [
+        {
+          "name": "queued",
+          "started_on": "2025-10-24T22:15:24.588994Z",
+          "ended_on": null,
+          "status": "active"
+        },
+        {
+          "name": "initialize",
+          "started_on": null,
+          "ended_on": null,
+          "status": "idle"
+        },
+        {
+          "name": "clone_repo",
+          "started_on": null,
+          "ended_on": null,
+          "status": "idle"
+        },
+        {
+          "name": "build",
+          "started_on": null,
+          "ended_on": null,
+          "status": "idle"
+        },
+        {
+          "name": "deploy",
+          "started_on": null,
+          "ended_on": "2025-10-24T22:15:27.491615Z",
+          "status": "success"
+        }
+      ],
+      "build_config": {
+        "build_command": null,
+        "destination_dir": null,
+        "build_caching": null,
+        "root_dir": null,
+        "web_analytics_tag": null,
+        "web_analytics_token": null
+      },
+      "env_vars": {},
+      "compatibility_date": "2025-10-24",
+      "compatibility_flags": [],
+      "build_image_major_version": 3,
+      "usage_model": null,
+      "aliases": null,
+      "is_skipped": false,
+      "production_branch": "production",
+      "uses_functions": false
+    },
+    {
+      "id": "2136dccd-f69e-4d5c-9ce9-5fd813a9d40b",
+      "short_id": "2136dccd",
+      "project_id": "147b8030-5bc4-45f9-8d59-c0779556aa20",
+      "project_name": "runart-briefing-direct",
+      "environment": "production",
+      "url": "https://2136dccd.runart-briefing-direct.pages.dev",
+      "created_on": "2025-10-24T21:45:34.102275Z",
+      "modified_on": "2025-10-24T21:45:36.227523Z",
+      "latest_stage": {
+        "name": "deploy",
+        "started_on": null,
+        "ended_on": "2025-10-24T21:45:36.227523Z",
+        "status": "success"
+      },
+      "deployment_trigger": {
+        "type": "ad_hoc",
+        "metadata": {
+          "branch": "production",
+          "commit_hash": "f0fe523b98db10ab44bf19adc998ea79c366c6a3",
+          "commit_message": "direct-upload:f0fe523b98db10ab44bf19adc998ea79c366c6a3",
+          "commit_dirty": true
+        }
+      },
+      "stages": [
+        {
+          "name": "queued",
+          "started_on": "2025-10-24T21:45:34.102275Z",
+          "ended_on": null,
+          "status": "active"
+        },
+        {
+          "name": "initialize",
+          "started_on": null,
+          "ended_on": null,
+          "status": "idle"
+        },
+        {
+          "name": "clone_repo",
+          "started_on": null,
+          "ended_on": null,
+          "status": "idle"
+        },
+        {
+          "name": "build",
+          "started_on": null,
+          "ended_on": null,
+          "status": "idle"
+        },
+        {
+          "name": "deploy",
+          "started_on": null,
+          "ended_on": "2025-10-24T21:45:36.227523Z",
+          "status": "success"
+        }
+      ],
+      "build_config": {
+        "build_command": null,
+        "destination_dir": null,
+        "build_caching": null,
+        "root_dir": null,
+        "web_analytics_tag": null,
+        "web_analytics_token": null
+      },
+      "env_vars": {},
+      "compatibility_date": "2025-10-24",
+      "compatibility_flags": [],
+      "build_image_major_version": 3,
+      "usage_model": null,
+      "aliases": null,
+      "is_skipped": false,
+      "production_branch": "production",
+      "uses_functions": false
+    },
+    {
+      "id": "a7b84392-08c9-4b57-b538-a790f95c6d4f",
+      "short_id": "a7b84392",
+      "project_id": "147b8030-5bc4-45f9-8d59-c0779556aa20",
+      "project_name": "runart-briefing-direct",
+      "environment": "production",
+      "url": "https://a7b84392.runart-briefing-direct.pages.dev",
+      "created_on": "2025-10-24T21:21:51.478635Z",
+      "modified_on": "2025-10-24T21:21:53.564886Z",
+      "latest_stage": {
+        "name": "deploy",
+        "started_on": null,
+        "ended_on": "2025-10-24T21:21:53.564886Z",
+        "status": "success"
+      },
+      "deployment_trigger": {
+        "type": "ad_hoc",
+        "metadata": {
+          "branch": "production",
+          "commit_hash": "5fd7f8d6e8603e8f66c002f84518d02b89edfdfc",
+          "commit_message": "direct-upload:5fd7f8d6e8603e8f66c002f84518d02b89edfdfc",
+          "commit_dirty": true
+        }
+      },
+      "stages": [
+        {
+          "name": "queued",
+          "started_on": "2025-10-24T21:21:51.478635Z",
+          "ended_on": null,
+          "status": "active"
+        },
+        {
+          "name": "initialize",
+          "started_on": null,
+          "ended_on": null,
+          "status": "idle"
+        },
+        {
+          "name": "clone_repo",
+          "started_on": null,
+          "ended_on": null,
+          "status": "idle"
+        },
+        {
+          "name": "build",
+          "started_on": null,
+          "ended_on": null,
+          "status": "idle"
+        },
+        {
+          "name": "deploy",
+          "started_on": null,
+          "ended_on": "2025-10-24T21:21:53.564886Z",
+          "status": "success"
+        }
+      ],
+      "build_config": {
+        "build_command": null,
+        "destination_dir": null,
+        "build_caching": null,
+        "root_dir": null,
+        "web_analytics_tag": null,
+        "web_analytics_token": null
+      },
+      "env_vars": {},
+      "compatibility_date": "2025-10-24",
+      "compatibility_flags": [],
+      "build_image_major_version": 3,
+      "usage_model": null,
+      "aliases": null,
+      "is_skipped": false,
+      "production_branch": "production",
+      "uses_functions": false
+    },
+    {
+      "id": "9454f388-e2c6-4ad3-ae65-a1b953406168",
+      "short_id": "9454f388",
+      "project_id": "147b8030-5bc4-45f9-8d59-c0779556aa20",
+      "project_name": "runart-briefing-direct",
+      "environment": "production",
+      "url": "https://9454f388.runart-briefing-direct.pages.dev",
+      "created_on": "2025-10-24T20:49:08.404188Z",
+      "modified_on": "2025-10-24T20:49:11.345112Z",
+      "latest_stage": {
+        "name": "deploy",
+        "started_on": null,
+        "ended_on": "2025-10-24T20:49:11.345112Z",
+        "status": "success"
+      },
+      "deployment_trigger": {
+        "type": "ad_hoc",
+        "metadata": {
+          "branch": "production",
+          "commit_hash": "a816519b80c0e623bacd1a3a49c10628a1edc0df",
+          "commit_message": "direct-upload:a816519b80c0e623bacd1a3a49c10628a1edc0df",
+          "commit_dirty": true
+        }
+      },
+      "stages": [
+        {
+          "name": "queued",
+          "started_on": "2025-10-24T20:49:08.404188Z",
+          "ended_on": null,
+          "status": "active"
+        },
+        {
+          "name": "initialize",
+          "started_on": null,
+          "ended_on": null,
+          "status": "idle"
+        },
+        {
+          "name": "clone_repo",
+          "started_on": null,
+          "ended_on": null,
+          "status": "idle"
+        },
+        {
+          "name": "build",
+          "started_on": null,
+          "ended_on": null,
+          "status": "idle"
+        },
+        {
+          "name": "deploy",
+          "started_on": null,
+          "ended_on": "2025-10-24T20:49:11.345112Z",
+          "status": "success"
+        }
+      ],
+      "build_config": {
+        "build_command": null,
+        "destination_dir": null,
+        "build_caching": null,
+        "root_dir": null,
+        "web_analytics_tag": null,
+        "web_analytics_token": null
+      },
+      "env_vars": {},
+      "compatibility_date": "2025-10-24",
+      "compatibility_flags": [],
+      "build_image_major_version": 3,
+      "usage_model": null,
+      "aliases": null,
+      "is_skipped": false,
+      "production_branch": "production",
+      "uses_functions": false
+    },
+    {
+      "id": "1c270697-b300-407d-bed5-e1990d2435e6",
+      "short_id": "1c270697",
+      "project_id": "147b8030-5bc4-45f9-8d59-c0779556aa20",
+      "project_name": "runart-briefing-direct",
+      "environment": "production",
+      "url": "https://1c270697.runart-briefing-direct.pages.dev",
+      "created_on": "2025-10-24T20:38:32.738878Z",
+      "modified_on": "2025-10-24T20:38:35.60083Z",
+      "latest_stage": {
+        "name": "deploy",
+        "started_on": null,
+        "ended_on": "2025-10-24T20:38:35.60083Z",
+        "status": "success"
+      },
+      "deployment_trigger": {
+        "type": "ad_hoc",
+        "metadata": {
+          "branch": "production",
+          "commit_hash": "fa20f86d1337a48c3a438e9d891379952427c213",
+          "commit_message": "direct-upload:fa20f86d1337a48c3a438e9d891379952427c213",
+          "commit_dirty": false
+        }
+      },
+      "stages": [
+        {
+          "name": "queued",
+          "started_on": "2025-10-24T20:38:32.738878Z",
+          "ended_on": null,
+          "status": "active"
+        },
+        {
+          "name": "initialize",
+          "started_on": null,
+          "ended_on": null,
+          "status": "idle"
+        },
+        {
+          "name": "clone_repo",
+          "started_on": null,
+          "ended_on": null,
+          "status": "idle"
+        },
+        {
+          "name": "build",
+          "started_on": null,
+          "ended_on": null,
+          "status": "idle"
+        },
+        {
+          "name": "deploy",
+          "started_on": null,
+          "ended_on": "2025-10-24T20:38:35.60083Z",
+          "status": "success"
+        }
+      ],
+      "build_config": {
+        "build_command": null,
+        "destination_dir": null,
+        "build_caching": null,
+        "root_dir": null,
+        "web_analytics_tag": null,
+        "web_analytics_token": null
+      },
+      "env_vars": {},
+      "compatibility_date": "2025-10-24",
+      "compatibility_flags": [],
+      "build_image_major_version": 3,
+      "usage_model": null,
+      "aliases": null,
+      "is_skipped": false,
+      "production_branch": "production",
+      "uses_functions": false
+    }
+  ],
+  "success": true,
+  "errors": [],
+  "messages": [],
+  "result_info": {
+    "page": 1,
+    "per_page": 25,
+    "count": 15,
+    "total_count": 15,
+    "total_pages": 1
+  }
+}

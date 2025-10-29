@@ -1,0 +1,25 @@
+{
+  "result": {
+    "created_at": "2025-10-24T21:13:02Z",
+    "decision": "non_identity",
+    "exclude": [],
+    "id": "e65fbd51-9fa8-4d01-865b-ecdffdba0a6d",
+    "include": [
+      {
+        "service_token": {
+          "token_id": "26112c8f-1dda-4480-8436-f1b3e5b38ce8"
+        }
+      }
+    ],
+    "name": "Allow CI RunArt Production (Direct)",
+    "require": [],
+    "session_duration": "24h",
+    "uid": "e65fbd51-9fa8-4d01-865b-ecdffdba0a6d",
+    "updated_at": "2025-10-24T21:32:58Z",
+    "reusable": true,
+    "precedence": 1
+  },
+  "success": true,
+  "errors": [],
+  "messages": []
+}

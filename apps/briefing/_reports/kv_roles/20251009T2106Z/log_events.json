@@ -1,0 +1,6 @@
+[
+  {
+    "key": "evt:2025-10-08T21:21:44.639Z:fwvrhi",
+    "value": "{\"ts\":\"2025-10-08T21:21:44.639Z\",\"kind\":\"roles.update\",\"actor\":\"runartfoundry@gmail.com\",\"role\":\"client_admin\",\"owners\":1,\"client_admins\":1,\"clients\":1,\"team\":1,\"team_domains\":1}"
+  }
+]

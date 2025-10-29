@@ -1,0 +1,63 @@
+name: Verify Staging (daily health check)
+on:
+  schedule:
+    - cron: '0 13 * * *'  # Ejecuta diariamente a las 9am Miami (13 UTC)
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  healthcheck:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Verify HTTP/REST API status with metrics
+        run: |
+          BASE_URL="https://staging.runartfoundry.com"
+          echo "Verificando disponibilidad de $BASE_URL"
+          
+          # HTTP Check con tiempo de respuesta
+          START=$(date +%s%N)
+          CODE=$(curl -s -o /dev/null -w "%{http_code}" "$BASE_URL/wp-json/")
+          END=$(date +%s%N)
+          RESPONSE_TIME=$(( ($END - $START) / 1000000 ))
+          
+          if [ "$CODE" = "200" ]; then
+            STATUS="OK"
+          else
+            STATUS="FAIL ($CODE)"
+          fi
+          
+          # Obtener versión WP y estadísticas básicas
+          WP_INFO=$(curl -s "$BASE_URL/wp-json/" || echo "{}")
+          WP_VERSION=$(echo "$WP_INFO" | jq -r '.namespaces // [] | join(", ")' 2>/dev/null || echo "N/A")
+          
+          # Generar reporte
+          mkdir -p _reports/health
+          DATE=$(date +%Y%m%d_%H%M)
+          cat > "_reports/health/health_${DATE}.md" <<EOF
+          # 🌐 Health Check — Staging RUN Art Foundry
+          **Fecha:** $(date)
+          **HTTP Status:** $STATUS
+          **Response Time:** ${RESPONSE_TIME}ms
+          **WP Namespaces:** $WP_VERSION
+          **Workflow:** verify-staging.yml
+          
+          ## Métricas
+          - Código HTTP: $CODE
+          - Tiempo de respuesta: ${RESPONSE_TIME}ms
+          - Endpoint verificado: /wp-json/
+          
+          ## Estado
+          $(if [ "$STATUS" = "OK" ]; then echo "✅ Todos los sistemas operativos"; else echo "❌ Sistema no disponible"; fi)
+          EOF
+          
+          echo "Resultado: $STATUS (${RESPONSE_TIME}ms)"
+          git config user.name "github-actions"
+          git config user.email "actions@github.com"
+          git add _reports/health/health_${DATE}.md
+          git commit -m "Health check staging ${DATE}: ${STATUS} (${RESPONSE_TIME}ms)" || echo "Sin cambios"
+          git push origin main || true

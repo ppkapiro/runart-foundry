@@ -1,0 +1,72 @@
+name: Run Repair
+
+on:
+  workflow_dispatch:
+    inputs:
+      area:
+        description: "Área a reparar"
+        required: true
+        type: choice
+        options:
+          - home
+          - menus
+          - media
+          - settings
+      mode:
+        description: "Modo de ejecución"
+        required: false
+        default: plan
+        type: choice
+        options:
+          - plan
+          - apply
+
+jobs:
+  repair:
+    name: Repair
+    runs-on: ubuntu-latest
+    env:
+      SUMMARY_FILE: run-repair_summary.txt
+    steps:
+      - name: Decide action
+        id: plan
+        run: |
+          AREA='${{ github.event.inputs.area }}'
+          MODE='${{ github.event.inputs.mode }}'
+          ACTION="noop"
+          case "$AREA" in
+            home)
+              ACTION="set-home.yml" ;;
+            menus)
+              ACTION="publish-prod-menu.yml" ;;
+            media)
+              ACTION="upload-media.yml" ;;
+            settings)
+              ACTION="site-settings.yml" ;;
+          esac
+          echo "AREA=$AREA" >> $GITHUB_OUTPUT
+          echo "MODE=$MODE" >> $GITHUB_OUTPUT
+          echo "ACTION=$ACTION" >> $GITHUB_OUTPUT
+
+      - name: Call workflow (apply)
+        if: ${{ steps.plan.outputs.MODE == 'apply' }}
+        id: call
+        uses: benc-uk/workflow-dispatch@v1
+        with:
+          workflow: ${{ steps.plan.outputs.ACTION }}
+          ref: main
+
+      - name: Build summary
+        run: |
+          AREA='${{ steps.plan.outputs.AREA }}'
+          MODE='${{ steps.plan.outputs.MODE }}'
+          ACTION='${{ steps.plan.outputs.ACTION }}'
+          RUN_URL='n/a'
+          if [ -n "${{ steps.call.outputs.workflow_url }}" ]; then RUN_URL='${{ steps.call.outputs.workflow_url }}'; fi
+          printf "area=%s; mode=%s; action=%s; resultado=OK; run=%s\n" "$AREA" "$MODE" "$ACTION" "$RUN_URL" | tee "$SUMMARY_FILE"
+
+      - name: Upload summary artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: run-repair-summary
+          path: ${{ env.SUMMARY_FILE }}

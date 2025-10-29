@@ -1,0 +1,146 @@
+name: Grant Admin Access (Ephemeral)
+
+on:
+  workflow_dispatch:
+    inputs:
+      username:
+        description: "WordPress username a crear/actualizar"
+        required: true
+        type: string
+      ephemeral:
+        description: "Marcar como temporal (solo nota en el artifact)"
+        required: false
+        default: "true"
+        type: string
+
+permissions:
+  contents: read
+  actions: read
+
+jobs:
+  grant:
+    name: Grant Admin Access
+    runs-on: ubuntu-latest
+    env:
+      BASE_URL: ${{ vars.WP_BASE_URL }}
+      WP_USER: ${{ secrets.WP_USER }}
+      WP_APP_PASSWORD: ${{ secrets.WP_APP_PASSWORD }}
+      OUT_DIR: out
+    steps:
+      - name: Preparar entorno
+        run: |
+          set -euo pipefail
+          mkdir -p "$OUT_DIR"
+          # Generar password aleatoria segura (24 chars alfanumérico)
+          PASS=$(openssl rand -base64 32 | tr -dc 'A-Za-z0-9' | head -c 24)
+          echo "PASS=$PASS" >> $GITHUB_ENV
+          # Enmascarar secretos para que no aparezcan en logs
+          echo "::add-mask::$PASS"
+          # Preparar auth header (no imprimir en logs)
+          AUTH=$(printf "%s:%s" "$WP_USER" "$WP_APP_PASSWORD" | base64)
+          echo "AUTH=$AUTH" >> $GITHUB_ENV
+          # Enmascarar derivados del secreto
+          echo "::add-mask::$WP_APP_PASSWORD"
+          echo "::add-mask::$AUTH"
+
+      - name: Resolver usuario (existe o crear)
+        id: ensure_user
+        run: |
+          set -euo pipefail
+          USERNAME="${{ inputs.username }}"
+          AUTH="$AUTH"
+          BASE="$BASE_URL"
+          # Buscar usuario por login (slug)
+          TMP=$(mktemp)
+          CODE=$(curl -sS -o "$TMP" -w "%{http_code}" -H "Authorization: Basic $AUTH" "$BASE/wp-json/wp/v2/users?search=$USERNAME" || true)
+          ID=""
+          if [ "$CODE" = "200" ]; then
+            ID=$(jq -r '[.[] | select(.slug=="'$USERNAME'") ] | .[0].id // ""' "$TMP" 2>/dev/null || echo "")
+          fi
+          rm -f "$TMP"
+          if [ -n "$ID" ]; then
+            echo "exists=true" >> $GITHUB_OUTPUT
+            echo "user_id=$ID" >> $GITHUB_OUTPUT
+          else
+            echo "exists=false" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Crear usuario si no existe
+        if: ${{ steps.ensure_user.outputs.exists != 'true' }}
+        id: create_user
+        run: |
+          set -euo pipefail
+          USERNAME="${{ inputs.username }}"
+          AUTH="$AUTH"
+          BASE="$BASE_URL"
+          PASS="$PASS"
+          EMAIL="${USERNAME}@staging.runartfoundry.com"
+          TMP=$(mktemp)
+          CODE=$(curl -sS -o "$TMP" -w "%{http_code}" -X POST \
+            -H "Authorization: Basic $AUTH" \
+            -H "Content-Type: application/json" \
+            -d "{\"username\":\"$USERNAME\",\"email\":\"$EMAIL\",\"password\":\"$PASS\",\"roles\":[\"administrator\"]}" \
+            "$BASE/wp-json/wp/v2/users" || true)
+          if [ "$CODE" != "201" ] && [ "$CODE" != "200" ]; then
+            echo "No se pudo crear el usuario (HTTP $CODE)" >&2
+            cat "$TMP" >&2 || true
+            exit 1
+          fi
+          ID=$(jq -r .id "$TMP" 2>/dev/null || echo "")
+          rm -f "$TMP"
+          if [ -z "$ID" ]; then echo "ID vacío tras crear usuario" >&2; exit 1; fi
+          echo "user_id=$ID" >> $GITHUB_OUTPUT
+
+      - name: Resolver ID de usuario
+        id: resolve_id
+        run: |
+          set -euo pipefail
+          U1="${{ steps.ensure_user.outputs.user_id }}"
+          U2="${{ steps.create_user.outputs.user_id }}"
+          USER_ID="$U1"
+          if [ -z "$USER_ID" ]; then USER_ID="$U2"; fi
+          if [ -z "$USER_ID" ]; then echo "USER_ID vacío" >&2; exit 1; fi
+          echo "user_id=$USER_ID" >> $GITHUB_OUTPUT
+
+      - name: Forzar rol administrador y resetear password
+        run: |
+          set -euo pipefail
+          USER_ID="${{ steps.resolve_id.outputs.user_id }}"
+          AUTH="$AUTH"
+          BASE="$BASE_URL"
+          PASS="$PASS"
+          # Actualizar usuario: password y rol administrador
+          TMP=$(mktemp)
+          CODE=$(curl -sS -o "$TMP" -w "%{http_code}" -X PUT \
+            -H "Authorization: Basic $AUTH" \
+            -H "Content-Type: application/json" \
+            -d "{\"password\":\"$PASS\",\"roles\":[\"administrator\"]}" \
+            "$BASE/wp-json/wp/v2/users/$USER_ID" || true)
+          if [ "$CODE" != "200" ]; then
+            echo "No se pudo actualizar usuario (HTTP $CODE)" >&2
+            cat "$TMP" >&2 || true
+            exit 1
+          fi
+          rm -f "$TMP"
+          echo "user_id=$USER_ID" >> $GITHUB_OUTPUT
+
+      - name: Preparar archivo de credenciales (no imprimir en logs)
+        run: |
+          set -euo pipefail
+          USERNAME="${{ inputs.username }}"
+          EPHEMERAL="${{ inputs.ephemeral }}"
+          PASS="$PASS"
+          mkdir -p "$OUT_DIR"
+          {
+            echo "username=$USERNAME"
+            echo "password=$PASS"
+            echo "ephemeral=$EPHEMERAL"
+            echo "url=${BASE_URL}/wp-admin"
+            echo "note=Cambiar password tras primer login."
+          } > "$OUT_DIR/admin_credentials.txt"
+
+      - name: Subir artifact de credenciales
+        uses: actions/upload-artifact@v4
+        with:
+          name: admin-credentials
+          path: ${{ env.OUT_DIR }}/admin_credentials.txt

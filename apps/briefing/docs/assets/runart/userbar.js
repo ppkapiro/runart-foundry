@@ -2,12 +2,14 @@
   const WHOAMI_URL = '/api/whoami';
   const ROLE_ROUTES = {
     owner: '/internal/briefing_system/',
+    client_admin: '/internal/briefing_system/',
     team: '/internal/briefing_system/',
     client: '/client_projects/runart_foundry/',
     visitor: '/',
   };
   const ROLE_LABELS = {
     owner: 'Owner',
+    client_admin: 'Client admin',
     team: 'Team',
     client: 'Client',
     visitor: 'Visitor',
@@ -40,6 +42,7 @@
     if (normalized === 'visitante') return 'visitor';
     if (normalized === 'propietario') return 'owner';
     if (normalized === 'equipo' || normalized === 'team') return 'team';
+    if (normalized === 'cliente_admin' || normalized === 'client_admin' || normalized === 'client-admin') return 'client_admin';
     if (normalized === 'cliente' || normalized === 'client') return 'client';
     if (ROLE_LABELS[normalized]) return normalized;
     return 'visitor';
@@ -89,6 +92,15 @@
     myTab.textContent = 'Mi pestaña';
     menuItemWrapper1.appendChild(myTab);
 
+    const menuItemWrapperAdmin = createElement('li', 'ra-userbar__menu-item ra-userbar__menu-item--admin');
+    const adminLink = createElement('a', 'ra-userbar__menu-link', {
+      role: 'menuitem',
+      tabindex: '-1',
+      href: '/internal/briefing_system/ops/roles_admin/',
+    });
+    adminLink.textContent = 'Administrar roles';
+    menuItemWrapperAdmin.appendChild(adminLink);
+
     const menuItemWrapper2 = createElement('li', 'ra-userbar__menu-item');
     const logoutButton = createElement('button', 'ra-userbar__menu-link ra-userbar__menu-link--logout', {
       type: 'button',
@@ -98,7 +110,8 @@
     logoutButton.textContent = 'Salir';
     menuItemWrapper2.appendChild(logoutButton);
 
-    menu.appendChild(menuItemWrapper1);
+  menu.appendChild(menuItemWrapper1);
+  menu.appendChild(menuItemWrapperAdmin);
     menu.appendChild(menuItemWrapper2);
 
     menuContainer.appendChild(menu);
@@ -113,8 +126,9 @@
       email,
       role,
       menu,
-      menuLinks: [myTab, logoutButton],
+      menuLinks: [myTab, adminLink, logoutButton],
       myTab,
+      adminLink,
       logoutButton,
     };
   };
@@ -122,19 +136,27 @@
   const applyState = (ui, state) => {
     const emailValue = (state.email || '').trim();
     const normalizedRole = normalizeRole(state.role || 'visitor');
-  const roleLabel = ROLE_LABELS[normalizedRole] || ROLE_LABELS.visitor;
+    const roleLabel = ROLE_LABELS[normalizedRole] || ROLE_LABELS.visitor;
 
   const avatarInitial = emailValue ? emailValue.charAt(0).toUpperCase() : 'I';
     ui.avatar.textContent = avatarInitial;
     ui.avatar.dataset.role = normalizedRole;
 
     ui.email.textContent = emailValue || 'Invitado';
-  ui.role.textContent = normalizedRole;
+    ui.role.textContent = roleLabel.toLowerCase();
     ui.role.dataset.role = normalizedRole;
-  ui.role.setAttribute('aria-label', `Rol ${roleLabel}`);
+    ui.role.setAttribute('aria-label', `Rol ${roleLabel}`);
 
     const targetHref = ROLE_ROUTES[normalizedRole] || ROLE_ROUTES.visitor;
     ui.myTab.href = targetHref;
+
+    if (normalizedRole === 'owner' || normalizedRole === 'client_admin') {
+      ui.adminLink.parentElement.removeAttribute('hidden');
+      ui.adminLink.setAttribute('tabindex', '0');
+    } else {
+      ui.adminLink.parentElement.setAttribute('hidden', 'hidden');
+      ui.adminLink.setAttribute('tabindex', '-1');
+    }
 
     document.documentElement.dataset.runenv = state.env || 'local';
   };
@@ -163,10 +185,22 @@
 
     ui.button.setAttribute('aria-expanded', 'true');
     ui.menu.removeAttribute('hidden');
+    let focused = false;
     ui.menuLinks.forEach((link) => {
+      const parentHidden = link.parentElement?.hasAttribute('hidden');
+      if (parentHidden) {
+        link.setAttribute('tabindex', '-1');
+        return;
+      }
       link.setAttribute('tabindex', '0');
+      if (!focused) {
+        focused = true;
+        link.focus({ preventScroll: true });
+      }
     });
-    ui.menuLinks[0].focus({ preventScroll: true });
+    if (!focused) {
+      ui.menuLinks[0].focus({ preventScroll: true });
+    }
   };
 
   const toggleMenu = (ui) => {
@@ -294,7 +328,7 @@
       return {
         ok: true,
         email: typeof data.email === 'string' ? data.email : '',
-        role: normalizeRole(data.role),
+        role: normalizeRole(data.role || data.rol),
         env: typeof data.env === 'string' ? data.env : 'local',
       };
     } catch (error) {

@@ -1,0 +1,28 @@
+{
+  "location": "https://runart-briefing-pages.cloudflareaccess.com/cdn-cgi/access/login/runart-briefing-direct.pages.dev?kid=76585272ad0badca5b2d47c1698f2ba32398f0a5edd8f3b013a148221da0cb9e&meta=eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiIsImtpZCI6IjgxYjFkN2IwZDg4ZTNjZTkwNGFhYzc3YTExZmM2NjQ0YWY0ZTM0YWI3MzE1YjMxNDI0NDI5MDVlMDcwOGFhYTkifQ.eyJ0eXBlIjoibWV0YSIsImF1ZCI6Ijc2NTg1MjcyYWQwYmFkY2E1YjJkNDdjMTY5OGYyYmEzMjM5OGYwYTVlZGQ4ZjNiMDEzYTE0ODIyMWRhMGNiOWUiLCJob3N0bmFtZSI6InJ1bmFydC1icmllZmluZy1kaXJlY3QucGFnZXMuZGV2IiwicmVkaXJlY3RfdXJsIjoiLyIsInNlcnZpY2VfdG9rZW5fc3RhdHVzIjpmYWxzZSwiaXNfd2FycCI6ZmFsc2UsImlzX2dhdGV3YXkiOmZhbHNlLCJleHAiOjE3NjE0MTQ2OTMsIm5iZiI6MTc2MTQxNDM5MywiaWF0IjoxNzYxNDE0MzkzLCJhdXRoX3N0YXR1cyI6Ik5PTkUiLCJtdGxzX2F1dGgiOnsiY2VydF9pc3N1ZXJfZG4iOiIiLCJjZXJ0X3NlcmlhbCI6IiIsImNlcnRfaXNzdWVyX3NraSI6IiIsImNlcnRfcHJlc2VudGVkIjpmYWxzZSwiY29tbW9uX25hbWUiOiIiLCJhdXRoX3N0YXR1cyI6Ik5PTkUifSwicmVhbF9jb3VudHJ5IjoiVVMiLCJhcHBfc2Vzc2lvbl9oYXNoIjoiY2NhZTI0ZDJjMTI1ZmU5MWU1MTAwMWZiZDc3YzdjNWJlNDExNTU4ZWY4MGVlMWZlYjU3MTJkN2NlMDNkODJkOCJ9.V9vthGGEz-I206hp8qjuCy8iS5vXtPGvCOXPxI9iI9Q28RmI6nmSzT0753lnF3mXWzKwXgwl370u6G44brgJdwgIxAfOakvD9qk_DNUqJqUjFpz0LGR5upHu0RPpZ0Fb4RskVMwYFzjLDB2SGdNDA2bjz90VtGchw0VQnJO9KwSb0W-PuLvxHTpiUq6o8I_BnhMbkbQlmNPVzz7N5RyQvcRbUkv2bUKmmZcdXg4iTf80eSG8Tguig0h1D91UsmrnYLkmK2I98BhOGTbIdUVeiRtkdLAcd7kPtUhPnWg2fUODle2wDTZewn3hEqMPB-avPSxiEhLFOoEJRReDSVrc_w&redirect_url=%2F",
+  "meta_payload": {
+    "type": "meta",
+    "aud": "76585272ad0badca5b2d47c1698f2ba32398f0a5edd8f3b013a148221da0cb9e",
+    "hostname": "runart-briefing-direct.pages.dev",
+    "redirect_url": "/",
+    "service_token_status": false,
+    "is_warp": false,
+    "is_gateway": false,
+    "exp": 1761414693,
+    "nbf": 1761414393,
+    "iat": 1761414393,
+    "auth_status": "NONE",
+    "mtls_auth": {
+      "cert_issuer_dn": "",
+      "cert_serial": "",
+      "cert_issuer_ski": "",
+      "cert_presented": false,
+      "common_name": "",
+      "auth_status": "NONE"
+    },
+    "real_country": "US",
+    "app_session_hash": "ccae24d2c125fe91e51001fbd77c7c5be411558ef80ee1feb5712d7ce03d82d8"
+  },
+  "service_token_status": null,
+  "auth_status": "NONE"
+}

@@ -1,0 +1,237 @@
+pages: {}
+posts: {}
+projects:
+  alexander-arrechea:
+  - alexander
+  - arrechea
+  - _alexander_
+  - _arrechea_
+  - -arrechea-
+  american-dream:
+  - american
+  - _american_
+  - -american-
+  - mask
+  - dream
+  armonia:
+  - _armonia_
+  - armonia
+  - -armonia-
+  - hiperrealista
+  ballerina:
+  - ballerina
+  - _ballerina_
+  - -ballerina-
+  - dancer
+  carlos-manuel-cespedes:
+  - _carlos_
+  - -carlos-
+  - carlos
+  - cespedes
+  - manuel
+  clementina:
+  - _clementina_
+  - -clementina-
+  - clementina
+  contra-corriente:
+  - contra
+  - -contra-
+  - _contra_
+  - corriente
+  durga-ma:
+  - -durga-
+  - _durga_
+  - durga
+  - goddess
+  el-beso:
+  - -beso-
+  - _beso_
+  - beso
+  - kiss
+  - final
+  el-equilibrio:
+  - _equilibrio_
+  - equilibrio
+  - -equilibrio-
+  - balance
+  - premade
+  el-gran-viaje:
+  - gran
+  - -gran-
+  - _gran_
+  - viaje
+  el-rapto-de-micaela:
+  - micaela
+  - _micaela_
+  - -micaela-
+  - rapto
+  el-saltamonte:
+  - _saltamonte_
+  - -saltamonte-
+  - saltamonte
+  - grasshopper
+  eva:
+  - eva
+  - _eva_
+  - -eva-
+  guajiro-reide-molina:
+  - _guajiro_
+  - -guajiro-
+  - guajiro
+  - reide
+  - molina
+  la-gran-carroza:
+  - -carroza-
+  - _carroza_
+  - carroza
+  - carriage
+  la-lira:
+  - -lira-
+  - lira
+  - _lira_
+  - lyre
+  la-reflexion:
+  - reflexion
+  - -reflexion-
+  - _reflexion_
+  - reflection
+  maquina-de-coser:
+  - -maquina-
+  - maquina
+  - _maquina_
+  - coser
+  - sewing
+  maximo-gomez:
+  - _gomez_
+  - -gomez-
+  - gomez
+  - maximo
+  mujer-con-pajaros:
+  - _mujer_
+  - -mujer-
+  - mujer
+  - pajaros
+  - birds
+  poco-de-nosotros:
+  - _nosotros_
+  - nosotros
+  - -nosotros-
+  - poco
+  roberto-estupinan:
+  - _estupinan_
+  - -estupinan-
+  - estupinan
+  - roberto
+  run-art-foundry-branding:
+  - -home-
+  - home
+  - _home_
+  - logo
+  - branding
+  - favicon
+  - cropped
+  - runartfoundry
+  serena:
+  - -serena-
+  - serena
+  - _serena_
+  suenos-de-lucas:
+  - lucas
+  - -lucas-
+  - _lucas_
+  - suenos
+  - dreams
+  viaje-fantastico-fabelo:
+  - fabelo
+  - _fabelo_
+  - -fabelo-
+  - fantastico
+  - viaje
+services:
+  bronze-casting:
+  - bronze
+  - fundicion
+  - foundry
+  - casting
+  - metal
+  - pour
+  sculpture-modeling:
+  - modeling
+  - sculture
+  - sculpture
+  - clay
+  - plastilina
+  ceramic-shell:
+  - ceramic
+  - shell
+  - investment
+  - dipping
+  wax-casting:
+  - wax
+  - dewax
+  - molten
+  - lost
+  welding-polish:
+  - welding
+  - polish
+  - grinding
+  - finishing
+  - metal
+  patina:
+  - patina
+  - chemical
+  - color
+  - finish
+  - oxidation
+  silicon-rubber-molding:
+  - silicon
+  - rubber
+  - molding
+  - mold
+  - flexible
+  sculpture-enlargement:
+  - enlargement
+  - scaling
+  - upscale
+  - pointing
+  granite-bases:
+  - granite
+  - bases
+  - mounting
+  - pedestal
+  - stone
+  wood-crates:
+  - crates
+  - wood
+  - packaging
+  - shipping
+  marble-sculpture:
+  - marble
+  - stone
+  - carving
+  water-jet:
+  - water
+  - jet
+  - cutting
+  - cnc
+  resine-casting:
+  - resine
+  - resin
+  - polyester
+  - fiberglass
+  restoration:
+  - restoration
+  - repair
+  - conservation
+  - maintenance
+  oil-in-bronze:
+  - oil
+  - paint
+  - polychrome
+  - color
+  engineering:
+  - engineering
+  - cad
+  - design
+  - technical
+  - drawing

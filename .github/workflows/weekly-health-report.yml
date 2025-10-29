@@ -1,0 +1,27 @@
+name: weekly-health-report
+on:
+  schedule:
+    - cron: "0 9 * * MON"   # Lunes 09:00 UTC
+  workflow_dispatch:
+
+jobs:
+  report:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Compose weekly report
+        run: |
+          mkdir -p _reports
+          FN="_reports/WEEKLY_HEALTH_$(date +%Y%m%d).md"
+          echo "# Weekly Health — $(date -u)" > "$FN"
+          echo "## verify-* snapshots" >> "$FN"
+          grep -r "Auth=" _reports/audit_artifacts/verify-*summary*.txt | tail -n 50 >> "$FN" || echo "No summaries found" >> "$FN"
+          echo -e "\n## Audit level" >> "$FN"
+          grep -r "LEVEL=" _reports/audit_artifacts/audit_latest.txt | tail -n 10 >> "$FN" || echo "No audit data found" >> "$FN"
+          echo -e "\n## URL\nhttps://staging.runartfoundry.com/" >> "$FN"
+          echo "[weekly] Reporte generado: $FN"
+      - name: Upload report artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: weekly-health
+          path: _reports/WEEKLY_HEALTH_*

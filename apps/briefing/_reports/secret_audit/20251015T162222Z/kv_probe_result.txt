@@ -1,0 +1,29 @@
+# Prueba de sonda KV — 2025-10-15 16:27:19 UTC
+
+Namespace ID: 26b8c3ca432946e2a093dcd33163f9e2
+
+PUT __audit_probe__:
+{
+  "result": null,
+  "success": true,
+  "errors": [],
+  "messages": []
+}
+
+HTTP Status: 200
+
+GET __audit_probe__:
+audit_probe_1760545639
+HTTP Status: 200
+
+DELETE __audit_probe__:
+{
+  "result": null,
+  "success": true,
+  "errors": [],
+  "messages": []
+}
+
+HTTP Status: 200
+
+✅ Sonda completada

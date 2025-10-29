@@ -1,0 +1,27 @@
+name = "runart-foundry-preview2"
+compatibility_date = "2025-10-01"
+pages_build_output_dir = "site"
+
+[[kv_namespaces]]
+binding = "DECISIONES"
+id = "05a286b6941b4e1fb94727201d2bfa06"
+preview_id = "e68d7a05dce645478e25c397d4c34c08"
+
+[[kv_namespaces]]
+binding = "LOG_EVENTS"
+id = "5c809442ad5a4a5cb4bcca714c70fabf"
+preview_id = "17937e5c45fa49ec83b4d275f1714d44"
+
+[[kv_namespaces]]
+binding = "RUNART_ROLES"
+id = "3d40c644267b4d93aa58c6a471eb5f22"
+preview_id = "7d80b07de98e4d9b9d5fd85516901ef6"
+
+[vars]
+RUNART_ENV = "preview2"
+ACCESS_TEST_MODE = "1"
+MOD_REQUIRED = "1"
+ORIGIN_ALLOWED = "https://preview2.runart-foundry.pages.dev"
+ACCESS_ADMINS = "ppcapiro@gmail.com"
+ACCESS_EQUIPO_DOMAINS = "runart.com,studio.com"
+ACCESS_DEV_OVERRIDE = "0"

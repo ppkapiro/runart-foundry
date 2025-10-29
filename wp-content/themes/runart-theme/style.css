@@ -1,0 +1,17 @@
+/*
+Theme Name: RUN Art Foundry
+Theme URI: https://runartfoundry.com
+Description: Custom theme for RUN Art Foundry - Bronze casting and artistic foundry services
+Author: RUN Art Foundry
+Author URI: https://runartfoundry.com
+Version: 1.0.0
+License: All Rights Reserved
+Text Domain: runart
+*/
+
+/**
+ * Este archivo es requerido por WordPress para reconocer el theme.
+ * Los estilos reales se cargan desde /assets/css/ usando functions.php
+ */
+
+/* Theme identification only - actual styles in assets/css/ */

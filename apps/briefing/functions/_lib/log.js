@@ -61,7 +61,10 @@ export async function putEvent(context, evt = {}) {
       return { ok: true, fallback: true };
     }
 
-    const key = `evt:${payload.ts}:${Math.random().toString(36).slice(2, 8)}`;
+    // Generar un sufijo determinista para la clave a partir del contenido
+    const base = `${payload.ts}|${payload.email}|${payload.path}|${payload.action}`;
+    const suffix = hash6(base);
+    const key = `evt:${payload.ts}:${suffix}`;
     await store.put(key, JSON.stringify(payload), {
       expirationTtl: TTL_SECONDS,
     });
@@ -70,6 +73,17 @@ export async function putEvent(context, evt = {}) {
     console.warn('[log:error]', error);
     return { ok: false, error: String(error), fallback: !context?.env?.LOG_EVENTS };
   }
+}
+
+// Hash simple determinista (FNV-1a 32-bit, cortado a 6 chars base36)
+function hash6(str) {
+  let h = 0x811c9dc5;
+  for (let i = 0; i < str.length; i++) {
+    h ^= str.charCodeAt(i);
+    h = (h >>> 0) * 0x01000193;
+  }
+  const v = h >>> 0;
+  return v.toString(36).slice(0, 6);
 }
 
 export async function listEvents(context, limit = 50) {

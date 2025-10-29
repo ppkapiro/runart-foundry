@@ -1,0 +1,139 @@
+/**
+ * RUN Art Foundry — Variables CSS
+ * Paleta de colores, tipografía, espaciados
+ * 
+ * @package RUNArtFoundry
+ * @version 1.0
+ */
+
+:root {
+    /* === COLORES === */
+    
+    /* Colores principales (logo) */
+    --color-negro: #231c1a;           /* Negro principal */
+    --color-rojo: #C30000;            /* Rojo fundición (acento) */
+    --color-gris-medio: #58585b;      /* Gris medio */
+    --color-gris-claro: #807f84;      /* Gris claro */
+    
+    /* Colores extendidos */
+    --color-blanco: #ffffff;
+    --color-fondo: #f9f9f9;
+    --color-fondo-alt: #f5f5f5;
+    --color-borde: #e0e0e0;
+    
+    /* Colores de texto */
+    --color-texto-principal: var(--color-negro);
+    --color-texto-secundario: var(--color-gris-medio);
+    --color-texto-claro: var(--color-gris-claro);
+    --color-texto-inverso: var(--color-blanco);
+    
+    /* Colores de estado */
+    --color-link: var(--color-rojo);
+    --color-link-hover: #a00000;
+    --color-exito: #4caf50;
+    --color-alerta: #ff9800;
+    --color-error: #f44336;
+    
+    /* === TIPOGRAFÍA === */
+    
+    /* Familias de fuentes */
+    --fuente-principal: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    --fuente-monoespaciada: "Courier New", Courier, monospace;
+    
+    /* Tamaños de fuente */
+    --texto-xs: 0.75rem;      /* 12px */
+    --texto-sm: 0.875rem;     /* 14px */
+    --texto-base: 1rem;       /* 16px */
+    --texto-md: 1.125rem;     /* 18px */
+    --texto-lg: 1.25rem;      /* 20px */
+    --texto-xl: 1.5rem;       /* 24px */
+    --texto-2xl: 2rem;        /* 32px */
+    --texto-3xl: 2.5rem;      /* 40px */
+    --texto-4xl: 3rem;        /* 48px */
+    
+    /* Pesos de fuente */
+    --peso-normal: 400;
+    --peso-medio: 500;
+    --peso-semi-bold: 600;
+    --peso-bold: 700;
+    
+    /* Alturas de línea */
+    --linea-compacta: 1.2;
+    --linea-normal: 1.5;
+    --linea-relajada: 1.75;
+    
+    /* === ESPACIADOS === */
+    
+    --espacio-xs: 0.25rem;    /* 4px */
+    --espacio-sm: 0.5rem;     /* 8px */
+    --espacio-md: 1rem;       /* 16px */
+    --espacio-lg: 1.5rem;     /* 24px */
+    --espacio-xl: 2rem;       /* 32px */
+    --espacio-2xl: 3rem;      /* 48px */
+    --espacio-3xl: 4rem;      /* 64px */
+    --espacio-4xl: 6rem;      /* 96px */
+    
+    /* === BORDES === */
+    
+    --radio-sm: 4px;
+    --radio-md: 8px;
+    --radio-lg: 12px;
+    --radio-completo: 9999px;
+    
+    --borde-delgado: 1px;
+    --borde-medio: 2px;
+    --borde-grueso: 4px;
+    
+    /* === SOMBRAS === */
+    
+    --sombra-sm: 0 1px 3px rgba(0, 0, 0, 0.12);
+    --sombra-md: 0 4px 6px rgba(0, 0, 0, 0.1);
+    --sombra-lg: 0 10px 20px rgba(0, 0, 0, 0.15);
+    --sombra-xl: 0 20px 40px rgba(0, 0, 0, 0.2);
+    
+    /* === TRANSICIONES === */
+    
+    --transicion-rapida: 150ms ease-in-out;
+    --transicion-normal: 300ms ease-in-out;
+    --transicion-lenta: 500ms ease-in-out;
+    
+    /* === ANCHOS === */
+    
+    --ancho-max-contenido: 1200px;
+    --ancho-max-texto: 800px;
+    --ancho-max-formulario: 600px;
+    
+    /* === Z-INDEX === */
+    
+    --z-modal: 1000;
+    --z-header: 100;
+    --z-dropdown: 50;
+    --z-normal: 1;
+    --z-atras: -1;
+}
+
+/* === MODO OSCURO (preparado para futuro) === */
+
+@media (prefers-color-scheme: dark) {
+    :root {
+        --color-fondo: #1a1a1a;
+        --color-fondo-alt: #2a2a2a;
+        --color-texto-principal: #f0f0f0;
+        --color-texto-secundario: #c0c0c0;
+        --color-borde: #404040;
+    }
+}
+
+/* === RESPONSIVE BREAKPOINTS === */
+
+/* 
+Uso:
+@media (min-width: 768px) { ... }  // Tablet
+@media (min-width: 1024px) { ... } // Desktop
+@media (min-width: 1280px) { ... } // Desktop grande
+*/
+
+/* Mobile: < 768px (default) */
+/* Tablet: 768px - 1023px */
+/* Desktop: 1024px - 1279px */
+/* Desktop XL: >= 1280px */

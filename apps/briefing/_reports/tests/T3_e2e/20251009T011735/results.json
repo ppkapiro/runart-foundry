@@ -1,0 +1,69 @@
+{
+  "baseURL": "https://runartfoundry-preview.pages.dev/",
+  "timestamp": "20251009T011735",
+  "totals": {
+    "pass": 0,
+    "fail": 6,
+    "total": 6
+  },
+  "results": [
+    {
+      "name": "whoami-owner",
+      "route": "/api/whoami",
+      "method": "GET",
+      "email": "ppcapiro@gmail.com",
+      "status": "fail",
+      "durationMs": 153.27,
+      "response": null,
+      "error": "fetch failed (code=ENOTFOUND host=runartfoundry-preview.pages.dev)"
+    },
+    {
+      "name": "whoami-visitor",
+      "route": "/api/whoami",
+      "method": "GET",
+      "status": "fail",
+      "durationMs": 42.85,
+      "response": null,
+      "error": "fetch failed (code=ENOTFOUND host=runartfoundry-preview.pages.dev)"
+    },
+    {
+      "name": "inbox-owner",
+      "route": "/api/inbox",
+      "method": "GET",
+      "email": "ppcapiro@gmail.com",
+      "status": "fail",
+      "durationMs": 49.37,
+      "response": null,
+      "error": "fetch failed (code=ENOTFOUND host=runartfoundry-preview.pages.dev)"
+    },
+    {
+      "name": "inbox-client",
+      "route": "/api/inbox",
+      "method": "GET",
+      "email": "musicmanagercuba@gmail.com",
+      "status": "fail",
+      "durationMs": 20.13,
+      "response": null,
+      "error": "fetch failed (code=ENOTFOUND host=runartfoundry-preview.pages.dev)"
+    },
+    {
+      "name": "decisiones-unauth",
+      "route": "/api/decisiones",
+      "method": "POST",
+      "status": "fail",
+      "durationMs": 34.2,
+      "response": null,
+      "error": "fetch failed (code=ENOTFOUND host=runartfoundry-preview.pages.dev)"
+    },
+    {
+      "name": "decisiones-owner",
+      "route": "/api/decisiones",
+      "method": "POST",
+      "email": "ppcapiro@gmail.com",
+      "status": "fail",
+      "durationMs": 26.17,
+      "response": null,
+      "error": "fetch failed (code=ENOTFOUND host=runartfoundry-preview.pages.dev)"
+    }
+  ]
+}

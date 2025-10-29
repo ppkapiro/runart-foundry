@@ -1,0 +1,1628 @@
+name: "Deploy Briefing to Pages (Direct Upload)"
+
+on:
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: 'Target environment'
+        required: true
+        default: 'production'
+        type: choice
+        options:
+          - production
+          - staging
+      access_only:
+        description: 'Run only Access tests (skip build/deploy)'
+        required: false
+        default: 'false'
+        type: choice
+        options:
+          - 'false'
+          - 'true'
+
+permissions:
+  contents: write
+  id-token: write
+
+jobs:
+  deploy-direct:
+    name: Build & Deploy via Wrangler Direct Upload
+    runs-on: ubuntu-latest
+    environment: ${{ inputs.environment || 'production' }}
+    if: ${{ inputs.access_only != 'true' }}
+    env:
+      ACCOUNT_ID_INPUT: ${{ secrets.CF_ACCOUNT_ID || secrets.CLOUDFLARE_ACCOUNT_ID }}
+      CLOUDFLARE_API_TOKEN: ${{ secrets.CF_API_TOKEN_PAGES || secrets.CLOUDFLARE_API_TOKEN }}
+      ACCESS_API_TOKEN: ${{ secrets.CF_API_TOKEN_ACCESS || secrets.CF_API_TOKEN_PAGES || secrets.CLOUDFLARE_API_TOKEN || secrets.CF_API_TOKEN }}
+      PROJECT_NAME: runart-briefing-direct
+    
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Fail fast — required secrets present
+        run: |
+          set -e
+          mkdir -p docs/_meta/_deploy_forensics/access_final
+
+          CF_ACCOUNT_ID_VAL="${{ secrets.CF_ACCOUNT_ID }}"
+          CF_API_TOKEN_PAGES_VAL="${{ secrets.CF_API_TOKEN_PAGES }}"
+          CF_ZERO_TRUST_TEAM_VAL="${{ secrets.CF_ZERO_TRUST_TEAM }}"
+          CF_ACCESS_CLIENT_ID_VAL="${{ secrets.CF_ACCESS_CLIENT_ID }}"
+          CF_ACCESS_CLIENT_SECRET_VAL="${{ secrets.CF_ACCESS_CLIENT_SECRET }}"
+
+          missing=()
+          [ -z "$CF_ACCOUNT_ID_VAL" ] && missing+=("CF_ACCOUNT_ID")
+          [ -z "$CF_API_TOKEN_PAGES_VAL" ] && missing+=("CF_API_TOKEN_PAGES")
+          [ -z "$CF_ZERO_TRUST_TEAM_VAL" ] && missing+=("CF_ZERO_TRUST_TEAM")
+          [ -z "$CF_ACCESS_CLIENT_ID_VAL" ] && missing+=("CF_ACCESS_CLIENT_ID")
+          [ -z "$CF_ACCESS_CLIENT_SECRET_VAL" ] && missing+=("CF_ACCESS_CLIENT_SECRET")
+
+          TS=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
+          CA_STATUS=$([ -n "$CF_ACCOUNT_ID_VAL" ] && echo present || echo missing)
+          TP_STATUS=$([ -n "$CF_API_TOKEN_PAGES_VAL" ] && echo present || echo missing)
+          TEAM_STATUS=$([ -n "$CF_ZERO_TRUST_TEAM_VAL" ] && echo present || echo missing)
+          CID_STATUS=$([ -n "$CF_ACCESS_CLIENT_ID_VAL" ] && echo present || echo missing)
+          CSEC_STATUS=$([ -n "$CF_ACCESS_CLIENT_SECRET_VAL" ] && echo present || echo missing)
+
+          MISSING_JSON=$(printf '%s\n' "${missing[@]}" | jq -R . | jq -s .)
+          jq -n \
+            --arg ts "$TS" \
+            --arg ca "$CA_STATUS" \
+            --arg tp "$TP_STATUS" \
+            --arg team "$TEAM_STATUS" \
+            --arg cid "$CID_STATUS" \
+            --arg csec "$CSEC_STATUS" \
+            --argjson missing "$MISSING_JSON" \
+            '{ts:$ts, checks:{CF_ACCOUNT_ID:$ca, CF_API_TOKEN_PAGES:$tp, CF_ZERO_TRUST_TEAM:$team, CF_ACCESS_CLIENT_ID:$cid, CF_ACCESS_CLIENT_SECRET:$csec}, missing:$missing, note:"Presence-only report. Secret values are not stored."}' \
+            > docs/_meta/_deploy_forensics/access_final/secrets_missing.json
+
+          if [ ${#missing[@]} -gt 0 ]; then
+            echo "::error::Missing required secrets: ${missing[*]}"
+            echo "❌ FAIL: Required secrets missing. See docs/_meta/_deploy_forensics/access_final/secrets_missing.json"
+            exit 1
+          fi
+      
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          cache: 'pip'
+      
+      - name: Install dependencies
+        run: |
+          # Root level - no package.json exists, skip
+          # Python deps
+          pip install -r requirements.txt
+      
+      - name: Build Briefing
+        run: |
+          cd apps/briefing
+          npm ci
+          # Build with MkDocs (Python tool, not npm)
+          mkdocs build -d site
+        env:
+          NODE_ENV: production
+      
+      - name: Verify build output
+        run: |
+          echo "=== Build output verification ==="
+          ls -lh apps/briefing/site/
+          echo ""
+          echo "=== index.html preview ==="
+          head -n 20 apps/briefing/site/index.html
+          echo ""
+          echo "=== Build size ==="
+          du -sh apps/briefing/site/
+      
+      - name: Install Wrangler
+        run: npm install -g wrangler
+      
+      - name: Resolve Account and Validate Token
+        id: resolve_account
+        run: |
+          set -e
+
+          mkdir -p docs/_meta/_deploy_forensics/post_migration
+
+          echo "=== Resolve Account via wrangler whoami ==="
+          # wrangler whoami may not support --json in some versions; parse text output
+          WHOAMI_TXT=$(wrangler whoami 2>&1 || true)
+          echo "$WHOAMI_TXT" > /tmp/whoami.txt
+          # Try to extract 'Account ID:' line
+          WHOAMI_ACCOUNT_ID=$(echo "$WHOAMI_TXT" | sed -n 's/.*[Aa]ccount[[:space:]]\{1,\}ID:[[:space:]]*\([a-zA-Z0-9_-]\{5,\}\).*/\1/p' | head -1 | tr -d '\r\n' )
+          if [ -z "$WHOAMI_ACCOUNT_ID" ]; then
+            echo "wrangler whoami did not yield an Account ID; falling back to API /accounts"
+            ACCTS=$(curl -s -X GET "https://api.cloudflare.com/client/v4/accounts" -H "Authorization: Bearer $CLOUDFLARE_API_TOKEN" -H "Content-Type: application/json")
+            echo "$ACCTS" | jq '.' > docs/_meta/_deploy_forensics/post_migration/accounts_list.json || true
+            WHOAMI_ACCOUNT_ID=$(echo "$ACCTS" | jq -r '.result[0].id // empty')
+          fi
+
+          ACCOUNT_ID_INPUT_VAL="${ACCOUNT_ID_INPUT:-}"
+          if [ -n "$ACCOUNT_ID_INPUT_VAL" ] && [ -n "$WHOAMI_ACCOUNT_ID" ] && [ "$ACCOUNT_ID_INPUT_VAL" != "$WHOAMI_ACCOUNT_ID" ]; then
+            echo "⚠️ WARNING: ACCOUNT_ID_INPUT != wrangler whoami account_id ($ACCOUNT_ID_INPUT_VAL vs $WHOAMI_ACCOUNT_ID). Using ACCOUNT_ID_INPUT."
+          fi
+          if [ -n "$ACCOUNT_ID_INPUT_VAL" ]; then
+            ACCOUNT_ID_EFFECTIVE="$ACCOUNT_ID_INPUT_VAL"
+          else
+            ACCOUNT_ID_EFFECTIVE="$WHOAMI_ACCOUNT_ID"
+          fi
+          if [ -z "$ACCOUNT_ID_EFFECTIVE" ]; then
+            echo "❌ ERROR: Unable to resolve Cloudflare Account ID (no env and whoami returned empty)."
+            exit 1
+          fi
+
+          echo "ACCOUNT_ID_EFFECTIVE=$ACCOUNT_ID_EFFECTIVE" >> $GITHUB_ENV
+          echo "ACCOUNT_ID_EFFECTIVE=$ACCOUNT_ID_EFFECTIVE" >> $GITHUB_OUTPUT
+          echo "WHOAMI_ACCOUNT_ID=$WHOAMI_ACCOUNT_ID" >> $GITHUB_OUTPUT
+
+          # Persist accounts_resolved.json
+          jq -n --arg account_id_input "$ACCOUNT_ID_INPUT_VAL" --arg whoami_account_id "$WHOAMI_ACCOUNT_ID" --arg account_id_effective "$ACCOUNT_ID_EFFECTIVE" \
+            '{account_id_input:$account_id_input, whoami_account_id:$whoami_account_id, account_id_effective:$account_id_effective}' \
+            > docs/_meta/_deploy_forensics/post_migration/accounts_resolved.json
+
+          echo "=== Verify Token via API ==="
+          VERIFY=$(curl -s -X GET \
+            "https://api.cloudflare.com/client/v4/user/tokens/verify" \
+            -H "Authorization: Bearer $CLOUDFLARE_API_TOKEN" \
+            -H "Content-Type: application/json")
+          echo "$VERIFY" | jq '.' > docs/_meta/_deploy_forensics/post_migration/token_verify.json
+
+          SUCCESS=$(echo "$VERIFY" | jq -r '.success // false')
+          if [ "$SUCCESS" != "true" ]; then
+            echo "❌ ERROR: Token verification failed (success!=true)."
+            head -c 400 docs/_meta/_deploy_forensics/post_migration/token_verify.json || true
+            exit 1
+          fi
+          # No enforce pages scope here; project check will validate practical permissions.
+          echo "✅ Token verify OK. Proceeding to project check to validate Pages permissions."
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CF_API_TOKEN_PAGES || secrets.CLOUDFLARE_API_TOKEN || secrets.CF_API_TOKEN }}
+
+      - name: Check or Create Project (API)
+        id: check_project
+        run: |
+          set -e
+          PROJECT_NAME="runart-briefing-direct"
+          ACCOUNT_ID="$ACCOUNT_ID_EFFECTIVE"
+
+          echo "=== Check Project existence (API) ==="
+          HTTP_STATUS=$(curl -s -o /tmp/project_get.json -w "%{http_code}" \
+            -X GET "https://api.cloudflare.com/client/v4/accounts/$ACCOUNT_ID/pages/projects/$PROJECT_NAME" \
+            -H "Authorization: Bearer $CLOUDFLARE_API_TOKEN" \
+            -H "Content-Type: application/json")
+
+          mkdir -p docs/_meta/_deploy_forensics/post_migration
+          if [ "$HTTP_STATUS" = "200" ]; then
+            echo "✅ Project exists"
+            cp /tmp/project_get.json docs/_meta/_deploy_forensics/post_migration/project_get.json
+          elif [ "$HTTP_STATUS" = "404" ]; then
+            echo "ℹ️ Project not found (404). Attempting to create project via API..."
+            # Create minimal Direct Upload project: name + production_branch
+            CREATE_PAYLOAD=$(jq -n --arg name "$PROJECT_NAME" --arg branch "production" '{name:$name, production_branch:$branch}')
+            echo "$CREATE_PAYLOAD" > /tmp/project_create_payload.json
+            HTTP_STATUS_CREATE=$(curl -s -o /tmp/project_create.json -w "%{http_code}" \
+              -X POST "https://api.cloudflare.com/client/v4/accounts/$ACCOUNT_ID/pages/projects" \
+              -H "Authorization: Bearer $CLOUDFLARE_API_TOKEN" \
+              -H "Content-Type: application/json" \
+              --data @/tmp/project_create_payload.json)
+            # Persist both request and response
+            cp /tmp/project_create_payload.json docs/_meta/_deploy_forensics/post_migration/project_create_payload.json || true
+            cp /tmp/project_create.json docs/_meta/_deploy_forensics/post_migration/project_create_response.json || true
+            if [ "$HTTP_STATUS_CREATE" = "200" ] || [ "$HTTP_STATUS_CREATE" = "201" ]; then
+              echo "✅ Project created via API"
+              # Re-fetch project to store canonical GET
+              curl -s -X GET "https://api.cloudflare.com/client/v4/accounts/$ACCOUNT_ID/pages/projects/$PROJECT_NAME" \
+                -H "Authorization: Bearer $CLOUDFLARE_API_TOKEN" -H "Content-Type: application/json" \
+                > /tmp/project_get.json
+              cp /tmp/project_get.json docs/_meta/_deploy_forensics/post_migration/project_get.json || true
+            else
+              echo "❌ ERROR: Failed to create project via API (HTTP $HTTP_STATUS_CREATE)."
+              head -c 400 /tmp/project_create.json || true
+              # Save a hint for later steps
+              echo '{"error":"project_create_failed"}' > /tmp/project_get.json
+              cp /tmp/project_get.json docs/_meta/_deploy_forensics/post_migration/project_get.json || true
+              exit 1
+            fi
+          else
+            echo "❌ ERROR: Invalid account or token scope when querying project (HTTP $HTTP_STATUS)."
+            head -c 400 /tmp/project_get.json || true
+            # Guardar de todas formas
+            cp /tmp/project_get.json docs/_meta/_deploy_forensics/post_migration/project_get.json || true
+            exit 1
+          fi
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CF_API_TOKEN_PAGES || secrets.CLOUDFLARE_API_TOKEN || secrets.CF_API_TOKEN }}
+
+      - name: Deploy to Cloudflare Pages (Direct Upload)
+        id: deploy
+        run: |
+          set -e
+          
+          PROJECT_NAME="${PROJECT_NAME}"
+          BRANCH="production"
+          COMMIT_HASH="${{ github.sha }}"
+          COMMIT_MSG="direct-upload:${COMMIT_HASH}"
+          
+          echo "=== Deploying to Cloudflare Pages via Direct Upload ==="
+          echo "Project: $PROJECT_NAME"
+          echo "Branch: $BRANCH"
+          echo "Commit: $COMMIT_HASH"
+          echo ""
+          
+          # Deploy with Wrangler
+          # Ensure log file exists for evidence even if wrangler outputs nothing
+          : > /tmp/wrangler_output.log
+          set +e  # Don't exit on error so we can capture it
+          wrangler pages deploy "apps/briefing/site" \
+            --project-name "$PROJECT_NAME" \
+            --branch "$BRANCH" \
+            --commit-hash "$COMMIT_HASH" \
+            --commit-message "$COMMIT_MSG" 2>&1 | tee /tmp/wrangler_output.log
+          DEPLOY_EXIT_CODE=$?
+          set -e  # Re-enable exit on error
+          
+          echo ""
+          echo "Wrangler exit code: $DEPLOY_EXIT_CODE"
+          
+          if [ $DEPLOY_EXIT_CODE -ne 0 ]; then
+            echo "❌ ERROR: Wrangler deploy failed with exit code $DEPLOY_EXIT_CODE"
+            echo "--- Full wrangler output ---"
+            cat /tmp/wrangler_output.log || echo "No output captured"
+            echo "--- End of wrangler output ---"
+            exit 1
+          fi
+          
+          OUTPUT=$(cat /tmp/wrangler_output.log)
+          
+          # Extract URL from output
+          DEPLOY_URL=$(echo "$OUTPUT" | grep -oP 'https://[a-z0-9-]+\.runart-briefing-direct\.pages\.dev' | head -1)
+          if [ -z "$DEPLOY_URL" ]; then
+            DEPLOY_URL=$(echo "$OUTPUT" | grep -oP 'https://runart-briefing-direct\.pages\.dev' | head -1)
+          fi
+          
+          echo "DEPLOY_URL=$DEPLOY_URL" >> $GITHUB_OUTPUT
+          echo ""
+          echo "✅ Deploy completed"
+          echo "URL: $DEPLOY_URL"
+          mkdir -p docs/_meta/_deploy_forensics/post_migration
+          cp /tmp/wrangler_output.log docs/_meta/_deploy_forensics/post_migration/wrangler_deploy.log || true
+        env:
+          # Fallbacks: soportar nombres de secretos existentes
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CF_API_TOKEN_PAGES || secrets.CLOUDFLARE_API_TOKEN || secrets.CF_API_TOKEN }}
+          # Forzar el uso del Account ID efectivo resuelto
+          CLOUDFLARE_ACCOUNT_ID: ${{ steps.resolve_account.outputs.ACCOUNT_ID_EFFECTIVE }}
+      
+      - name: Query deployment info via Wrangler
+        id: deployment_info
+        run: |
+          set -e
+          
+          PROJECT_NAME="runart-briefing-direct"
+          
+          echo "=== Querying latest deployment ==="
+          wrangler pages deployment list --project-name "$PROJECT_NAME" | head -20 | tee /tmp/deployments.txt
+          
+          # Try to extract deployment ID
+          DEPLOYMENT_ID=$(grep -oP '[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}' /tmp/deployments.txt | head -1 || echo "")
+          
+          echo "DEPLOYMENT_ID=$DEPLOYMENT_ID" >> $GITHUB_OUTPUT
+          echo ""
+          echo "Deployment ID: $DEPLOYMENT_ID"
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CF_API_TOKEN_PAGES || secrets.CLOUDFLARE_API_TOKEN || secrets.CF_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CF_ACCOUNT_ID || secrets.CLOUDFLARE_ACCOUNT_ID }}
+        continue-on-error: true
+      
+      - name: Verify deployment source via API
+        id: verify_source
+        run: |
+          set -e
+          
+          PROJECT_NAME="${PROJECT_NAME}"
+          ACCOUNT_ID="$ACCOUNT_ID_EFFECTIVE"
+          
+          echo "=== Verifying deployment source ==="
+          echo "Waiting up to ~60 seconds for API to update..."
+          sleep 10
+          
+          # Query latest deployment (with retry)
+          MAX_RETRIES=5
+          RETRY=0
+          while [ $RETRY -lt $MAX_RETRIES ]; do
+            RESPONSE=$(curl -s -X GET \
+              "https://api.cloudflare.com/client/v4/accounts/$ACCOUNT_ID/pages/projects/$PROJECT_NAME/deployments" \
+              -H "Authorization: Bearer $CLOUDFLARE_API_TOKEN" \
+              -H "Content-Type: application/json")
+            
+            SUCCESS=$(echo "$RESPONSE" | jq -r '.success // false')
+            SOURCE=$(echo "$RESPONSE" | jq -r '.result[0].source.type // empty')
+            TRIGGER=$(echo "$RESPONSE" | jq -r '.result[0].deployment_trigger.type // empty')
+            CREATED_AT=$(echo "$RESPONSE" | jq -r '.result[0].created_on // empty')
+            # Normalizar fuente a DIRECT_UPLOAD_OK/UNKNOWN
+            NORMALIZED="UNKNOWN"
+            if [ "$SOURCE" = "direct_upload" ] || [ "$SOURCE" = "api" ] || [ "$SOURCE" = "ad_hoc" ]; then
+              NORMALIZED="DIRECT_UPLOAD_OK"
+            elif [ "$TRIGGER" = "ad_hoc" ] || [ "$TRIGGER" = "api" ]; then
+              NORMALIZED="DIRECT_UPLOAD_OK"
+            fi
+            
+            if [ "$SUCCESS" = "true" ] && [ "$NORMALIZED" != "UNKNOWN" ]; then
+              break
+            fi
+            
+            RETRY=$((RETRY + 1))
+            if [ $RETRY -lt $MAX_RETRIES ]; then
+              SLEEP=$((RETRY*2+2))
+              echo "Source still unknown or API not ready (attempt $((RETRY + 1))/$MAX_RETRIES)... waiting ${SLEEP}s"
+              sleep $SLEEP
+            fi
+          done
+          
+          echo "$RESPONSE" | jq '.' > /tmp/deployments_api.json
+          # Persist raw response also in docs for convenience
+          mkdir -p docs/_meta/_deploy_forensics/post_migration
+          echo "$RESPONSE" | jq '.' > docs/_meta/_deploy_forensics/post_migration/deployment_api_response.json || true
+          
+          # Extract details
+          DEPLOY_ID=$(echo "$RESPONSE" | jq -r '.result[0].id // "unknown"')
+          COMMIT=$(echo "$RESPONSE" | jq -r '.result[0].deployment_trigger.metadata.commit_hash // "unknown"')
+          
+          # Exponer salidas: raw/trigger/normalized y created_at
+          echo "SOURCE_RAW=$SOURCE" >> $GITHUB_OUTPUT
+          echo "TRIGGER_TYPE=$TRIGGER" >> $GITHUB_OUTPUT
+          echo "SOURCE_NORMALIZED=$NORMALIZED" >> $GITHUB_OUTPUT
+          echo "CREATED_AT=$CREATED_AT" >> $GITHUB_OUTPUT
+          echo "DEPLOY_ID=$DEPLOY_ID" >> $GITHUB_OUTPUT
+          echo "ACCOUNT_ID_USED=$ACCOUNT_ID" >> $GITHUB_OUTPUT
+          echo ""
+          echo "✅ Source verification completed"
+          echo "Source (normalized): $NORMALIZED"
+          echo "Source (raw): ${SOURCE:-empty} | Trigger: ${TRIGGER:-empty} | Success: $SUCCESS"
+          echo "Deployment ID: $DEPLOY_ID"
+          echo "Commit: $COMMIT"
+          
+          # Validate source
+          if [ "$NORMALIZED" != "DIRECT_UPLOAD_OK" ]; then
+            ERR_CODE=$(echo "$RESPONSE" | jq -r '.errors[0].code // empty')
+            if [ "$ERR_CODE" = "8000007" ]; then
+              # Project not found in this account — list projects and fail clearly
+              curl -s -H "Authorization: Bearer $CLOUDFLARE_API_TOKEN" \
+                "https://api.cloudflare.com/client/v4/accounts/$ACCOUNT_ID/pages/projects" \
+                | tee docs/_meta/_deploy_forensics/post_migration/projects_list.json >/dev/null
+              if jq -e --arg name "$PROJECT_NAME" '.result[] | select(.name == $name)' docs/_meta/_deploy_forensics/post_migration/projects_list.json >/dev/null; then
+                echo "❌ ERROR: Project '$PROJECT_NAME' appears in projects list but deployment API returned 8000007. Revisa estado/configuración del proyecto."
+              else
+                echo "❌ ERROR: Project not found in ACCOUNT_ID_EFFECTIVE=$ACCOUNT_ID. Revisa CF_ACCOUNT_ID y el token."
+              fi
+              exit 1
+            else
+              echo "❌ ERROR: Expected SOURCE_NORMALIZED=DIRECT_UPLOAD_OK, got ${NORMALIZED} (raw=${SOURCE:-empty}, trigger=${TRIGGER:-empty})"
+              echo "--- API response (first 400 chars) ---"
+              echo "$RESPONSE" | head -c 400 || true
+              echo "\n--- end ---"
+              exit 1
+            fi
+          fi
+          
+          echo "✅ Source validation PASSED (DIRECT_UPLOAD_OK)"
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CF_API_TOKEN_PAGES || secrets.CLOUDFLARE_API_TOKEN || secrets.CF_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CF_ACCOUNT_ID || secrets.CLOUDFLARE_ACCOUNT_ID }}
+      
+      - name: Discover Deployment URL (API)
+        id: discover_url
+        run: |
+          set -e
+          PROJECT_NAME="${PROJECT_NAME}"
+          ACCOUNT_ID="$ACCOUNT_ID_EFFECTIVE"
+
+          echo "=== Discovering deployment URL via API ==="
+          RESP=$(curl -s -X GET \
+            "https://api.cloudflare.com/client/v4/accounts/$ACCOUNT_ID/pages/projects/$PROJECT_NAME/deployments" \
+            -H "Authorization: Bearer $CLOUDFLARE_API_TOKEN" -H "Content-Type: application/json")
+          URL_API=$(echo "$RESP" | jq -r '.result[0].url // empty')
+          if [ -z "$URL_API" ] && [ -n "${{ steps.deploy.outputs.DEPLOY_URL }}" ]; then
+            URL_API="${{ steps.deploy.outputs.DEPLOY_URL }}"
+          fi
+          echo "DEPLOY_URL_API=$URL_API" >> $GITHUB_OUTPUT
+          mkdir -p docs/_meta/_deploy_forensics/post_migration
+          echo "$URL_API" > docs/_meta/_deploy_forensics/post_migration/deployment_url.txt
+          echo "Discovered URL: $URL_API"
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CF_API_TOKEN_PAGES || secrets.CLOUDFLARE_API_TOKEN || secrets.CF_API_TOKEN }}
+
+      - name: Access Final — Autodiscover Access App by domain
+        id: access_autodiscover_app
+        run: |
+          set -e
+          mkdir -p docs/_meta/_deploy_forensics/access_final
+          DOMAIN="runart-briefing-direct.pages.dev"
+          ACCOUNT_ID="$ACCOUNT_ID_EFFECTIVE"
+
+          # If ACCESS_APP_ID is already provided as secret, respect it and skip discovery
+          if [ -n "${{ secrets.ACCESS_APP_ID }}" ]; then
+            echo "ACCESS_APP_ID_EFFECTIVE=${{ secrets.ACCESS_APP_ID }}" >> $GITHUB_ENV
+            echo "ACCESS_APP_ID=${{ secrets.ACCESS_APP_ID }}" >> $GITHUB_OUTPUT
+            echo "Skipping autodiscovery: ACCESS_APP_ID provided via secrets."
+            exit 0
+          fi
+
+          echo "=== Listing Access apps (per_page=100) ==="
+          curl -s -H "Authorization: Bearer $ACCESS_API_TOKEN" \
+            "https://api.cloudflare.com/client/v4/accounts/$ACCOUNT_ID/access/apps?per_page=100" \
+            | tee docs/_meta/_deploy_forensics/access_final/apps_list.json >/dev/null
+
+          # Try multiple selectors to match the app by domain
+          APP_ID=$(jq -r --arg d "$DOMAIN" '
+            .result // []
+            | map(select((.domains // []) | any(. == $d)))
+            | (.[0].id // empty)
+          ' docs/_meta/_deploy_forensics/access_final/apps_list.json)
+
+          if [ -z "$APP_ID" ]; then
+            APP_ID=$(jq -r --arg d "$DOMAIN" '
+              .result // []
+              | map(select(tostring | contains($d)))
+              | (.[0].id // empty)
+            ' docs/_meta/_deploy_forensics/access_final/apps_list.json)
+          fi
+
+          if [ -z "$APP_ID" ]; then
+            echo "::error::Access App for $DOMAIN not found in account $ACCOUNT_ID"
+            echo "❌ FAIL: Access App for $DOMAIN not found. See apps_list.json"
+            exit 1
+          fi
+
+          echo "ACCESS_APP_ID_EFFECTIVE=$APP_ID" >> $GITHUB_ENV
+          echo "ACCESS_APP_ID=$APP_ID" >> $GITHUB_OUTPUT
+          echo "✅ Autodiscovered ACCESS_APP_ID=$APP_ID"
+        env:
+          ACCESS_API_TOKEN: ${{ secrets.CF_API_TOKEN_ACCESS || secrets.CF_API_TOKEN_PAGES || secrets.CLOUDFLARE_API_TOKEN || secrets.CF_API_TOKEN }}
+
+      - name: Access Final — Autodiscover Service Auth Policy
+        id: access_autodiscover_policy
+        run: |
+          set -e
+          mkdir -p docs/_meta/_deploy_forensics/access_final
+          ACCOUNT_ID="$ACCOUNT_ID_EFFECTIVE"
+          APP_ID="${{ secrets.ACCESS_APP_ID }}"
+          if [ -z "$APP_ID" ]; then APP_ID="$ACCESS_APP_ID_EFFECTIVE"; fi
+
+          # If policy provided as secret, respect and skip discovery
+          if [ -n "${{ secrets.ACCESS_POLICY_ID_PROD }}" ]; then
+            echo "ACCESS_POLICY_ID_PROD_EFFECTIVE=${{ secrets.ACCESS_POLICY_ID_PROD }}" >> $GITHUB_ENV
+            echo "ACCESS_POLICY_ID_PROD=${{ secrets.ACCESS_POLICY_ID_PROD }}" >> $GITHUB_OUTPUT
+            echo "Skipping autodiscovery: ACCESS_POLICY_ID_PROD provided via secrets."
+            exit 0
+          fi
+
+          if [ -z "$APP_ID" ]; then
+            echo "::error::Cannot autodiscover policy: missing ACCESS_APP_ID (neither secret nor autodiscovered)"
+            exit 1
+          fi
+
+          echo "=== Listing policies for app $APP_ID ==="
+          curl -s -H "Authorization: Bearer $ACCESS_API_TOKEN" \
+            "https://api.cloudflare.com/client/v4/accounts/$ACCOUNT_ID/access/apps/$APP_ID/policies" \
+            | tee docs/_meta/_deploy_forensics/access_final/policies_list.json >/dev/null
+
+          # Prefer a named policy; else first allow with service_token include
+          PID=$(jq -r '
+            .result // []
+            | map(select(.name == "Allow CI RunArt Production (Direct)"))
+            | (.[0].id // empty)
+          ' docs/_meta/_deploy_forensics/access_final/policies_list.json)
+
+          if [ -z "$PID" ]; then
+            PID=$(jq -r '
+              .result // []
+              | map(select((.decision // "") == "allow" and ((.include // []) | map(has("service_token")) | any)))
+              | (.[0].id // empty)
+            ' docs/_meta/_deploy_forensics/access_final/policies_list.json)
+          fi
+
+          if [ -z "$PID" ]; then
+            echo "::error::Service Auth policy not found in app $APP_ID"
+            echo "❌ FAIL: Service Auth policy not found in app. See policies_list.json"
+            exit 1
+          fi
+
+          echo "ACCESS_POLICY_ID_PROD_EFFECTIVE=$PID" >> $GITHUB_ENV
+          echo "ACCESS_POLICY_ID_PROD=$PID" >> $GITHUB_OUTPUT
+          echo "✅ Autodiscovered ACCESS_POLICY_ID_PROD=$PID"
+        env:
+          ACCESS_API_TOKEN: ${{ secrets.CF_API_TOKEN_ACCESS || secrets.CF_API_TOKEN_PAGES || secrets.CLOUDFLARE_API_TOKEN || secrets.CF_API_TOKEN }}
+
+      - name: (OPT-IN) Configure Access for new subdomain
+        if: always()
+        id: access_optin
+        run: |
+          set -e
+          mkdir -p docs/_meta
+
+          URL="${{ steps.discover_url.outputs.DEPLOY_URL_API }}"
+          if [ -z "$URL" ]; then
+            URL="${{ steps.deploy.outputs.DEPLOY_URL }}"
+          fi
+          HOST=$(echo "$URL" | sed -n 's#^https\?://\([^/]*\).*#\1#p')
+          echo "ACCESS_DEPLOY_HOST=$HOST" >> $GITHUB_ENV
+
+          TEAM="${{ secrets.CF_ZERO_TRUST_TEAM }}"
+          APP_ID="${{ secrets.ACCESS_APP_ID }}"
+          [ -z "$APP_ID" ] && APP_ID="$ACCESS_APP_ID_EFFECTIVE"
+          POLICY_ID="${{ secrets.ACCESS_POLICY_ID_PROD }}"
+          [ -z "$POLICY_ID" ] && POLICY_ID="$ACCESS_POLICY_ID_PROD_EFFECTIVE"
+          if [ -z "$TEAM" ] || [ -z "$APP_ID" ]; then
+            echo "PENDING_PROTECTION: Missing CF_ZERO_TRUST_TEAM or ACCESS_APP_ID" >> docs/_meta/ACCESS_DIAG_BRIEFING.md
+            echo "ACCESS_CONFIGURED=NO" >> $GITHUB_OUTPUT
+            echo "ACCESS_CONFIGURED=NO" >> $GITHUB_ENV
+            exit 0
+          fi
+
+          echo "=== Access OPT-IN: updating app domains and policy order ==="
+          ACCOUNT_ID="$ACCOUNT_ID_EFFECTIVE"
+          BASE="https://api.cloudflare.com/client/v4/accounts/$ACCOUNT_ID/access"
+
+          # 1) Read app (before)
+          curl -s -H "Authorization: Bearer $ACCESS_API_TOKEN" "$BASE/apps/$APP_ID" | jq '.' > docs/_meta/ACCESS_app_before.json
+
+          # Extract domains and append host if missing
+          DOMAINS=$(jq -r '.domains // [] | @json' docs/_meta/ACCESS_app_before.json)
+          HAS_DOMAIN=$(jq -r --arg h "$HOST" '.domains // [] | map(.== $h) | any' docs/_meta/ACCESS_app_before.json)
+          if [ "$HAS_DOMAIN" != "true" ]; then
+            NEW_DOMAINS=$(jq -c --arg h "$HOST" '(.domains // []) + [$h] | unique' docs/_meta/ACCESS_app_before.json)
+            echo "$NEW_DOMAINS" > /tmp/access_domains.json
+            # PATCH domains only (best-effort; if not supported, attempt PUT fallback)
+            RESP_PATCH=$(curl -s -o /tmp/access_app_patch.json -w "%{http_code}" -X PATCH "$BASE/apps/$APP_ID" \
+              -H "Authorization: Bearer $ACCESS_API_TOKEN" -H "Content-Type: application/json" \
+              --data @<(jq -n --slurpfile d /tmp/access_domains.json '{domains: $d[0]}'))
+            if [ "$RESP_PATCH" != "200" ]; then
+              echo "PATCH domains not supported or failed (HTTP $RESP_PATCH). Trying PUT..."
+              # Build PUT payload from existing app + updated domains
+              jq --argfile d /tmp/access_domains.json '.domains = $d' docs/_meta/ACCESS_app_before.json > /tmp/access_app_put.json
+              RESP_PUT=$(curl -s -o /tmp/access_app_put_resp.json -w "%{http_code}" -X PUT "$BASE/apps/$APP_ID" \
+                -H "Authorization: Bearer $ACCESS_API_TOKEN" -H "Content-Type: application/json" \
+                --data @/tmp/access_app_put.json)
+              if [ "$RESP_PUT" != "200" ]; then
+                echo "PENDING_PROTECTION: Failed to update app domains (HTTP $RESP_PUT)" >> docs/_meta/ACCESS_DIAG_BRIEFING.md
+                echo "ACCESS_CONFIGURED=NO" >> $GITHUB_OUTPUT
+                echo "ACCESS_CONFIGURED=NO" >> $GITHUB_ENV
+                cp /tmp/access_app_put_resp.json docs/_meta/ACCESS_app_after.json || true
+                exit 0
+              fi
+              cp /tmp/access_app_put_resp.json docs/_meta/ACCESS_app_after.json || true
+            else
+              cp /tmp/access_app_patch.json docs/_meta/ACCESS_app_after.json || true
+            fi
+          else
+            # No change on domains; copy before as after
+            cp docs/_meta/ACCESS_app_before.json docs/_meta/ACCESS_app_after.json || true
+          fi
+
+          # 2) Ensure SERVICE AUTH policy precedence if provided
+          if [ -n "$POLICY_ID" ]; then
+            curl -s -H "Authorization: Bearer $ACCESS_API_TOKEN" "$BASE/apps/$APP_ID/policies" | jq '.' > /tmp/access_policies.json
+            CUR_PREC=$(jq -r --arg id "$POLICY_ID" '.result[] | select(.id==$id) | .precedence // empty' /tmp/access_policies.json)
+            if [ -n "$CUR_PREC" ] && [ "$CUR_PREC" != "1" ]; then
+              RESP_POL=$(curl -s -o /tmp/access_policy_patch.json -w "%{http_code}" -X PATCH "$BASE/apps/$APP_ID/policies/$POLICY_ID" \
+                -H "Authorization: Bearer $CLOUDFLARE_API_TOKEN" -H "Content-Type: application/json" \
+                --data '{"precedence":1}')
+              if [ "$RESP_POL" != "200" ]; then
+                echo "WARN: Failed to set precedence=1 on policy $POLICY_ID (HTTP $RESP_POL)" >> docs/_meta/ACCESS_DIAG_BRIEFING.md
+              fi
+            fi
+          fi
+
+          echo "ACCESS_CONFIGURED=YES" >> $GITHUB_OUTPUT
+          echo "ACCESS_CONFIGURED=YES" >> $GITHUB_ENV
+        env:
+          ACCESS_API_TOKEN: ${{ secrets.CF_API_TOKEN_ACCESS || secrets.CF_API_TOKEN_PAGES || secrets.CLOUDFLARE_API_TOKEN || secrets.CF_API_TOKEN }}
+
+      - name: Access Final — Create audit folder
+        if: always()
+        run: |
+          mkdir -p docs/_meta/_deploy_forensics/access_final/
+
+      - name: Access Final — Validate API and App
+        id: access_validate_app
+        if: always()
+        continue-on-error: true
+        run: |
+          set -e
+          ACCOUNT_ID="$ACCOUNT_ID_EFFECTIVE"
+          APP_ID="${{ secrets.ACCESS_APP_ID }}"
+          if [ -z "$APP_ID" ]; then APP_ID="$ACCESS_APP_ID_EFFECTIVE"; fi
+          if [ -z "$ACCOUNT_ID" ] || [ -z "$APP_ID" ]; then
+            echo '{"error":"missing_account_or_app_id"}' > docs/_meta/_deploy_forensics/access_final/access_error.json
+            echo "PENDING_PROTECTION: Missing CF_ACCOUNT_ID or ACCESS_APP_ID" >> docs/_meta/ACCESS_DIAG_BRIEFING.md
+            echo "ACCESS_FINAL_CONFIGURED=NO" >> $GITHUB_OUTPUT
+            exit 0
+          fi
+          URL="https://api.cloudflare.com/client/v4/accounts/$ACCOUNT_ID/access/apps/$APP_ID"
+          HTTP=$(curl -s -o docs/_meta/_deploy_forensics/access_final/app_before.json -w "%{http_code}" \
+            -H "Authorization: Bearer $ACCESS_API_TOKEN" "$URL")
+          if [ "$HTTP" != "200" ]; then
+            echo '{"error":"app_get_failed","http":'"$HTTP"'}' > docs/_meta/_deploy_forensics/access_final/access_error.json
+            echo "PENDING_PROTECTION: Access app GET failed (HTTP $HTTP)" >> docs/_meta/ACCESS_DIAG_BRIEFING.md
+            echo "ACCESS_FINAL_CONFIGURED=NO" >> $GITHUB_OUTPUT
+            echo "::error::Access app GET failed (HTTP $HTTP)"
+            exit 1
+          fi
+          OK=$(jq -r '.success // false' docs/_meta/_deploy_forensics/access_final/app_before.json)
+          if [ "$OK" != "true" ]; then
+            echo '{"error":"app_get_success_false"}' > docs/_meta/_deploy_forensics/access_final/access_error.json
+            echo "PENDING_PROTECTION: Access app GET returned success=false" >> docs/_meta/ACCESS_DIAG_BRIEFING.md
+            echo "ACCESS_FINAL_CONFIGURED=NO" >> $GITHUB_OUTPUT
+            echo "::error::Access app GET returned success=false"
+            exit 1
+          fi
+          echo "ACCESS_FINAL_CONFIGURED=UNKNOWN" >> $GITHUB_OUTPUT
+        env:
+          ACCESS_API_TOKEN: ${{ secrets.CF_API_TOKEN_ACCESS || secrets.CF_API_TOKEN_PAGES || secrets.CLOUDFLARE_API_TOKEN || secrets.CF_API_TOKEN }}
+
+      - name: Access Final — Ensure Service Token (OPT-IN)
+        id: access_service_token
+        if: always()
+        continue-on-error: true
+        run: |
+          set -e
+          mkdir -p docs/_meta/_deploy_forensics/access_final
+          ACCOUNT_ID="${{ secrets.CF_ACCOUNT_ID }}"
+          NAME="${{ secrets.ACCESS_SERVICE_TOKEN_NAME }}"
+          S_ID="${{ secrets.CF_ACCESS_CLIENT_ID }}"
+          S_SEC="${{ secrets.CF_ACCESS_CLIENT_SECRET }}"
+
+          # Default: use existing secrets if both present
+          if [ -n "$S_ID" ] && [ -n "$S_SEC" ]; then
+            echo "ACCESS_CLIENT_ID_EFFECTIVE=$S_ID" >> $GITHUB_ENV
+            echo "ACCESS_CLIENT_SECRET_EFFECTIVE=$S_SEC" >> $GITHUB_ENV
+            echo "ACCESS_SERVICE_TOKEN_CREATED=NO" >> $GITHUB_ENV
+            exit 0
+          fi
+
+          # If either missing and we have a name, try to create via API
+          if [ -z "$NAME" ]; then
+            echo '{"error":"service_token_missing_and_no_name"}' > docs/_meta/_deploy_forensics/access_final/access_error.json
+            echo "PENDING_PROTECTION: Missing CF_ACCESS_CLIENT_ID/SECRET and ACCESS_SERVICE_TOKEN_NAME not provided" >> docs/_meta/ACCESS_DIAG_BRIEFING.md
+            echo "ACCESS_SERVICE_TOKEN_CREATED=NO" >> $GITHUB_ENV
+            exit 0
+          fi
+
+          echo "=== Creating Access Service Token (OPT-IN) ==="
+          jq -n --arg name "$NAME" --arg duration "876000h" '{name:$name, duration:$duration}' > /tmp/service_token_payload.json
+          HTTP=$(curl -s -X POST -o docs/_meta/_deploy_forensics/access_final/service_token_create.json -w "%{http_code}" \
+            -H "Authorization: Bearer $ACCESS_API_TOKEN" -H "Content-Type: application/json" \
+            --data @/tmp/service_token_payload.json \
+            "https://api.cloudflare.com/client/v4/accounts/$ACCOUNT_ID/access/service_tokens")
+          if [ "$HTTP" != "200" ]; then
+            echo '{"error":"service_token_create_failed","http":'"$HTTP"'}' > docs/_meta/_deploy_forensics/access_final/access_error.json
+            echo "PENDING_PROTECTION: Service Token create failed (HTTP $HTTP)" >> docs/_meta/ACCESS_DIAG_BRIEFING.md
+            echo "ACCESS_SERVICE_TOKEN_CREATED=NO" >> $GITHUB_ENV
+            exit 0
+          fi
+          OK=$(jq -r '.success // false' docs/_meta/_deploy_forensics/access_final/service_token_create.json)
+          if [ "$OK" != "true" ]; then
+            echo '{"error":"service_token_create_success_false"}' > docs/_meta/_deploy_forensics/access_final/access_error.json
+            echo "PENDING_PROTECTION: Service Token create returned success=false" >> docs/_meta/ACCESS_DIAG_BRIEFING.md
+            echo "ACCESS_SERVICE_TOKEN_CREATED=NO" >> $GITHUB_ENV
+            exit 0
+          fi
+          NEW_ID=$(jq -r '.result.client_id // empty' docs/_meta/_deploy_forensics/access_final/service_token_create.json)
+          NEW_SECRET=$(jq -r '.result.client_secret // empty' docs/_meta/_deploy_forensics/access_final/service_token_create.json)
+          if [ -z "$NEW_ID" ] || [ -z "$NEW_SECRET" ]; then
+            echo '{"error":"service_token_missing_fields"}' > docs/_meta/_deploy_forensics/access_final/access_error.json
+            echo "PENDING_PROTECTION: Service Token response missing client_id/secret" >> docs/_meta/ACCESS_DIAG_BRIEFING.md
+            echo "ACCESS_SERVICE_TOKEN_CREATED=NO" >> $GITHUB_ENV
+            exit 0
+          fi
+          echo "ACCESS_CLIENT_ID_EFFECTIVE=$NEW_ID" >> $GITHUB_ENV
+          echo "ACCESS_CLIENT_SECRET_EFFECTIVE=$NEW_SECRET" >> $GITHUB_ENV
+          echo "ACCESS_SERVICE_TOKEN_CREATED=YES" >> $GITHUB_ENV
+        env:
+          ACCESS_API_TOKEN: ${{ secrets.CF_API_TOKEN_ACCESS || secrets.CF_API_TOKEN_PAGES || secrets.CLOUDFLARE_API_TOKEN || secrets.CF_API_TOKEN }}
+
+      - name: Access Final — Resolve Service Token ID
+        id: access_resolve_token_id
+        if: always()
+        continue-on-error: true
+        run: |
+          set -e
+          mkdir -p docs/_meta/_deploy_forensics/access_final
+          ACCOUNT_ID="$ACCOUNT_ID_EFFECTIVE"
+          CID_EFFECTIVE="${ACCESS_CLIENT_ID_EFFECTIVE:-${{ secrets.CF_ACCESS_CLIENT_ID }}}"
+          if [ -z "$CID_EFFECTIVE" ]; then
+            echo '{"error":"missing_client_id_for_mapping"}' > docs/_meta/_deploy_forensics/access_final/access_error.json
+            echo "ACCESS_TOKEN_ID_EFFECTIVE=" >> $GITHUB_ENV
+            exit 0
+          fi
+          URL="https://api.cloudflare.com/client/v4/accounts/$ACCOUNT_ID/access/service_tokens"
+          curl -s -H "Authorization: Bearer $ACCESS_API_TOKEN" "$URL" | tee docs/_meta/_deploy_forensics/access_final/service_tokens_list.json >/dev/null
+          TOKEN_ID=$(jq -r --arg cid "$CID_EFFECTIVE" '.result[] | select(.client_id==$cid) | .id // .token_id // empty' docs/_meta/_deploy_forensics/access_final/service_tokens_list.json | head -1)
+          if [ -z "$TOKEN_ID" ]; then
+            echo '{"error":"service_token_id_not_found_for_client_id"}' > docs/_meta/_deploy_forensics/access_final/access_error.json
+          fi
+          echo "ACCESS_TOKEN_ID_EFFECTIVE=$TOKEN_ID" >> $GITHUB_ENV
+        env:
+          ACCESS_API_TOKEN: ${{ secrets.CF_API_TOKEN_ACCESS || secrets.CF_API_TOKEN_PAGES || secrets.CLOUDFLARE_API_TOKEN || secrets.CF_API_TOKEN }}
+
+      - name: Access Final — GET current policy
+        id: access_get_policy
+        if: always()
+        continue-on-error: true
+        run: |
+          set -e
+          mkdir -p docs/_meta/_deploy_forensics/access_final
+          ACCOUNT_ID="$ACCOUNT_ID_EFFECTIVE"
+          APP_ID="${{ secrets.ACCESS_APP_ID }}"
+          [ -z "$APP_ID" ] && APP_ID="$ACCESS_APP_ID_EFFECTIVE"
+          POLICY_ID="${{ secrets.ACCESS_POLICY_ID_PROD }}"
+          [ -z "$POLICY_ID" ] && POLICY_ID="$ACCESS_POLICY_ID_PROD_EFFECTIVE"
+          
+          if [ -z "$ACCOUNT_ID" ] || [ -z "$APP_ID" ] || [ -z "$POLICY_ID" ]; then
+            echo '{"error":"missing_account_app_or_policy_id"}' > docs/_meta/_deploy_forensics/access_final/access_error.json
+            echo "POLICY_GET_SUCCESS=false" >> $GITHUB_ENV
+            exit 0
+          fi
+          
+          URL="https://api.cloudflare.com/client/v4/accounts/$ACCOUNT_ID/access/apps/$APP_ID/policies/$POLICY_ID"
+          HTTP=$(curl -s -o docs/_meta/_deploy_forensics/access_final/policy_before.json -w "%{http_code}" \
+            -H "Authorization: Bearer $ACCESS_API_TOKEN" "$URL")
+          
+          if [ "$HTTP" != "200" ]; then
+            echo '{"error":"policy_get_failed","http":"'"$HTTP"'"}' > docs/_meta/_deploy_forensics/access_final/access_error.json
+            echo "POLICY_GET_SUCCESS=false" >> $GITHUB_ENV
+            exit 0
+          fi
+          
+          OK=$(jq -r '.success // false' docs/_meta/_deploy_forensics/access_final/policy_before.json)
+          if [ "$OK" != "true" ]; then
+            echo '{"error":"policy_get_success_false"}' > docs/_meta/_deploy_forensics/access_final/access_error.json
+            echo "POLICY_GET_SUCCESS=false" >> $GITHUB_ENV
+            exit 0
+          fi
+          
+          echo "POLICY_GET_SUCCESS=true" >> $GITHUB_ENV
+          echo "✅ Policy fetched successfully"
+        env:
+          ACCESS_API_TOKEN: ${{ secrets.CF_API_TOKEN_ACCESS || secrets.CF_API_TOKEN_PAGES || secrets.CLOUDFLARE_API_TOKEN || secrets.CF_API_TOKEN }}
+
+      - name: Access Final — Map token_id to client_id (evidence)
+        if: always()
+        run: |
+          set -e
+          mkdir -p docs/_meta/_deploy_forensics/access_final
+          POLICY_FILE="docs/_meta/_deploy_forensics/access_final/policy_before.json"
+          TOKENS_FILE="docs/_meta/_deploy_forensics/access_final/service_tokens_list.json"
+          if [ ! -f "$POLICY_FILE" ]; then echo "No policy_before.json, skipping"; exit 0; fi
+          TOKEN_ID=$(jq -r '.result.include[]?.service_token?.token_id // empty' "$POLICY_FILE" | head -1)
+          if [ -z "$TOKEN_ID" ]; then echo "No token_id in policy, skipping"; exit 0; fi
+          CLIENT_ID=""
+          if [ -f "$TOKENS_FILE" ]; then
+            CLIENT_ID=$(jq -r --arg tid "$TOKEN_ID" '(.result // [])[] | select((.id==$tid) or (.token_id==$tid)) | .client_id // empty' "$TOKENS_FILE" | head -1 || true)
+          fi
+          jq -n --arg token_id "$TOKEN_ID" --arg client_id "$CLIENT_ID" '{token_id:$token_id, client_id:$client_id, note:(($client_id=="" )? "client_id not found in service_tokens_list.json" : "resolved from evidence")}' \
+            > docs/_meta/_deploy_forensics/access_final/token_client_map.json
+          echo "=== Service Token Mapping (from evidence) ==="
+          echo "token_id: $TOKEN_ID"
+          if [ -n "$CLIENT_ID" ]; then
+            echo "client_id (copy to CF_ACCESS_CLIENT_ID): $CLIENT_ID"
+          else
+            echo "client_id: not found in evidence file. Please retrieve from Zero Trust → Access → Service Auth."
+          fi
+
+      - name: Access Final — Validate Policy Configuration
+        id: access_validate_policy
+        if: always()
+        continue-on-error: true
+        run: |
+          set -e
+          ACCOUNT_ID="$ACCOUNT_ID_EFFECTIVE"
+          APP_ID="${{ secrets.ACCESS_APP_ID }}"
+          [ -z "$APP_ID" ] && APP_ID="$ACCESS_APP_ID_EFFECTIVE"
+          POLICY_ID="${{ secrets.ACCESS_POLICY_ID_PROD }}"
+          [ -z "$POLICY_ID" ] && POLICY_ID="$ACCESS_POLICY_ID_PROD_EFFECTIVE"
+          
+          if [ -z "$ACCOUNT_ID" ] || [ -z "$APP_ID" ] || [ -z "$POLICY_ID" ]; then
+            echo '{"error":"missing_policy_or_account"}' > docs/_meta/_deploy_forensics/access_final/access_error.json
+            echo "PENDING_PROTECTION: Missing ACCOUNT_ID, ACCESS_APP_ID or ACCESS_POLICY_ID_PROD" >> docs/_meta/ACCESS_DIAG_BRIEFING.md
+            echo "ACCESS_FINAL_CONFIGURED=NO" >> $GITHUB_OUTPUT
+            exit 0
+          fi
+          
+          if [ "${POLICY_GET_SUCCESS:-false}" != "true" ]; then
+            echo '{"error":"cannot_validate_without_get"}' > docs/_meta/_deploy_forensics/access_final/access_error.json
+            echo "PENDING_PROTECTION: Cannot validate policy without successful GET" >> docs/_meta/ACCESS_DIAG_BRIEFING.md
+            echo "ACCESS_FINAL_CONFIGURED=NO" >> $GITHUB_OUTPUT
+            exit 0
+          fi
+          
+          # Validate current policy has required configuration
+          CURRENT_DECISION=$(jq -r '.result.decision // empty' docs/_meta/_deploy_forensics/access_final/policy_before.json)
+          CURRENT_TOKEN_ID=$(jq -r '.result.include[]?.service_token?.token_id // empty' docs/_meta/_deploy_forensics/access_final/policy_before.json | head -1)
+          CURRENT_NAME=$(jq -r '.result.name // empty' docs/_meta/_deploy_forensics/access_final/policy_before.json)
+          
+          # Create validation report
+          jq -n \
+            --arg decision "$CURRENT_DECISION" \
+            --arg token_id "$CURRENT_TOKEN_ID" \
+            --arg name "$CURRENT_NAME" \
+            --argjson expected_decision '"non_identity"' \
+            --argjson expected_name '"Allow CI RunArt Production (Direct)"' \
+            '{
+              current: {
+                decision: $decision,
+                token_id: $token_id,
+                name: $name
+              },
+              expected: {
+                decision: $expected_decision,
+                name: $expected_name
+              },
+              validation: {
+                decision_ok: ($decision == $expected_decision),
+                token_id_present: ($token_id != ""),
+                name_ok: ($name == $expected_name)
+              }
+            }' > docs/_meta/_deploy_forensics/access_final/policy_validation.json
+          
+          # Check validation results
+          DECISION_OK=$(jq -r '.validation.decision_ok' docs/_meta/_deploy_forensics/access_final/policy_validation.json)
+          TOKEN_OK=$(jq -r '.validation.token_id_present' docs/_meta/_deploy_forensics/access_final/policy_validation.json)
+          NAME_OK=$(jq -r '.validation.name_ok' docs/_meta/_deploy_forensics/access_final/policy_validation.json)
+          
+          if [ "$DECISION_OK" = "true" ] && [ "$TOKEN_OK" = "true" ] && [ "$NAME_OK" = "true" ]; then
+            echo "ACCESS_FINAL_CONFIGURED=YES" >> $GITHUB_OUTPUT
+            echo "✅ Policy configuration validated successfully"
+            echo "  - Decision: $CURRENT_DECISION (✓)"
+            echo "  - Service Token ID: $CURRENT_TOKEN_ID (✓)"
+            echo "  - Name: $CURRENT_NAME (✓)"
+            echo "NOTE: API tokens cannot modify Access policies (PUT/PATCH require Global API Key)"
+            echo "      Current policy configuration is correct and will be used as-is"
+          else
+            echo "⚠️ Policy configuration validation issues:"
+            [ "$DECISION_OK" != "true" ] && echo "  - Decision: $CURRENT_DECISION (expected: non_identity)"
+            [ "$TOKEN_OK" != "true" ] && echo "  - Service Token ID: missing"
+            [ "$NAME_OK" != "true" ] && echo "  - Name: $CURRENT_NAME (expected: Allow CI RunArt Production (Direct))"
+            echo "PENDING_PROTECTION: Policy validation failed" >> docs/_meta/ACCESS_DIAG_BRIEFING.md
+            echo "ACCESS_FINAL_CONFIGURED=NO" >> $GITHUB_OUTPUT
+            echo "::warning::Policy has configuration issues but will proceed with tests"
+          fi
+        env:
+          ACCESS_API_TOKEN: ${{ secrets.CF_API_TOKEN_ACCESS || secrets.CF_API_TOKEN_PAGES || secrets.CLOUDFLARE_API_TOKEN || secrets.CF_API_TOKEN }}
+
+      - name: Access Final — WITH HEADERS (expect 200)
+        if: always()
+        id: access_test_with
+        run: |
+          set -e
+          mkdir -p docs/_meta
+          URL="https://runart-briefing-direct.pages.dev/"
+          echo "\n# Access — WITH HEADERS (final)" >> docs/_meta/ACCESS_DIAG_BRIEFING.md
+          CID="${ACCESS_CLIENT_ID_EFFECTIVE:-${{ secrets.CF_ACCESS_CLIENT_ID }}}"
+          CSEC="${ACCESS_CLIENT_SECRET_EFFECTIVE:-${{ secrets.CF_ACCESS_CLIENT_SECRET }}}"
+          if [ -z "$CID" ] || [ -z "$CSEC" ]; then
+            echo "PENDING_PROTECTION: Missing effective Service Token for WITH HEADERS test" >> docs/_meta/ACCESS_DIAG_BRIEFING.md
+            echo "ACCESS_WITH_HEADERS_STATUS=0" >> $GITHUB_OUTPUT
+            exit 0
+          fi
+          curl -s -i "$URL" \
+            -H "CF-Access-Client-Id: $CID" \
+            -H "CF-Access-Client-Secret: $CSEC" \
+            | tee -a docs/_meta/ACCESS_DIAG_BRIEFING.md >/dev/null
+          STATUS=$(curl -s -o /dev/null -w "%{http_code}" "$URL" \
+            -H "CF-Access-Client-Id: $CID" \
+            -H "CF-Access-Client-Secret: $CSEC")
+          echo "ACCESS_WITH_HEADERS_STATUS=$STATUS" >> $GITHUB_OUTPUT
+
+      - name: Access Final — Debug WITH HEADERS (decode meta)
+        if: always()
+        continue-on-error: true
+        run: |
+          set -e
+          mkdir -p docs/_meta/_deploy_forensics/access_final
+          URL="https://runart-briefing-direct.pages.dev/"
+          CID="${ACCESS_CLIENT_ID_EFFECTIVE:-${{ secrets.CF_ACCESS_CLIENT_ID }}}"
+          CSEC="${ACCESS_CLIENT_SECRET_EFFECTIVE:-${{ secrets.CF_ACCESS_CLIENT_SECRET }}}"
+          # Capturar respuesta con headers
+          curl -s -i "$URL" \
+            -H "CF-Access-Client-Id: $CID" \
+            -H "CF-Access-Client-Secret: $CSEC" \
+            > docs/_meta/_deploy_forensics/access_final/with_headers_response.txt || true
+          # Extraer Location y el parámetro meta
+          LOC=$(grep -i "^location:" docs/_meta/_deploy_forensics/access_final/with_headers_response.txt | awk '{print $2}' | tr -d '\r')
+          if [ -z "$LOC" ]; then
+            echo '{"note":"no_location_header"}' > docs/_meta/_deploy_forensics/access_final/with_headers_meta.json
+            exit 0
+          fi
+          # Decodificar meta con una llamada Python de una sola línea para evitar problemas de YAML
+          META=$(python3 -c 'import sys,urllib.parse;print((urllib.parse.parse_qs(urllib.parse.urlsplit(sys.argv[1]).query).get("meta") or [None])[0])' "$LOC") || META=
+          if [ -z "$META" ] || [[ "$META" == "None" ]]; then
+            echo '{"location":"'"$LOC"'","note":"no_meta_param"}' > docs/_meta/_deploy_forensics/access_final/with_headers_meta.json
+          else
+            PAYLOAD_B64=$(printf '%s' "$META" | cut -d '.' -f2)
+            # Base64url decode del payload
+            PAYLOAD_JSON=$(python3 -c 'import sys,base64; p=sys.argv[1]; p+="="*((4-len(p)%4)%4); print(base64.urlsafe_b64decode(p.encode()).decode())' "$PAYLOAD_B64" 2>/dev/null || true)
+            if [ -z "$PAYLOAD_JSON" ]; then
+              echo '{"location":"'"$LOC"'","error":"payload_decode_failed"}' > docs/_meta/_deploy_forensics/access_final/with_headers_meta.json
+            else
+              # Extraer banderas útiles con jq si está disponible; si no, guardar crudo
+              if command -v jq >/dev/null 2>&1; then
+                echo "$PAYLOAD_JSON" | jq --arg loc "$LOC" '{location:$loc, meta_payload:., service_token_status:(.service_token_status // null), auth_status:(.auth_status // null)}' > docs/_meta/_deploy_forensics/access_final/with_headers_meta.json || echo "$PAYLOAD_JSON" > docs/_meta/_deploy_forensics/access_final/with_headers_meta_raw.json
+              else
+                printf '{"location":"%s","meta_payload":%s}\n' "$LOC" "$PAYLOAD_JSON" > docs/_meta/_deploy_forensics/access_final/with_headers_meta.json
+              fi
+            fi
+          fi
+          echo "Saved with_headers_meta.json"
+
+      - name: Access Final — WITHOUT HEADERS (expect 302/403)
+        if: always()
+        id: access_test_without
+        run: |
+          set -e
+          mkdir -p docs/_meta
+          URL="https://runart-briefing-direct.pages.dev/"
+          echo "\n# Access — WITHOUT HEADERS (final)" >> docs/_meta/ACCESS_DIAG_BRIEFING.md
+          curl -s -i "$URL" | tee -a docs/_meta/ACCESS_DIAG_BRIEFING.md >/dev/null
+          STATUS=$(curl -s -o /dev/null -w "%{http_code}" "$URL")
+          echo "ACCESS_WITHOUT_HEADERS_STATUS=$STATUS" >> $GITHUB_OUTPUT
+
+      - name: Access Final — Update Reports
+        if: always()
+        run: |
+          set -e
+          FILE1="docs/_meta/BRIEFING_STATUS_PIPELINE_RUN.md"
+          mkdir -p "$(dirname "$FILE1")"
+          OK_WITH=${{ steps.access_test_with.outputs.ACCESS_WITH_HEADERS_STATUS || 0 }}
+          OK_WITHOUT=${{ steps.access_test_without.outputs.ACCESS_WITHOUT_HEADERS_STATUS || 0 }}
+          ACCESS_STATE="FAILED"
+          if [ "$OK_WITH" = "200" ] && { [ "$OK_WITHOUT" = "302" ] || [ "$OK_WITHOUT" = "403" ]; }; then ACCESS_STATE="OK"; fi
+          {
+            echo "\n## Access — Direct Upload: $ACCESS_STATE"
+            echo "- WITH headers: $OK_WITH (expect 200)"
+            echo "- WITHOUT headers: $OK_WITHOUT (expect 302/403)"
+            echo "- OPT-IN Service Token created: ${ACCESS_SERVICE_TOKEN_CREATED:-NO}"
+          } >> "$FILE1"
+
+          FILE2="docs/_meta/WORKFLOW_AUDIT_DEPLOY.md"
+          mkdir -p docs/_meta
+          {
+            echo "\n## Validación Access y Protección Activa"
+            echo "- Estado: $ACCESS_STATE"
+            echo "- Ver detalle en docs/_meta/ACCESS_DIAG_BRIEFING.md"
+            echo "- OPT-IN Service Token creado: ${ACCESS_SERVICE_TOKEN_CREATED:-NO}"
+          } >> "$FILE2"
+
+          FILE3="docs/_meta/BRIEFING_DEPLOY_HANDOFF.md"
+          {
+            echo "\n## Access — Estado Final"
+            echo "- URL: https://runart-briefing-direct.pages.dev"
+            echo "- Estado: $ACCESS_STATE (200 con headers; 302/403 sin headers)"
+            echo "- Próximos pasos: preparar cutover o configurar dominio custom y revalidar"
+            echo "- OPT-IN Service Token creado: ${ACCESS_SERVICE_TOKEN_CREATED:-NO}"
+          } >> "$FILE3"
+
+      - name: Record deployment evidence
+        if: always()
+        run: |
+          mkdir -p docs/_meta/_deploy_forensics/post_migration
+          
+          TS=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
+          CA_STATUS=$([ -n "$CF_ACCOUNT_ID_VAL" ] && echo present || echo missing)
+          TP_STATUS=$([ -n "$CF_API_TOKEN_PAGES_VAL" ] && echo present || echo missing)
+          TEAM_STATUS=$([ -n "$CF_ZERO_TRUST_TEAM_VAL" ] && echo present || echo missing)
+          CID_STATUS=$([ -n "$CF_ACCESS_CLIENT_ID_VAL" ] && echo present || echo missing)
+          CSEC_STATUS=$([ -n "$CF_ACCESS_CLIENT_SECRET_VAL" ] && echo present || echo missing)
+
+          # Build JSON array of missing keys safely
+          MISSING_JSON=$(printf '%s
+          ## Validation Results
+          cat > docs/_meta/_deploy_forensics/access_final/secrets_missing.json <<EOF
+          {
+            "ts": "$TS",
+            "checks": {
+              "CF_ACCOUNT_ID": "$CA_STATUS",
+              "CF_API_TOKEN_PAGES": "$TP_STATUS",
+              "CF_ZERO_TRUST_TEAM": "$TEAM_STATUS",
+              "CF_ACCESS_CLIENT_ID": "$CID_STATUS",
+              "CF_ACCESS_CLIENT_SECRET": "$CSEC_STATUS"
+            },
+            "missing": $MISSING_JSON,
+            "note": "Presence-only report. Secret values are not stored."
+          }
+          EOF
+          
+          - ✅ Build completed successfully
+          - ✅ Wrangler deploy completed
+          - ✅ Source verification: **${{ steps.verify_source.outputs.SOURCE_NORMALIZED || 'N/A' }}**
+          - ⏭️ Access validation: PENDING (requires manual policy setup)
+          - ⏭️ Fingerprint comparison: PENDING
+          
+          ## Next Steps
+          
+          1. Owner must add new hostname to Access app "RUN Briefing"
+          2. Validate Access with Service Token
+          3. Compare fingerprints
+          4. Plan cutover
+          
+          EOF
+          
+          # Copy API response
+          cp /tmp/deployments_api.json docs/_meta/_deploy_forensics/post_migration/deployment_api_response.json || true
+          cp /tmp/wrangler_output.log docs/_meta/_deploy_forensics/post_migration/wrangler_deploy.log || true
+          
+          echo "✅ Evidence recorded in docs/_meta/_deploy_forensics/post_migration/"
+      
+      - name: Access Check — Discover asset
+        id: find_asset
+        if: always()
+        run: |
+          set -e
+          # Pick first CSS/JS asset from local build to mirror in prod
+          ASSET=$(find apps/briefing/site -type f \( -name '*.css' -o -name '*.js' \) | sed 's#apps/briefing/site/##' | head -1 || true)
+          echo "ASSET_REL=$ASSET" >> $GITHUB_OUTPUT
+          echo "ASSET_REL=$ASSET" >> $GITHUB_ENV
+
+      - name: Access Check — With Headers (200 expected)
+        if: always()
+        run: |
+          set -e
+          mkdir -p docs/_meta
+          URL="${{ steps.discover_url.outputs.DEPLOY_URL_API || steps.deploy.outputs.DEPLOY_URL }}"
+          if [ -z "$URL" ]; then echo "No DEPLOY_URL, skipping"; exit 0; fi
+          if [ "${{ steps.access_optin.outputs.ACCESS_CONFIGURED }}" != "YES" ]; then
+            echo "PENDING_PROTECTION: Access not configured (opt-in missing or API error)" >> docs/_meta/ACCESS_DIAG_BRIEFING.md
+            exit 0
+          fi
+          if [ -z "${{ secrets.CF_ACCESS_CLIENT_ID }}" ] || [ -z "${{ secrets.CF_ACCESS_CLIENT_SECRET }}" ]; then
+            echo "PENDING_PROTECTION: Missing Access Service Token secrets" >> docs/_meta/ACCESS_DIAG_BRIEFING.md
+            exit 0
+          fi
+          {
+            echo "# Direct Upload — protegido (with headers)"
+            echo "Root: $URL"
+          } >> docs/_meta/ACCESS_DIAG_BRIEFING.md
+          # HEAD root
+          curl -s -I "$URL/" \
+            -H "CF-Access-Client-Id: ${{ secrets.CF_ACCESS_CLIENT_ID }}" \
+            -H "CF-Access-Client-Secret: ${{ secrets.CF_ACCESS_CLIENT_SECRET }}" \
+            | tee -a docs/_meta/ACCESS_DIAG_BRIEFING.md
+          # HEAD asset
+          if [ -n "$ASSET_REL" ]; then
+            echo "\nAsset: $URL/$ASSET_REL" >> docs/_meta/ACCESS_DIAG_BRIEFING.md
+            curl -s -I "$URL/$ASSET_REL" \
+              -H "CF-Access-Client-Id: ${{ secrets.CF_ACCESS_CLIENT_ID }}" \
+              -H "CF-Access-Client-Secret: ${{ secrets.CF_ACCESS_CLIENT_SECRET }}" \
+              | tee -a docs/_meta/ACCESS_DIAG_BRIEFING.md
+          fi
+
+      - name: Access Check — Without Headers (blocked expected)
+        if: always()
+        run: |
+          set -e
+          mkdir -p docs/_meta
+          URL="${{ steps.discover_url.outputs.DEPLOY_URL_API || steps.deploy.outputs.DEPLOY_URL }}"
+          if [ -z "$URL" ]; then echo "No DEPLOY_URL, skipping"; exit 0; fi
+          {
+            echo "\n# Direct Upload — protegido (without headers)"
+            echo "Root: $URL"
+          } >> docs/_meta/ACCESS_DIAG_BRIEFING.md
+          curl -s -I "$URL/" | tee -a docs/_meta/ACCESS_DIAG_BRIEFING.md
+          if [ -n "$ASSET_REL" ]; then
+            echo "\nAsset: $URL/$ASSET_REL" >> docs/_meta/ACCESS_DIAG_BRIEFING.md
+            curl -s -I "$URL/$ASSET_REL" | tee -a docs/_meta/ACCESS_DIAG_BRIEFING.md
+          fi
+
+      - name: Fingerprints — Local and Prod
+        id: fingerprints
+        if: always()
+        run: |
+          set -e
+          mkdir -p docs/_meta/_deploy_forensics/post_migration
+          URL="${{ steps.discover_url.outputs.DEPLOY_URL_API || steps.deploy.outputs.DEPLOY_URL }}"
+          INDEX_LOCAL="apps/briefing/site/index.html"
+          ASSET_REL="${ASSET_REL:-}"
+          ASSET_LOCAL="apps/briefing/site/${ASSET_REL:-}"
+
+          # Local hashes
+          INDEX_SHA_LOCAL=$(sha256sum "$INDEX_LOCAL" | awk '{print $1}')
+          ASSET_SHA_LOCAL=""
+          if [ -f "$ASSET_LOCAL" ]; then
+            ASSET_SHA_LOCAL=$(sha256sum "$ASSET_LOCAL" | awk '{print $1}')
+          fi
+          jq -n --arg index "$INDEX_SHA_LOCAL" --arg asset "$ASSET_SHA_LOCAL" '{index_sha:$index,asset_sha:$asset}' \
+            > docs/_meta/_deploy_forensics/post_migration/fp_local.json
+
+          # Prod fetch (with Access headers if present)
+          HDR_ID="${{ secrets.CF_ACCESS_CLIENT_ID }}"
+          HDR_SECRET="${{ secrets.CF_ACCESS_CLIENT_SECRET }}"
+          CURL_HDRS=()
+          if [ -n "$HDR_ID" ] && [ -n "$HDR_SECRET" ]; then
+            CURL_HDRS+=( -H "CF-Access-Client-Id: $HDR_ID" -H "CF-Access-Client-Secret: $HDR_SECRET" )
+          fi
+
+          INDEX_ETAG=$(curl -s -D - "$URL/" "${CURL_HDRS[@]}" -o /dev/null | grep -i '^etag:' | head -1 | cut -d' ' -f2- | tr -d '\r\n' || true)
+          INDEX_SHA_PROD=$(curl -s "$URL/" "${CURL_HDRS[@]}" | sha256sum | awk '{print $1}')
+          ASSET_ETAG=""
+          ASSET_SHA_PROD=""
+          if [ -n "$ASSET_REL" ]; then
+            ASSET_ETAG=$(curl -s -D - "$URL/$ASSET_REL" "${CURL_HDRS[@]}" -o /dev/null | grep -i '^etag:' | head -1 | cut -d' ' -f2- | tr -d '\r\n' || true)
+            ASSET_SHA_PROD=$(curl -s "$URL/$ASSET_REL" "${CURL_HDRS[@]}" | sha256sum | awk '{print $1}')
+          fi
+          jq -n \
+            --arg index_etag "$INDEX_ETAG" --arg index_sha "$INDEX_SHA_PROD" \
+            --arg asset_etag "$ASSET_ETAG" --arg asset_sha "$ASSET_SHA_PROD" \
+            '{index_etag:$index_etag,index_sha:$index_sha,asset_etag:$asset_etag,asset_sha:$asset_sha}' \
+            > docs/_meta/_deploy_forensics/post_migration/fp_prod.json
+
+          # Compare
+          STATUS="MATCH"
+          if [ "$INDEX_SHA_LOCAL" != "$INDEX_SHA_PROD" ] || { [ -n "$ASSET_SHA_LOCAL" ] && [ "$ASSET_SHA_LOCAL" != "$ASSET_SHA_PROD" ]; }; then
+            STATUS="MISMATCH"
+          fi
+          echo "$STATUS" > /tmp/fp_status
+          {
+            echo "Fingerprint compare: $STATUS"
+            echo "index local=$INDEX_SHA_LOCAL prod=$INDEX_SHA_PROD"
+            if [ -n "$ASSET_SHA_LOCAL" ]; then echo "asset local=$ASSET_SHA_LOCAL prod=$ASSET_SHA_PROD"; fi
+          } > docs/_meta/_deploy_forensics/post_migration/fingerprint_diff.txt
+
+      - name: Fingerprints — Optional Purge and Retry
+        if: always()
+        run: |
+          set -e
+          URL="${{ steps.deploy.outputs.DEPLOY_URL }}"
+          STATUS=$(cat /tmp/fp_status || echo "UNKNOWN")
+          if [ "$STATUS" != "MISMATCH" ]; then echo "No mismatch, skip purge"; exit 0; fi
+          ZONE_ID="${{ secrets.CF_ZONE_ID || secrets.CLOUDFLARE_ZONE_ID }}"
+          if [ -z "$ZONE_ID" ]; then
+            echo "No ZONE_ID available, cannot purge. Recording MISMATCH_after_purge." >> docs/_meta/_deploy_forensics/post_migration/fingerprint_diff.txt
+            exit 0
+          fi
+          FILES_JSON=$(jq -n --arg url "$URL/" --arg asset "$ASSET_REL" '{files: [$url, ($asset|length>0?($url+$asset):empty)] | map(select(. != null and . != "")) }')
+          echo "$FILES_JSON" > /tmp/purge.json
+          RESP=$(curl -s -X POST "https://api.cloudflare.com/client/v4/zones/$ZONE_ID/purge_cache" \
+            -H "Authorization: Bearer $CLOUDFLARE_API_TOKEN" -H "Content-Type: application/json" \
+            --data @/tmp/purge.json)
+          echo "$RESP" | head -c 400
+          sleep 5
+          # Re-fetch index only
+          HDR_ID="${{ secrets.CF_ACCESS_CLIENT_ID }}"; HDR_SECRET="${{ secrets.CF_ACCESS_CLIENT_SECRET }}"; CURL_HDRS=()
+          if [ -n "$HDR_ID" ] && [ -n "$HDR_SECRET" ]; then CURL_HDRS+=( -H "CF-Access-Client-Id: $HDR_ID" -H "CF-Access-Client-Secret: $HDR_SECRET" ); fi
+          INDEX_SHA_PROD2=$(curl -s "$URL/" "${CURL_HDRS[@]}" | sha256sum | awk '{print $1}')
+          echo "After purge index sha: $INDEX_SHA_PROD2" >> docs/_meta/_deploy_forensics/post_migration/fingerprint_diff.txt
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CF_API_TOKEN_PAGES || secrets.CLOUDFLARE_API_TOKEN || secrets.CF_API_TOKEN }}
+
+      - name: Commit evidence
+        if: always()
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          
+          git add docs/_meta/_deploy_forensics/post_migration/
+          git add docs/_meta/_deploy_forensics/access_final/
+          git add docs/_meta/ACCESS_DIAG_BRIEFING.md || true
+          git add docs/_meta/BRIEFING_STATUS_PIPELINE_RUN.md || true
+          git add docs/_meta/BRIEFING_DEPLOY_HANDOFF.md || true
+          git add docs/_meta/WORKFLOW_AUDIT_DEPLOY.md || true
+          
+          if git diff --staged --quiet; then
+            echo "No changes to commit"
+          else
+            git commit -m "migration: direct upload deployment evidence [skip ci]"
+            git push
+          fi
+        continue-on-error: true
+      
+      - name: Summary
+        if: always()
+        run: |
+          echo "## 🚀 Deployment Summary" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**Project**: runart-briefing-direct" >> $GITHUB_STEP_SUMMARY
+          echo "**URL**: ${{ steps.discover_url.outputs.DEPLOY_URL_API || steps.deploy.outputs.DEPLOY_URL }}" >> $GITHUB_STEP_SUMMARY
+          echo "**Source (normalized)**: ${{ steps.verify_source.outputs.SOURCE_NORMALIZED }}" >> $GITHUB_STEP_SUMMARY
+          echo "**Source (raw)**: ${{ steps.verify_source.outputs.SOURCE_RAW }} | **Trigger**: ${{ steps.verify_source.outputs.TRIGGER_TYPE }}" >> $GITHUB_STEP_SUMMARY
+          echo "**Deployment ID**: ${{ steps.verify_source.outputs.DEPLOY_ID }}" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          if [ "${{ steps.verify_source.outputs.SOURCE_NORMALIZED }}" = "DIRECT_UPLOAD_OK" ]; then
+            echo "✅ **Status**: Direct Upload deployment successful" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "⚠️ **Status**: Deployment finished but source verification did not confirm direct_upload" >> $GITHUB_STEP_SUMMARY
+          fi
+          echo "**Access configured (opt-in)**: ${{ steps.access_optin.outputs.ACCESS_CONFIGURED || 'NO' }}" >> $GITHUB_STEP_SUMMARY
+
+      - name: Update BRIEFING_STATUS_PIPELINE_RUN.md
+        if: always()
+        run: |
+          set -e
+          FILE="docs/_meta/BRIEFING_STATUS_PIPELINE_RUN.md"
+          mkdir -p "$(dirname "$FILE")"
+          {
+            echo "\n---\n## Direct Upload — última ejecución"
+            echo "- Fecha: $(date -u +"%Y-%m-%dT%H:%M:%SZ")"
+            echo "- Run URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
+            echo "- Proyecto: runart-briefing-direct"
+            echo "- URL: ${{ steps.discover_url.outputs.DEPLOY_URL_API || steps.deploy.outputs.DEPLOY_URL }}"
+            echo "- SOURCE_NORMALIZED: ${{ steps.verify_source.outputs.SOURCE_NORMALIZED }} (raw=${{ steps.verify_source.outputs.SOURCE_RAW }}, trigger=${{ steps.verify_source.outputs.TRIGGER_TYPE }})"
+            echo "- Deployment ID: ${{ steps.verify_source.outputs.DEPLOY_ID }}"
+            echo "- ACCESS_CONFIGURED (opt-in): ${{ steps.access_optin.outputs.ACCESS_CONFIGURED || 'NO' }}"
+          } >> "$FILE"
+
+      - name: Create Cutover Plan doc
+        if: always()
+        run: |
+          set -e
+          FILE="docs/_meta/BRIEFING_DEPLOY_HANDOFF.md"
+          mkdir -p docs/_meta
+          if [ ! -f "$FILE" ]; then
+            {
+              echo "# Briefing — Cutover Plan (Direct Upload)"
+              echo
+              echo "Opciones de corte:"
+              echo
+              echo "- Opción 1: Apuntar dominio custom (p.ej. briefing.runartfoundry.com) al proyecto nuevo \`runart-briefing-direct\` y retirar del antiguo."
+              echo "- Opción 2: Ventana corta; eliminar proyecto viejo y re-crear con \`--project-name \"runart-foundry\"\` para conservar subdominio histórico; revalidar Access y bindings."
+              echo
+              echo "Requisitos: Validación API OK, Access (200 con headers, 302/403 sin headers), fingerprints MATCH."
+            } > "$FILE"
+          fi
+          {
+            echo "\n## Post-protection & fingerprints"
+            echo "- URL: ${{ steps.discover_url.outputs.DEPLOY_URL_API || steps.deploy.outputs.DEPLOY_URL }}"
+            echo "- Access (opt-in): ${{ steps.access_optin.outputs.ACCESS_CONFIGURED || 'NO' }} (ver docs/_meta/ACCESS_DIAG_BRIEFING.md)"
+            echo "- Fingerprints: ver docs/_meta/_deploy_forensics/post_migration/fingerprint_diff.txt"
+          } >> "$FILE"
+
+      - name: Append Workflow Audit note
+        if: always()
+        run: |
+          set -e
+          FILE="docs/_meta/WORKFLOW_AUDIT_DEPLOY.md"
+          mkdir -p docs/_meta
+          {
+            echo "\n## Migración Direct Upload — $(date -u +"%Y-%m-%dT%H:%M:%SZ")"
+            echo "Run: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
+            echo "Project: runart-briefing-direct | URL: ${{ steps.deploy.outputs.DEPLOY_URL }}"
+            echo "SOURCE_NORMALIZED: ${{ steps.verify_source.outputs.SOURCE_NORMALIZED }} | RAW: ${{ steps.verify_source.outputs.SOURCE_RAW }} | TRIGGER: ${{ steps.verify_source.outputs.TRIGGER_TYPE }}"
+          } >> "$FILE"
+
+  access-tests-only:
+    name: Access Tests Only (no deploy)
+    runs-on: ubuntu-latest
+    environment: ${{ inputs.environment || 'production' }}
+    if: ${{ inputs.access_only == 'true' }}
+    env:
+      ACCOUNT_ID_INPUT: ${{ secrets.CF_ACCOUNT_ID || secrets.CLOUDFLARE_ACCOUNT_ID }}
+      ACCESS_API_TOKEN: ${{ secrets.CF_API_TOKEN_ACCESS || secrets.CF_API_TOKEN_PAGES || secrets.CLOUDFLARE_API_TOKEN || secrets.CF_API_TOKEN }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Access Final — Create audit folder
+        run: |
+          mkdir -p docs/_meta/_deploy_forensics/access_final/
+
+      - name: Access Final — Autodiscover Access App by domain
+        id: access_only_autodiscover_app
+        run: |
+          set -e
+          mkdir -p docs/_meta/_deploy_forensics/access_final
+          DOMAIN="runart-briefing-direct.pages.dev"
+          ACCOUNT_ID="$ACCOUNT_ID_INPUT"
+
+          if [ -z "$ACCOUNT_ID" ]; then
+            echo "::warning::CF_ACCOUNT_ID not provided; cannot autodiscover Access App"
+            echo "ACCESS_APP_ID=" >> $GITHUB_OUTPUT
+            exit 0
+          fi
+
+          echo "=== Listing Access apps (per_page=100) ==="
+          curl -s -H "Authorization: Bearer $ACCESS_API_TOKEN" \
+            "https://api.cloudflare.com/client/v4/accounts/$ACCOUNT_ID/access/apps?per_page=100" \
+            | tee docs/_meta/_deploy_forensics/access_final/apps_list.json >/dev/null
+
+          APP_ID=$(jq -r --arg d "$DOMAIN" '
+            .result // []
+            | map(select((.domains // []) | any(. == $d)))
+            | (.[0].id // empty)
+          ' docs/_meta/_deploy_forensics/access_final/apps_list.json)
+
+          if [ -z "$APP_ID" ]; then
+            APP_ID=$(jq -r --arg d "$DOMAIN" '
+              .result // []
+              | map(select(tostring | contains($d)))
+              | (.[0].id // empty)
+            ' docs/_meta/_deploy_forensics/access_final/apps_list.json)
+          fi
+
+          echo "ACCESS_APP_ID=$APP_ID" >> $GITHUB_OUTPUT
+          if [ -n "$APP_ID" ]; then
+            echo "✅ Autodiscovered ACCESS_APP_ID=$APP_ID"
+          else
+            echo "::warning::Access App for $DOMAIN not found in account $ACCOUNT_ID"
+          fi
+
+      - name: Access Final — Autodiscover Service Auth Policy
+        id: access_only_autodiscover_policy
+        run: |
+          set -e
+          mkdir -p docs/_meta/_deploy_forensics/access_final
+          ACCOUNT_ID="$ACCOUNT_ID_INPUT"
+          APP_ID="${{ steps.access_only_autodiscover_app.outputs.ACCESS_APP_ID }}"
+
+          if [ -z "$ACCOUNT_ID" ] || [ -z "$APP_ID" ]; then
+            echo "::warning::Missing ACCOUNT_ID or APP_ID for policy autodiscovery"
+            echo "ACCESS_POLICY_ID_PROD=" >> $GITHUB_OUTPUT
+            exit 0
+          fi
+
+          echo "=== Listing policies for app $APP_ID ==="
+          curl -s -H "Authorization: Bearer $ACCESS_API_TOKEN" \
+            "https://api.cloudflare.com/client/v4/accounts/$ACCOUNT_ID/access/apps/$APP_ID/policies" \
+            | tee docs/_meta/_deploy_forensics/access_final/policies_list.json >/dev/null
+
+          PID=$(jq -r '
+            .result // []
+            | map(select(.name == "Allow CI RunArt Production (Direct)"))
+            | (.[0].id // empty)
+          ' docs/_meta/_deploy_forensics/access_final/policies_list.json)
+
+          if [ -z "$PID" ]; then
+            PID=$(jq -r '
+              .result // []
+              | map(select((.decision // "") == "allow" and ((.include // []) | map(has("service_token")) | any)))
+              | (.[0].id // empty)
+            ' docs/_meta/_deploy_forensics/access_final/policies_list.json)
+          fi
+
+          echo "ACCESS_POLICY_ID_PROD=$PID" >> $GITHUB_OUTPUT
+          if [ -n "$PID" ]; then
+            echo "✅ Autodiscovered ACCESS_POLICY_ID_PROD=$PID"
+          else
+            echo "::warning::Service Auth policy not found in app $APP_ID"
+          fi
+
+      - name: Access Final — GET current policy
+        id: access_only_get_policy
+        run: |
+          set -e
+          mkdir -p docs/_meta/_deploy_forensics/access_final
+          ACCOUNT_ID="$ACCOUNT_ID_INPUT"
+          APP_ID="${{ steps.access_only_autodiscover_app.outputs.ACCESS_APP_ID }}"
+          POLICY_ID="${{ steps.access_only_autodiscover_policy.outputs.ACCESS_POLICY_ID_PROD }}"
+
+          if [ -z "$ACCOUNT_ID" ] || [ -z "$APP_ID" ] || [ -z "$POLICY_ID" ]; then
+            echo '{"error":"missing_account_app_or_policy_id"}' > docs/_meta/_deploy_forensics/access_final/access_error.json
+            echo "POLICY_GET_SUCCESS=false" >> $GITHUB_ENV
+            exit 0
+          fi
+
+          URL="https://api.cloudflare.com/client/v4/accounts/$ACCOUNT_ID/access/apps/$APP_ID/policies/$POLICY_ID"
+          HTTP=$(curl -s -o docs/_meta/_deploy_forensics/access_final/policy_before.json -w "%{http_code}" \
+            -H "Authorization: Bearer $ACCESS_API_TOKEN" "$URL")
+
+          if [ "$HTTP" != "200" ]; then
+            echo '{"error":"policy_get_failed","http":"'"$HTTP"'"}' > docs/_meta/_deploy_forensics/access_final/access_error.json
+            echo "POLICY_GET_SUCCESS=false" >> $GITHUB_ENV
+            exit 0
+          fi
+
+          OK=$(jq -r '.success // false' docs/_meta/_deploy_forensics/access_final/policy_before.json)
+          if [ "$OK" != "true" ]; then
+            echo '{"error":"policy_get_success_false"}' > docs/_meta/_deploy_forensics/access_final/access_error.json
+            echo "POLICY_GET_SUCCESS=false" >> $GITHUB_ENV
+            exit 0
+          fi
+
+          echo "POLICY_GET_SUCCESS=true" >> $GITHUB_ENV
+          echo "✅ Policy fetched successfully"
+
+      - name: Access Final — List Service Tokens
+        run: |
+          set -e
+          mkdir -p docs/_meta/_deploy_forensics/access_final
+          ACCOUNT_ID="$ACCOUNT_ID_INPUT"
+          if [ -z "$ACCOUNT_ID" ]; then exit 0; fi
+          curl -s -H "Authorization: Bearer $ACCESS_API_TOKEN" \
+            "https://api.cloudflare.com/client/v4/accounts/$ACCOUNT_ID/access/service_tokens" \
+            | tee docs/_meta/_deploy_forensics/access_final/service_tokens_list.json >/dev/null
+
+      - name: Access Final — Map token_id to client_id (evidence)
+        run: |
+          set -e
+          mkdir -p docs/_meta/_deploy_forensics/access_final
+          POLICY_FILE="docs/_meta/_deploy_forensics/access_final/policy_before.json"
+          TOKENS_FILE="docs/_meta/_deploy_forensics/access_final/service_tokens_list.json"
+          if [ ! -f "$POLICY_FILE" ]; then echo "No policy_before.json, skipping"; exit 0; fi
+          TOKEN_ID=$(jq -r '.result.include[]?.service_token?.token_id // empty' "$POLICY_FILE" | head -1)
+          if [ -z "$TOKEN_ID" ]; then echo "No token_id in policy, skipping"; exit 0; fi
+          CLIENT_ID=""
+          if [ -f "$TOKENS_FILE" ]; then
+            CLIENT_ID=$(jq -r --arg tid "$TOKEN_ID" '(.result // [])[] | select((.id==$tid) or (.token_id==$tid)) | .client_id // empty' "$TOKENS_FILE" | head -1 || true)
+          fi
+          jq -n --arg token_id "$TOKEN_ID" --arg client_id "$CLIENT_ID" '{token_id:$token_id, client_id:$client_id, note:(($client_id=="" )? "client_id not found in service_tokens_list.json" : "resolved from evidence")}' \
+            > docs/_meta/_deploy_forensics/access_final/token_client_map.json
+          echo "=== Service Token Mapping (from evidence) ==="
+          echo "token_id: $TOKEN_ID"
+          if [ -n "$CLIENT_ID" ]; then
+            echo "client_id (copy to CF_ACCESS_CLIENT_ID): $CLIENT_ID"
+          else
+            echo "client_id: not found in evidence file. Please retrieve from Zero Trust → Access → Service Auth."
+          fi
+
+      - name: Access Final — Validate Policy Configuration
+        id: access_only_validate_policy
+        run: |
+          set -e
+          if [ "${POLICY_GET_SUCCESS:-false}" != "true" ]; then
+            echo '{"error":"cannot_validate_without_get"}' > docs/_meta/_deploy_forensics/access_final/access_error.json
+            echo "ACCESS_FINAL_CONFIGURED=NO" >> $GITHUB_OUTPUT
+            exit 0
+          fi
+
+          CURRENT_DECISION=$(jq -r '.result.decision // empty' docs/_meta/_deploy_forensics/access_final/policy_before.json)
+          CURRENT_TOKEN_ID=$(jq -r '.result.include[]?.service_token?.token_id // empty' docs/_meta/_deploy_forensics/access_final/policy_before.json | head -1)
+          CURRENT_NAME=$(jq -r '.result.name // empty' docs/_meta/_deploy_forensics/access_final/policy_before.json)
+
+          jq -n \
+            --arg decision "$CURRENT_DECISION" \
+            --arg token_id "$CURRENT_TOKEN_ID" \
+            --arg name "$CURRENT_NAME" \
+            --argjson expected_decision '"non_identity"' \
+            --argjson expected_name '"Allow CI RunArt Production (Direct)"' \
+            '{
+              current: { decision: $decision, token_id: $token_id, name: $name },
+              expected: { decision: $expected_decision, name: $expected_name },
+              validation: {
+                decision_ok: ($decision == $expected_decision),
+                token_id_present: ($token_id != ""),
+                name_ok: ($name == $expected_name)
+              }
+            }' > docs/_meta/_deploy_forensics/access_final/policy_validation.json
+
+          DECISION_OK=$(jq -r '.validation.decision_ok' docs/_meta/_deploy_forensics/access_final/policy_validation.json)
+          TOKEN_OK=$(jq -r '.validation.token_id_present' docs/_meta/_deploy_forensics/access_final/policy_validation.json)
+          NAME_OK=$(jq -r '.validation.name_ok' docs/_meta/_deploy_forensics/access_final/policy_validation.json)
+          if [ "$DECISION_OK" = "true" ] && [ "$TOKEN_OK" = "true" ] && [ "$NAME_OK" = "true" ]; then
+            echo "ACCESS_FINAL_CONFIGURED=YES" >> $GITHUB_OUTPUT
+          else
+            echo "ACCESS_FINAL_CONFIGURED=NO" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Access Final — WITH HEADERS (expect 200)
+        id: access_only_test_with
+        run: |
+          set -e
+          mkdir -p docs/_meta
+          URL="https://runart-briefing-direct.pages.dev/"
+          echo "\n# Access — WITH HEADERS (final) [access-only]" >> docs/_meta/ACCESS_DIAG_BRIEFING.md
+          CID="${{ secrets.CF_ACCESS_CLIENT_ID }}"
+          CSEC="${{ secrets.CF_ACCESS_CLIENT_SECRET }}"
+          if [ -z "$CID" ] || [ -z "$CSEC" ]; then
+            echo "PENDING_PROTECTION: Missing Service Token secrets (CF_ACCESS_CLIENT_ID/SECRET)" >> docs/_meta/ACCESS_DIAG_BRIEFING.md
+            echo "ACCESS_WITH_HEADERS_STATUS=0" >> $GITHUB_OUTPUT
+            exit 0
+          fi
+          curl -s -i "$URL" \
+            -H "CF-Access-Client-Id: $CID" \
+            -H "CF-Access-Client-Secret: $CSEC" \
+            | tee -a docs/_meta/ACCESS_DIAG_BRIEFING.md >/dev/null
+          STATUS=$(curl -s -o /dev/null -w "%{http_code}" "$URL" \
+            -H "CF-Access-Client-Id: $CID" \
+            -H "CF-Access-Client-Secret: $CSEC")
+          echo "ACCESS_WITH_HEADERS_STATUS=$STATUS" >> $GITHUB_OUTPUT
+
+      - name: Access Final — Debug WITH HEADERS (decode meta)
+        if: always()
+        continue-on-error: true
+        run: |
+          set -e
+          mkdir -p docs/_meta/_deploy_forensics/access_final
+          URL="https://runart-briefing-direct.pages.dev/"
+          CID="${{ secrets.CF_ACCESS_CLIENT_ID }}"
+          CSEC="${{ secrets.CF_ACCESS_CLIENT_SECRET }}"
+          curl -s -i "$URL" \
+            -H "CF-Access-Client-Id: $CID" \
+            -H "CF-Access-Client-Secret: $CSEC" \
+            > docs/_meta/_deploy_forensics/access_final/with_headers_response.txt || true
+          LOC=$(grep -i "^location:" docs/_meta/_deploy_forensics/access_final/with_headers_response.txt | awk '{print $2}' | tr -d '\r')
+          if [ -z "$LOC" ]; then
+            echo '{"note":"no_location_header"}' > docs/_meta/_deploy_forensics/access_final/with_headers_meta.json
+            exit 0
+          fi
+          META=$(python3 -c 'import sys,urllib.parse;print((urllib.parse.parse_qs(urllib.parse.urlsplit(sys.argv[1]).query).get("meta") or [None])[0])' "$LOC") || META=
+          if [ -z "$META" ] || [[ "$META" == "None" ]]; then
+            echo '{"location":"'"$LOC"'","note":"no_meta_param"}' > docs/_meta/_deploy_forensics/access_final/with_headers_meta.json
+          else
+            PAYLOAD_B64=$(printf '%s' "$META" | cut -d '.' -f2)
+            PAYLOAD_JSON=$(python3 -c 'import sys,base64; p=sys.argv[1]; p+="="*((4-len(p)%4)%4); print(base64.urlsafe_b64decode(p.encode()).decode())' "$PAYLOAD_B64" 2>/dev/null || true)
+            if [ -z "$PAYLOAD_JSON" ]; then
+              echo '{"location":"'"$LOC"'","error":"payload_decode_failed"}' > docs/_meta/_deploy_forensics/access_final/with_headers_meta.json
+            else
+              if command -v jq >/dev/null 2>&1; then
+                echo "$PAYLOAD_JSON" | jq --arg loc "$LOC" '{location:$loc, meta_payload:., service_token_status:(.service_token_status // null), auth_status:(.auth_status // null)}' > docs/_meta/_deploy_forensics/access_final/with_headers_meta.json || echo "$PAYLOAD_JSON" > docs/_meta/_deploy_forensics/access_final/with_headers_meta_raw.json
+              else
+                printf '{"location":"%s","meta_payload":%s}\n' "$LOC" "$PAYLOAD_JSON" > docs/_meta/_deploy_forensics/access_final/with_headers_meta.json
+              fi
+            fi
+          fi
+          echo "Saved with_headers_meta.json"
+
+      - name: Access Final — WITHOUT HEADERS (expect 302/403)
+        id: access_only_test_without
+        run: |
+          set -e
+          mkdir -p docs/_meta
+          URL="https://runart-briefing-direct.pages.dev/"
+          echo "\n# Access — WITHOUT HEADERS (final) [access-only]" >> docs/_meta/ACCESS_DIAG_BRIEFING.md
+          curl -s -i "$URL" | tee -a docs/_meta/ACCESS_DIAG_BRIEFING.md >/dev/null
+          STATUS=$(curl -s -o /dev/null -w "%{http_code}" "$URL")
+          echo "ACCESS_WITHOUT_HEADERS_STATUS=$STATUS" >> $GITHUB_OUTPUT
+
+      - name: Access Final — Update Reports
+        if: always()
+        run: |
+          set -e
+          FILE1="docs/_meta/BRIEFING_STATUS_PIPELINE_RUN.md"
+          mkdir -p "$(dirname "$FILE1")"
+          OK_WITH=${{ steps.access_only_test_with.outputs.ACCESS_WITH_HEADERS_STATUS || 0 }}
+          OK_WITHOUT=${{ steps.access_only_test_without.outputs.ACCESS_WITHOUT_HEADERS_STATUS || 0 }}
+          ACCESS_STATE="FAILED"
+          if [ "$OK_WITH" = "200" ] && { [ "$OK_WITHOUT" = "302" ] || [ "$OK_WITHOUT" = "403" ]; }; then ACCESS_STATE="OK"; fi
+          {
+            echo "\n## Access — Access Tests Only: $ACCESS_STATE"
+            echo "- WITH headers: $OK_WITH (expect 200)"
+            echo "- WITHOUT headers: $OK_WITHOUT (expect 302/403)"
+          } >> "$FILE1"
+
+          FILE2="docs/_meta/WORKFLOW_AUDIT_DEPLOY.md"
+          mkdir -p docs/_meta
+          {
+            echo "\n## Validación Access — Modo access_only"
+            echo "- Estado: $ACCESS_STATE"
+            echo "- Ver detalle en docs/_meta/ACCESS_DIAG_BRIEFING.md"
+          } >> "$FILE2"
+
+      - name: Commit evidence (access-only)
+        if: always()
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add docs/_meta/_deploy_forensics/access_final/
+          git add docs/_meta/ACCESS_DIAG_BRIEFING.md || true
+          git add docs/_meta/BRIEFING_STATUS_PIPELINE_RUN.md || true
+          git add docs/_meta/WORKFLOW_AUDIT_DEPLOY.md || true
+          if git diff --staged --quiet; then
+            echo "No changes to commit"
+          else
+            git commit -m "access-only: evidence and reports [skip ci]"
+            git push
+          fi
+        continue-on-error: true
+
+      - name: Summary (access-only)
+        if: always()
+        run: |
+          OK_WITH=${{ steps.access_only_test_with.outputs.ACCESS_WITH_HEADERS_STATUS || 0 }}
+          OK_WITHOUT=${{ steps.access_only_test_without.outputs.ACCESS_WITHOUT_HEADERS_STATUS || 0 }}
+          echo "## 🔐 Access Tests Only Summary" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "- WITH headers: $OK_WITH (expect 200)" >> $GITHUB_STEP_SUMMARY
+          echo "- WITHOUT headers: $OK_WITHOUT (expect 302/403)" >> $GITHUB_STEP_SUMMARY

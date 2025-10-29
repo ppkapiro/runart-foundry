@@ -1,0 +1,4 @@
+/* Footer basics (placeholder) */
+.site-footer { background: var(--color-surface-2); padding: var(--space-7) 0; color: var(--color-muted); }
+.site-footer a { color: var(--color-text); text-decoration: none; }
+.site-footer a:hover { text-decoration: underline; }

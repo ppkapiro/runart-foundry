@@ -1,0 +1,168 @@
+{
+  "baseURL": "https://runart-foundry.pages.dev/",
+  "timestamp": "20251010T133016",
+  "totals": {
+    "pass": 0,
+    "fail": 10,
+    "total": 10
+  },
+  "results": [
+    {
+      "name": "whoami-owner",
+      "route": "/api/whoami",
+      "method": "GET",
+      "email": "ppcapiro@gmail.com",
+      "auth": {
+        "bypass": true,
+        "email": "ppcapiro@gmail.com"
+      },
+      "status": "fail",
+      "durationMs": 4.23,
+      "response": null,
+      "error": "fetch failed (code=EAI_AGAIN host=runart-foundry.pages.dev)",
+      "attempts": 2,
+      "attempt": 2
+    },
+    {
+      "name": "whoami-team",
+      "route": "/api/whoami",
+      "method": "GET",
+      "email": "infonetwokmedia@gmail.com",
+      "auth": {
+        "bypass": true,
+        "email": "infonetwokmedia@gmail.com"
+      },
+      "status": "fail",
+      "durationMs": 3.96,
+      "response": null,
+      "error": "fetch failed (code=EAI_AGAIN host=runart-foundry.pages.dev)",
+      "attempts": 2,
+      "attempt": 2
+    },
+    {
+      "name": "whoami-client_admin",
+      "route": "/api/whoami",
+      "method": "GET",
+      "email": "runartfoundry@gmail.com",
+      "auth": {
+        "bypass": true,
+        "email": "runartfoundry@gmail.com"
+      },
+      "status": "fail",
+      "durationMs": 3.9,
+      "response": null,
+      "error": "fetch failed (code=EAI_AGAIN host=runart-foundry.pages.dev)",
+      "attempts": 2,
+      "attempt": 2
+    },
+    {
+      "name": "whoami-visitor",
+      "route": "/api/whoami",
+      "method": "GET",
+      "auth": {
+        "bypass": false,
+        "email": null
+      },
+      "status": "fail",
+      "durationMs": 2.6,
+      "response": null,
+      "error": "fetch failed (code=EAI_AGAIN host=runart-foundry.pages.dev)",
+      "attempts": 2,
+      "attempt": 2
+    },
+    {
+      "name": "inbox-owner",
+      "route": "/api/inbox",
+      "method": "GET",
+      "email": "ppcapiro@gmail.com",
+      "auth": {
+        "bypass": true,
+        "email": "ppcapiro@gmail.com"
+      },
+      "status": "fail",
+      "durationMs": 4.26,
+      "response": null,
+      "error": "fetch failed (code=EAI_AGAIN host=runart-foundry.pages.dev)",
+      "attempts": 2,
+      "attempt": 2
+    },
+    {
+      "name": "inbox-team",
+      "route": "/api/inbox",
+      "method": "GET",
+      "email": "infonetwokmedia@gmail.com",
+      "auth": {
+        "bypass": true,
+        "email": "infonetwokmedia@gmail.com"
+      },
+      "status": "fail",
+      "durationMs": 2.72,
+      "response": null,
+      "error": "fetch failed (code=EAI_AGAIN host=runart-foundry.pages.dev)",
+      "attempts": 2,
+      "attempt": 2
+    },
+    {
+      "name": "inbox-client",
+      "route": "/api/inbox",
+      "method": "GET",
+      "email": "musicmanagercuba@gmail.com",
+      "auth": {
+        "bypass": true,
+        "email": "musicmanagercuba@gmail.com"
+      },
+      "status": "fail",
+      "durationMs": 3.91,
+      "response": null,
+      "error": "fetch failed (code=EAI_AGAIN host=runart-foundry.pages.dev)",
+      "attempts": 2,
+      "attempt": 2
+    },
+    {
+      "name": "inbox-visitor",
+      "route": "/api/inbox",
+      "method": "GET",
+      "auth": {
+        "bypass": false,
+        "email": null
+      },
+      "status": "fail",
+      "durationMs": 1.81,
+      "response": null,
+      "error": "fetch failed (code=EAI_AGAIN host=runart-foundry.pages.dev)",
+      "attempts": 2,
+      "attempt": 2
+    },
+    {
+      "name": "decisiones-unauth",
+      "route": "/api/decisiones",
+      "method": "POST",
+      "auth": {
+        "bypass": false,
+        "email": null
+      },
+      "status": "fail",
+      "durationMs": 2.13,
+      "response": null,
+      "error": "fetch failed (code=EAI_AGAIN host=runart-foundry.pages.dev)",
+      "attempts": 2,
+      "attempt": 2
+    },
+    {
+      "name": "decisiones-owner",
+      "route": "/api/decisiones",
+      "method": "POST",
+      "email": "ppcapiro@gmail.com",
+      "auth": {
+        "bypass": true,
+        "email": "ppcapiro@gmail.com"
+      },
+      "status": "fail",
+      "durationMs": 4.49,
+      "response": null,
+      "error": "fetch failed (code=EAI_AGAIN host=runart-foundry.pages.dev)",
+      "attempts": 2,
+      "attempt": 2
+    }
+  ]
+}

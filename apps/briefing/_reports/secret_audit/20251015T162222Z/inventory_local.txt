@@ -1,0 +1,11 @@
+# Inventario Local ~/.runart/env — 2025-10-15 16:23:03 UTC
+
+CLOUDFLARE_API_TOKEN: PRESENTE (longitud: 40 caracteres)
+CLOUDFLARE_ACCOUNT_ID: PRESENTE (longitud: 32 caracteres)
+NAMESPACE_ID_RUNART_ROLES_PREVIEW: PRESENTE (longitud: 32 caracteres)
+ACCESS_CLIENT_ID: PRESENTE (longitud: 40 caracteres)
+ACCESS_CLIENT_SECRET: PRESENTE (longitud: 64 caracteres)
+ACCESS_CLIENT_ID_PREVIEW: AUSENTE
+ACCESS_CLIENT_SECRET_PREVIEW: AUSENTE
+
+✅ Inventario local completado

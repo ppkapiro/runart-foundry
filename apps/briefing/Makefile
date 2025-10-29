@@ -5,7 +5,7 @@ RUN_PY := $(VENV)/bin/python
 MKDOCS := $(RUN_PY) -m mkdocs
 CHECK_ENV := $(PYTHON) $(ROOT)/tools/check_env.py
 
-.PHONY: build serve preview clean lint lint-docs lint-app test test-env test-env-preview test-env-prod venv install-deps test-logs test-logs-strict
+.PHONY: build serve preview clean lint lint-docs lint-app test test-env test-env-preview test-env-prod test-smoke-prod test-smoke-wrapper venv install-deps test-logs test-logs-strict
 
 venv:
 	$(PYTHON) -m venv $(VENV)
@@ -19,6 +19,13 @@ build: venv
 serve: venv
 	$(RUN_PY) scripts/mark_internal.py
 	$(MKDOCS) serve
+
+.PHONY: serve-local
+serve-local: venv
+	@echo "AUTH_MODE=none" > .env.local || true
+	@echo "// Generated for Local Mode\n(function(){window.__AUTH_MODE__='none';})();" > docs/assets/auth-mode.js
+	AUTH_MODE=none $(RUN_PY) scripts/mark_internal.py
+	AUTH_MODE=none $(MKDOCS) serve -a 127.0.0.1:8000
 
 preview:
 	@echo "Preview se documenta en docs/architecture/065_switch_pages.md (no despliega automáticamente)."
@@ -58,6 +65,36 @@ test-env-prod:
 	@$(CHECK_ENV) --mode=config
 	@$(CHECK_ENV) --mode=http --base-url "$$PROD_URL" --expect-env prod
 	@echo "ENV PROD OK"
+
+test-smoke-prod:
+	@if [ -z "$$PROD_URL" ]; then \
+		echo "Set PROD_URL=https://<production-domain> before running make test-smoke-prod"; \
+		exit 1; \
+	fi
+	@echo "Ejecutando smoke tests para producción (reconoce Access redirects como PASS)"
+	@PAGES_URL="$$PROD_URL" RUN_TOKEN="$${RUN_TOKEN:-dev-token}" bash scripts/smoke_production.sh
+
+test-smoke-wrapper:
+	@if [ -z "$$PROD_URL" ]; then \
+		echo "Set PROD_URL=https://<production-domain> before running make test-smoke-wrapper"; \
+		exit 1; \
+	fi
+	@echo "Ejecutando smoke tests avanzados vía Node.js (manejo automático de Access)"
+	@bash scripts/smoke_wrapper.sh "$$PROD_URL"
+
+smokes-prod:
+	@if [ -z "$$PROD_BASE_URL" ]; then \
+		echo "Set PROD_BASE_URL=https://<production-domain> before running make smokes-prod"; \
+		exit 1; \
+	fi
+	npm run --silent --prefix . smokes:prod
+
+smokes-prod-auth:
+	@if [ -z "$$PROD_BASE_URL" ]; then \
+		echo "Set PROD_BASE_URL=https://<production-domain> before running make smokes-prod-auth"; \
+		exit 1; \
+	fi
+	RUN_AUTH_SMOKES=1 npm run --silent --prefix . smokes:prod
 
 test-logs:
 	@if [ -f scripts/test_logs.mjs ]; then \

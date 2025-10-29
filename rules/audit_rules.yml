@@ -1,0 +1,34 @@
+version: 1
+rules:
+  - id: auth_ko
+    description: "Auth fallida en verify-*"
+    match: { field: "auth_status", equals: "KO" }
+    severity: high
+    remediation: ["retry_verify", "rotate_app_password_if_persistent"]
+
+  - id: rest_timeout
+    description: "Timeout o status >= 500 en REST"
+    match: { field: "rest_status", in: [500,502,503,504] }
+    severity: high
+    remediation: ["retry_with_backoff", "flush_cache"]
+
+  - id: menus_drift
+    description: "Diferencias en menús contra manifest"
+    match: { field: "menus_drift", equals: true }
+    severity: medium
+    remediation: ["sync_menus"]
+
+  - id: media_missing
+    description: "Media faltante vs manifest"
+    match: { field: "media_missing_count", gt: 0 }
+    severity: medium
+    remediation: ["sync_media"]
+
+scoring:
+  high: 50
+  medium: 20
+  low: 5
+thresholds:
+  red: 70
+  yellow: 30
+  green: 0

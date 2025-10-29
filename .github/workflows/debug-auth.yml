@@ -1,0 +1,36 @@
+name: Debug Auth
+
+on:
+  workflow_dispatch: {}
+
+jobs:
+  debug:
+    name: Debug Authentication
+    runs-on: ubuntu-latest
+    env:
+      BASE_URL: ${{ vars.WP_BASE_URL }}
+      WP_USER: ${{ secrets.WP_USER }}
+      WP_APP_PASSWORD: ${{ secrets.WP_APP_PASSWORD }}
+    steps:
+      - name: Check variables
+        run: |
+          echo "BASE_URL length: ${#BASE_URL}"
+          echo "WP_USER length: ${#WP_USER}"
+          echo "WP_APP_PASSWORD length: ${#WP_APP_PASSWORD}"
+          echo "BASE_URL empty? $([ -z "$BASE_URL" ] && echo YES || echo NO)"
+          echo "WP_USER empty? $([ -z "$WP_USER" ] && echo YES || echo NO)"
+          echo "WP_APP_PASSWORD empty? $([ -z "$WP_APP_PASSWORD" ] && echo YES || echo NO)"
+          
+      - name: Test curl without auth
+        run: |
+          CODE=$(curl -sS -o /dev/null -w "%{http_code}" "$BASE_URL/wp-json/wp/v2/users/me" || echo "FAILED")
+          echo "Without auth CODE=$CODE"
+          
+      - name: Test curl with auth
+        run: |
+          CODE=$(curl -sS -o /dev/null -w "%{http_code}" -u "$WP_USER:$WP_APP_PASSWORD" "$BASE_URL/wp-json/wp/v2/users/me" || echo "FAILED")
+          echo "With auth CODE=$CODE"
+          
+      - name: Test curl verbose
+        run: |
+          curl -v -u "$WP_USER:$WP_APP_PASSWORD" "$BASE_URL/wp-json/wp/v2/users/me" 2>&1 | head -50

@@ -1,0 +1,6 @@
+click==8.1.7
+Pillow==10.4.0
+tqdm==4.66.5
+python-slugify==8.0.4
+PyYAML==6.0.2
+pillow-avif-plugin==1.4.6

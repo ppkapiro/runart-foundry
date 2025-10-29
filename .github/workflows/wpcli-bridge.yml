@@ -1,0 +1,127 @@
+name: wpcli-bridge
+
+on:
+  workflow_dispatch:
+    inputs:
+      command:
+        description: "Comando a ejecutar (health, cache_flush, rewrite_flush, users_list, plugins_list)"
+        required: false
+        default: "health"
+        type: choice
+        options:
+          - health
+          - cache_flush
+          - rewrite_flush
+          - users_list
+          - plugins_list
+  schedule:
+    # 9:45am Miami (13:45 UTC) de lunes a viernes
+    - cron: '45 13 * * 1-5'
+
+permissions:
+  contents: write
+
+env:
+  WP_BASE_URL: ${{ vars.WP_BASE_URL }}
+  WP_USER: ${{ secrets.WP_USER }}
+  WP_APP_PASSWORD: ${{ secrets.WP_APP_PASSWORD }}
+
+jobs:
+  run:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Resolver endpoint
+        id: ep
+        run: |
+          set -euo pipefail
+          # Determinar comando: si no viene input (cron), usar 'health'
+          if [ -z "${{ github.event.inputs.command }}" ]; then
+            CMD="health"
+          else
+            CMD="${{ github.event.inputs.command }}"
+          fi
+          case "$CMD" in
+            health)
+              EP="/wp-json/runart/v1/bridge/health"; METHOD=GET ;;
+            cache_flush)
+              EP="/wp-json/runart/v1/bridge/cache/flush"; METHOD=POST ;;
+            rewrite_flush)
+              EP="/wp-json/runart/v1/bridge/rewrite/flush"; METHOD=POST ;;
+            users_list)
+              EP="/wp-json/runart/v1/bridge/users"; METHOD=GET ;;
+            plugins_list)
+              EP="/wp-json/runart/v1/bridge/plugins"; METHOD=GET ;;
+            *) echo "Comando no soportado: $CMD"; exit 2 ;;
+          esac
+          echo "cmd=${CMD}" >> $GITHUB_OUTPUT
+          echo "endpoint=${EP}" >> $GITHUB_OUTPUT
+          echo "method=${METHOD}" >> $GITHUB_OUTPUT
+
+      - name: Ejecutar comando vía Bridge (tolerante)
+        id: call
+        run: |
+          # Modo tolerante: no abortar ante errores de red/parseo
+          set +e
+          set -u -o pipefail
+          URL="${WP_BASE_URL}${{ steps.ep.outputs.endpoint }}"
+          AUTH="${WP_USER}:${WP_APP_PASSWORD}"
+          TMP_BODY=$(mktemp)
+          if [ "${{ steps.ep.outputs.method }}" = "POST" ]; then
+            HTTP_CODE=$(curl -sS -o "$TMP_BODY" -w "%{http_code}" -X POST -u "$AUTH" -H 'Content-Type: application/json' "$URL" || echo 000)
+          else
+            HTTP_CODE=$(curl -sS -o "$TMP_BODY" -w "%{http_code}" -u "$AUTH" -H 'Content-Type: application/json' "$URL" || echo 000)
+          fi
+          BODY=$(cat "$TMP_BODY")
+          rm -f "$TMP_BODY"
+          # Si el cuerpo es JSON válido con campo ok, úsalo; en otro caso construimos uno
+          if echo "$BODY" | jq -e . >/dev/null 2>&1; then
+            OK=$(echo "$BODY" | jq -r '.ok // empty')
+            if [ -z "$OK" ]; then
+              # No contiene campo ok; derivar ok por código 200
+              if [ "$HTTP_CODE" = "200" ]; then OK=true; else OK=false; fi
+              echo "$BODY" | jq -c ". as $$. | {ok: $OK, data: $$, meta: {http_code: $HTTP_CODE}}" > bridge.json
+            else
+              echo "$BODY" | jq -c ". as $$. | .meta = ((.meta // {}) + {http_code: $HTTP_CODE})" > bridge.json
+            fi
+          else
+            PREVIEW=$(printf "%s" "$BODY" | head -c 400 | sed 's/"/\"/g')
+            if [ "$HTTP_CODE" = "200" ]; then OK=true; else OK=false; fi
+            echo "{\"ok\": $OK, \"error\": \"non_json_body\", \"meta\": {\"http_code\": $HTTP_CODE, \"body_preview\": \"$PREVIEW\"}}" > bridge.json
+          fi
+          echo "ok=$(jq -r '.ok' bridge.json)" >> $GITHUB_OUTPUT
+
+      - name: Generar reporte
+        run: |
+          set +e
+          set -u -o pipefail
+          mkdir -p _reports/bridge
+          TS=$(date -u +"%Y%m%d_%H%M")
+          CMD="${{ steps.ep.outputs.cmd }}"
+          if [ ! -s bridge.json ]; then
+            echo '{"ok": false, "error": "empty_bridge", "meta": {"note": "bridge.json vacío o no generado"}}' > bridge.json
+          fi
+          STATUS=$(jq -r 'try (.ok | if . then "PASS" else "FAIL" end) catch "WARN"' bridge.json)
+          {
+            echo "# 🔗 WP-CLI Bridge Report"
+            echo "**Fecha:** $(date -u)"
+            echo "**Comando:** $CMD"
+            echo "**Estado:** $STATUS"
+            echo
+            echo "## Resultado"
+            echo '```json'
+            cat bridge.json
+            echo '```'
+          } > "_reports/bridge/bridge_${TS}_${CMD}.md"
+
+      - name: Commit & Push report
+        if: always()
+        run: |
+          set -euo pipefail
+          git config user.name "github-actions"
+          git config user.email "github-actions@users.noreply.github.com"
+          git add _reports/bridge/
+          git commit -m "Bridge report: ${{ github.event.inputs.command }}" || echo "Nada que commitear"
+          git push

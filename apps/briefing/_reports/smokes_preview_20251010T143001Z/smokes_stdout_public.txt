@@ -1,0 +1,8 @@
+make: Entering directory '/home/pepe/work/runartfoundry/apps/briefing'
+Ejecutando smoke tests para producción (reconoce Access redirects como PASS)
+🔍 Ejecutando smoke tests para producción con Cloudflare Access
+📍 Base URL: https://preview.runart-foundry.pages.dev
+🔐 Access JWT: no configurado
+
+🧪 Test 1: Página raíz
+make: Leaving directory '/home/pepe/work/runartfoundry/apps/briefing'
