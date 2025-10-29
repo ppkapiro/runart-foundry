@@ -1337,4 +1337,35 @@ curl -I https://staging.runartfoundry.com/es/inicio/
 
 ---
 
+## 🧱 Canon Actual y Operación Congelada
+
+### Tema Oficial
+
+- **Nombre:** RunArt Base
+- **Slug:** `runart-base`
+- **Ruta canónica staging:** `/homepages/7/d958591985/htdocs/staging/wp-content/themes/runart-base/`
+- **Documentación:** Todo el repositorio y scripts apuntan a `runart-base` como canon oficial.
+
+### Estado Operacional
+
+- **READ_ONLY:** Activado por defecto (`READ_ONLY=1`)
+- **DRY_RUN:** Activado por defecto (`DRY_RUN=1`)
+- **SSH:** Deshabilitado por política de seguridad
+- **SKIP_SSH:** Usar `SKIP_SSH=1` para documentación y CI sin conexión real
+
+### Políticas de Staging
+
+1. **Congelación de Deploys:** Ningún script ejecuta cambios en servidor sin aprobación explícita.
+2. **Validación CI:** Guardas activas para verificar flags READ_ONLY/DRY_RUN en PRs.
+3. **Media Review:** Cambios en `wp-content/uploads/`, `runmedia/` o `content/media/` requieren etiqueta `media-review`.
+4. **Alineación Futura:** Cualquier cambio de tema activo en staging requiere issue aprobado y ventana de mantenimiento documentada.
+
+### Evidencia y Reportes
+
+- Canon vs Estado Actual: `_reports/IONOS_STAGING_THEME_CHECK_20251029.md`
+- Cambios de Normalización: `_reports/REFERENCIAS_TEMA_CORREGIDAS_20251029.md`
+- Políticas CI: `_reports/CI_FREEZE_POLICY_20251029.md`
+
+---
+
 **🎯 Este documento es la referencia oficial para cualquier operación de deployment en RunArt Foundry. Mantenerlo actualizado es responsabilidad del equipo técnico.**

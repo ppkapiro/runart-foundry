@@ -54,6 +54,41 @@ Campos mínimos: `status`, `owner`, `updated`, `audience`, `tags`.
   - `docs/_meta/`: reinaldo.capiro
 - PR de cambios en docs debe asignar revisor de gobernanza (owner de carpeta o designado)
 
+## Políticas de Staging y Deployment
+
+### Canon del Tema
+
+- **Tema oficial:** RunArt Base (`runart-base`)
+- **Ruta canónica:** `/homepages/7/d958591985/htdocs/staging/wp-content/themes/runart-base/`
+- Toda documentación y scripts apuntan a `runart-base` como referencia.
+
+### Operación Congelada (Freeze Policy)
+
+- **READ_ONLY=1:** Activado por defecto en todos los scripts de deployment
+- **DRY_RUN=1:** Activado por defecto; rsync ejecuta con `--dry-run`
+- **SKIP_SSH=1:** Soportado para CI y documentación sin conexión real
+- Cualquier deployment requiere issue aprobado y desactivación explícita de flags
+
+### CI Guardrails
+
+1. **Dry-run Guard** (`.github/workflows/guard-deploy-readonly.yml`):
+   - Verifica que scripts tienen defaults READ_ONLY/DRY_RUN activos
+   - Falla si falta marcador `CI-GUARD: DRY-RUN-CAPABLE`
+
+2. **Media Review Guard**:
+   - Falla PRs que tocan `wp-content/uploads/`, `runmedia/` o `content/media/` sin label `media-review`
+   - Protege contra cambios accidentales en biblioteca de medios
+
+3. **Structure Guard** (`.github/workflows/structure-guard.yml`):
+   - Valida estructura de directorios conforme a governance
+   - Falla si se detectan rutas prohibidas o archivos fuera de lugar
+
+### Deployment Policy
+
+- **Staging:** Solo bajo issue aprobado + ventana de mantenimiento documentada
+- **Producción:** Requiere smoke tests exitosos en staging + sign-off del owner
+- **Rollback:** Backups automáticos en `/tmp/` del servidor; procedimiento documentado en Deployment Master
+
 ## TODO
 - Completar RACI de documentación
 - Integrar validación de antigüedad (>90d) en workflow semanal (HECHO: docs-stale-dryrun.yml)
