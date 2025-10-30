@@ -38,6 +38,8 @@ jobs:
       - name: Determinar credenciales admin (solo secrets)
         id: creds
         env:
+          WP_USER: ${{ secrets.WP_USER }}
+          WP_APP_PASSWORD: ${{ secrets.WP_APP_PASSWORD }}
           WP_ADMIN_USER: ${{ secrets['WP_ADMIN_USER'] }}
           WP_ADMIN_PASS: ${{ secrets.WP_ADMIN_PASS }}
           WP_ADMIN_USERNAME: ${{ secrets.WP_ADMIN_USERNAME }}
@@ -49,12 +51,14 @@ jobs:
         run: |
           set -euo pipefail
           FOUND_USER_KEY=""; FOUND_PASS_KEY=""
-          if [ -n "${WP_ADMIN_USER:-}" ]; then USER="$WP_ADMIN_USER"; FOUND_USER_KEY="WP_ADMIN_USER";
+          if [ -n "${WP_USER:-}" ]; then USER="$WP_USER"; FOUND_USER_KEY="WP_USER";
+          elif [ -n "${WP_ADMIN_USER:-}" ]; then USER="$WP_ADMIN_USER"; FOUND_USER_KEY="WP_ADMIN_USER";
           elif [ -n "${WP_ADMIN_USERNAME:-}" ]; then USER="$WP_ADMIN_USERNAME"; FOUND_USER_KEY="WP_ADMIN_USERNAME";
           elif [ -n "${RUNART_ADMIN_USER:-}" ]; then USER="$RUNART_ADMIN_USER"; FOUND_USER_KEY="RUNART_ADMIN_USER";
           elif [ -n "${ADMIN_USER:-}" ]; then USER="$ADMIN_USER"; FOUND_USER_KEY="ADMIN_USER"; else USER=""; fi
 
-          if [ -n "${WP_ADMIN_PASS:-}" ]; then PASS="$WP_ADMIN_PASS"; FOUND_PASS_KEY="WP_ADMIN_PASS";
+          if [ -n "${WP_APP_PASSWORD:-}" ]; then PASS="$WP_APP_PASSWORD"; FOUND_PASS_KEY="WP_APP_PASSWORD";
+          elif [ -n "${WP_ADMIN_PASS:-}" ]; then PASS="$WP_ADMIN_PASS"; FOUND_PASS_KEY="WP_ADMIN_PASS";
           elif [ -n "${RUNART_ADMIN_PASS:-}" ]; then PASS="$RUNART_ADMIN_PASS"; FOUND_PASS_KEY="RUNART_ADMIN_PASS";
           elif [ -n "${RUNART_ADMIN_PASSWORD:-}" ]; then PASS="$RUNART_ADMIN_PASSWORD"; FOUND_PASS_KEY="RUNART_ADMIN_PASSWORD";
           elif [ -n "${ADMIN_PASS:-}" ]; then PASS="$ADMIN_PASS"; FOUND_PASS_KEY="ADMIN_PASS";
@@ -64,7 +68,7 @@ jobs:
             echo "Usando credenciales desde Secrets ($FOUND_USER_KEY/$FOUND_PASS_KEY)"
           else
             echo "No se encontraron credenciales admin en secrets." >&2
-            echo "Configure secretos: WP_ADMIN_USER y WP_ADMIN_PASS (o variantes RUNART_ADMIN_USER/RUNART_ADMIN_PASS, ADMIN_USER/ADMIN_PASS)." >&2
+            echo "Configure secretos: WP_USER y WP_APP_PASSWORD (o WP_ADMIN_USER/WP_ADMIN_PASS, o variantes RUNART_ADMIN_USER/RUNART_ADMIN_PASS)." >&2
             echo "Si están guardados como Environment secrets, asegúrese de usar el environment 'staging' o ajuste el nombre del environment en este workflow." >&2
             exit 11
           fi
