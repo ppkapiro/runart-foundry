@@ -795,7 +795,7 @@ GET /wp-json/runart/content/enriched?page_id=page_42
 - **Listado (columna izquierda):**
   - Muestra todos los contenidos enriquecidos disponibles
   - Indica ID, idioma y estado visual (Generado/Aprobado/Rechazado/Revisar)
-  - Clic en item → carga detalle
+  - Clic en item → carga detalle y resalta item seleccionado
 
 - **Detalle (columna derecha):**
   - Headline ES/EN
@@ -803,6 +803,27 @@ GET /wp-json/runart/content/enriched?page_id=page_42
   - Referencias visuales con image_id, filename, score y contexto
   - Botones: ✅ Aprobar | ❌ Rechazar | 📋 Marcar revisión
   - Estado actual de aprobación con timestamp y usuario
+  - Feedback visual después de cada acción
+
+### Debugging y Validación
+
+El panel incluye logging detallado en consola del navegador para diagnóstico:
+
+```javascript
+// Eventos registrados:
+- Click en item: "Click en item, data-id = page_42"
+- Carga de detalle: "loadDetail: cargando página con ID = page_42"
+- URL completa: "loadDetail: URL completa = https://..."
+- Respuesta: "loadDetail: respuesta del servidor = {...}"
+- Aprobación: "runartApprove: id = page_42 status = approved"
+- Payload: "runartApprove: payload = {id: 'page_42', status: 'approved'}"
+```
+
+**Verificación de funcionamiento:**
+1. Abrir consola de desarrollador (F12)
+2. Hacer click en un contenido → verificar logs de carga
+3. Hacer click en botón de acción → verificar logs de POST
+4. Comprobar que no aparece error "page_id parameter is required"
 
 ### Flujo de trabajo
 

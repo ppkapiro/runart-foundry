@@ -6,6 +6,45 @@
 
 ## Últimas actualizaciones
 
+### 🟢 2025-10-30T23:59:00Z — F10-f (Panel Editorial IA-Visual) — Corrección detalle y acciones
+**Branch:** `feat/ai-visual-implementation`  
+**Commit:** (pending)  
+**Autor:** automation-runart  
+**Archivos:**
+- tools/wpcli-bridge-plugin/runart-wpcli-bridge.php (modificado) — Mejoras en JS del panel editorial
+
+**Problema reportado:**
+- Panel editorial mostraba lista (izquierda) correctamente
+- Al hacer click en un item, panel derecho mostraba "Error: page_id parameter is required"
+- Botones de acción (Aprobar/Rechazar/Revisar) no aparecían
+
+**Correcciones implementadas:**
+1. ✅ **Logging diagnóstico:** Agregado console.log en:
+   - Click handler: registra `data-id` del item clickeado
+   - `loadDetail()`: valida que `id` no sea vacío, registra URL completa
+   - `runartApprove()`: registra payload y respuesta del servidor
+2. ✅ **Variable global:** `window.RUNART_CURRENT_PAGE_ID` guarda el ID actual
+3. ✅ **Resaltado visual:** Item seleccionado cambia fondo a `#eff6ff`
+4. ✅ **Validación de ID:** `loadDetail()` verifica que `id` exista antes de hacer fetch
+5. ✅ **URL encoding:** Uso de `encodeURIComponent(id)` para evitar problemas con caracteres especiales
+6. ✅ **Manejo de errores:** Muestra `data.error` si existe en respuesta
+7. ✅ **Feedback visual:** Mejora en colores y padding del div de resultado de aprobación
+
+**Funcionalidad esperada:**
+- Click en item → console muestra "Click en item, data-id = page_42"
+- Panel derecho → carga detalle sin error "page_id parameter is required"
+- Botones → POST exitoso a `/enriched-approve` o mensaje QUEUED si readonly
+- Refresh automático → listado actualiza estados después de aprobar
+
+**Plugin actualizado:**
+- Versión: 1.1.2
+- ZIP: `_dist/runart-wpcli-bridge-v1.1.2_20251030T225917Z.zip`
+- SHA256: `774689458e9991aaa0563505780f62a375065c05ffcb240fd81adacb4d591590`
+
+**Estado:** 🟢 COMPLETADO — Panel editorial con logging y validaciones mejoradas
+
+---
+
 ### 🟢 2025-10-30T23:45:00Z — F10-e (Sincronización Datos IA-Visual) — Acceso a JSONs desde WP
 **Branch:** `feat/ai-visual-implementation`  
 **Commit:** (pending)  

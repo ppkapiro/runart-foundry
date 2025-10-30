@@ -1659,6 +1659,17 @@ function runart_ai_visual_monitor_editor_mode($rest_url, $rest_nonce) {
             document.querySelectorAll('.rep-item').forEach(el => {
                 el.addEventListener('click', () => {
                     const id = el.getAttribute('data-id');
+                    console.log('Click en item, data-id =', id);
+                    
+                    // Guardar ID actual globalmente para botones de acción
+                    window.RUNART_CURRENT_PAGE_ID = id;
+                    
+                    // Resaltar item seleccionado
+                    document.querySelectorAll('.rep-item').forEach(item => {
+                        item.style.background = '#fff';
+                    });
+                    el.style.background = '#eff6ff';
+                    
                     loadDetail(id);
                 });
             });
@@ -1666,16 +1677,27 @@ function runart_ai_visual_monitor_editor_mode($rest_url, $rest_nonce) {
         
         // Cargar detalle
         function loadDetail(id) {
+            if (!id) {
+                console.error('loadDetail: ID es vacío o undefined');
+                detailContainer.innerHTML = '<div style="padding:20px;color:#c00;">Error: ID de página no proporcionado</div>';
+                return;
+            }
+            
+            console.log('loadDetail: cargando página con ID =', id);
             detailContainer.innerHTML = '<div style="text-align:center;padding:40px;color:#999;">Cargando detalle...</div>';
             
-            fetch(base + 'runart/content/enriched?page_id=' + id, {
+            const url = base + 'runart/content/enriched?page_id=' + encodeURIComponent(id);
+            console.log('loadDetail: URL completa =', url);
+            
+            fetch(url, {
                 credentials: 'include',
                 headers: authHeaders
             })
             .then(r => r.json())
             .then(data => {
+                console.log('loadDetail: respuesta del servidor =', data);
                 if (!data.ok) {
-                    detailContainer.innerHTML = '<div style="padding:20px;color:#c00;">Error: ' + (data.message || 'No disponible') + '</div>';
+                    detailContainer.innerHTML = '<div style="padding:20px;color:#c00;">Error: ' + (data.message || data.error || 'No disponible') + '</div>';
                     return;
                 }
                 
@@ -1778,20 +1800,29 @@ function runart_ai_visual_monitor_editor_mode($rest_url, $rest_nonce) {
         
         // Función global para aprobar
         window.runartApprove = function(id, status) {
+            console.log('runartApprove: id =', id, 'status =', status);
+            
             const resultDiv = document.getElementById('rep-approval-result');
             resultDiv.style.display = 'block';
             resultDiv.innerHTML = 'Procesando...';
             resultDiv.style.background = '#fef3c7';
             resultDiv.style.border = '1px solid #f59e0b';
+            resultDiv.style.color = '#000';
+            resultDiv.style.padding = '10px';
+            
+            const payload = { id: id, status: status };
+            console.log('runartApprove: payload =', payload);
             
             fetch(base + 'runart/content/enriched-approve', {
                 method: 'POST',
                 headers: Object.assign({ 'Content-Type': 'application/json' }, authHeaders),
                 credentials: 'include',
-                body: JSON.stringify({ id: id, status: status })
+                body: JSON.stringify(payload)
             })
             .then(r => r.json())
             .then(data => {
+                console.log('runartApprove: respuesta =', data);
+                
                 if (data.ok === true) {
                     resultDiv.innerHTML = '✅ ' + (data.message || 'Aprobación registrada correctamente');
                     resultDiv.style.background = '#d1fae5';
@@ -1801,13 +1832,14 @@ function runart_ai_visual_monitor_editor_mode($rest_url, $rest_nonce) {
                     resultDiv.style.background = '#fef3c7';
                     resultDiv.style.border = '1px solid #f59e0b';
                 } else {
-                    resultDiv.innerHTML = '❌ Error: ' + (data.message || 'No se pudo procesar');
+                    resultDiv.innerHTML = '❌ Error: ' + (data.message || data.error || 'No se pudo procesar');
                     resultDiv.style.background = '#fee2e2';
                     resultDiv.style.border = '1px solid #dc2626';
                 }
                 
                 // Recargar listado para actualizar estados
                 setTimeout(() => {
+                    console.log('runartApprove: recargando listado...');
                     loadList();
                 }, 1500);
             })
