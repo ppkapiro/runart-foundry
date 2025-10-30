@@ -31,7 +31,7 @@
 **PR:** #77
 **Autor:** automation-runart
 **Archivos:**
-- _reports/PLAN_MAESTRO_IA_VISUAL_RUNART.md (1230 líneas, 8 secciones, 85 headings)
+- PLAN_MAESTRO_IA_VISUAL_RUNART.md (1230 líneas, 8 secciones, 85 headings) — ubicado en raíz
 - _reports/BITACORA_AUDITORIA_V2.md (actualizada)
 
 **Resumen:**
