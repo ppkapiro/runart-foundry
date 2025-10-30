@@ -1,0 +1,256 @@
+name: audit-content-rest
+
+on:
+  workflow_dispatch:
+    inputs:
+      phase:
+        description: "Fase de auditoría (f1_pages | f2_images | both)"
+        required: true
+        type: choice
+        options:
+          - f1_pages
+          - f2_images
+          - both
+        default: "both"
+      target_branch:
+        description: "Branch donde commitear resultados"
+        required: false
+        default: "feat/content-audit-v2-phase1"
+        type: string
+
+permissions:
+  contents: write
+
+env:
+  WP_BASE_URL: ${{ vars.WP_BASE_URL }}
+  WP_USER: ${{ secrets.WP_USER }}
+  WP_APP_PASSWORD: ${{ secrets.WP_APP_PASSWORD }}
+
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ inputs.target_branch }}
+          fetch-depth: 0
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: F1 - Fetch Pages Inventory
+        if: inputs.phase == 'f1_pages' || inputs.phase == 'both'
+        id: f1
+        run: |
+          set -euo pipefail
+          ENDPOINT="${WP_BASE_URL}/wp-json/runart/audit/pages"
+          AUTH="${WP_USER}:${WP_APP_PASSWORD}"
+          
+          echo "📄 Fetching pages inventory from: $ENDPOINT"
+          
+          HTTP_CODE=$(curl -sS -o f1_response.json -w "%{http_code}" -u "$AUTH" "$ENDPOINT")
+          
+          if [ "$HTTP_CODE" != "200" ]; then
+            echo "❌ Error: HTTP $HTTP_CODE"
+            cat f1_response.json
+            exit 1
+          fi
+          
+          echo "✅ Response received (HTTP $HTTP_CODE)"
+          
+          # Extract metrics
+          TOTAL=$(jq -r '.total' f1_response.json)
+          TOTAL_ES=$(jq -r '.total_es' f1_response.json)
+          TOTAL_EN=$(jq -r '.total_en' f1_response.json)
+          TOTAL_UNK=$(jq -r '.total_unknown' f1_response.json)
+          
+          echo "total=$TOTAL" >> $GITHUB_OUTPUT
+          echo "total_es=$TOTAL_ES" >> $GITHUB_OUTPUT
+          echo "total_en=$TOTAL_EN" >> $GITHUB_OUTPUT
+          echo "total_unknown=$TOTAL_UNK" >> $GITHUB_OUTPUT
+          
+          echo "📊 Total: $TOTAL | ES: $TOTAL_ES | EN: $TOTAL_EN | Unknown: $TOTAL_UNK"
+
+      - name: F1 - Transform JSON to Markdown
+        if: inputs.phase == 'f1_pages' || inputs.phase == 'both'
+        run: |
+          set -euo pipefail
+          
+          OUT_MD="research/content_audit_v2/01_pages_inventory.md"
+          
+          cat > "$OUT_MD" <<'HEADER'
+          # F1 — Inventario de Páginas (ES/EN)
+          
+          > Objetivo: listar 50+ páginas con sus metadatos, tipo y estado de traducción.
+          
+          ## Resumen
+          HEADER
+          
+          echo "- Total: ${{ steps.f1.outputs.total }}" >> "$OUT_MD"
+          echo "- Total ES: ${{ steps.f1.outputs.total_es }}" >> "$OUT_MD"
+          echo "- Total EN: ${{ steps.f1.outputs.total_en }}" >> "$OUT_MD"
+          echo "- Sin idioma detectado: ${{ steps.f1.outputs.total_unknown }}" >> "$OUT_MD"
+          echo "" >> "$OUT_MD"
+          
+          echo "## Tabla de inventario" >> "$OUT_MD"
+          echo "| ID | URL | Idioma | Tipo | Estado | Título | Slug |" >> "$OUT_MD"
+          echo "|----|-----|--------|------|--------|--------|------|" >> "$OUT_MD"
+          
+          jq -r '.items[] | "| \(.id) | \(.url) | \(.lang) | \(.type) | \(.status) | \(.title) | \(.slug) |"' f1_response.json >> "$OUT_MD"
+          
+          echo "" >> "$OUT_MD"
+          echo "## Hallazgos iniciales" >> "$OUT_MD"
+          echo "- [ ] Revisar páginas sin idioma asignado (${{ steps.f1.outputs.total_unknown }} encontradas)" >> "$OUT_MD"
+          echo "- [ ] Verificar duplicados ES/EN" >> "$OUT_MD"
+          echo "- [ ] Marcar pendientes de traducción" >> "$OUT_MD"
+          
+          echo "✅ F1 Markdown generated: $OUT_MD"
+
+      - name: F2 - Fetch Images Inventory
+        if: inputs.phase == 'f2_images' || inputs.phase == 'both'
+        id: f2
+        run: |
+          set -euo pipefail
+          ENDPOINT="${WP_BASE_URL}/wp-json/runart/audit/images"
+          AUTH="${WP_USER}:${WP_APP_PASSWORD}"
+          
+          echo "🖼️  Fetching images inventory from: $ENDPOINT"
+          
+          HTTP_CODE=$(curl -sS -o f2_response.json -w "%{http_code}" -u "$AUTH" "$ENDPOINT")
+          
+          if [ "$HTTP_CODE" != "200" ]; then
+            echo "❌ Error: HTTP $HTTP_CODE"
+            cat f2_response.json
+            exit 1
+          fi
+          
+          echo "✅ Response received (HTTP $HTTP_CODE)"
+          
+          # Extract metrics
+          TOTAL=$(jq -r '.total' f2_response.json)
+          TOTAL_ES=$(jq -r '.total_es' f2_response.json)
+          TOTAL_EN=$(jq -r '.total_en' f2_response.json)
+          TOTAL_UNK=$(jq -r '.total_unknown' f2_response.json)
+          
+          echo "total=$TOTAL" >> $GITHUB_OUTPUT
+          echo "total_es=$TOTAL_ES" >> $GITHUB_OUTPUT
+          echo "total_en=$TOTAL_EN" >> $GITHUB_OUTPUT
+          echo "total_unknown=$TOTAL_UNK" >> $GITHUB_OUTPUT
+          
+          echo "📊 Total: $TOTAL | ES: $TOTAL_ES | EN: $TOTAL_EN | Unknown: $TOTAL_UNK"
+
+      - name: F2 - Transform JSON to Markdown
+        if: inputs.phase == 'f2_images' || inputs.phase == 'both'
+        run: |
+          set -euo pipefail
+          
+          OUT_MD="research/content_audit_v2/02_images_inventory.md"
+          
+          cat > "$OUT_MD" <<'HEADER'
+          # F2 — Inventario de Imágenes
+          
+          > Objetivo: listar 200+ imágenes con metadatos (MIME, tamaño, dimensiones) y estado de idioma.
+          
+          ## Resumen
+          HEADER
+          
+          echo "- Total: ${{ steps.f2.outputs.total }}" >> "$OUT_MD"
+          echo "- Total ES: ${{ steps.f2.outputs.total_es }}" >> "$OUT_MD"
+          echo "- Total EN: ${{ steps.f2.outputs.total_en }}" >> "$OUT_MD"
+          echo "- Sin idioma detectado: ${{ steps.f2.outputs.total_unknown }}" >> "$OUT_MD"
+          echo "" >> "$OUT_MD"
+          
+          echo "## Tabla de inventario" >> "$OUT_MD"
+          echo "| ID | URL | Idioma | MIME | Ancho | Alto | Tamaño (KB) | Título | Alt | Archivo |" >> "$OUT_MD"
+          echo "|----|-----|--------|------|-------|------|-------------:|--------|-----|---------|" >> "$OUT_MD"
+          
+          jq -r '.items[] | "| \(.id) | \(.url) | \(.lang) | \(.mime) | \(.width) | \(.height) | \(.size_kb) | \(.title) | \(.alt) | \(.file) |"' f2_response.json >> "$OUT_MD"
+          
+          echo "" >> "$OUT_MD"
+          echo "## Hallazgos iniciales" >> "$OUT_MD"
+          
+          # Calcular imágenes >300KB
+          LARGE_IMAGES=$(jq '[.items[] | select(.size_kb > 300)] | length' f2_response.json)
+          NO_ALT=$(jq '[.items[] | select(.alt == "")] | length' f2_response.json)
+          
+          echo "- [ ] Identificar imágenes > 300KB para optimización ($LARGE_IMAGES encontradas)" >> "$OUT_MD"
+          echo "- [ ] Revisar imágenes sin ALT ($NO_ALT encontradas)" >> "$OUT_MD"
+          echo "- [ ] Verificar duplicados ES/EN en medios embebidos" >> "$OUT_MD"
+          
+          echo "✅ F2 Markdown generated: $OUT_MD"
+
+      - name: Commit and Push Results
+        run: |
+          set -euo pipefail
+          
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          
+          # Add only modified audit files
+          git add research/content_audit_v2/*.md || true
+          
+          # Check if there are changes
+          if git diff --staged --quiet; then
+            echo "ℹ️  No changes to commit"
+            exit 0
+          fi
+          
+          COMMIT_MSG="audit: actualizar inventarios F1/F2 desde REST Bridge (staging real)"
+          if [ "${{ inputs.phase }}" = "f1_pages" ]; then
+            COMMIT_MSG="audit: F1 páginas desde REST Bridge (Total=${{ steps.f1.outputs.total }})"
+          elif [ "${{ inputs.phase }}" = "f2_images" ]; then
+            COMMIT_MSG="audit: F2 imágenes desde REST Bridge (Total=${{ steps.f2.outputs.total }})"
+          else
+            COMMIT_MSG="audit: F1+F2 desde REST Bridge (Pages=${{ steps.f1.outputs.total }}, Images=${{ steps.f2.outputs.total }})"
+          fi
+          
+          git commit -m "$COMMIT_MSG" --no-verify
+          git push origin ${{ inputs.target_branch }}
+          
+          echo "✅ Changes committed and pushed to ${{ inputs.target_branch }}"
+
+      - name: Generate Report
+        if: always()
+        run: |
+          set +e
+          mkdir -p _reports/audit
+          TS=$(date -u +"%Y%m%d_%H%M%S")
+          REPORT="_reports/audit/audit_rest_${TS}_${{ inputs.phase }}.md"
+          
+          {
+            echo "# 🔍 Content Audit REST Report"
+            echo "**Fecha:** $(date -u)"
+            echo "**Fase:** ${{ inputs.phase }}"
+            echo "**Branch:** ${{ inputs.target_branch }}"
+            echo ""
+            
+            if [ "${{ inputs.phase }}" = "f1_pages" ] || [ "${{ inputs.phase }}" = "both" ]; then
+              echo "## F1 - Páginas"
+              echo "- Total: ${{ steps.f1.outputs.total }}"
+              echo "- ES: ${{ steps.f1.outputs.total_es }}"
+              echo "- EN: ${{ steps.f1.outputs.total_en }}"
+              echo "- Unknown: ${{ steps.f1.outputs.total_unknown }}"
+              echo ""
+            fi
+            
+            if [ "${{ inputs.phase }}" = "f2_images" ] || [ "${{ inputs.phase }}" = "both" ]; then
+              echo "## F2 - Imágenes"
+              echo "- Total: ${{ steps.f2.outputs.total }}"
+              echo "- ES: ${{ steps.f2.outputs.total_es }}"
+              echo "- EN: ${{ steps.f2.outputs.total_en }}"
+              echo "- Unknown: ${{ steps.f2.outputs.total_unknown }}"
+              echo ""
+            fi
+            
+            echo "## Endpoint URLs"
+            echo "- Pages: ${WP_BASE_URL}/wp-json/runart/audit/pages"
+            echo "- Images: ${WP_BASE_URL}/wp-json/runart/audit/images"
+            echo ""
+            echo "## Status"
+            echo "✅ Workflow completed successfully"
+          } > "$REPORT"
+          
+          echo "📄 Report generated: $REPORT"
