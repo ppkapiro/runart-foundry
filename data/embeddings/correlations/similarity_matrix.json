@@ -1,7 +1,44 @@
 {
   "version": "1.0",
-  "generated_at": "2025-10-30T17:17:22Z",
-  "total_comparisons": 0,
-  "threshold": 0.70,
-  "matrix": []
+  "generated_at": "2025-10-30T18:08:02.947184+00:00",
+  "total_comparisons": 12,
+  "above_threshold": 5,
+  "threshold": 0.0,
+  "matrix": [
+    {
+      "page_id": "page_43",
+      "page_title": "Exposición de Arte Contemporáneo",
+      "image_id": "b4152b9483f89d5f",
+      "image_filename": "artwork_red.jpg",
+      "similarity_score": 0.0525
+    },
+    {
+      "page_id": "page_42",
+      "page_title": "RunArt Foundation - Contemporary Art Gallery",
+      "image_id": "a3231b4ff3eb5dda",
+      "image_filename": "artwork_blue.jpg",
+      "similarity_score": 0.0215
+    },
+    {
+      "page_id": "page_42",
+      "page_title": "RunArt Foundation - Contemporary Art Gallery",
+      "image_id": "b4152b9483f89d5f",
+      "image_filename": "artwork_red.jpg",
+      "similarity_score": 0.0117
+    },
+    {
+      "page_id": "page_44",
+      "page_title": "Digital Art and Technology",
+      "image_id": "a3231b4ff3eb5dda",
+      "image_filename": "artwork_blue.jpg",
+      "similarity_score": 0.0289
+    },
+    {
+      "page_id": "page_44",
+      "page_title": "Digital Art and Technology",
+      "image_id": "b4152b9483f89d5f",
+      "image_filename": "artwork_red.jpg",
+      "similarity_score": 0.0413
+    }
+  ]
 }

@@ -1,0 +1,23 @@
+[
+  {
+    "id": "42",
+    "title": "RunArt Foundation - Contemporary Art Gallery",
+    "content": "Welcome to RunArt Foundation, a contemporary art gallery dedicated to showcasing emerging and established artists. Our collection features paintings, sculptures, and digital art from around the world. We believe in the power of art to inspire, challenge, and transform. Visit our gallery to explore red abstract paintings, blue contemporary artworks, and green modern sculptures.",
+    "lang": "en",
+    "url": "https://runartfoundry.com/gallery"
+  },
+  {
+    "id": "43",
+    "title": "Exposición de Arte Contemporáneo",
+    "content": "Bienvenido a nuestra galería de arte contemporáneo. Presentamos una colección única de obras de artistas emergentes y consagrados. Nuestra exposición incluye pinturas abstractas rojas, arte moderno azul y esculturas verdes innovadoras. El arte tiene el poder de transformar nuestra percepción del mundo. Visite nuestra galería para descubrir nuevas perspectivas artísticas.",
+    "lang": "es",
+    "url": "https://runartfoundry.com/es/exposicion"
+  },
+  {
+    "id": "44",
+    "title": "Digital Art and Technology",
+    "content": "Explore the intersection of digital art and modern technology. Our collection features innovative digital artworks that push the boundaries of creative expression. From generative art to interactive installations, we showcase the future of artistic creation. The blue digital landscapes and red abstract compositions represent the cutting edge of contemporary digital art.",
+    "lang": "en",
+    "url": "https://runartfoundry.com/digital-art"
+  }
+]

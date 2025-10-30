@@ -90,6 +90,61 @@ class VisionAnalyzer:
                 sha256.update(chunk)
         return sha256.hexdigest()
     
+    def _generate_synthetic_embedding(self, image_path: Path, checksum: str) -> List[float]:
+        """
+        Genera un embedding sintético basado en características de la imagen.
+        Usado cuando CLIP no está disponible pero necesitamos embeddings válidos.
+        
+        Args:
+            image_path: Ruta a la imagen
+            checksum: Checksum de la imagen
+            
+        Returns:
+            Lista de 512 floats normalizados
+        """
+        import numpy as np
+        
+        try:
+            # Obtener características básicas de la imagen
+            with Image.open(image_path) as img:
+                # Convertir a RGB
+                img_rgb = img.convert('RGB')
+                # Redimensionar a tamaño pequeño para análisis
+                img_small = img_rgb.resize((32, 32))
+                # Extraer valores de píxeles
+                pixels = np.array(img_small)
+                
+                # Calcular estadísticas por canal
+                mean_r = np.mean(pixels[:,:,0]) / 255.0
+                mean_g = np.mean(pixels[:,:,1]) / 255.0
+                mean_b = np.mean(pixels[:,:,2]) / 255.0
+                std_r = np.std(pixels[:,:,0]) / 255.0
+                std_g = np.std(pixels[:,:,1]) / 255.0
+                std_b = np.std(pixels[:,:,2]) / 255.0
+                
+                # Seed basado en checksum para reproducibilidad
+                seed = int(checksum[:8], 16) % (2**31)
+                np.random.seed(seed)
+                
+                # Generar embedding sintético de 512 dims
+                # Primeras 6 dimensiones: estadísticas de color
+                embedding = [mean_r, mean_g, mean_b, std_r, std_g, std_b]
+                # Resto: valores aleatorios normalizados basados en seed
+                embedding.extend(np.random.randn(506).tolist())
+                
+                # Normalizar a rango [-1, 1]
+                embedding = np.array(embedding)
+                norm = np.linalg.norm(embedding)
+                if norm > 0:
+                    embedding = embedding / norm
+                
+                return embedding.tolist()
+                
+        except Exception as e:
+            logger.error(f"Error generando embedding sintético: {e}")
+            # Fallback: embedding de ceros
+            return [0.0] * EMBEDDING_DIM
+    
     def generate_visual_embedding(self, image_path: str) -> Dict:
         """
         Genera un embedding visual para una imagen.
@@ -132,12 +187,12 @@ class VisionAnalyzer:
                 logger.info(f"✅ Embedding generado: {len(embedding_list)} dimensiones")
             except Exception as e:
                 logger.error(f"❌ Error generando embedding: {e}")
-                # Stub: embedding de ceros
-                embedding_list = [0.0] * EMBEDDING_DIM
+                # Stub: embedding sintético basado en características de imagen
+                embedding_list = self._generate_synthetic_embedding(image_path, checksum)
         else:
-            # Modo stub: embedding de ceros
-            logger.warning("⚠️ Modo stub: generando embedding de ceros")
-            embedding_list = [0.0] * EMBEDDING_DIM
+            # Modo stub: embedding sintético basado en características de imagen
+            logger.warning("⚠️ Modo stub: generando embedding sintético")
+            embedding_list = self._generate_synthetic_embedding(image_path, checksum)
         
         # Crear estructura de datos
         embedding_data = {

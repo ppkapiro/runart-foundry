@@ -117,17 +117,44 @@ class Correlator:
         else:
             logger.warning(f"⚠️ Directorio textual no existe: {self.text_dir}")
     
-    def compute_cosine_similarity(self, vec1: np.ndarray, vec2: np.ndarray) -> float:
+    def _align_dimensions(self, vec1: np.ndarray, vec2: np.ndarray) -> tuple:
         """
-        Calcula similitud coseno entre dos vectores.
+        Alinea las dimensiones de dos vectores al tamaño máximo con padding de ceros.
         
         Args:
             vec1: Primer vector
             vec2: Segundo vector
             
         Returns:
+            Tupla de vectores alineados
+        """
+        len1, len2 = len(vec1), len(vec2)
+        if len1 == len2:
+            return vec1, vec2
+        
+        max_len = max(len1, len2)
+        if len1 < max_len:
+            vec1 = np.pad(vec1, (0, max_len - len1), mode='constant')
+        if len2 < max_len:
+            vec2 = np.pad(vec2, (0, max_len - len2), mode='constant')
+        
+        return vec1, vec2
+    
+    def compute_cosine_similarity(self, vec1: np.ndarray, vec2: np.ndarray) -> float:
+        """
+        Calcula similitud coseno entre dos vectores.
+        Maneja automáticamente vectores de diferentes dimensiones.
+        
+        Args:
+            vec1: Primer vector (puede ser 512D o 768D)
+            vec2: Segundo vector (puede ser 512D o 768D)
+            
+        Returns:
             Similitud coseno (0.0-1.0)
         """
+        # Alinear dimensiones si son diferentes
+        vec1, vec2 = self._align_dimensions(vec1, vec2)
+        
         if SKLEARN_AVAILABLE:
             # Usar sklearn (más rápido)
             similarity = cosine_similarity(vec1.reshape(1, -1), vec2.reshape(1, -1))[0][0]
