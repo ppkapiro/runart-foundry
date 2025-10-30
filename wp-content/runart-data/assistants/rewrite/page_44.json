@@ -1,0 +1,95 @@
+{
+  "id": "page_44",
+  "source_text": "Explore the intersection of digital art and modern technology. Our collection features innovative digital artworks that push the boundaries of creative expression. From generative art to interactive installations, we showcase the future of artistic creation. The blue digital landscapes and red abstract compositions represent the cutting edge of contemporary digital art.",
+  "lang": "en",
+  "enriched_en": {
+    "headline": "Digital Art and Technology - Enhanced Version",
+    "summary": "Enhanced content with 2 visual references based on AI semantic correlation.",
+    "body": "## Enhanced Content\n\nThis version incorporates visual references automatically suggested through semantic similarity analysis between text and image embeddings.\n\n### Original Content\n\nExplore the intersection of digital art and modern technology. Our collection features innovative digital artworks that push the boundaries of creative expression. From generative art to interactive installations, we showcase the future of artistic creation. The blue digital landscapes and red abstract compositions represent the cutting edge of contemporary digital art.",
+    "visual_references": [
+      {
+        "image_id": "b4152b9483f89d5f",
+        "filename": "artwork_red.jpg",
+        "similarity_score": 0.0413,
+        "reason": "High visual similarity (4.1%) with page topic",
+        "suggested_alt": "Bronze sculpture with red finish",
+        "suggested_caption": "Casting process at RunArt Foundry - Digital Art and Technology",
+        "media_hint": {
+          "original_name": "artwork_red.jpg",
+          "possible_wp_slug": "artwork-red",
+          "confidence": 0.0413
+        }
+      },
+      {
+        "image_id": "a3231b4ff3eb5dda",
+        "filename": "artwork_blue.jpg",
+        "similarity_score": 0.0289,
+        "reason": "High visual similarity (2.9%) with page topic",
+        "suggested_alt": "Bronze sculpture with blue finish",
+        "suggested_caption": "Casting process at RunArt Foundry - Digital Art and Technology",
+        "media_hint": {
+          "original_name": "artwork_blue.jpg",
+          "possible_wp_slug": "artwork-blue",
+          "confidence": 0.0289
+        }
+      }
+    ],
+    "tags": [
+      "blue",
+      "art",
+      "runart",
+      "contemporary",
+      "digital",
+      "red",
+      "abstract"
+    ]
+  },
+  "enriched_es": {
+    "headline": "Digital Art and Technology - Versión Enriquecida",
+    "summary": "Contenido mejorado con 2 referencias visuales basadas en correlación semántica IA.",
+    "body": "## Contenido Enriquecido\n\nEsta versión incorpora referencias visuales sugeridas automáticamente mediante análisis de similitud semántica entre embeddings de texto e imagen.\n\n### Contenido Original\n\nExplore the intersection of digital art and modern technology. Our collection features innovative digital artworks that push the boundaries of creative expression. From generative art to interactive installations, we showcase the future of artistic creation. The blue digital landscapes and red abstract compositions represent the cutting edge of contemporary digital art.",
+    "visual_references": [
+      {
+        "image_id": "b4152b9483f89d5f",
+        "filename": "artwork_red.jpg",
+        "similarity_score": 0.0413,
+        "reason": "Alta similitud visual (4.1%) con el tema de la página",
+        "suggested_alt": "Escultura de bronce con acabado en red",
+        "suggested_caption": "Proceso de fundición en RunArt Foundry - Digital Art and Technology",
+        "media_hint": {
+          "original_name": "artwork_red.jpg",
+          "possible_wp_slug": "artwork-red",
+          "confidence": 0.0413
+        }
+      },
+      {
+        "image_id": "a3231b4ff3eb5dda",
+        "filename": "artwork_blue.jpg",
+        "similarity_score": 0.0289,
+        "reason": "Alta similitud visual (2.9%) con el tema de la página",
+        "suggested_alt": "Escultura de bronce con acabado en blue",
+        "suggested_caption": "Proceso de fundición en RunArt Foundry - Digital Art and Technology",
+        "media_hint": {
+          "original_name": "artwork_blue.jpg",
+          "possible_wp_slug": "artwork-blue",
+          "confidence": 0.0289
+        }
+      }
+    ],
+    "tags": [
+      "digital",
+      "runart",
+      "azul",
+      "rojo"
+    ]
+  },
+  "meta": {
+    "generated_from": "F8-similarity",
+    "similarity_threshold": 0.0,
+    "top_k": 2,
+    "generated_at": "2025-10-30T18:32:38.645950+00:00",
+    "needs_translation": true,
+    "dataset_notes": "Dataset mixto: visual sintético (512D RGB), texto real (768D mpnet)",
+    "production_threshold_recommended": 0.7
+  }
+}

@@ -491,6 +491,48 @@ data/embeddings/
 
 ---
 
+## Rutas de Datos y Hosting Environments
+
+### Sistema de Prioridades (Cascading Read)
+
+El plugin WP-CLI Bridge (`runart-wpcli-bridge.php`) implementa un sistema de lectura en cascada para ubicar archivos JSON de contenido enriquecido y embeddings. Esto garantiza compatibilidad con distintos entornos de hosting:
+
+```php
+// Orden de búsqueda (función runart_bridge_data_bases):
+1. repo:      ../data                                 # Repositorio (desarrollo local)
+2. wp_content: wp-content/runart-data                 # WP-Content (staging/producción)
+3. uploads:    wp-content/uploads/runart-data         # Uploads (hosting restringido)
+4. plugin:     wp-content/plugins/runart-wpcli-bridge/data  # Plugin (fallback final)
+```
+
+### Razón: Restricciones de Hosting
+
+En entornos de hosting gestionado (ej: IONOS, WP Engine), PHP no puede leer fuera del árbol `wp-content/`. Por tanto:
+
+- **Desarrollo Local**: Lee desde `../data/` (repositorio completo)
+- **Staging/Producción**: Lee desde `wp-content/runart-data/` (copia manual)
+- **Hosting Restringido**: Lee desde `wp-content/uploads/runart-data/` (subido vía FTP)
+- **Fallback Plugin**: Lee desde `wp-content/plugins/runart-wpcli-bridge/data/` (incluido en deploy)
+
+### Sincronización de Datos
+
+Los archivos críticos deben copiarse a todas las ubicaciones accesibles:
+
+```bash
+# Sincronizar contenido enriquecido (F9)
+cp -r data/assistants/rewrite/*.json wp-content/runart-data/assistants/rewrite/
+cp -r data/assistants/rewrite/*.json wp-content/uploads/runart-data/assistants/rewrite/
+cp -r data/assistants/rewrite/*.json wp-content/plugins/runart-wpcli-bridge/data/assistants/rewrite/
+
+# Sincronizar embeddings (F7/F8)
+cp -r data/embeddings/* wp-content/runart-data/embeddings/
+cp -r data/embeddings/* wp-content/uploads/runart-data/embeddings/
+```
+
+El plugin reporta en el campo `meta.source` qué ruta utilizó (valores: `repo`, `wp_content`, `uploads`, `plugin`), útil para diagnóstico.
+
+---
+
 ## Ejemplos de Uso
 
 ### Workflow Completo

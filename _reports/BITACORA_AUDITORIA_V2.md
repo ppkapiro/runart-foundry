@@ -6,6 +6,45 @@
 
 ## Últimas actualizaciones
 
+### 🟢 2025-10-30T23:45:00Z — F10-e (Sincronización Datos IA-Visual) — Acceso a JSONs desde WP
+**Branch:** `feat/ai-visual-implementation`  
+**Commit:** (pending)  
+**Autor:** automation-runart  
+**Archivos:**
+- tools/wpcli-bridge-plugin/runart-wpcli-bridge.php (modificado) — Añadida ruta `uploads` en `runart_bridge_data_bases()`
+- wp-content/runart-data/assistants/rewrite/*.json (4 archivos copiados)
+- wp-content/uploads/runart-data/assistants/rewrite/*.json (4 archivos copiados)
+- wp-content/plugins/runart-wpcli-bridge/data/assistants/rewrite/*.json (4 archivos copiados)
+- docs/ai/architecture_overview.md (+45 líneas) — Sección "Rutas de Datos y Hosting Environments"
+
+**Problema detectado:**
+- Con ventana staging ABIERTA (READ_ONLY=0, DRY_RUN=0), el Panel Editorial mostraba "No hay contenidos enriquecidos"
+- Causa: WordPress PHP no puede leer fuera de `wp-content/` en entornos de hosting gestionado (IONOS)
+- Los archivos JSON de F9 (`data/assistants/rewrite/`) estaban fuera del alcance de WordPress
+
+**Solución implementada:**
+- ✅ **Sincronización de datos:** Copiados 4 archivos JSON (index.json, page_42.json, page_43.json, page_44.json) a 3 ubicaciones WP-accesibles:
+  1. `wp-content/runart-data/assistants/rewrite/` (staging/producción)
+  2. `wp-content/uploads/runart-data/assistants/rewrite/` (hosting restringido)
+  3. `wp-content/plugins/runart-wpcli-bridge/data/assistants/rewrite/` (fallback plugin)
+- ✅ **Lectura en cascada:** Modificado `runart_bridge_data_bases()` para agregar ruta `uploads`
+  - Orden: `repo` → `wp_content` → `uploads` → `plugin`
+  - El plugin reporta en `meta.source` qué ruta utilizó (diagnóstico)
+- ✅ **Documentación:** Agregada sección en `architecture_overview.md` explicando:
+  - Sistema de prioridades de rutas
+  - Razones de restricciones de hosting
+  - Comandos de sincronización
+  - Campo `meta.source` para diagnóstico
+
+**Resultado esperado:**
+- 🎯 Endpoint `/wp-json/runart/content/enriched-list` debe devolver 3 páginas (42, 43, 44)
+- 🎯 Panel Editorial en `/en/panel-editorial-ia-visual/` debe mostrar lista en columna izquierda
+- 🎯 Sin más mensaje "No hay contenidos enriquecidos"
+
+**Estado:** 🟢 COMPLETADO — Datos IA-Visual accesibles desde WordPress en múltiples rutas
+
+---
+
 ### 🟢 2025-10-30T22:38:00Z — VENTANA DE MANTENIMIENTO STAGING ABIERTA
 **Responsable:** runart-admin  
 **Timestamp apertura:** 2025-10-30T22:38:09Z  
