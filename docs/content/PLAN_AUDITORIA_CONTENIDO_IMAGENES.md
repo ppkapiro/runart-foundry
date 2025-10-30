@@ -60,7 +60,15 @@ Esta auditoría cubre **5 fases secuenciales** para evaluar y optimizar el conte
 
 **Evidencias adicionales:**
 - Cada fase debe generar un reporte complementario en `_reports/FASE_X_EVIDENCIA_YYYYMMDD.md`
-- Capturas/logs de WP-CLI queries en `_tmp/` (no commitear, solo referencia)
+- Capturas/logs de queries REST en `_tmp/` (no commitear, solo referencia)
+
+**Origen de datos oficial:**
+- **F1 (Páginas):** Endpoint REST `GET /wp-json/runart/audit/pages`
+- **F2 (Imágenes):** Endpoint REST `GET /wp-json/runart/audit/images`
+- Ambos endpoints implementados en plugin `runart-wpcli-bridge`
+- Consumidos vía GitHub Actions workflows (autenticación: WP Application Password)
+- **NO se usa SSH ni WP-CLI arbitrario** — Solo endpoints REST controlados y documentados
+- Cumple con READ_ONLY/DRY_RUN por diseño (endpoints de solo lectura)
 
 ---
 
@@ -251,9 +259,10 @@ main (producción estable)
   bash tools/log/append_bitacora.sh "F1: Inventario completado" "PR #77 mergeado"
   ```
 
-**WP-CLI Queries:**
-- `tools/audit/query_pages.sh` — Listar páginas (F1)
-- `tools/audit/query_media.sh` — Listar media library (F2)
+**REST API Endpoints:**
+- `GET /wp-json/runart/audit/pages` — Inventario de páginas/posts (F1)
+- `GET /wp-json/runart/audit/images` — Inventario de media library (F2)
+- Plugin: `runart-wpcli-bridge` (ubicación: `tools/wpcli-bridge-plugin/`)
 
 **Validación:**
 - `.github/workflows/content-audit-checks.yml` — CI checks para auditoría
@@ -263,16 +272,17 @@ main (producción estable)
 
 ### Comandos Clave
 
-**WP-CLI (Staging):**
+**REST API (Staging):**
 ```bash
-# Páginas
-ssh ... "cd staging && wp post list --post_type=page --format=csv"
+# Obtener inventario de páginas (F1)
+curl -u "${WP_USER}:${WP_APP_PASSWORD}" \
+  https://staging.runartfoundry.com/wp-json/runart/audit/pages
 
-# Media
-ssh ... "cd staging && wp media list --format=csv"
+# Obtener inventario de imágenes (F2)
+curl -u "${WP_USER}:${WP_APP_PASSWORD}" \
+  https://staging.runartfoundry.com/wp-json/runart/audit/images
 
-# Word count
-wp post get <ID> --field=post_content | wc -w
+# Respuesta JSON incluye: total, total_es, total_en, total_unknown, items[]
 ```
 
 **Git:**

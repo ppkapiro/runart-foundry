@@ -25,6 +25,25 @@
 
 ## Eventos (Registro Cronológico Inverso)
 
+### 2025-10-30T00:00:00Z — Decisión Arquitectónica: REST Bridge Oficial
+**Autor:** RunArt Foundry Team
+**Documentos actualizados:**
+- `docs/content/PLAN_AUDITORIA_CONTENIDO_IMAGENES.md`
+- `_reports/BITACORA_AUDITORIA_V2.md`
+- `_reports/F1_F2_EXECUTION_OPTIONS_20251029.md`
+
+**Resumen:**
+Se adopta oficialmente **REST API Bridge** como método exclusivo para recolección de datos de auditoría (F1 páginas, F2 imágenes, F3 matriz). Se descartan opciones SSH/WP-CLI arbitrario por seguridad y gobernanza. Se implementarán 2 endpoints en plugin `runart-wpcli-bridge`:
+- `GET /wp-json/runart/audit/pages` (F1)
+- `GET /wp-json/runart/audit/images` (F2)
+
+Ambos endpoints: solo lectura, autenticación WP nativa, consumidos vía GitHub Actions workflows. Cumple READ_ONLY/DRY_RUN por diseño.
+
+**Próximo:** Implementar endpoints en plugin, build/deploy, ejecutar auditoría con datos reales.
+
+**Resultado:** ✅ Decisión arquitectónica documentada — Opción 1 (REST Bridge) adoptada
+
+---
 ### 2025-10-29T23:15:00Z — F2 — Data Entry iniciado
 **Branch:** `feat/content-audit-v2-phase1` (PR #77)
 **PR:** #77

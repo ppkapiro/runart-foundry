@@ -51,6 +51,21 @@ add_action('rest_api_init', function () {
         'callback' => 'runart_wpcli_bridge_plugins_list',
         'permission_callback' => 'runart_wpcli_bridge_permission_admin',
     ]);
+
+    // ==================== AUDIT ENDPOINTS ====================
+    // Pages audit (GET) - F1: Inventario de Páginas
+    register_rest_route('runart', '/audit/pages', [
+        'methods'  => 'GET',
+        'callback' => 'runart_audit_pages',
+        'permission_callback' => 'runart_wpcli_bridge_permission_admin',
+    ]);
+
+    // Images audit (GET) - F2: Inventario de Imágenes
+    register_rest_route('runart', '/audit/images', [
+        'methods'  => 'GET',
+        'callback' => 'runart_audit_images',
+        'permission_callback' => 'runart_wpcli_bridge_permission_admin',
+    ]);
 });
 
 function runart_wpcli_bridge_permission_admin() {
@@ -154,4 +169,162 @@ function runart_wpcli_bridge_plugins_list(WP_REST_Request $req) {
         ];
     }
     return runart_wpcli_bridge_ok(['count' => count($out), 'plugins' => $out]);
+}
+
+// ==================== AUDIT ENDPOINTS IMPLEMENTATION ====================
+
+/**
+ * F1: Audit Pages - Inventario de Páginas/Posts
+ * GET /wp-json/runart/audit/pages
+ * 
+ * Returns: JSON with all pages/posts including language, type, status
+ */
+function runart_audit_pages(WP_REST_Request $req) {
+    $args = [
+        'post_type' => ['page', 'post'],
+        'post_status' => ['publish', 'draft', 'pending', 'private'],
+        'posts_per_page' => -1,
+        'orderby' => 'ID',
+        'order' => 'ASC',
+    ];
+
+    $posts = get_posts($args);
+    $items = [];
+    $total_es = 0;
+    $total_en = 0;
+    $total_unknown = 0;
+
+    foreach ($posts as $post) {
+        $lang = '-';
+        
+        // Detect language via Polylang if available
+        if (function_exists('pll_get_post_language')) {
+            $lang_obj = pll_get_post_language($post->ID, 'object');
+            $lang = $lang_obj ? $lang_obj->slug : '-';
+        } elseif (has_term('', 'language', $post->ID)) {
+            // Fallback: check language taxonomy
+            $terms = wp_get_post_terms($post->ID, 'language', ['fields' => 'slugs']);
+            $lang = !empty($terms) && !is_wp_error($terms) ? $terms[0] : '-';
+        }
+
+        // Count by language
+        if ($lang === 'es') {
+            $total_es++;
+        } elseif ($lang === 'en') {
+            $total_en++;
+        } else {
+            $total_unknown++;
+        }
+
+        $items[] = [
+            'id' => $post->ID,
+            'url' => get_permalink($post->ID),
+            'lang' => $lang,
+            'type' => $post->post_type,
+            'status' => $post->post_status,
+            'title' => $post->post_title,
+            'slug' => $post->post_name,
+        ];
+    }
+
+    return new WP_REST_Response([
+        'ok' => true,
+        'total' => count($items),
+        'total_es' => $total_es,
+        'total_en' => $total_en,
+        'total_unknown' => $total_unknown,
+        'items' => $items,
+        'meta' => [
+            'timestamp' => gmdate('c'),
+            'site' => get_site_url(),
+            'phase' => 'F1',
+            'description' => 'Inventario de Páginas y Posts (ES/EN)',
+        ],
+    ], 200);
+}
+
+/**
+ * F2: Audit Images - Inventario de Imágenes/Media
+ * GET /wp-json/runart/audit/images
+ * 
+ * Returns: JSON with all image attachments including metadata, dimensions, size
+ */
+function runart_audit_images(WP_REST_Request $req) {
+    $args = [
+        'post_type' => 'attachment',
+        'post_status' => 'inherit',
+        'post_mime_type' => 'image',
+        'posts_per_page' => -1,
+        'orderby' => 'ID',
+        'order' => 'ASC',
+    ];
+
+    $attachments = get_posts($args);
+    $items = [];
+    $total_es = 0;
+    $total_en = 0;
+    $total_unknown = 0;
+
+    foreach ($attachments as $attachment) {
+        $lang = '-';
+        
+        // Detect language via Polylang if available
+        if (function_exists('pll_get_post_language')) {
+            $lang_obj = pll_get_post_language($attachment->ID, 'object');
+            $lang = $lang_obj ? $lang_obj->slug : '-';
+        } elseif (has_term('', 'language', $attachment->ID)) {
+            // Fallback: check language taxonomy
+            $terms = wp_get_post_terms($attachment->ID, 'language', ['fields' => 'slugs']);
+            $lang = !empty($terms) && !is_wp_error($terms) ? $terms[0] : '-';
+        }
+
+        // Count by language
+        if ($lang === 'es') {
+            $total_es++;
+        } elseif ($lang === 'en') {
+            $total_en++;
+        } else {
+            $total_unknown++;
+        }
+
+        // Get attachment metadata
+        $metadata = wp_get_attachment_metadata($attachment->ID);
+        $file_path = get_attached_file($attachment->ID);
+        $file_size_kb = 0;
+        if ($file_path && file_exists($file_path)) {
+            $file_size_kb = round(filesize($file_path) / 1024, 2);
+        }
+
+        $width = isset($metadata['width']) ? (int) $metadata['width'] : 0;
+        $height = isset($metadata['height']) ? (int) $metadata['height'] : 0;
+        $file = isset($metadata['file']) ? $metadata['file'] : '';
+
+        $items[] = [
+            'id' => $attachment->ID,
+            'url' => wp_get_attachment_url($attachment->ID),
+            'lang' => $lang,
+            'mime' => get_post_mime_type($attachment->ID),
+            'width' => $width,
+            'height' => $height,
+            'size_kb' => $file_size_kb,
+            'title' => $attachment->post_title,
+            'alt' => get_post_meta($attachment->ID, '_wp_attachment_image_alt', true),
+            'file' => $file,
+        ];
+    }
+
+    return new WP_REST_Response([
+        'ok' => true,
+        'total' => count($items),
+        'total_es' => $total_es,
+        'total_en' => $total_en,
+        'total_unknown' => $total_unknown,
+        'items' => $items,
+        'meta' => [
+            'timestamp' => gmdate('c'),
+            'site' => get_site_url(),
+            'phase' => 'F2',
+            'description' => 'Inventario de Imágenes (Media Library)',
+        ],
+    ], 200);
 }
