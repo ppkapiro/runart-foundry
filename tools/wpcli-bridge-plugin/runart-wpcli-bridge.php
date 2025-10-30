@@ -65,6 +65,53 @@ add_action('rest_api_init', function () {
         'callback' => 'runart_audit_images',
         'permission_callback' => 'runart_wpcli_bridge_permission_admin',
     ]);
+    
+    // IA-Visual Correlation - Suggest Images endpoint (GET)
+    register_rest_route('runart', '/correlations/suggest-images', [
+        'methods'  => 'GET',
+        'callback' => 'runart_correlations_suggest_images',
+        'permission_callback' => 'runart_wpcli_bridge_permission_admin',
+        'args' => [
+            'page_id' => [
+                'required' => true,
+                'type' => 'integer',
+                'description' => 'ID de la página para la que se solicitan recomendaciones',
+            ],
+            'top_k' => [
+                'required' => false,
+                'type' => 'integer',
+                'default' => 5,
+                'description' => 'Número máximo de recomendaciones (default: 5)',
+            ],
+            'threshold' => [
+                'required' => false,
+                'type' => 'number',
+                'default' => 0.70,
+                'description' => 'Umbral de similitud mínimo 0.0-1.0 (default: 0.70)',
+            ],
+        ],
+    ]);
+    
+    // IA-Visual Embeddings - Update endpoint (POST)
+    register_rest_route('runart', '/embeddings/update', [
+        'methods'  => 'POST',
+        'callback' => 'runart_embeddings_update',
+        'permission_callback' => 'runart_wpcli_bridge_permission_admin',
+        'args' => [
+            'type' => [
+                'required' => true,
+                'type' => 'string',
+                'enum' => ['image', 'text'],
+                'description' => 'Tipo de embedding a regenerar (image o text)',
+            ],
+            'ids' => [
+                'required' => true,
+                'type' => 'array',
+                'items' => ['type' => 'integer'],
+                'description' => 'Array de IDs a procesar',
+            ],
+        ],
+    ]);
 });
 
 function runart_wpcli_bridge_permission_admin() {
@@ -330,6 +377,173 @@ function runart_audit_images(WP_REST_Request $req) {
             'site' => get_site_url(),
             'phase' => 'F2',
             'description' => 'Inventario de Imágenes (Media Library)',
+        ],
+    ], 200);
+}
+
+/**
+ * Endpoint: GET /wp-json/runart/correlations/suggest-images
+ * 
+ * Sugiere imágenes relevantes para una página basándose en correlación semántica IA-Visual.
+ * Lee las recomendaciones pre-calculadas desde data/embeddings/correlations/recommendations_cache.json
+ * 
+ * Parámetros:
+ * - page_id (int, requerido): ID de la página
+ * - top_k (int, opcional): Número de recomendaciones (default: 5)
+ * - threshold (float, opcional): Umbral de similitud (default: 0.70)
+ * 
+ * Respuesta:
+ * - ok (bool): Estado de la operación
+ * - page_id (int): ID de la página consultada
+ * - recommendations (array): Lista de imágenes recomendadas con scores
+ * 
+ * @param WP_REST_Request $req Request object
+ * @return WP_REST_Response|WP_Error Response object
+ * 
+ * @since F7
+ */
+function runart_correlations_suggest_images(WP_REST_Request $req) {
+    $page_id = $req->get_param('page_id');
+    $top_k = $req->get_param('top_k') ?? 5;
+    $threshold = $req->get_param('threshold') ?? 0.70;
+    
+    // Construir ruta al cache de recomendaciones
+    $cache_path = ABSPATH . '../data/embeddings/correlations/recommendations_cache.json';
+    
+    // Verificar si el archivo existe
+    if (!file_exists($cache_path)) {
+        return new WP_REST_Response([
+            'ok' => true,
+            'page_id' => $page_id,
+            'recommendations' => [],
+            'message' => 'No recommendations cache available yet. Run correlator.py to generate.',
+            'meta' => [
+                'timestamp' => gmdate('c'),
+                'cache_path' => $cache_path,
+                'cache_exists' => false,
+            ],
+        ], 200);
+    }
+    
+    // Leer cache de recomendaciones
+    $cache_content = file_get_contents($cache_path);
+    $cache_data = json_decode($cache_content, true);
+    
+    if ($cache_data === null || !isset($cache_data['cache'])) {
+        return runart_wpcli_bridge_error(
+            'Invalid recommendations cache format',
+            'invalid_cache_format',
+            500
+        );
+    }
+    
+    // Buscar recomendaciones para la página solicitada
+    $page_key = "page_{$page_id}";
+    $recommendations = $cache_data['cache'][$page_key] ?? [];
+    
+    // Filtrar por threshold si es diferente del cache
+    if ($threshold > $cache_data['threshold']) {
+        $recommendations = array_filter($recommendations, function($rec) use ($threshold) {
+            return $rec['similarity_score'] >= $threshold;
+        });
+    }
+    
+    // Limitar a top_k
+    $recommendations = array_slice($recommendations, 0, $top_k);
+    
+    return new WP_REST_Response([
+        'ok' => true,
+        'page_id' => $page_id,
+        'total_recommendations' => count($recommendations),
+        'recommendations' => $recommendations,
+        'meta' => [
+            'timestamp' => gmdate('c'),
+            'cache_generated_at' => $cache_data['generated_at'] ?? 'unknown',
+            'cache_threshold' => $cache_data['threshold'] ?? 0.70,
+            'requested_threshold' => $threshold,
+            'requested_top_k' => $top_k,
+            'phase' => 'F7',
+            'description' => 'IA-Visual Image Recommendations',
+        ],
+    ], 200);
+}
+
+/**
+ * Endpoint: POST /wp-json/runart/embeddings/update
+ * 
+ * Solicita regeneración de embeddings para imágenes o textos específicos.
+ * Este endpoint NO ejecuta IA pesada directamente, sino que registra la solicitud
+ * para que sea procesada por los scripts Python en segundo plano.
+ * 
+ * Body JSON:
+ * - type (string, requerido): "image" o "text"
+ * - ids (array, requerido): Array de IDs a procesar
+ * 
+ * Respuesta:
+ * - ok (bool): Estado de la operación
+ * - type (string): Tipo de embedding solicitado
+ * - ids (array): IDs procesados
+ * - status (string): Estado del procesamiento
+ * 
+ * @param WP_REST_Request $req Request object
+ * @return WP_REST_Response Response object
+ * 
+ * @since F7
+ */
+function runart_embeddings_update(WP_REST_Request $req) {
+    $type = $req->get_param('type');
+    $ids = $req->get_param('ids');
+    
+    // Validar parámetros
+    if (!in_array($type, ['image', 'text'], true)) {
+        return runart_wpcli_bridge_error(
+            'Invalid type. Must be "image" or "text"',
+            'invalid_type',
+            400
+        );
+    }
+    
+    if (!is_array($ids) || empty($ids)) {
+        return runart_wpcli_bridge_error(
+            'ids must be a non-empty array',
+            'invalid_ids',
+            400
+        );
+    }
+    
+    // Registrar solicitud en un log (para procesamiento posterior)
+    $log_dir = ABSPATH . '../data/embeddings/correlations/';
+    if (!is_dir($log_dir)) {
+        mkdir($log_dir, 0755, true);
+    }
+    
+    $log_path = $log_dir . 'update_requests.log';
+    $log_entry = [
+        'timestamp' => gmdate('c'),
+        'type' => $type,
+        'ids' => $ids,
+        'requested_by' => get_current_user_id(),
+    ];
+    
+    file_put_contents(
+        $log_path,
+        json_encode($log_entry) . "\n",
+        FILE_APPEND | LOCK_EX
+    );
+    
+    return new WP_REST_Response([
+        'ok' => true,
+        'type' => $type,
+        'ids' => $ids,
+        'total_ids' => count($ids),
+        'status' => 'queued',
+        'message' => 'Update request queued. Run Python scripts to process: ' . 
+                    ($type === 'image' ? 'vision_analyzer.py' : 'text_encoder.py'),
+        'meta' => [
+            'timestamp' => gmdate('c'),
+            'log_path' => $log_path,
+            'phase' => 'F7',
+            'description' => 'IA-Visual Embeddings Update Request',
         ],
     ], 200);
 }

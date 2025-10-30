@@ -1,0 +1,8 @@
+{
+  "version": "1.0",
+  "model": "clip-vit-base-patch32",
+  "dimensions": 512,
+  "generated_at": "2025-10-30T17:17:22Z",
+  "total_embeddings": 0,
+  "items": []
+}

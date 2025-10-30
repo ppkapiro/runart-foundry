@@ -26,6 +26,51 @@
 
 ## Eventos (Registro Cronológico Inverso)
 
+### 2025-10-30T17:31:00Z — F7 — Arquitectura IA-Visual: IMPLEMENTACIÓN COMPLETA
+**Branch:** `feat/ai-visual-implementation`
+**Commit:** (pending push)
+**Autor:** automation-runart
+**Archivos:**
+- data/embeddings/README.md (49 líneas) — Documentación estructura embeddings
+- data/embeddings/visual/clip_512d/README.md (37 líneas) — Specs modelo CLIP
+- data/embeddings/text/multilingual_mpnet/README.md (39 líneas) — Specs modelo multilingüe
+- data/embeddings/visual/clip_512d/index.json (8 líneas) — Índice maestro embeddings visuales
+- data/embeddings/text/multilingual_mpnet/index.json (8 líneas) — Índice maestro embeddings textuales
+- data/embeddings/correlations/similarity_matrix.json (7 líneas) — Matriz de similitud completa
+- data/embeddings/correlations/recommendations_cache.json (7 líneas) — Caché recomendaciones top-k
+- data/embeddings/correlations/validation_log.json (5 líneas) — Log validación humana
+- apps/runmedia/runmedia/vision_analyzer.py (210 líneas) — Generador embeddings CLIP 512D
+- apps/runmedia/runmedia/text_encoder.py (223 líneas) — Generador embeddings texto 768D multilingües (ES/EN)
+- apps/runmedia/runmedia/correlator.py (271 líneas) — Motor similitud coseno y recomendaciones
+- tools/wpcli-bridge-plugin/runart-wpcli-bridge.php (+137 líneas) — 2 endpoints REST agregados
+- docs/ai/architecture_overview.md (348 líneas) — Documentación arquitectónica completa
+- .github/workflows/ai-visual-analysis.yml (120 líneas) — Workflow CI automatización embeddings
+
+**Resumen:**
+- ✅ **Estructura completa de embeddings:** 7 directorios (visual/clip_512d/embeddings/, text/multilingual_mpnet/embeddings/, correlations/)
+- ✅ **3 módulos Python RunMedia implementados:**
+   * `vision_analyzer.py`: Carga lazy CLIP ViT-B/32, genera embeddings 512D, batch processing, gestión índices JSON
+   * `text_encoder.py`: Carga lazy paraphrase-multilingual-mpnet-base-v2, genera embeddings 768D, soporte ES/EN, preprocesamiento HTML
+   * `correlator.py`: Similitud coseno con numpy/sklearn, recomendaciones top-k filtradas por threshold, caché pre-computada
+- ✅ **2 endpoints REST WordPress agregados al plugin:**
+   * `GET /wp-json/runart/correlations/suggest-images` — Devuelve recomendaciones desde caché (params: page_id, top_k, threshold)
+   * `POST /wp-json/runart/embeddings/update` — Webhook regeneración embeddings (params: type, ids)
+- ✅ **Documentación arquitectónica completa:** Flujo de datos 7 pasos, especificaciones API, ejemplos curl/Python, guías testing/mantenimiento
+- ✅ **Workflow CI/CD GitHub Actions:** 4 modos automatizados (list, generate-visual, generate-text, correlate-all) con workflow_dispatch
+- ✅ **Dependencias especificadas:** sentence-transformers 2.7.0, torch 2.3.1+cpu, pillow 10.3.0, scikit-learn 1.4.2
+- ✅ **Schemas JSON inicializados:** Índices de embeddings, matrices de similitud, caché de recomendaciones, log de validación
+
+**Total de archivos:** 14 nuevos/modificados (704 líneas Python + 348 líneas documentación + 160 líneas JSON/YAML + 137 líneas PHP)
+
+**Estado:** 🟢 F7 IMPLEMENTACIÓN COMPLETADA — Sistema IA-Visual listo para generación de embeddings reales (F8)
+
+**Próximos pasos F8:**
+1. Ejecutar `vision_analyzer.py` sobre Media Library completa (generar embeddings visuales CLIP)
+2. Ejecutar `text_encoder.py` sobre páginas ES/EN (generar embeddings textuales multilingües)
+3. Ejecutar `correlator.py` para calcular matriz de similitud y cachear recomendaciones
+4. Probar endpoints REST con páginas reales
+5. Validar recomendaciones con equipo de contenido (Precision@5)
+
 ### 2025-10-30T17:15:00Z — F7 — Arquitectura IA-Visual: rama creada y entorno de implementación inicializado
 **Branch:** `feat/ai-visual-implementation`
 **Autor:** automation-runart

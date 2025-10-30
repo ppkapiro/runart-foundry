@@ -1,0 +1,7 @@
+{
+  "version": "1.0",
+  "generated_at": "2025-10-30T17:17:22Z",
+  "top_k": 5,
+  "threshold": 0.70,
+  "cache": {}
+}
