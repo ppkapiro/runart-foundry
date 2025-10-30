@@ -587,8 +587,8 @@ function runart_content_enriched($request) {
     // Sanitizar page_id (solo alfanuméricos y guión bajo)
     $page_id = preg_replace('/[^a-z0-9_]/', '', strtolower($page_id));
     
-    // Ruta al archivo de contenido enriquecido
-    $enriched_dir = ABSPATH . '../data/enriched/f9_rewrites/';
+    // Ruta al archivo de contenido enriquecido (F9)
+    $enriched_dir = ABSPATH . '../data/assistants/rewrite/';
     $enriched_file = $enriched_dir . $page_id . '.json';
     
     // Verificar si existe el archivo

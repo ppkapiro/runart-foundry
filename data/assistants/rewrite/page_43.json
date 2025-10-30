@@ -1,0 +1,71 @@
+{
+  "id": "page_43",
+  "source_text": "Bienvenido a nuestra galería de arte contemporáneo. Presentamos una colección única de obras de artistas emergentes y consagrados. Nuestra exposición incluye pinturas abstractas rojas, arte moderno azul y esculturas verdes innovadoras. El arte tiene el poder de transformar nuestra percepción del mundo. Visite nuestra galería para descubrir nuevas perspectivas artísticas.",
+  "lang": "es",
+  "enriched_es": {
+    "headline": "Exposición de Arte Contemporáneo - Versión Enriquecida",
+    "summary": "Contenido mejorado con 1 referencias visuales basadas en correlación semántica IA.",
+    "body": "## Contenido Enriquecido\n\nEsta versión incorpora referencias visuales sugeridas automáticamente mediante análisis de similitud semántica entre embeddings de texto e imagen.\n\n### Contenido Original\n\nBienvenido a nuestra galería de arte contemporáneo. Presentamos una colección única de obras de artistas emergentes y consagrados. Nuestra exposición incluye pinturas abstractas rojas, arte moderno azul y esculturas verdes innovadoras. El arte tiene el poder de transformar nuestra percepción del mundo. Visite nuestra galería para descubrir nuevas perspectivas artísticas.",
+    "visual_references": [
+      {
+        "image_id": "b4152b9483f89d5f",
+        "filename": "artwork_red.jpg",
+        "similarity_score": 0.0525,
+        "reason": "Alta similitud visual (5.2%) con el tema de la página",
+        "suggested_alt": "Escultura de bronce con acabado en red",
+        "suggested_caption": "Proceso de fundición en RunArt Foundry - Exposición de Arte Contemporáneo",
+        "media_hint": {
+          "original_name": "artwork_red.jpg",
+          "possible_wp_slug": "artwork-red",
+          "confidence": 0.0525
+        }
+      }
+    ],
+    "tags": [
+      "arte",
+      "contemporáneo",
+      "escultura",
+      "rojo",
+      "azul",
+      "verde",
+      "runart",
+      "galería",
+      "abstracto"
+    ]
+  },
+  "enriched_en": {
+    "headline": "Exposición de Arte Contemporáneo - Enhanced Version",
+    "summary": "Enhanced content with 1 visual references based on AI semantic correlation.",
+    "body": "## Enhanced Content\n\nThis version incorporates visual references automatically suggested through semantic similarity analysis between text and image embeddings.\n\n### Original Content\n\nBienvenido a nuestra galería de arte contemporáneo. Presentamos una colección única de obras de artistas emergentes y consagrados. Nuestra exposición incluye pinturas abstractas rojas, arte moderno azul y esculturas verdes innovadoras. El arte tiene el poder de transformar nuestra percepción del mundo. Visite nuestra galería para descubrir nuevas perspectivas artísticas.",
+    "visual_references": [
+      {
+        "image_id": "b4152b9483f89d5f",
+        "filename": "artwork_red.jpg",
+        "similarity_score": 0.0525,
+        "reason": "High visual similarity (5.2%) with page topic",
+        "suggested_alt": "Bronze sculpture with red finish",
+        "suggested_caption": "Casting process at RunArt Foundry - Exposición de Arte Contemporáneo",
+        "media_hint": {
+          "original_name": "artwork_red.jpg",
+          "possible_wp_slug": "artwork-red",
+          "confidence": 0.0525
+        }
+      }
+    ],
+    "tags": [
+      "art",
+      "runart",
+      "contemporary",
+      "abstract"
+    ]
+  },
+  "meta": {
+    "generated_from": "F8-similarity",
+    "similarity_threshold": 0.0,
+    "top_k": 1,
+    "generated_at": "2025-10-30T18:32:38.644111+00:00",
+    "needs_translation": true,
+    "dataset_notes": "Dataset mixto: visual sintético (512D RGB), texto real (768D mpnet)",
+    "production_threshold_recommended": 0.7
+  }
+}

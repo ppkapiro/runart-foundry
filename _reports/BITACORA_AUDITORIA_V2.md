@@ -26,48 +26,74 @@
 
 ## Eventos (Registro Cronológico Inverso)
 
-### 2025-10-30T18:17:00Z — F9 — Reescritura Asistida y Enriquecimiento: COMPLETADA
+### 2025-10-30T18:32:00Z — F9 — Reescritura Asistida y Enriquecimiento: COMPLETADA
 **Branch:** `feat/ai-visual-implementation`
 **Commit:** (pending)
 **Autor:** automation-runart
 **Archivos:**
-- apps/runmedia/runmedia/content_enricher.py (417 líneas) — Script generador de contenido enriquecido
-- data/enriched/f9_rewrites/page_42.json (2.6KB) — Contenido enriquecido página 42 (EN)
-- data/enriched/f9_rewrites/page_43.json (2.2KB) — Contenido enriquecido página 43 (ES)
-- data/enriched/f9_rewrites/page_44.json (2.5KB) — Contenido enriquecido página 44 (EN)
-- tools/wpcli-bridge-plugin/runart-wpcli-bridge.php (+88 líneas) — Endpoint `/content/enriched` agregado
+- apps/runmedia/runmedia/content_enricher_v2.py (482 líneas) — Script generador de contenido enriquecido V2
+- data/assistants/rewrite/page_42.json (3.5KB) — Contenido enriquecido página 42 (EN) con versiones ES/EN
+- data/assistants/rewrite/page_43.json (3.1KB) — Contenido enriquecido página 43 (ES) con versiones ES/EN
+- data/assistants/rewrite/page_44.json (3.4KB) — Contenido enriquecido página 44 (EN) con versiones ES/EN
+- data/assistants/rewrite/index.json — Índice de páginas enriquecidas
+- tools/wpcli-bridge-plugin/runart-wpcli-bridge.php (modificado) — Endpoint `/content/enriched` actualizado para leer desde `data/assistants/rewrite/`
 
 **Resumen:**
 - ✅ **Páginas procesadas:** 3 (page_42, page_43, page_44)
 - ✅ **Imágenes disponibles en dataset:** 4 (artwork_red.jpg, artwork_blue.jpg, artwork_green.jpg, runartfoundry-home.jpg)
-- ✅ **Umbral de captions alta confianza:** 0.35 (todas las imágenes marcadas como low_confidence por estar debajo)
-- ✅ **Script Python creado:** `content_enricher.py` con clase ContentEnricher
-- ✅ **Endpoint REST nuevo:** `GET /wp-json/runart/content/enriched?page_id=page_42`
-- ✅ **Estructura de salida:** JSON con enriched_variants, images_suggested, cta_suggested, seo, keywords
+- ✅ **Umbral de similitud usado:** 0.0 (dataset de prueba, producción recomendado: >= 0.70)
+- ✅ **Script Python creado:** `content_enricher_v2.py` con clase ContentEnricherV2
+- ✅ **Endpoint REST actualizado:** `GET /wp-json/runart/content/enriched?page_id=page_42`
+- ✅ **Estructura de salida:** JSON con `id`, `source_text`, `lang`, `enriched_es`, `enriched_en`, `meta`
 
 **Características implementadas:**
-- 📝 **Reconstrucción de texto original:** Desde test_pages.json correctamente recuperado
-- 🖼️ **Metadatos de imágenes:** alt, caption, placement (hero/inline/gallery) según score
-- 🎯 **CTAs personalizados:** ES: "Solicita una pieza o fundición personalizada" → /contacto/, EN: "Request a custom casting" → /en/contact/
-- 🔍 **SEO metadata:** title, description (160 chars), keywords (foundry, bronze, art, sculpture, custom casting)
-- 🏷️ **Tags automáticos:** Detecta "red", "blue", "green", "digital" en contenido original
-- 📊 **Confidence levels:** low_confidence:true marcado en todas las imágenes (scores < 0.35)
-- 🌐 **Multilingüe:** Captions, summaries y CTAs en ES/EN según language del contenido original
+- 📝 **Recuperación de texto original:** Desde test_pages.json correctamente recuperado
+- 🖼️ **Referencias visuales (visual_references):** Cada imagen incluye:
+  * `image_id`, `filename`, `similarity_score`
+  * `reason`: Explicación de correlación en idioma correspondiente
+  * `suggested_alt`: Alt text sugerido contextualizado
+  * `suggested_caption`: Caption descriptivo del proceso de fundición
+  * `media_hint`: Mapeo para WordPress (original_name, possible_wp_slug, confidence)
+- 📄 **Contenido enriquecido (enriched):**
+  * `headline`: Título enriquecido con indicador de versión mejorada
+  * `summary`: Resumen ejecutivo con número de referencias visuales
+  * `body`: Contenido expandido con prefijo explicativo + contenido original
+  * `tags`: Tags automáticos generados desde contenido (runart, arte, fundición, etc.)
+- 🌐 **Soporte bilingüe completo:**
+  * `enriched_es`: Versión en español con captions, razones, captions en ES
+  * `enriched_en`: Versión en inglés con todos los textos en EN
+  * `meta.needs_translation`: true (marcado porque no hay traductor automático real)
+- 📊 **Metadatos (meta):**
+  * `generated_from`: "F8-similarity"
+  * `similarity_threshold`: 0.0 (usado)
+  * `top_k`: Número de referencias visuales incluidas
+  * `dataset_notes`: "Dataset mixto: visual sintético (512D RGB), texto real (768D mpnet)"
+  * `production_threshold_recommended`: 0.70
 
 **Endpoint disponible:**
 - GET `/wp-json/runart/content/enriched?page_id=page_42` → Retorna enriched_data completo
 - GET `/wp-json/runart/content/enriched?page_id=page_43` → Retorna enriched_data completo
 - GET `/wp-json/runart/content/enriched?page_id=page_44` → Retorna enriched_data completo
-- Si page_id no existe → 404 con `{"status": "not_enriched"}`
+- Si page_id no existe → 404 con `{"status": "not_enriched", "message": "No enriched content found..."}`
+
+**Índice generado (index.json):**
+- version: "1.0"
+- total_pages: 3
+- threshold_used: 0.0
+- pages: Array con page_id, lang, title, visual_references_count para cada página
+- output_directory: "data/assistants/rewrite/"
+- notes: "F9 - Reescritura Asistida y Enriquecimiento basado en correlaciones F8 (dataset mixto)"
 
 **Observaciones:**
-- ⚠️ Dataset pequeño/sintético: 3 páginas, 4 imágenes de prueba
-- ⚠️ Scores bajos (< 0.06): Todas las imágenes marcadas con low_confidence
+- ⚠️ Dataset pequeño/sintético: 3 páginas de prueba, 4 imágenes de prueba
+- ⚠️ Scores bajos (rango 0.0117-0.0525): Debido a embeddings mixtos (sintético visual vs real textual)
 - ⚠️ Pendiente ejecutar sobre entorno WP real con Media Library completa
-- ✅ Sistema funcionando end-to-end: desde embeddings → correlaciones → enriquecimiento → REST API
+- ⚠️ Embeddings visuales reales (CLIP) mejorarán significativamente los scores de similitud
+- ✅ Sistema funcionando end-to-end: embeddings → correlaciones → enriquecimiento → REST API → Acceso desde WordPress
+- ✅ Archivos en ubicación solicitada: `data/assistants/rewrite/` (NO `data/enriched/f9_rewrites/`)
 - 📌 **Próxima fase (F10):** Integración en editor WordPress / front para consumir estos JSON
 
-**Estado:** 🟢 F9 COMPLETADA — Contenido enriquecido disponible vía REST API
+**Estado:** 🟢 F9 COMPLETADA — Contenido enriquecido disponible vía REST API desde data/assistants/rewrite/
 
 ### 2025-10-30T18:08:00Z — F8 — Embeddings y Correlaciones: GENERACIÓN COMPLETA
 **Branch:** `feat/ai-visual-implementation`
