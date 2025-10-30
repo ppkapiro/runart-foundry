@@ -1,0 +1,211 @@
+name: Manual Plugin Deploy
+
+on:
+  workflow_dispatch:
+    inputs:
+      plugin_version:
+        description: 'Versión del plugin a deployar'
+        required: false
+        default: 'latest'
+
+permissions:
+  contents: write
+
+env:
+  WP_BASE_URL: ${{ vars.WP_BASE_URL }}
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    environment: staging
+    
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      
+      - name: Empaquetar plugin actualizado
+        id: package
+        run: |
+          cd tools/wpcli-bridge-plugin
+          ZIP_NAME="runart-wpcli-bridge-deploy.zip"
+          zip -r "/tmp/${ZIP_NAME}" . -x "*.DS_Store" "*.git*"
+          ls -lh "/tmp/${ZIP_NAME}"
+          echo "zip_path=/tmp/${ZIP_NAME}" >> $GITHUB_OUTPUT
+      
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      
+      - name: Instalar dependencias
+        run: pip install requests
+      
+      - name: Deploy plugin vía Python script
+        env:
+          ADMIN_USER: ${{ secrets.ADMIN_USER }}
+          ADMIN_PASS: ${{ secrets.ADMIN_PASS }}
+        run: |
+          cat > /tmp/deploy.py << 'EOFPYTHON'
+          import os
+          import sys
+          import requests
+          from pathlib import Path
+          import re
+          
+          def deploy_plugin(admin_user, admin_pass, plugin_zip_path, base_url):
+              plugin_zip = Path(plugin_zip_path)
+              
+              if not plugin_zip.exists():
+                  print(f"❌ No se encuentra: {plugin_zip}")
+                  return False
+              
+              print("=== Deploy Plugin ===")
+              print(f"URL: {base_url}")
+              print(f"Usuario: {admin_user}")
+              print(f"Plugin: {plugin_zip.stat().st_size} bytes")
+              
+              session = requests.Session()
+              
+              # 1. Login
+              print("\n[1/5] Login...")
+              resp = session.post(f'{base_url}/wp-login.php', data={
+                  'log': admin_user,
+                  'pwd': admin_pass,
+                  'wp-submit': 'Log In',
+                  'redirect_to': f'{base_url}/wp-admin/',
+                  'testcookie': '1'
+              }, allow_redirects=False)
+              
+              print(f"  HTTP: {resp.status_code}")
+              if resp.status_code not in [200, 302]:
+                  print(f"  ❌ Login fallido")
+                  return False
+              print("  ✅ Login OK")
+              
+              # 2. Obtener nonce
+              print("[2/5] Obtener nonce...")
+              resp = session.get(f'{base_url}/wp-admin/plugin-install.php?tab=upload')
+              
+              nonce_match = re.search(r'name="_wpnonce"\s+value="([^"]+)"', resp.text)
+              if not nonce_match:
+                  print("  ❌ Nonce no encontrado")
+                  return False
+              
+              nonce = nonce_match.group(1)
+              print(f"  ✅ Nonce: {nonce}")
+              
+              # 3. Subir plugin
+              print("[3/5] Subir plugin...")
+              with open(plugin_zip, 'rb') as f:
+                  resp = session.post(
+                      f'{base_url}/wp-admin/update.php?action=upload-plugin',
+                      files={'pluginzip': (plugin_zip.name, f, 'application/zip')},
+                      data={
+                          '_wpnonce': nonce,
+                          '_wp_http_referer': '/wp-admin/plugin-install.php?tab=upload',
+                          'install-plugin-submit': 'Install Now'
+                      },
+                      allow_redirects=True
+                  )
+              
+              print(f"  HTTP: {resp.status_code}")
+              if resp.status_code != 200:
+                  print(f"  ⚠️  Código inesperado")
+              else:
+                  print("  ✅ Upload OK")
+              
+              # 4. Buscar activación
+              print("[4/5] Buscar activación...")
+              activate_pattern = r'href="([^"]*plugins\.php\?action=activate[^"]*runart-wpcli-bridge[^"]*)"'
+              match = re.search(activate_pattern, resp.text)
+              
+              if not match:
+                  print("  Buscando en /wp-admin/plugins.php...")
+                  resp = session.get(f'{base_url}/wp-admin/plugins.php')
+                  match = re.search(activate_pattern, resp.text)
+              
+              if match:
+                  activate_url = match.group(1).replace('&amp;', '&')
+                  if not activate_url.startswith('http'):
+                      activate_url = f'{base_url}{activate_url}' if activate_url.startswith('/') else f'{base_url}/{activate_url}'
+                  
+                  print("[5/5] Activar...")
+                  resp = session.get(activate_url)
+                  print(f"  ✅ Activación: HTTP {resp.status_code}")
+              else:
+                  print("  ⚠️  No se encontró link de activación")
+              
+              # Verificar
+              print("\n=== Verificación ===")
+              resp = session.get(f'{base_url}/wp-admin/plugins.php')
+              if 'runart' in resp.text.lower() and 'wpcli' in resp.text.lower():
+                  if 'deactivate' in resp.text.lower() and 'runart-wpcli-bridge' in resp.text.lower():
+                      print("✅ Plugin ACTIVO")
+                      return True
+                  else:
+                      print("⚠️  Plugin instalado, estado incierto")
+              else:
+                  print("⚠️  Plugin no visible")
+              
+              return False
+          
+          if __name__ == '__main__':
+              admin_user = os.getenv('ADMIN_USER')
+              admin_pass = os.getenv('ADMIN_PASS')
+              base_url = os.getenv('WP_BASE_URL', 'https://staging.runartfoundry.com')
+              plugin_zip = sys.argv[1] if len(sys.argv) > 1 else '/tmp/runart-wpcli-bridge-deploy.zip'
+              
+              if not admin_user or not admin_pass:
+                  print("❌ Faltan ADMIN_USER o ADMIN_PASS")
+                  sys.exit(1)
+              
+              success = deploy_plugin(admin_user, admin_pass, plugin_zip, base_url)
+              sys.exit(0 if success else 1)
+          EOFPYTHON
+          
+          python3 /tmp/deploy.py "${{ steps.package.outputs.zip_path }}"
+      
+      - name: Validar endpoints REST
+        env:
+          WP_USER: ${{ secrets.WP_USER }}
+          WP_APP_PASSWORD: ${{ secrets.WP_APP_PASSWORD }}
+        run: |
+          echo "=== Validación de Endpoints ==="
+          
+          # Health endpoint
+          echo "1. Health endpoint..."
+          HEALTH=$(curl -sS -u "$WP_USER:$WP_APP_PASSWORD" \
+            "$WP_BASE_URL/wp-json/runart/v1/bridge/health" || echo '{"ok":false}')
+          echo "$HEALTH" | jq '.'
+          
+          # Pages endpoint
+          echo -e "\n2. Pages endpoint..."
+          PAGES=$(curl -sS -u "$WP_USER:$WP_APP_PASSWORD" \
+            "$WP_BASE_URL/wp-json/runart/audit/pages" || echo '{"ok":false}')
+          echo "$PAGES" | jq '{ok, total, total_es, total_en}'
+          
+          # Images endpoint
+          echo -e "\n3. Images endpoint..."
+          IMAGES=$(curl -sS -u "$WP_USER:$WP_APP_PASSWORD" \
+            "$WP_BASE_URL/wp-json/runart/audit/images" || echo '{"ok":false}')
+          echo "$IMAGES" | jq '{ok, total}'
+          
+          # Guardar resultados
+          mkdir -p _reports/bridge
+          cat > "_reports/bridge/endpoints_validation_$(date -u +%Y%m%d_%H%M).json" << EOF
+          {
+            "timestamp": "$(date -u --iso-8601=seconds)",
+            "health": $HEALTH,
+            "pages": $PAGES,
+            "images": $IMAGES
+          }
+          EOF
+      
+      - name: Commit validation report
+        if: always()
+        run: |
+          git config user.name "github-actions"
+          git config user.email "github-actions@users.noreply.github.com"
+          git add _reports/bridge/ || true
+          git commit -m "Bridge deploy y validación de endpoints" || echo "Nada que commitear"
+          git push || echo "Push falló"
