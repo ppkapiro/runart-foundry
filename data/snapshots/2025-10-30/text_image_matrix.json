@@ -1,0 +1,195 @@
+{
+  "phase": "F3",
+  "timestamp": "2025-10-30T15:59:42Z",
+  "source": "research/content_audit_v2/03_text_image_matrix.md",
+  "total_pages": 25,
+  "total_without_images": 25,
+  "imbalance_percentage": 84.0,
+  "summary": {
+    "pages_analyzed": 25,
+    "pages_with_images": 0,
+    "pages_without_images": 25,
+    "status_breakdown": {
+      "ok": 0,
+      "sin_imagenes": 4,
+      "desbalance_texto_imagen": 21
+    }
+  },
+  "items": [
+    {
+      "page": "About",
+      "url": "https://staging.runartfoundry.com/en/about/",
+      "word_count": 162,
+      "images": 0,
+      "status": "Desbalance texto/imagen"
+    },
+    {
+      "page": "Blog",
+      "url": "https://staging.runartfoundry.com/en/blog/",
+      "word_count": 0,
+      "images": 0,
+      "status": "Sin imágenes"
+    },
+    {
+      "page": "Blog",
+      "url": "https://staging.runartfoundry.com/es/blog-2/",
+      "word_count": 0,
+      "images": 0,
+      "status": "Sin imágenes"
+    },
+    {
+      "page": "Bronze Patinas: Chemistry, Color, and Durability",
+      "url": "https://staging.runartfoundry.com/en/bronze-patinas-chemistry-color/",
+      "word_count": 8,
+      "images": 0,
+      "status": "Desbalance texto/imagen"
+    },
+    {
+      "page": "Ceramic Shell Molds: Precision for Complex Forms",
+      "url": "https://staging.runartfoundry.com/en/ceramic-shell-molds-precision/",
+      "word_count": 9,
+      "images": 0,
+      "status": "Desbalance texto/imagen"
+    },
+    {
+      "page": "Contact",
+      "url": "https://staging.runartfoundry.com/en/contact/",
+      "word_count": 21,
+      "images": 0,
+      "status": "Desbalance texto/imagen"
+    },
+    {
+      "page": "Contacto",
+      "url": "https://staging.runartfoundry.com/es/contacto/",
+      "word_count": 19,
+      "images": 0,
+      "status": "Desbalance texto/imagen"
+    },
+    {
+      "page": "Contacto",
+      "url": "https://staging.runartfoundry.com/es/contacto-2/",
+      "word_count": 0,
+      "images": 0,
+      "status": "Sin imágenes"
+    },
+    {
+      "page": "Contacto",
+      "url": "https://staging.runartfoundry.com/es/contacto-3/",
+      "word_count": 70,
+      "images": 0,
+      "status": "Desbalance texto/imagen"
+    },
+    {
+      "page": "Cotización",
+      "url": "https://staging.runartfoundry.com/es/cotizacion/",
+      "word_count": 196,
+      "images": 0,
+      "status": "Desbalance texto/imagen"
+    },
+    {
+      "page": "Guía Completa de Aleaciones de Bronce para Fundición Artística",
+      "url": "https://staging.runartfoundry.com/es/guia-completa-de-aleaciones-de-bronce-para-fundicion-artistica/",
+      "word_count": 370,
+      "images": 0,
+      "status": "Desbalance texto/imagen"
+    },
+    {
+      "page": "Guía Completa de Aleaciones de Bronce para Fundición Artística",
+      "url": "https://staging.runartfoundry.com/es/guia-completa-de-aleaciones-de-bronce-para-fundicion-artistica-2/",
+      "word_count": 370,
+      "images": 0,
+      "status": "Desbalance texto/imagen"
+    },
+    {
+      "page": "Home",
+      "url": "https://staging.runartfoundry.com/en/home/",
+      "word_count": 0,
+      "images": 0,
+      "status": "Sin imágenes"
+    },
+    {
+      "page": "Inicio",
+      "url": "https://staging.runartfoundry.com/es/inicio/",
+      "word_count": 171,
+      "images": 0,
+      "status": "Desbalance texto/imagen"
+    },
+    {
+      "page": "Lost Wax Casting Process: From Model to Bronze",
+      "url": "https://staging.runartfoundry.com/en/lost-wax-casting-process/",
+      "word_count": 10,
+      "images": 0,
+      "status": "Desbalance texto/imagen"
+    },
+    {
+      "page": "Proceso de Fundición a la Cera Perdida: Técnica Ancestral para Arte Contemporáneo",
+      "url": "https://staging.runartfoundry.com/es/proceso-de-fundicion-a-la-cera-perdida-tecnica-ancestral-para-arte-contemporaneo/",
+      "word_count": 434,
+      "images": 0,
+      "status": "Desbalance texto/imagen"
+    },
+    {
+      "page": "Proceso de Fundición a la Cera Perdida: Técnica Ancestral para Arte Contemporáneo",
+      "url": "https://staging.runartfoundry.com/es/proceso-de-fundicion-a-la-cera-perdida-tecnica-ancestral-para-arte-contemporaneo-2/",
+      "word_count": 434,
+      "images": 0,
+      "status": "Desbalance texto/imagen"
+    },
+    {
+      "page": "Pátinas en Bronce: Ciencia y Arte del Color en Metal",
+      "url": "https://staging.runartfoundry.com/es/patinas-en-bronce-ciencia-y-arte-del-color-en-metal/",
+      "word_count": 399,
+      "images": 0,
+      "status": "Desbalance texto/imagen"
+    },
+    {
+      "page": "Pátinas en Bronce: Ciencia y Arte del Color en Metal",
+      "url": "https://staging.runartfoundry.com/es/patinas-en-bronce-ciencia-y-arte-del-color-en-metal-2/",
+      "word_count": 399,
+      "images": 0,
+      "status": "Desbalance texto/imagen"
+    },
+    {
+      "page": "Quote",
+      "url": "https://staging.runartfoundry.com/en/quote/",
+      "word_count": 188,
+      "images": 0,
+      "status": "Desbalance texto/imagen"
+    },
+    {
+      "page": "R.U.N. Art Foundry - English",
+      "url": "https://staging.runartfoundry.com/en/runart-en/",
+      "word_count": 12,
+      "images": 0,
+      "status": "Desbalance texto/imagen"
+    },
+    {
+      "page": "R.U.N. Art Foundry - Español",
+      "url": "https://staging.runartfoundry.com/es/runart-es/",
+      "word_count": 12,
+      "images": 0,
+      "status": "Desbalance texto/imagen"
+    },
+    {
+      "page": "Services",
+      "url": "https://staging.runartfoundry.com/en/services/",
+      "word_count": 180,
+      "images": 0,
+      "status": "Desbalance texto/imagen"
+    },
+    {
+      "page": "Servicios",
+      "url": "https://staging.runartfoundry.com/es/servicios/",
+      "word_count": 188,
+      "images": 0,
+      "status": "Desbalance texto/imagen"
+    },
+    {
+      "page": "Sobre nosotros",
+      "url": "https://staging.runartfoundry.com/es/sobre-nosotros/",
+      "word_count": 173,
+      "images": 0,
+      "status": "Desbalance texto/imagen"
+    }
+  ]
+}

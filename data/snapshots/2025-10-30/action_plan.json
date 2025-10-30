@@ -1,0 +1,118 @@
+{
+  "phase": "F5",
+  "timestamp": "2025-10-30T15:59:42Z",
+  "source": "research/content_audit_v2/05_action_plan.md",
+  "total_actions": 10,
+  "severity_breakdown": {
+    "high": 4,
+    "medium": 5,
+    "low": 1
+  },
+  "timeline_days": 30,
+  "resources_hours": 240,
+  "resources_by_role": {
+    "designer": 80,
+    "translator": 120,
+    "developer": 32,
+    "seo": 8
+  },
+  "kpis": {
+    "bilingual_coverage": "≥90%",
+    "visual_coverage": "≥80%",
+    "text_image_ratio": "≤200:1",
+    "alt_text": "100%",
+    "duplicates": "0"
+  },
+  "actions": [
+    {
+      "id": 1,
+      "phase": "F2",
+      "finding": "Biblioteca de medios vacía",
+      "severity": "high",
+      "action": "Cargar imágenes de productos/proyectos históricos",
+      "responsible": "Diseñador",
+      "estimated_days": 5
+    },
+    {
+      "id": 2,
+      "phase": "F3",
+      "finding": "100% páginas sin imágenes",
+      "severity": "high",
+      "action": "Asignar imágenes representativas a cada página principal",
+      "responsible": "Diseñador",
+      "estimated_days": 7
+    },
+    {
+      "id": 3,
+      "phase": "F4",
+      "finding": "13 páginas ES sin traducción EN",
+      "severity": "high",
+      "action": "Traducir páginas clave (inicio, servicios, sobre-nosotros)",
+      "responsible": "Traductor",
+      "estimated_days": 10
+    },
+    {
+      "id": 4,
+      "phase": "F4",
+      "finding": "8 páginas EN sin traducción ES",
+      "severity": "high",
+      "action": "Traducir contenido técnico (blog posts, landing)",
+      "responsible": "Traductor",
+      "estimated_days": 8
+    },
+    {
+      "id": 5,
+      "phase": "F1/F4",
+      "finding": "Polylang sin configurar",
+      "severity": "medium",
+      "action": "Asignar idiomas correctos en Polylang y vincular traducciones",
+      "responsible": "Desarrollador",
+      "estimated_days": 2
+    },
+    {
+      "id": 6,
+      "phase": "F4",
+      "finding": "3 páginas de contacto duplicadas",
+      "severity": "medium",
+      "action": "Consolidar formularios de contacto en una sola versión",
+      "responsible": "Desarrollador",
+      "estimated_days": 1
+    },
+    {
+      "id": 7,
+      "phase": "F1",
+      "finding": "6 posts de blog duplicados (-2 suffix)",
+      "severity": "medium",
+      "action": "Eliminar duplicados y redirigir URLs",
+      "responsible": "Desarrollador",
+      "estimated_days": 1
+    },
+    {
+      "id": 8,
+      "phase": "F3",
+      "finding": "Posts técnicos con 370+ palabras sin imagen",
+      "severity": "medium",
+      "action": "Añadir diagramas/fotos técnicas a posts de fundición",
+      "responsible": "Diseñador",
+      "estimated_days": 3
+    },
+    {
+      "id": 9,
+      "phase": "F1",
+      "finding": "Ausencia de alt text en imágenes futuras",
+      "severity": "low",
+      "action": "Establecer política de alt text obligatorio",
+      "responsible": "SEO",
+      "estimated_days": 1
+    },
+    {
+      "id": 10,
+      "phase": "F2",
+      "finding": "Optimización de imágenes (futura)",
+      "severity": "low",
+      "action": "Implementar pipeline WebP + lazy loading",
+      "responsible": "Desarrollador",
+      "estimated_days": 2
+    }
+  ]
+}
