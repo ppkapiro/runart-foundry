@@ -68,7 +68,7 @@ jobs:
               
               session = requests.Session()
               
-              # 1. Login
+              # 1. Login (DEBE SEGUIR REDIRECTS PARA ESTABLECER SESIÓN)
               print("\n[1/6] Login...")
               resp = session.post(f'{base_url}/wp-login.php', data={
                   'log': admin_user,
@@ -76,17 +76,32 @@ jobs:
                   'wp-submit': 'Log In',
                   'redirect_to': f'{base_url}/wp-admin/',
                   'testcookie': '1'
-              }, allow_redirects=False)
+              }, allow_redirects=True)
               
               print(f"  HTTP: {resp.status_code}")
-              if resp.status_code not in [200, 302]:
-                  print(f"  ❌ Login fallido")
+              
+              # Verificar que realmente estamos logueados
+              if 'wp-admin/profile.php' in resp.text or 'Dashboard' in resp.text or '<body class="wp-admin' in resp.text:
+                  print("  ✅ Login OK - sesión establecida")
+              elif 'login' in resp.url.lower():
+                  print(f"  ❌ Login fallido - aún en página de login")
                   return False
-              print("  ✅ Login OK")
+              else:
+                  print(f"  ⚠️  Login status incierto (URL final: {resp.url})")
+                  # Continuar de todas formas
               
               # 2. Desactivar plugins duplicados
               print("[2/6] Desactivar plugins RunArt duplicados...")
               resp = session.get(f'{base_url}/wp-admin/plugins.php')
+              
+              # Verificar que estamos en la página de plugins
+              if 'loginform' in resp.text or 'wp-login.php' in resp.text:
+                  print("  ❌ ERROR: Sesión perdida - redirigido a login")
+                  return False
+              
+              if 'Plugins' not in resp.text and 'plugins-php' not in resp.text:
+                  print(f"  ⚠️  Advertencia: No parece ser la página de plugins (URL: {resp.url})")
+              
               deactivate_links = re.findall(
                   r'href="([^"]*plugins\.php\?action=deactivate[^"]*runart-wpcli-bridge[^"]*)"',
                   resp.text
