@@ -152,6 +152,16 @@ add_action('rest_api_init', function () {
             ],
         ],
     ]);
+
+    // F10 (Vista) - Endpoint simple para registrar solicitud de regeneración (POST)
+    register_rest_route('runart', '/ai-visual/request-regeneration', [
+        'methods'  => 'POST',
+        'callback' => 'runart_ai_visual_request_regeneration',
+        // Permitir admins y editores desde la vista de monitor
+        'permission_callback' => function () {
+            return is_user_logged_in() && (current_user_can('manage_options') || current_user_can('edit_pages'));
+        },
+    ]);
 });
 
 function runart_wpcli_bridge_permission_admin() {
@@ -993,3 +1003,223 @@ function runart_ai_visual_pipeline_regenerate($base_path, $target, $page_id = nu
         ],
     ], 200);
 }
+
+/**
+ * F10 (Vista) — Endpoint: POST /wp-json/runart/ai-visual/request-regeneration
+ * 
+ * Registra un pedido de regeneración mínimo (solo marca la intención) sin ejecutar Python
+ * ni escribir en el repositorio si el entorno es READ_ONLY. Intenta escribir en
+ * wp-content/uploads/runart-jobs/regeneration_request.json.
+ * 
+ * Respuesta exitosa (escritura OK): { status: "ok", message: "Solicitud registrada" }
+ * Si no hay permisos de escritura: { status: "queued", message: "El entorno no permite escritura directa, revisar runner/CI" }
+ * 
+ * @param WP_REST_Request $request
+ * @return WP_REST_Response|WP_Error
+ */
+function runart_ai_visual_request_regeneration(WP_REST_Request $request) {
+    $current_user = wp_get_current_user();
+    $user_login = $current_user && $current_user->user_login ? $current_user->user_login : 'unknown';
+
+    // Objetivo fijo para esta vista (correlaciones); se puede ampliar en el futuro vía parámetro
+    $target = 'correlations';
+
+    // Directorio de uploads de WP
+    $uploads = wp_upload_dir();
+    $base_uploads = isset($uploads['basedir']) ? $uploads['basedir'] : (ABSPATH . 'wp-content/uploads');
+    $jobs_dir = trailingslashit($base_uploads) . 'runart-jobs/';
+    $request_file = $jobs_dir . 'regeneration_request.json';
+
+    // Intentar crear directorio si no existe
+    if (!is_dir($jobs_dir)) {
+        @mkdir($jobs_dir, 0755, true);
+    }
+
+    $payload = [
+        'last_request_at' => gmdate('c'),
+        'requested_by' => $user_login,
+        'target' => $target,
+    ];
+
+    // Intentar escribir archivo en uploads
+    $can_write = is_dir($jobs_dir) && is_writable($jobs_dir);
+    if ($can_write) {
+        $ok = @file_put_contents($request_file, json_encode($payload, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE));
+        if ($ok !== false) {
+            return new WP_REST_Response([
+                'ok' => true,
+                'status' => 'ok',
+                'message' => 'Solicitud registrada',
+                'file_path' => $request_file,
+                'data' => $payload,
+                'meta' => [
+                    'timestamp' => gmdate('c'),
+                    'phase' => 'F10',
+                    'view' => 'monitor',
+                ],
+            ], 200);
+        }
+    }
+
+    // Si no se pudo escribir, devolver mensaje de cola/runner
+    return new WP_REST_Response([
+        'ok' => true,
+        'status' => 'queued',
+        'message' => 'El entorno no permite escritura directa, revisar runner/CI',
+        'data' => $payload,
+        'meta' => [
+            'timestamp' => gmdate('c'),
+            'phase' => 'F10',
+            'view' => 'monitor',
+            'note' => 'No se pudo escribir en uploads o carpeta inexistente/no escribible',
+        ],
+    ], 200);
+}
+
+/**
+ * Shortcode: [runart_ai_visual_monitor]
+ * 
+ * Renderiza una vista mínima para consultar endpoints F8/F9 y estado del pipeline (F10),
+ * y un botón para solicitar regeneración (solo registra la intención).
+ * 
+ * Visibilidad: usuarios autenticados con manage_options o edit_pages.
+ * 
+ * @return string HTML renderizado
+ */
+function runart_ai_visual_monitor_shortcode() {
+    if (!is_user_logged_in() || !(current_user_can('manage_options') || current_user_can('edit_pages'))) {
+        return '<div>Acceso restringido</div>';
+    }
+
+    ob_start();
+    ?>
+    <div id="runart-ai-visual-monitor" style="padding:12px;border:1px solid #ddd;border-radius:6px;background:#fff;">
+        <h2 style="margin-top:0;">Monitor IA-Visual (F7/F8/F9)</h2>
+        <div id="raiv-status" style="margin-bottom:16px;">
+            <strong>Estado pipeline (F10):</strong>
+            <div id="raiv-status-content" style="font-family:monospace;font-size:12px;background:#f6f8fa;padding:8px;border-radius:4px;">Cargando...</div>
+        </div>
+        <div id="raiv-blocks" style="display:grid;grid-template-columns:1fr 1fr;gap:16px;">
+            <div style="border:1px solid #eee;padding:10px;border-radius:6px;">
+                <h3 style="margin-top:0;">Correlaciones (F8) — page_id=42</h3>
+                <div id="raiv-correlations" style="font-family:monospace;font-size:12px;background:#f9fafb;padding:8px;border-radius:4px;">Cargando correlaciones...</div>
+            </div>
+            <div style="border:1px solid #eee;padding:10px;border-radius:6px;">
+                <h3 style="margin-top:0;">Contenido enriquecido (F9) — page_42</h3>
+                <div id="raiv-enriched" style="font-family:monospace;font-size:12px;background:#f9fafb;padding:8px;border-radius:4px;">Cargando contenido enriquecido...</div>
+            </div>
+        </div>
+        <div style="margin-top:16px;">
+            <button id="raiv-request-btn" style="background:#1e40af;color:#fff;border:none;padding:8px 12px;border-radius:4px;cursor:pointer;">Solicitar regeneración de correlaciones</button>
+            <span id="raiv-request-result" style="margin-left:10px;font-weight:600;"></span>
+        </div>
+    </div>
+    <script>
+    (function(){
+        const elStatus = document.getElementById('raiv-status-content');
+        const elCor = document.getElementById('raiv-correlations');
+        const elEnr = document.getElementById('raiv-enriched');
+        const btnReq = document.getElementById('raiv-request-btn');
+        const elReq = document.getElementById('raiv-request-result');
+
+        const endpointCor = '/wp-json/runart/correlations/suggest-images?page_id=42';
+        const endpointEnr = '/wp-json/runart/content/enriched?page_id=page_42';
+        const endpointStatus = '/wp-json/runart/ai-visual/pipeline?action=status';
+        const endpointReq = '/wp-json/runart/ai-visual/request-regeneration';
+
+        // Utilidad para formatear JSON seguro
+        function fmt(obj){
+            try { return JSON.stringify(obj, null, 2); } catch(e){ return String(obj); }
+        }
+
+        // Render estado del pipeline (F10)
+        fetch(endpointStatus, { credentials: 'same-origin' })
+         .then(r => r.ok ? r.json() : Promise.reject(r))
+         .then(data => {
+            elStatus.textContent = fmt({
+                phases: data.pipeline_status && data.pipeline_status.phases ? data.pipeline_status.phases : 'N/A',
+                stats: data.pipeline_status && data.pipeline_status.statistics ? data.pipeline_status.statistics : 'N/A'
+            });
+         })
+         .catch(err => {
+            elStatus.textContent = 'No disponible (endpoint opcional).';
+         });
+
+        // Render correlaciones (F8)
+        fetch(endpointCor, { credentials: 'same-origin' })
+         .then(r => r.json().then(j => ({ ok: r.ok, status: r.status, json: j })))
+         .then(({ok,status,json}) => {
+            if(!ok){
+                elCor.textContent = 'Error ' + status + ': ' + (json && json.message ? json.message : '');
+                return;
+            }
+            const recs = json && json.recommendations ? json.recommendations : [];
+            if(!recs.length){
+                elCor.textContent = 'Sin recomendaciones o cache no disponible.';
+                return;
+            }
+            const html = ['<ul style="margin:0;padding-left:18px;">']
+                .concat(recs.map(r => `<li>image_id=${r.image_id || '-'} | file=${r.filename || r.image_filename || '-'} | score=${(r.similarity_score||0).toFixed(4)}</li>`))
+                .concat(['</ul>']).join('');
+            elCor.innerHTML = html;
+         })
+         .catch(err => { elCor.textContent = 'Error al cargar correlaciones.'; });
+
+        // Render contenido enriquecido (F9)
+        fetch(endpointEnr, { credentials: 'same-origin' })
+         .then(r => r.json().then(j => ({ ok: r.ok, status: r.status, json: j })))
+         .then(({ok,status,json}) => {
+            if(status === 404){
+                elEnr.textContent = 'No hay contenido enriquecido para esta página.';
+                return;
+            }
+            if(!ok){
+                elEnr.textContent = 'Error ' + status + ': ' + (json && json.message ? json.message : '');
+                return;
+            }
+            const data = json && json.enriched_data ? json.enriched_data : {};
+            // Campos flexibles: intentar varias rutas
+            const headline = data.enriched_headline || (data.enriched && data.enriched.headline) || data.headline || '(sin headline)';
+            const summary = data.enriched_summary || (data.enriched && data.enriched.summary) || data.summary || '(sin summary)';
+            const refs = data.visual_references || (data.enriched && data.enriched.visual_references) || [];
+            const list = Array.isArray(refs) && refs.length
+                ? '<ul style="margin:0;padding-left:18px;">' + refs.map(v => `<li>${v.image_id || '-'} — ${v.media_hint ? (v.media_hint.possible_wp_slug || v.media_hint.original_name || '-') : (v.filename || '-')} (score=${(v.similarity_score||0).toFixed(4)})</li>`).join('') + '</ul>'
+                : '(sin referencias)';
+            elEnr.innerHTML = `<div><strong>Headline:</strong> ${headline}</div>` +
+                              `<div><strong>Summary:</strong> ${summary}</div>` +
+                              `<div style="margin-top:6px;"><strong>Visual references:</strong><br/>${list}</div>`;
+         })
+         .catch(err => { elEnr.textContent = 'Error al cargar contenido enriquecido.'; });
+
+        // Botón: Solicitar regeneración
+        btnReq.addEventListener('click', function(){
+            elReq.textContent = 'Enviando...';
+            fetch(endpointReq, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                credentials: 'same-origin',
+                body: JSON.stringify({ target: 'correlations' })
+            })
+            .then(r => r.json().then(j => ({ ok: r.ok, status: r.status, json: j })))
+            .then(({ok,status,json}) => {
+                if(!ok){
+                    elReq.textContent = 'Error ' + status + (json && json.message ? ': ' + json.message : '');
+                    elReq.style.color = '#b91c1c';
+                    return;
+                }
+                elReq.textContent = (json && json.status) ? (json.status + ' — ' + (json.message || '')) : 'Solicitud procesada';
+                elReq.style.color = '#065f46';
+            })
+            .catch(err => {
+                elReq.textContent = 'Error de red al solicitar regeneración';
+                elReq.style.color = '#b91c1c';
+            });
+        });
+    })();
+    </script>
+    <?php
+    return ob_get_clean();
+}
+
+// Registrar shortcode
+add_shortcode('runart_ai_visual_monitor', 'runart_ai_visual_monitor_shortcode');

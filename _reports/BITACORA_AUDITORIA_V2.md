@@ -26,6 +26,31 @@
 
 ## Eventos (Registro Cronológico Inverso)
 
+### 2025-10-30T19:00:00Z — F10 (vista WP) — Página de monitor creada y conectada a endpoints F8/F9
+**Branch:** `feat/ai-visual-implementation`
+**Commit:** (pending)
+**Autor:** automation-runart
+**Archivos:**
+- tools/wpcli-bridge-plugin/runart-wpcli-bridge.php (+290 líneas) — Shortcode `[runart_ai_visual_monitor]` y endpoint `POST /wp-json/runart/ai-visual/request-regeneration`
+- docs/ai/architecture_overview.md (+34 líneas) — Sección “Monitor IA-Visual en WP (F10 — Vista)”
+
+**Resumen:**
+- ✅ Vista mínima en WordPress para consultar desde el navegador los datos generados en F8 (correlaciones) y F9 (contenido enriquecido)
+- ✅ Shortcode nuevo: `[runart_ai_visual_monitor]` (visible para admin/editor)
+- ✅ Fetch a endpoints existentes sin modificar rutas:
+  * `GET /wp-json/runart/correlations/suggest-images?page_id=42`
+  * `GET /wp-json/runart/content/enriched?page_id=page_42`
+- ✅ Estado pipeline (opcional): `GET /wp-json/runart/ai-visual/pipeline?action=status`
+- ✅ Botón “Solicitar regeneración” que SOLO registra intención vía:
+  * `POST /wp-json/runart/ai-visual/request-regeneration` → escribe `wp-content/uploads/runart-jobs/regeneration_request.json` si hay permisos; si no, responde `status=queued`
+
+**Pruebas listas:**
+- Caso feliz: admin logeado ve correlaciones (page_id=42), contenido enriquecido (page_42) y botón de solicitud
+- Sin permisos: usuario no logeado → “Acceso restringido”
+- Página sin enriched: variando a `page_99` muestra “No hay contenido enriquecido para esta página”
+
+**Estado:** 🟢 COMPLETADO — Vista WP conectada a F8/F9 y registro de regeneración seguro
+
 ### 2025-10-30T18:45:00Z — F10 — Orquestación y Endurecimiento IA-Visual: COMPLETADA
 **Branch:** `feat/ai-visual-implementation`
 **Commit:** (pending)

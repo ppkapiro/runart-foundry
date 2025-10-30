@@ -621,3 +621,39 @@ El workflow `.github/workflows/ai-visual-analysis.yml` incluye job de validació
 ---
 
 **Última actualización:** 2025-10-30 (F10 — Orquestación y Endurecimiento)
+
+## Monitor IA-Visual en WP (F10 — Vista)
+
+Esta vista mínima permite a usuarios autenticados (admin/editor) verificar desde el navegador los datos ya generados en F7/F8/F9 y registrar una solicitud de regeneración sin ejecutar procesos pesados.
+
+### Shortcode
+
+- Colocar en una página protegida: `[runart_ai_visual_monitor]`
+- Visibilidad: requiere usuario autenticado con `manage_options` (admin) o `edit_pages` (editor).
+
+### Qué muestra
+
+- Correlaciones (F8) para `page_id=42` consultando:
+  - `GET /wp-json/runart/correlations/suggest-images?page_id=42`
+- Contenido enriquecido (F9) para `page_42` consultando:
+  - `GET /wp-json/runart/content/enriched?page_id=page_42`
+- Estado general del pipeline (F10, opcional si habilitado):
+  - `GET /wp-json/runart/ai-visual/pipeline?action=status`
+
+### Solicitar regeneración (solo registro)
+
+- Botón “Solicitar regeneración de correlaciones” que realiza:
+  - `POST /wp-json/runart/ai-visual/request-regeneration`
+- Comportamiento:
+  - Si `wp-content/uploads/runart-jobs/` es escribible → escribe `regeneration_request.json` con:
+    ```json
+    { "last_request_at": "<ISO8601>", "requested_by": "<user_login>", "target": "correlations" }
+    ```
+    Respuesta: `{ "status": "ok", "message": "Solicitud registrada" }`
+  - Si no es escribible → no escribe y retorna:
+    `{ "status": "queued", "message": "El entorno no permite escritura directa, revisar runner/CI" }`
+
+### Notas
+
+- Los endpoints REST existentes permanecen sin cambios. La vista no re-genera embeddings; solo consume los datos actuales y registra solicitudes.
+- La seguridad de endpoints sigue gobernada por el plugin; el shortcode solo es visible para admin/editor.
