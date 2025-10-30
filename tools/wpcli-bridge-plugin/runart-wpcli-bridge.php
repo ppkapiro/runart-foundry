@@ -25,6 +25,130 @@ if (file_exists($__runart_bridge_init_file)) {
     require_once $__runart_bridge_init_file;
 }
 
+if (!function_exists('runart_bridge_data_bases')) {
+    /**
+     * Obtiene rutas base posibles para los artefactos IA (data/...).
+     * Prioridad: repo (../data), wp-content/runart-data, datos embebidos en el plugin.
+     *
+     * @return array<string,string>
+     */
+    function runart_bridge_data_bases() {
+        static $bases = null;
+        if ($bases !== null) {
+            return $bases;
+        }
+
+        $bases = [];
+
+        if (defined('WP_CONTENT_DIR')) {
+            $bases['repo'] = trailingslashit(dirname(WP_CONTENT_DIR)) . 'data';
+            $bases['wp_content'] = trailingslashit(WP_CONTENT_DIR) . 'runart-data';
+        }
+
+        $bases['plugin'] = trailingslashit(plugin_dir_path(__FILE__)) . 'data';
+
+        // Remover duplicados manteniendo prioridad.
+        $bases = array_unique($bases);
+
+        return $bases;
+    }
+}
+
+if (!function_exists('runart_bridge_locate')) {
+    /**
+     * Localiza un archivo o directorio dentro de las bases disponibles.
+     *
+     * @param string $relative Ruta relativa dentro de data/
+     * @param string $type     "file" | "dir"
+     * @return array{found:bool,path:?string,source:string,paths_tried:array<int,string>}
+     */
+    function runart_bridge_locate($relative, $type = 'file') {
+        $relative = ltrim($relative, '/');
+        $attempts = [];
+
+        foreach (runart_bridge_data_bases() as $label => $base) {
+            $full = trailingslashit($base) . $relative;
+            $attempts[] = $full;
+
+            if ($type === 'dir') {
+                if (is_dir($full)) {
+                    return [
+                        'found' => true,
+                        'path' => trailingslashit($full),
+                        'source' => $label,
+                        'paths_tried' => $attempts,
+                    ];
+                }
+            } else {
+                if (file_exists($full)) {
+                    return [
+                        'found' => true,
+                        'path' => $full,
+                        'source' => $label,
+                        'paths_tried' => $attempts,
+                    ];
+                }
+            }
+        }
+
+        return [
+            'found' => false,
+            'path' => null,
+            'source' => 'not-found',
+            'paths_tried' => $attempts,
+        ];
+    }
+}
+
+if (!function_exists('runart_bridge_prepare_storage')) {
+    /**
+     * Determina una ruta escribible para guardar artefactos calculados (aprobaciones, logs, etc.).
+     * Prefiere wp-content/runart-data, luego repo/../data.
+     *
+     * @param string $relative Ruta relativa dentro de data/
+     * @return array{path:?string,source:string,paths_tried:array<int,string>}
+     */
+    function runart_bridge_prepare_storage($relative) {
+        $relative = ltrim($relative, '/');
+        $preferred = ['wp_content', 'repo'];
+        $bases = runart_bridge_data_bases();
+        $attempts = [];
+
+        foreach ($preferred as $label) {
+            if (!isset($bases[$label])) {
+                continue;
+            }
+
+            $base = trailingslashit($bases[$label]);
+            $full = $base . $relative;
+            $dir = is_dir($full) ? $full : dirname($full);
+            $attempts[] = $full;
+
+            if (!is_dir($dir)) {
+                if (function_exists('wp_mkdir_p')) {
+                    wp_mkdir_p($dir);
+                } else {
+                    @mkdir($dir, 0755, true);
+                }
+            }
+
+            if (is_dir($dir) && is_writable($dir)) {
+                return [
+                    'path' => $full,
+                    'source' => $label,
+                    'paths_tried' => $attempts,
+                ];
+            }
+        }
+
+        return [
+            'path' => null,
+            'source' => 'not-writable',
+            'paths_tried' => $attempts,
+        ];
+    }
+}
+
 add_action('rest_api_init', function () {
     $ns = 'runart/v1';
 
@@ -530,10 +654,10 @@ function runart_correlations_suggest_images(WP_REST_Request $req) {
     $threshold = $req->get_param('threshold') ?? 0.70;
     
     // Construir ruta al cache de recomendaciones
-    $cache_path = ABSPATH . '../data/embeddings/correlations/recommendations_cache.json';
+    $cache_info = runart_bridge_locate('embeddings/correlations/recommendations_cache.json');
     
     // Verificar si el archivo existe
-    if (!file_exists($cache_path)) {
+    if (!$cache_info['found']) {
         return new WP_REST_Response([
             'ok' => true,
             'page_id' => $page_id,
@@ -541,11 +665,14 @@ function runart_correlations_suggest_images(WP_REST_Request $req) {
             'message' => 'No recommendations cache available yet. Run correlator.py to generate.',
             'meta' => [
                 'timestamp' => gmdate('c'),
-                'cache_path' => $cache_path,
                 'cache_exists' => false,
+                'paths_tried' => $cache_info['paths_tried'],
+                'source' => 'not-found',
             ],
         ], 200);
     }
+    
+    $cache_path = $cache_info['path'];
     
     // Leer cache de recomendaciones
     $cache_content = file_get_contents($cache_path);
@@ -586,6 +713,8 @@ function runart_correlations_suggest_images(WP_REST_Request $req) {
             'requested_top_k' => $top_k,
             'phase' => 'F7',
             'description' => 'IA-Visual Image Recommendations',
+            'source' => $cache_info['source'],
+            'paths_tried' => $cache_info['paths_tried'],
         ],
     ], 200);
 }
@@ -634,12 +763,30 @@ function runart_embeddings_update(WP_REST_Request $req) {
     }
     
     // Registrar solicitud en un log (para procesamiento posterior)
-    $log_dir = ABSPATH . '../data/embeddings/correlations/';
-    if (!is_dir($log_dir)) {
-        mkdir($log_dir, 0755, true);
+    $storage = runart_bridge_prepare_storage('embeddings/correlations/update_requests.log');
+    $log_path = $storage['path'];
+    $storage_source = $storage['source'];
+    $storage_attempts = $storage['paths_tried'];
+
+    if ($log_path === null) {
+        // Fallback a uploads/ si data/ no es escribible
+        $uploads = wp_upload_dir();
+        $fallback_dir = trailingslashit($uploads['basedir']) . 'runart-jobs/';
+        if (!is_dir($fallback_dir)) {
+            @mkdir($fallback_dir, 0755, true);
+        }
+        $log_path = $fallback_dir . 'update_requests.log';
+        $storage_source = 'uploads-fallback';
     }
     
-    $log_path = $log_dir . 'update_requests.log';
+    $log_dir = dirname($log_path);
+    if (!is_dir($log_dir)) {
+        if (function_exists('wp_mkdir_p')) {
+            wp_mkdir_p($log_dir);
+        } else {
+            @mkdir($log_dir, 0755, true);
+        }
+    }
     $log_entry = [
         'timestamp' => gmdate('c'),
         'type' => $type,
@@ -664,6 +811,8 @@ function runart_embeddings_update(WP_REST_Request $req) {
         'meta' => [
             'timestamp' => gmdate('c'),
             'log_path' => $log_path,
+            'storage_source' => $storage_source,
+            'paths_tried' => $storage_attempts,
             'phase' => 'F7',
             'description' => 'IA-Visual Embeddings Update Request',
         ],
@@ -696,11 +845,10 @@ function runart_content_enriched($request) {
     $page_id = preg_replace('/[^a-z0-9_]/', '', strtolower($page_id));
     
     // Ruta al archivo de contenido enriquecido (F9)
-    $enriched_dir = ABSPATH . '../data/assistants/rewrite/';
-    $enriched_file = $enriched_dir . $page_id . '.json';
+    $enriched_info = runart_bridge_locate('assistants/rewrite/' . $page_id . '.json');
     
     // Verificar si existe el archivo
-    if (!file_exists($enriched_file)) {
+    if (!$enriched_info['found']) {
         return new WP_REST_Response([
             'ok' => false,
             'status' => 'not_enriched',
@@ -709,10 +857,13 @@ function runart_content_enriched($request) {
             'meta' => [
                 'timestamp' => gmdate('c'),
                 'phase' => 'F9',
-                'expected_path' => $enriched_file,
+                'expected_path' => $enriched_info['paths_tried'],
+                'source' => 'not-found',
             ],
         ], 404);
     }
+    
+    $enriched_file = $enriched_info['path'];
     
     // Leer archivo JSON
     $enriched_content = file_get_contents($enriched_file);
@@ -736,9 +887,9 @@ function runart_content_enriched($request) {
     
     // Buscar estado de aprobación si existe (F10-b)
     $approval_data = null;
-    $approvals_file = $enriched_dir . 'approvals.json';
-    if (file_exists($approvals_file)) {
-        $approvals_content = file_get_contents($approvals_file);
+    $approvals_info = runart_bridge_locate('assistants/rewrite/approvals.json');
+    if ($approvals_info['found']) {
+        $approvals_content = file_get_contents($approvals_info['path']);
         if ($approvals_content !== false) {
             $approvals = json_decode($approvals_content, true);
             if (json_last_error() === JSON_ERROR_NONE && isset($approvals[$page_id])) {
@@ -757,6 +908,8 @@ function runart_content_enriched($request) {
             'source_file' => basename($enriched_file),
             'phase' => 'F9',
             'description' => 'Content Enrichment - Rewritten content with AI suggestions',
+            'source' => $enriched_info['source'],
+            'paths_tried' => $enriched_info['paths_tried'],
         ],
     ];
     
@@ -1178,11 +1331,10 @@ function runart_ai_visual_request_regeneration(WP_REST_Request $request) {
  * @return WP_REST_Response
  */
 function runart_content_enriched_list(WP_REST_Request $request) {
-    $enriched_dir = ABSPATH . '../data/assistants/rewrite/';
-    $index_file = $enriched_dir . 'index.json';
+    $index_info = runart_bridge_locate('assistants/rewrite/index.json');
     
-    // Si no existe el índice, devolver lista vacía
-    if (!file_exists($index_file)) {
+    // Si no existe el índice, devolver lista vacía con diagnóstico
+    if (!$index_info['found']) {
         return new WP_REST_Response([
             'ok' => true,
             'items' => [],
@@ -1191,12 +1343,14 @@ function runart_content_enriched_list(WP_REST_Request $request) {
                 'timestamp' => gmdate('c'),
                 'phase' => 'F10-b',
                 'source' => 'enriched-list',
+                'index_source' => 'not-found',
+                'index_paths_tried' => $index_info['paths_tried'],
             ],
         ], 200);
     }
     
     // Leer índice
-    $index_content = file_get_contents($index_file);
+    $index_content = file_get_contents($index_info['path']);
     if ($index_content === false) {
         return runart_wpcli_bridge_error(
             'Error reading index file',
@@ -1216,9 +1370,9 @@ function runart_content_enriched_list(WP_REST_Request $request) {
     
     // Leer aprobaciones si existe
     $approvals = [];
-    $approvals_file = $enriched_dir . 'approvals.json';
-    if (file_exists($approvals_file)) {
-        $approvals_content = file_get_contents($approvals_file);
+    $approvals_info = runart_bridge_locate('assistants/rewrite/approvals.json');
+    if ($approvals_info['found']) {
+        $approvals_content = file_get_contents($approvals_info['path']);
         if ($approvals_content !== false) {
             $approvals_data = json_decode($approvals_content, true);
             if (json_last_error() === JSON_ERROR_NONE) {
@@ -1255,6 +1409,10 @@ function runart_content_enriched_list(WP_REST_Request $request) {
             'timestamp' => gmdate('c'),
             'phase' => 'F10-b',
             'source' => 'enriched-list',
+            'index_source' => $index_info['source'],
+            'index_paths_tried' => $index_info['paths_tried'],
+            'approvals_source' => $approvals_info['found'] ? $approvals_info['source'] : 'not-found',
+            'approvals_paths_tried' => $approvals_info['found'] ? $approvals_info['paths_tried'] : [],
         ],
     ], 200);
 }
@@ -1293,14 +1451,11 @@ function runart_content_enriched_approve(WP_REST_Request $request) {
         'updated_by' => $user_login,
     ];
     
-    // Intentar escribir en data/assistants/rewrite/approvals.json
-    $enriched_dir = ABSPATH . '../data/assistants/rewrite/';
-    $approvals_file = $enriched_dir . 'approvals.json';
-    
-    // Leer aprobaciones existentes o inicializar
+    // Ubicar aprobaciones existentes y cargarlas
     $approvals = [];
-    if (file_exists($approvals_file)) {
-        $approvals_content = file_get_contents($approvals_file);
+    $approvals_loc = runart_bridge_locate('assistants/rewrite/approvals.json');
+    if ($approvals_loc['found']) {
+        $approvals_content = file_get_contents($approvals_loc['path']);
         if ($approvals_content !== false) {
             $approvals_data = json_decode($approvals_content, true);
             if (json_last_error() === JSON_ERROR_NONE) {
@@ -1312,14 +1467,14 @@ function runart_content_enriched_approve(WP_REST_Request $request) {
     // Actualizar o insertar aprobación
     $approvals[$id] = $approval_entry;
     
-    // Intentar escribir en data/
-    $can_write_data = is_dir($enriched_dir) && is_writable($enriched_dir);
-    if ($can_write_data) {
+    // Preparar destino escribible (prefiere wp-content/runart-data, luego repo)
+    $storage = runart_bridge_prepare_storage('assistants/rewrite/approvals.json');
+    if (!empty($storage['path'])) {
         $ok = @file_put_contents(
-            $approvals_file,
+            $storage['path'],
             json_encode($approvals, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE)
         );
-        
+
         if ($ok !== false) {
             return new WP_REST_Response([
                 'ok' => true,
@@ -1330,7 +1485,10 @@ function runart_content_enriched_approve(WP_REST_Request $request) {
                 'meta' => [
                     'timestamp' => gmdate('c'),
                     'phase' => 'F10-b',
-                    'storage' => 'data/assistants/rewrite',
+                    'storage' => $storage['source'],
+                    'storage_path' => $storage['path'],
+                    'storage_paths_tried' => $storage['paths_tried'],
+                    'approvals_origin' => $approvals_loc['found'] ? $approvals_loc['source'] : 'not-found',
                 ],
             ], 200);
         }
@@ -1367,6 +1525,8 @@ function runart_content_enriched_approve(WP_REST_Request $request) {
                 'timestamp' => gmdate('c'),
                 'phase' => 'F10-b',
                 'storage' => 'uploads/runart-jobs (readonly fallback)',
+                'intended_storage' => $storage['source'] ?? 'not-writable',
+                'intended_storage_paths_tried' => $storage['paths_tried'] ?? [],
                 'note' => 'Ejecutar CI para persistir en repo',
             ],
         ], 200);
