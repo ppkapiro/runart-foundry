@@ -161,9 +161,15 @@ jobs:
                   if not activate_url.startswith('http'):
                       activate_url = f'{base_url}{activate_url}' if activate_url.startswith('/') else f'{base_url}/{activate_url}'
                   
-                  print("[6/6] Activar...")
+                  print(f"[6/6] Activar plugin...")
+                  print(f"  URL: {activate_url}")
                   resp = session.get(activate_url)
-                  print(f"  ✅ Activación: HTTP {resp.status_code}")
+                  print(f"  HTTP: {resp.status_code}")
+                  
+                  if resp.status_code == 404:
+                      print("  ⚠️  Activación devolvió 404")
+                      print("  Intentando recargar plugins.php para confirmar estado...")
+                      resp = session.get(f'{base_url}/wp-admin/plugins.php')
               else:
                   print("  ⚠️  No se encontró link de activación")
               
