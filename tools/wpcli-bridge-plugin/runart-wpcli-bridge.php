@@ -1,8 +1,8 @@
 <?php
 /**
  * Plugin Name:       RunArt WP-CLI Bridge (REST)
- * Description:       Endpoints REST seguros para tareas comunes de WP-CLI (flush cache, flush rewrite, listar usuarios y plugins, health).
- * Version:           1.0.0
+ * Description:       Endpoints REST seguros para tareas comunes de WP-CLI y auditoría de contenido (páginas e imágenes).
+ * Version:           1.1.0
  * Author:            RunArt Foundry
  * Requires at least: 5.8
  * Requires PHP:      7.4
@@ -51,16 +51,15 @@ add_action('rest_api_init', function () {
         'callback' => 'runart_wpcli_bridge_plugins_list',
         'permission_callback' => 'runart_wpcli_bridge_permission_admin',
     ]);
-
-    // ==================== AUDIT ENDPOINTS ====================
-    // Pages audit (GET) - F1: Inventario de Páginas
+    
+    // Content Audit - Pages endpoint (GET)
     register_rest_route('runart', '/audit/pages', [
         'methods'  => 'GET',
         'callback' => 'runart_audit_pages',
         'permission_callback' => 'runart_wpcli_bridge_permission_admin',
     ]);
-
-    // Images audit (GET) - F2: Inventario de Imágenes
+    
+    // Content Audit - Images endpoint (GET)
     register_rest_route('runart', '/audit/images', [
         'methods'  => 'GET',
         'callback' => 'runart_audit_images',
@@ -171,53 +170,53 @@ function runart_wpcli_bridge_plugins_list(WP_REST_Request $req) {
     return runart_wpcli_bridge_ok(['count' => count($out), 'plugins' => $out]);
 }
 
-// ==================== AUDIT ENDPOINTS IMPLEMENTATION ====================
-
 /**
- * F1: Audit Pages - Inventario de Páginas/Posts
- * GET /wp-json/runart/audit/pages
- * 
- * Returns: JSON with all pages/posts including language, type, status
+ * Content Audit: Pages endpoint
+ * Retorna todas las páginas y posts con información de idioma
  */
 function runart_audit_pages(WP_REST_Request $req) {
-    $args = [
+    $posts = get_posts([
         'post_type' => ['page', 'post'],
-        'post_status' => ['publish', 'draft', 'pending', 'private'],
-        'posts_per_page' => -1,
+        'post_status' => 'any',
+        'numberposts' => -1,
         'orderby' => 'ID',
         'order' => 'ASC',
-    ];
-
-    $posts = get_posts($args);
+    ]);
+    
     $items = [];
-    $total_es = 0;
-    $total_en = 0;
-    $total_unknown = 0;
-
+    $count_es = 0;
+    $count_en = 0;
+    $count_unknown = 0;
+    
     foreach ($posts as $post) {
+        // Detectar idioma via Polylang
         $lang = '-';
-        
-        // Detect language via Polylang if available
         if (function_exists('pll_get_post_language')) {
             $lang_obj = pll_get_post_language($post->ID, 'object');
-            $lang = $lang_obj ? $lang_obj->slug : '-';
-        } elseif (has_term('', 'language', $post->ID)) {
-            // Fallback: check language taxonomy
-            $terms = wp_get_post_terms($post->ID, 'language', ['fields' => 'slugs']);
-            $lang = !empty($terms) && !is_wp_error($terms) ? $terms[0] : '-';
+            if ($lang_obj) {
+                $lang = $lang_obj->slug;
+            }
         }
-
-        // Count by language
-        if ($lang === 'es') {
-            $total_es++;
-        } elseif ($lang === 'en') {
-            $total_en++;
-        } else {
-            $total_unknown++;
+        
+        // Fallback: taxonomía
+        if ($lang === '-') {
+            $terms = get_the_terms($post->ID, 'language');
+            if ($terms && !is_wp_error($terms)) {
+                $lang = $terms[0]->slug;
+            }
         }
-
+        
+        // Contar por idioma
+        if ($lang === 'es' || $lang === 'es_ES') {
+            $count_es++;
+        } elseif ($lang === 'en' || $lang === 'en_US' || $lang === 'en_GB') {
+            $count_en++;
+        } elseif ($lang === '-') {
+            $count_unknown++;
+        }
+        
         $items[] = [
-            'id' => $post->ID,
+            'ID' => $post->ID,
             'url' => get_permalink($post->ID),
             'lang' => $lang,
             'type' => $post->post_type,
@@ -226,105 +225,98 @@ function runart_audit_pages(WP_REST_Request $req) {
             'slug' => $post->post_name,
         ];
     }
-
+    
     return new WP_REST_Response([
         'ok' => true,
         'total' => count($items),
-        'total_es' => $total_es,
-        'total_en' => $total_en,
-        'total_unknown' => $total_unknown,
+        'total_es' => $count_es,
+        'total_en' => $count_en,
+        'total_unknown' => $count_unknown,
         'items' => $items,
         'meta' => [
             'timestamp' => gmdate('c'),
             'site' => get_site_url(),
-            'phase' => 'F1',
-            'description' => 'Inventario de Páginas y Posts (ES/EN)',
         ],
     ], 200);
 }
 
 /**
- * F2: Audit Images - Inventario de Imágenes/Media
- * GET /wp-json/runart/audit/images
- * 
- * Returns: JSON with all image attachments including metadata, dimensions, size
+ * Content Audit: Images endpoint
+ * Retorna todas las imágenes con metadata
  */
 function runart_audit_images(WP_REST_Request $req) {
-    $args = [
+    $images = get_posts([
         'post_type' => 'attachment',
-        'post_status' => 'inherit',
         'post_mime_type' => 'image',
-        'posts_per_page' => -1,
+        'post_status' => 'inherit',
+        'numberposts' => -1,
         'orderby' => 'ID',
         'order' => 'ASC',
-    ];
-
-    $attachments = get_posts($args);
+    ]);
+    
     $items = [];
-    $total_es = 0;
-    $total_en = 0;
-    $total_unknown = 0;
-
-    foreach ($attachments as $attachment) {
+    $count_es = 0;
+    $count_en = 0;
+    $count_unknown = 0;
+    
+    foreach ($images as $image) {
+        // Detectar idioma
         $lang = '-';
-        
-        // Detect language via Polylang if available
         if (function_exists('pll_get_post_language')) {
-            $lang_obj = pll_get_post_language($attachment->ID, 'object');
-            $lang = $lang_obj ? $lang_obj->slug : '-';
-        } elseif (has_term('', 'language', $attachment->ID)) {
-            // Fallback: check language taxonomy
-            $terms = wp_get_post_terms($attachment->ID, 'language', ['fields' => 'slugs']);
-            $lang = !empty($terms) && !is_wp_error($terms) ? $terms[0] : '-';
+            $lang_obj = pll_get_post_language($image->ID, 'object');
+            if ($lang_obj) {
+                $lang = $lang_obj->slug;
+            }
         }
-
-        // Count by language
-        if ($lang === 'es') {
-            $total_es++;
-        } elseif ($lang === 'en') {
-            $total_en++;
-        } else {
-            $total_unknown++;
+        
+        if ($lang === '-') {
+            $terms = get_the_terms($image->ID, 'language');
+            if ($terms && !is_wp_error($terms)) {
+                $lang = $terms[0]->slug;
+            }
         }
-
-        // Get attachment metadata
-        $metadata = wp_get_attachment_metadata($attachment->ID);
-        $file_path = get_attached_file($attachment->ID);
+        
+        // Contar por idioma
+        if ($lang === 'es' || $lang === 'es_ES') {
+            $count_es++;
+        } elseif ($lang === 'en' || $lang === 'en_US' || $lang === 'en_GB') {
+            $count_en++;
+        } elseif ($lang === '-') {
+            $count_unknown++;
+        }
+        
+        // Metadata
+        $metadata = wp_get_attachment_metadata($image->ID);
+        $file_path = get_attached_file($image->ID);
         $file_size_kb = 0;
         if ($file_path && file_exists($file_path)) {
             $file_size_kb = round(filesize($file_path) / 1024, 2);
         }
-
-        $width = isset($metadata['width']) ? (int) $metadata['width'] : 0;
-        $height = isset($metadata['height']) ? (int) $metadata['height'] : 0;
-        $file = isset($metadata['file']) ? $metadata['file'] : '';
-
+        
         $items[] = [
-            'id' => $attachment->ID,
-            'url' => wp_get_attachment_url($attachment->ID),
+            'ID' => $image->ID,
+            'url' => wp_get_attachment_url($image->ID),
             'lang' => $lang,
-            'mime' => get_post_mime_type($attachment->ID),
-            'width' => $width,
-            'height' => $height,
+            'mime_type' => $image->post_mime_type,
+            'width' => isset($metadata['width']) ? $metadata['width'] : null,
+            'height' => isset($metadata['height']) ? $metadata['height'] : null,
             'size_kb' => $file_size_kb,
-            'title' => $attachment->post_title,
-            'alt' => get_post_meta($attachment->ID, '_wp_attachment_image_alt', true),
-            'file' => $file,
+            'title' => $image->post_title,
+            'alt' => get_post_meta($image->ID, '_wp_attachment_image_alt', true),
+            'file' => basename(get_attached_file($image->ID)),
         ];
     }
-
+    
     return new WP_REST_Response([
         'ok' => true,
         'total' => count($items),
-        'total_es' => $total_es,
-        'total_en' => $total_en,
-        'total_unknown' => $total_unknown,
+        'total_es' => $count_es,
+        'total_en' => $count_en,
+        'total_unknown' => $count_unknown,
         'items' => $items,
         'meta' => [
             'timestamp' => gmdate('c'),
             'site' => get_site_url(),
-            'phase' => 'F2',
-            'description' => 'Inventario de Imágenes (Media Library)',
         ],
     ], 200);
 }
