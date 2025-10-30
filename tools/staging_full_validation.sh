@@ -285,22 +285,26 @@ else
 fi
 
 # ==============================================================================
-# PASO 5: Restaurar modo protegido
+# PASO 5: Información sobre ventana de mantenimiento
 # ==============================================================================
 
-log_section "PASO 5: RESTAURAR MODO PROTEGIDO"
+log_section "PASO 5: VENTANA DE MANTENIMIENTO"
 
-log_info "Asegurando que READ_ONLY y DRY_RUN estén activados..."
-
-export READ_ONLY=1
-export DRY_RUN=1
-
-log_success "Variables de entorno protegidas:"
-log "  - READ_ONLY=1"
-log "  - DRY_RUN=1"
-
-log_warning "IMPORTANTE: Asegúrate de que estas variables estén configuradas en el entorno del servidor"
-log_info "Verifica en: .env, variables de sistema, o configuración del web server"
+log_info "NOTA: Este script YA NO cierra la ventana de mantenimiento automáticamente"
+log_info "Usar el protocolo de ventana de mantenimiento:"
+log ""
+log "  🟢 Abrir ventana (modo trabajo):"
+log "     source scripts/deploy_framework/open_staging_window.sh"
+log ""
+log "  🔴 Cerrar ventana (modo protegido):"
+log "     source scripts/deploy_framework/close_staging_window.sh"
+log ""
+log_warning "Estado actual de la ventana:"
+log "  - READ_ONLY: ${READ_ONLY:-undefined}"
+log "  - DRY_RUN: ${DRY_RUN:-undefined}"
+log "  - REAL_DEPLOY: ${REAL_DEPLOY:-undefined}"
+log ""
+log_info "La ventana permanece en su estado actual después de este script"
 
 # ==============================================================================
 # PASO 6: Documentación en bitácora

@@ -220,28 +220,20 @@ else
 fi
 
 # ==============================================================================
-# 8. Restaurar estado original
+# 8. Restaurar estado original (DESHABILITADO - usar ventana de mantenimiento)
 # ==============================================================================
 
-log_section "8️⃣ RESTAURAR ESTADO ORIGINAL"
+log_section "8️⃣ INFORMACIÓN SOBRE VENTANA DE MANTENIMIENTO"
 
-if [[ -n "$ORIGINAL_READ_ONLY" ]]; then
-    export READ_ONLY="$ORIGINAL_READ_ONLY"
-    log_step "Restaurado READ_ONLY=$READ_ONLY"
-else
-    export READ_ONLY=1
-    log_step "READ_ONLY no estaba definida, establecida a 1 (seguro)"
-fi
-
-if [[ -n "$ORIGINAL_DRY_RUN" ]]; then
-    export DRY_RUN="$ORIGINAL_DRY_RUN"
-    log_step "Restaurado DRY_RUN=$DRY_RUN"
-else
-    export DRY_RUN=1
-    log_step "DRY_RUN no estaba definida, establecida a 1 (seguro)"
-fi
-
-log_success "Estado original restaurado"
+log_info "NOTA: Este script YA NO restaura READ_ONLY/DRY_RUN automáticamente"
+log_info "Usar el protocolo de ventana de mantenimiento:"
+log_info "  - Abrir: source scripts/deploy_framework/open_staging_window.sh"
+log_info "  - Cerrar: source scripts/deploy_framework/close_staging_window.sh"
+log ""
+log_warning "La ventana de mantenimiento permanece en su estado actual"
+log_info "Estado actual:"
+log "  - READ_ONLY=${READ_ONLY:-undefined}"
+log "  - DRY_RUN=${DRY_RUN:-undefined}"
 
 # ==============================================================================
 # 9. Resumen

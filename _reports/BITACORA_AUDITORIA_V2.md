@@ -6,6 +6,34 @@
 
 ## Últimas actualizaciones
 
+### 🟢 2025-10-30T22:38:00Z — VENTANA DE MANTENIMIENTO STAGING ABIERTA
+**Responsable:** runart-admin  
+**Timestamp apertura:** 2025-10-30T22:38:09Z  
+**Estado:** ACTIVA (MODO TRABAJO)
+
+**Configuración:**
+- READ_ONLY=0 ✅ (escritura habilitada)
+- DRY_RUN=0 ✅ (ejecución real)
+- REAL_DEPLOY=1 ✅ (deploys permitidos)
+
+**Acciones permitidas:**
+- ✅ Escritura en wp-content/uploads/runart-jobs/
+- ✅ Lectura/escritura de JSON IA (data/assistants/rewrite/)
+- ✅ Pruebas de endpoints REST con datos reales
+- ✅ Aprobaciones/rechazos en Panel Editorial IA-Visual
+- ✅ Modificaciones en contenido enriquecido
+
+**Objetivo:**
+Validar funcionamiento completo del Panel Editorial IA-Visual con datos reales en staging.
+
+**Scripts de ventana:**
+- Abrir: `source scripts/deploy_framework/open_staging_window.sh`
+- Cerrar: `source scripts/deploy_framework/close_staging_window.sh`
+
+**⚠️ IMPORTANTE:** La ventana permanecerá abierta hasta que el usuario indique cerrarla explícitamente. NO se cerrará automáticamente.
+
+---
+
 ### 2025-10-30T22:30:00Z — F10-d (Validación de Permisos STAGING) — Scripts de diagnóstico y corrección
 **Branch:** `feat/ai-visual-implementation`  
 **Commit:** (pending)  
