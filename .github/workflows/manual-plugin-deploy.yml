@@ -114,6 +114,49 @@ jobs:
                   resp = session.get(clean_link)
                   print(f"  ✅ Desactivado plugin {idx + 1}")
               
+              # 2.5 BORRAR todos los plugins RunArt (ahora todos inactivos)
+              print("[2.5/6] BORRAR todos los plugins RunArt...")
+              resp = session.get(f'{base_url}/wp-admin/plugins.php')
+              
+              # Buscar plugins runart-wpcli-bridge con data-slug o data-plugin
+              delete_pattern = r'data-(?:slug|plugin)="([^"]*runart-wpcli-bridge[^"]*)"'
+              plugins_to_delete = re.findall(delete_pattern, resp.text)
+              
+              if not plugins_to_delete:
+                  # Fallback: buscar por nombre de archivo en checkboxes
+                  delete_pattern = r'name="checked\[\]"\s+value="([^"]*runart-wpcli-bridge[^"]*)"'
+                  plugins_to_delete = re.findall(delete_pattern, resp.text)
+              
+              print(f"  Encontrados {len(plugins_to_delete)} plugins para borrar")
+              
+              if plugins_to_delete:
+                  # Obtener nonce para delete
+                  delete_nonce_match = re.search(r'name="_wpnonce"\s+value="([^"]+)"', resp.text)
+                  if delete_nonce_match:
+                      delete_nonce = delete_nonce_match.group(1)
+                      
+                      # Borrar usando bulk action
+                      delete_resp = session.post(
+                          f'{base_url}/wp-admin/plugins.php?action=delete-selected',
+                          data={
+                              '_wpnonce': delete_nonce,
+                              'verify-delete': '1',
+                              'checked': plugins_to_delete,
+                              'action': 'delete-selected',
+                              'action2': '-1'
+                          },
+                          allow_redirects=True
+                      )
+                      
+                      if delete_resp.status_code == 200:
+                          print(f"  ✅ Borrados {len(plugins_to_delete)} plugins")
+                      else:
+                          print(f"  ⚠️  Borrado devolvió HTTP {delete_resp.status_code}")
+                  else:
+                      print("  ⚠️  No se pudo obtener nonce para borrar")
+              else:
+                  print("  ℹ️  No hay plugins para borrar")
+              
               # 3. Obtener nonce
               print("[3/6] Obtener nonce...")
               resp = session.get(f'{base_url}/wp-admin/plugin-install.php?tab=upload')
