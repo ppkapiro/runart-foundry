@@ -173,6 +173,13 @@ add_action('rest_api_init', function () {
             return is_user_logged_in() && (current_user_can('manage_options') || current_user_can('edit_pages'));
         },
     ]);
+    
+    // F10 (Deployment) - Endpoint para crear página de monitor remotamente (POST)
+    register_rest_route('runart', '/deployment/create-monitor-page', [
+        'methods'  => 'POST',
+        'callback' => 'runart_deployment_create_monitor_page',
+        'permission_callback' => 'runart_wpcli_bridge_permission_admin',
+    ]);
 });
 
 function runart_wpcli_bridge_permission_admin() {
