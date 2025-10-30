@@ -14,6 +14,17 @@ if (!defined('ABSPATH')) {
     exit; // Exit if accessed directly.
 }
 
+// Definir ruta del archivo principal del plugin para hooks de activación
+if (!defined('RUNART_WPCLI_BRIDGE_PLUGIN_FILE')) {
+    define('RUNART_WPCLI_BRIDGE_PLUGIN_FILE', __FILE__);
+}
+
+// Incluir inicializador de página de monitor (creación automática al activar)
+$__runart_bridge_init_file = __DIR__ . '/init_monitor_page.php';
+if (file_exists($__runart_bridge_init_file)) {
+    require_once $__runart_bridge_init_file;
+}
+
 add_action('rest_api_init', function () {
     $ns = 'runart/v1';
 
