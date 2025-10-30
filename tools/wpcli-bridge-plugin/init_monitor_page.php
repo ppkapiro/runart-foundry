@@ -70,41 +70,73 @@ if (!function_exists('runart_deployment_create_monitor_page')) {
      * POST /wp-json/runart/deployment/create-monitor-page
      */
     function runart_deployment_create_monitor_page($request) {
-        if (!is_admin() && !current_user_can('manage_options')) {
+        if (!current_user_can('manage_options')) {
             return new WP_Error('forbidden', 'Sin permisos suficientes', ['status' => 403]);
         }
         
-        // Verificar si la página ya existe
-        $existing = get_page_by_title('Monitor IA-Visual');
-        if ($existing) {
-            return new WP_REST_Response([
-                'ok' => true,
-                'message' => 'Página ya existe',
-                'page_id' => $existing->ID,
-                'url' => get_permalink($existing->ID),
-            ], 200);
+        $mode = $request->get_param('mode');
+        $mode = in_array($mode, ['editor', 'technical'], true) ? $mode : 'technical';
+        $default_title = $mode === 'editor' ? 'Panel Editorial IA-Visual' : 'Monitor IA-Visual';
+        $title = $request->get_param('title');
+        $title = is_string($title) && trim($title) !== '' ? sanitize_text_field($title) : $default_title;
+        
+        $slug = $request->get_param('slug');
+        $slug = is_string($slug) && trim($slug) !== '' ? sanitize_title($slug) : sanitize_title($title);
+        
+        // Construir contenido del shortcode según modo
+        $shortcode = '[runart_ai_visual_monitor';
+        if ($mode !== 'technical') {
+            $shortcode .= ' mode="' . esc_attr($mode) . '"';
+        }
+        $shortcode .= ']';
+        
+        // Verificar si la página ya existe por slug o título
+        $existing = null;
+        if (!empty($slug)) {
+            $existing = get_page_by_path($slug);
+        }
+        if (!$existing) {
+            $existing = get_page_by_title($title);
         }
         
-        // Crear la página
-        $page_id = wp_insert_post([
-            'post_title'   => 'Monitor IA-Visual',
-            'post_content' => '[runart_ai_visual_monitor]',
+        $page_args = [
+            'post_title'   => $title,
+            'post_content' => $shortcode,
             'post_status'  => 'publish',
             'post_type'    => 'page',
-        ]);
+        ];
         
-        if (is_wp_error($page_id)) {
-            return new WP_Error('creation_failed', $page_id->get_error_message(), ['status' => 500]);
+        if (!empty($slug)) {
+            $page_args['post_name'] = $slug;
         }
         
-        // Marcar como inicializado
+        if ($existing) {
+            $page_args['ID'] = $existing->ID;
+            $page_id = wp_update_post($page_args, true);
+            if (is_wp_error($page_id)) {
+                return new WP_Error('update_failed', $page_id->get_error_message(), ['status' => 500]);
+            }
+            $message = 'Página actualizada';
+        } else {
+            $page_id = wp_insert_post($page_args, true);
+            if (is_wp_error($page_id)) {
+                return new WP_Error('creation_failed', $page_id->get_error_message(), ['status' => 500]);
+            }
+            $message = 'Página creada exitosamente';
+        }
+        
         update_option('runart_ai_visual_monitor_seeded', '1', false);
         
         return new WP_REST_Response([
             'ok' => true,
-            'message' => 'Página creada exitosamente',
-            'page_id' => $page_id,
-            'url' => get_permalink($page_id),
-        ], 201);
+            'message' => $message,
+            'data' => [
+                'page_id' => $page_id,
+                'page_url' => get_permalink($page_id),
+                'mode' => $mode,
+                'title' => $title,
+                'slug' => $slug,
+            ],
+        ], 200);
     }
 }

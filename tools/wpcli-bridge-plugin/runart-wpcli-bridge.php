@@ -186,6 +186,24 @@ add_action('rest_api_init', function () {
         'methods'  => 'POST',
         'callback' => 'runart_deployment_create_monitor_page',
         'permission_callback' => 'runart_wpcli_bridge_permission_admin',
+        'args' => [
+            'title' => [
+                'required' => false,
+                'type' => 'string',
+                'description' => 'Título de la página a crear/actualizar',
+            ],
+            'slug' => [
+                'required' => false,
+                'type' => 'string',
+                'description' => 'Slug deseado para la página',
+            ],
+            'mode' => [
+                'required' => false,
+                'type' => 'string',
+                'enum' => ['technical', 'editor'],
+                'description' => 'Modo del shortcode: technical (por defecto) o editor',
+            ],
+        ],
     ]);
     
     // F10-b (Panel Editorial) - Listado de contenidos enriquecidos (GET)
