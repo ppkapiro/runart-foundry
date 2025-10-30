@@ -51,18 +51,20 @@ jobs:
         run: |
           set -euo pipefail
           FOUND_USER_KEY=""; FOUND_PASS_KEY=""
-          if [ -n "${WP_USER:-}" ]; then USER="$WP_USER"; FOUND_USER_KEY="WP_USER";
+          # Prioridad: ADMIN_USER/ADMIN_PASS primero (credenciales wp-login tradicional)
+          # WP_USER/WP_APP_PASSWORD son para REST API, no para login de formulario
+          if [ -n "${ADMIN_USER:-}" ]; then USER="$ADMIN_USER"; FOUND_USER_KEY="ADMIN_USER";
           elif [ -n "${WP_ADMIN_USER:-}" ]; then USER="$WP_ADMIN_USER"; FOUND_USER_KEY="WP_ADMIN_USER";
           elif [ -n "${WP_ADMIN_USERNAME:-}" ]; then USER="$WP_ADMIN_USERNAME"; FOUND_USER_KEY="WP_ADMIN_USERNAME";
           elif [ -n "${RUNART_ADMIN_USER:-}" ]; then USER="$RUNART_ADMIN_USER"; FOUND_USER_KEY="RUNART_ADMIN_USER";
-          elif [ -n "${ADMIN_USER:-}" ]; then USER="$ADMIN_USER"; FOUND_USER_KEY="ADMIN_USER"; else USER=""; fi
+          elif [ -n "${WP_USER:-}" ]; then USER="$WP_USER"; FOUND_USER_KEY="WP_USER"; else USER=""; fi
 
-          if [ -n "${WP_APP_PASSWORD:-}" ]; then PASS="$WP_APP_PASSWORD"; FOUND_PASS_KEY="WP_APP_PASSWORD";
+          if [ -n "${ADMIN_PASS:-}" ]; then PASS="$ADMIN_PASS"; FOUND_PASS_KEY="ADMIN_PASS";
           elif [ -n "${WP_ADMIN_PASS:-}" ]; then PASS="$WP_ADMIN_PASS"; FOUND_PASS_KEY="WP_ADMIN_PASS";
           elif [ -n "${RUNART_ADMIN_PASS:-}" ]; then PASS="$RUNART_ADMIN_PASS"; FOUND_PASS_KEY="RUNART_ADMIN_PASS";
           elif [ -n "${RUNART_ADMIN_PASSWORD:-}" ]; then PASS="$RUNART_ADMIN_PASSWORD"; FOUND_PASS_KEY="RUNART_ADMIN_PASSWORD";
-          elif [ -n "${ADMIN_PASS:-}" ]; then PASS="$ADMIN_PASS"; FOUND_PASS_KEY="ADMIN_PASS";
-          elif [ -n "${ADMIN_PASSWORD:-}" ]; then PASS="$ADMIN_PASSWORD"; FOUND_PASS_KEY="ADMIN_PASSWORD"; else PASS=""; fi
+          elif [ -n "${ADMIN_PASSWORD:-}" ]; then PASS="$ADMIN_PASSWORD"; FOUND_PASS_KEY="ADMIN_PASSWORD";
+          elif [ -n "${WP_APP_PASSWORD:-}" ]; then PASS="$WP_APP_PASSWORD"; FOUND_PASS_KEY="WP_APP_PASSWORD"; else PASS=""; fi
 
           if [ -n "$USER" ] && [ -n "$PASS" ]; then
             echo "Usando credenciales desde Secrets ($FOUND_USER_KEY/$FOUND_PASS_KEY)"
