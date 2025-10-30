@@ -187,6 +187,35 @@ add_action('rest_api_init', function () {
         'callback' => 'runart_deployment_create_monitor_page',
         'permission_callback' => 'runart_wpcli_bridge_permission_admin',
     ]);
+    
+    // F10-b (Panel Editorial) - Listado de contenidos enriquecidos (GET)
+    register_rest_route('runart', '/content/enriched-list', [
+        'methods'  => 'GET',
+        'callback' => 'runart_content_enriched_list',
+        // Permitir a cualquier usuario autenticado
+        'permission_callback' => function () { return is_user_logged_in(); },
+    ]);
+    
+    // F10-b (Panel Editorial) - Aprobar/Rechazar contenido (POST)
+    register_rest_route('runart', '/content/enriched-approve', [
+        'methods'  => 'POST',
+        'callback' => 'runart_content_enriched_approve',
+        // Permitir a cualquier usuario autenticado
+        'permission_callback' => function () { return is_user_logged_in(); },
+        'args' => [
+            'id' => [
+                'required' => true,
+                'type' => 'string',
+                'description' => 'ID del contenido (ej: page_42)',
+            ],
+            'status' => [
+                'required' => true,
+                'type' => 'string',
+                'enum' => ['approved', 'rejected', 'needs_review'],
+                'description' => 'Estado de aprobación',
+            ],
+        ],
+    ]);
 });
 
 function runart_wpcli_bridge_permission_admin() {
@@ -687,8 +716,21 @@ function runart_content_enriched($request) {
         );
     }
     
-    // Devolver contenido enriquecido
-    return new WP_REST_Response([
+    // Buscar estado de aprobación si existe (F10-b)
+    $approval_data = null;
+    $approvals_file = $enriched_dir . 'approvals.json';
+    if (file_exists($approvals_file)) {
+        $approvals_content = file_get_contents($approvals_file);
+        if ($approvals_content !== false) {
+            $approvals = json_decode($approvals_content, true);
+            if (json_last_error() === JSON_ERROR_NONE && isset($approvals[$page_id])) {
+                $approval_data = $approvals[$page_id];
+            }
+        }
+    }
+    
+    // Devolver contenido enriquecido con aprobación si existe
+    $response_data = [
         'ok' => true,
         'page_id' => $page_id,
         'enriched_data' => $enriched_data,
@@ -698,7 +740,13 @@ function runart_content_enriched($request) {
             'phase' => 'F9',
             'description' => 'Content Enrichment - Rewritten content with AI suggestions',
         ],
-    ], 200);
+    ];
+    
+    if ($approval_data !== null) {
+        $response_data['approval'] = $approval_data;
+    }
+    
+    return new WP_REST_Response($response_data, 200);
 }
 
 /**
@@ -1102,23 +1150,537 @@ function runart_ai_visual_request_regeneration(WP_REST_Request $request) {
 }
 
 /**
- * Shortcode: [runart_ai_visual_monitor]
+ * F10-b - Listado de contenidos enriquecidos.
  * 
- * Renderiza una vista mínima para consultar endpoints F8/F9 y estado del pipeline (F10),
- * y un botón para solicitar regeneración (solo registra la intención).
+ * Lee data/assistants/rewrite/index.json y fusiona con approvals.json si existe.
+ * 
+ * GET /wp-json/runart/content/enriched-list
+ * 
+ * @param WP_REST_Request $request
+ * @return WP_REST_Response
+ */
+function runart_content_enriched_list(WP_REST_Request $request) {
+    $enriched_dir = ABSPATH . '../data/assistants/rewrite/';
+    $index_file = $enriched_dir . 'index.json';
+    
+    // Si no existe el índice, devolver lista vacía
+    if (!file_exists($index_file)) {
+        return new WP_REST_Response([
+            'ok' => true,
+            'items' => [],
+            'message' => 'No hay contenidos enriquecidos.',
+            'meta' => [
+                'timestamp' => gmdate('c'),
+                'phase' => 'F10-b',
+                'source' => 'enriched-list',
+            ],
+        ], 200);
+    }
+    
+    // Leer índice
+    $index_content = file_get_contents($index_file);
+    if ($index_content === false) {
+        return runart_wpcli_bridge_error(
+            'Error reading index file',
+            'read_error',
+            500
+        );
+    }
+    
+    $index_data = json_decode($index_content, true);
+    if (json_last_error() !== JSON_ERROR_NONE) {
+        return runart_wpcli_bridge_error(
+            'Invalid JSON in index file: ' . json_last_error_msg(),
+            'json_decode_error',
+            500
+        );
+    }
+    
+    // Leer aprobaciones si existe
+    $approvals = [];
+    $approvals_file = $enriched_dir . 'approvals.json';
+    if (file_exists($approvals_file)) {
+        $approvals_content = file_get_contents($approvals_file);
+        if ($approvals_content !== false) {
+            $approvals_data = json_decode($approvals_content, true);
+            if (json_last_error() === JSON_ERROR_NONE) {
+                $approvals = $approvals_data;
+            }
+        }
+    }
+    
+    // Construir lista de items fusionando con aprobaciones
+    $items = [];
+    if (isset($index_data['pages']) && is_array($index_data['pages'])) {
+        foreach ($index_data['pages'] as $page) {
+            $page_id = isset($page['id']) ? $page['id'] : '';
+            $item = [
+                'id' => $page_id,
+                'title' => isset($page['title']) ? $page['title'] : $page_id,
+                'lang' => isset($page['lang']) ? $page['lang'] : 'unknown',
+                'status' => isset($approvals[$page_id]['status']) ? $approvals[$page_id]['status'] : 'generated',
+            ];
+            
+            if (isset($approvals[$page_id])) {
+                $item['approval'] = $approvals[$page_id];
+            }
+            
+            $items[] = $item;
+        }
+    }
+    
+    return new WP_REST_Response([
+        'ok' => true,
+        'items' => $items,
+        'total' => count($items),
+        'meta' => [
+            'timestamp' => gmdate('c'),
+            'phase' => 'F10-b',
+            'source' => 'enriched-list',
+        ],
+    ], 200);
+}
+
+/**
+ * F10-b - Aprobar/Rechazar contenido enriquecido.
+ * 
+ * Guarda estado de aprobación en data/assistants/rewrite/approvals.json.
+ * Si el entorno es readonly, intenta guardar en uploads/ como fallback.
+ * 
+ * POST /wp-json/runart/content/enriched-approve
+ * Body: { "id": "page_42", "status": "approved" | "rejected" | "needs_review" }
+ * 
+ * @param WP_REST_Request $request
+ * @return WP_REST_Response
+ */
+function runart_content_enriched_approve(WP_REST_Request $request) {
+    $id = $request->get_param('id');
+    $status = $request->get_param('status');
+    
+    // Validar parámetros
+    if (empty($id) || empty($status)) {
+        return runart_wpcli_bridge_error(
+            'id and status parameters are required',
+            'missing_params',
+            400
+        );
+    }
+    
+    $current_user = wp_get_current_user();
+    $user_login = $current_user && $current_user->user_login ? $current_user->user_login : 'unknown';
+    
+    $approval_entry = [
+        'status' => $status,
+        'updated_at' => gmdate('c'),
+        'updated_by' => $user_login,
+    ];
+    
+    // Intentar escribir en data/assistants/rewrite/approvals.json
+    $enriched_dir = ABSPATH . '../data/assistants/rewrite/';
+    $approvals_file = $enriched_dir . 'approvals.json';
+    
+    // Leer aprobaciones existentes o inicializar
+    $approvals = [];
+    if (file_exists($approvals_file)) {
+        $approvals_content = file_get_contents($approvals_file);
+        if ($approvals_content !== false) {
+            $approvals_data = json_decode($approvals_content, true);
+            if (json_last_error() === JSON_ERROR_NONE) {
+                $approvals = $approvals_data;
+            }
+        }
+    }
+    
+    // Actualizar o insertar aprobación
+    $approvals[$id] = $approval_entry;
+    
+    // Intentar escribir en data/
+    $can_write_data = is_dir($enriched_dir) && is_writable($enriched_dir);
+    if ($can_write_data) {
+        $ok = @file_put_contents(
+            $approvals_file,
+            json_encode($approvals, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE)
+        );
+        
+        if ($ok !== false) {
+            return new WP_REST_Response([
+                'ok' => true,
+                'id' => $id,
+                'status' => $status,
+                'message' => 'Aprobación registrada correctamente',
+                'approval' => $approval_entry,
+                'meta' => [
+                    'timestamp' => gmdate('c'),
+                    'phase' => 'F10-b',
+                    'storage' => 'data/assistants/rewrite',
+                ],
+            ], 200);
+        }
+    }
+    
+    // Fallback: escribir en uploads/ si data/ no es escribible
+    $uploads = wp_upload_dir();
+    $base_uploads = isset($uploads['basedir']) ? $uploads['basedir'] : (ABSPATH . 'wp-content/uploads');
+    $jobs_dir = trailingslashit($base_uploads) . 'runart-jobs/';
+    $fallback_file = $jobs_dir . 'enriched-approvals.log';
+    
+    if (!is_dir($jobs_dir)) {
+        @mkdir($jobs_dir, 0755, true);
+    }
+    
+    $log_entry = json_encode([
+        'timestamp' => gmdate('c'),
+        'id' => $id,
+        'status' => $status,
+        'updated_by' => $user_login,
+    ]) . "\n";
+    
+    $fallback_ok = @file_put_contents($fallback_file, $log_entry, FILE_APPEND);
+    
+    if ($fallback_ok !== false) {
+        return new WP_REST_Response([
+            'ok' => false,
+            'status' => 'queued',
+            'id' => $id,
+            'requested_status' => $status,
+            'message' => 'Staging en modo solo lectura. Solicitud registrada en uploads/.',
+            'approval' => $approval_entry,
+            'meta' => [
+                'timestamp' => gmdate('c'),
+                'phase' => 'F10-b',
+                'storage' => 'uploads/runart-jobs (readonly fallback)',
+                'note' => 'Ejecutar CI para persistir en repo',
+            ],
+        ], 200);
+    }
+    
+    // Si todo falló
+    return runart_wpcli_bridge_error(
+        'No se pudo registrar la aprobación (permisos de escritura)',
+        'write_error',
+        500
+    );
+}
+
+/**
+ * Modo editor del monitor: Panel editorial IA-Visual.
+ * 
+ * Renderiza interfaz de listado y aprobación de contenidos enriquecidos.
+ * 
+ * @param string $rest_url Base URL de REST API
+ * @param string $rest_nonce Nonce de WordPress REST
+ * @return string HTML renderizado
+ */
+function runart_ai_visual_monitor_editor_mode($rest_url, $rest_nonce) {
+    ob_start();
+    ?>
+    <div id="runart-editorial-panel" style="padding:12px;border:1px solid #ddd;border-radius:6px;background:#fff;">
+        <h2 style="margin-top:0;">📝 Panel Editorial IA-Visual</h2>
+        <p style="color:#666;margin-bottom:16px;">Revisión y aprobación de contenidos enriquecidos por IA</p>
+        
+        <div style="display:grid;grid-template-columns:350px 1fr;gap:20px;">
+            <!-- Columna izquierda: Listado -->
+            <div style="border:1px solid #eee;padding:12px;border-radius:6px;background:#f9fafb;">
+                <h3 style="margin-top:0;font-size:16px;">Contenidos</h3>
+                <div id="rep-content-list" style="min-height:200px;">
+                    <div style="text-align:center;padding:20px;color:#999;">Cargando...</div>
+                </div>
+            </div>
+            
+            <!-- Columna derecha: Detalle -->
+            <div style="border:1px solid #eee;padding:12px;border-radius:6px;">
+                <div id="rep-content-detail">
+                    <div style="text-align:center;padding:40px;color:#999;">
+                        Selecciona un contenido de la lista para ver su detalle
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+    // Config global expuesta por WP: base REST URL y nonce
+    window.RUNART_MONITOR = {
+        restUrl: '<?php echo $rest_url; ?>',
+        nonce: '<?php echo esc_js($rest_nonce); ?>'
+    };
+    </script>
+    <script>
+    (function(){
+        const base = (window.RUNART_MONITOR && window.RUNART_MONITOR.restUrl) || (window.location.origin + '/wp-json/');
+        const authHeaders = { 'X-WP-Nonce': (window.RUNART_MONITOR && window.RUNART_MONITOR.nonce) ? window.RUNART_MONITOR.nonce : '' };
+        
+        const listContainer = document.getElementById('rep-content-list');
+        const detailContainer = document.getElementById('rep-content-detail');
+        
+        let currentItems = [];
+        
+        // Cargar listado
+        function loadList() {
+            listContainer.innerHTML = '<div style="text-align:center;padding:20px;color:#999;">Cargando...</div>';
+            
+            fetch(base + 'runart/content/enriched-list', {
+                credentials: 'include',
+                headers: authHeaders
+            })
+            .then(r => r.json())
+            .then(data => {
+                if (!data.ok || !data.items || data.items.length === 0) {
+                    listContainer.innerHTML = '<div style="padding:20px;color:#999;">No hay contenidos enriquecidos.</div>';
+                    return;
+                }
+                
+                currentItems = data.items;
+                renderList(data.items);
+            })
+            .catch(err => {
+                listContainer.innerHTML = '<div style="padding:20px;color:#c00;">Error al cargar listado</div>';
+                console.error('Error loading enriched list:', err);
+            });
+        }
+        
+        // Renderizar listado
+        function renderList(items) {
+            const statusColors = {
+                'generated': '#999',
+                'approved': '#059669',
+                'rejected': '#dc2626',
+                'needs_review': '#f59e0b'
+            };
+            
+            const statusLabels = {
+                'generated': 'Generado',
+                'approved': 'Aprobado',
+                'rejected': 'Rechazado',
+                'needs_review': 'Revisar'
+            };
+            
+            let html = '<div style="display:flex;flex-direction:column;gap:8px;">';
+            items.forEach(item => {
+                const statusColor = statusColors[item.status] || '#999';
+                const statusLabel = statusLabels[item.status] || item.status;
+                
+                html += `
+                    <div class="rep-item" data-id="${item.id}" style="padding:10px;border:1px solid #e5e7eb;border-radius:4px;background:#fff;cursor:pointer;transition:all 0.2s;" 
+                         onmouseover="this.style.borderColor='#3b82f6';this.style.boxShadow='0 2px 4px rgba(0,0,0,0.1)';" 
+                         onmouseout="this.style.borderColor='#e5e7eb';this.style.boxShadow='none';">
+                        <div style="font-weight:600;font-size:14px;margin-bottom:4px;">${item.title}</div>
+                        <div style="display:flex;justify-content:space-between;font-size:12px;">
+                            <span style="color:#666;">${item.lang.toUpperCase()}</span>
+                            <span style="color:${statusColor};font-weight:600;">${statusLabel}</span>
+                        </div>
+                    </div>
+                `;
+            });
+            html += '</div>';
+            
+            listContainer.innerHTML = html;
+            
+            // Agregar event listeners
+            document.querySelectorAll('.rep-item').forEach(el => {
+                el.addEventListener('click', () => {
+                    const id = el.getAttribute('data-id');
+                    loadDetail(id);
+                });
+            });
+        }
+        
+        // Cargar detalle
+        function loadDetail(id) {
+            detailContainer.innerHTML = '<div style="text-align:center;padding:40px;color:#999;">Cargando detalle...</div>';
+            
+            fetch(base + 'runart/content/enriched?page_id=' + id, {
+                credentials: 'include',
+                headers: authHeaders
+            })
+            .then(r => r.json())
+            .then(data => {
+                if (!data.ok) {
+                    detailContainer.innerHTML = '<div style="padding:20px;color:#c00;">Error: ' + (data.message || 'No disponible') + '</div>';
+                    return;
+                }
+                
+                renderDetail(id, data);
+            })
+            .catch(err => {
+                detailContainer.innerHTML = '<div style="padding:20px;color:#c00;">Error al cargar detalle</div>';
+                console.error('Error loading detail:', err);
+            });
+        }
+        
+        // Renderizar detalle
+        function renderDetail(id, data) {
+            const enriched = data.enriched_data || {};
+            const approval = data.approval || null;
+            
+            const headlineEs = enriched.headline_es || enriched.enriched_headline || enriched.headline || '(sin headline ES)';
+            const headlineEn = enriched.headline_en || '(sin headline EN)';
+            const summaryEs = enriched.summary_es || enriched.enriched_summary || enriched.summary || '(sin summary ES)';
+            const summaryEn = enriched.summary_en || '(sin summary EN)';
+            const visualRefs = enriched.visual_references || [];
+            
+            let html = `
+                <div style="padding:8px;">
+                    <h3 style="margin-top:0;border-bottom:2px solid #e5e7eb;padding-bottom:8px;">${id}</h3>
+                    
+                    <div style="margin-bottom:16px;">
+                        <strong style="color:#3b82f6;">Headline ES:</strong>
+                        <div style="padding:8px;background:#f9fafb;border-radius:4px;margin-top:4px;font-size:14px;">${headlineEs}</div>
+                    </div>
+                    
+                    <div style="margin-bottom:16px;">
+                        <strong style="color:#3b82f6;">Headline EN:</strong>
+                        <div style="padding:8px;background:#f9fafb;border-radius:4px;margin-top:4px;font-size:14px;">${headlineEn}</div>
+                    </div>
+                    
+                    <div style="margin-bottom:16px;">
+                        <strong style="color:#3b82f6;">Summary ES:</strong>
+                        <div style="padding:8px;background:#f9fafb;border-radius:4px;margin-top:4px;font-size:13px;">${summaryEs}</div>
+                    </div>
+                    
+                    <div style="margin-bottom:16px;">
+                        <strong style="color:#3b82f6;">Summary EN:</strong>
+                        <div style="padding:8px;background:#f9fafb;border-radius:4px;margin-top:4px;font-size:13px;">${summaryEn}</div>
+                    </div>
+            `;
+            
+            if (visualRefs.length > 0) {
+                html += '<div style="margin-bottom:16px;"><strong style="color:#3b82f6;">Referencias visuales:</strong><ul style="margin-top:8px;padding-left:20px;font-size:13px;">';
+                visualRefs.forEach(ref => {
+                    const imgId = ref.image_id || '-';
+                    const filename = ref.filename || (ref.media_hint && ref.media_hint.original_name) || '-';
+                    const score = ref.similarity_score ? ref.similarity_score.toFixed(4) : '-';
+                    const context = ref.context || '';
+                    html += `<li style="margin-bottom:6px;"><strong>ID ${imgId}:</strong> ${filename} (score: ${score})${context ? '<br><em style="color:#666;">' + context + '</em>' : ''}</li>`;
+                });
+                html += '</ul></div>';
+            } else {
+                html += '<div style="margin-bottom:16px;color:#666;font-style:italic;">Sin referencias visuales</div>';
+            }
+            
+            // Botones de aprobación
+            html += `
+                <div style="margin-top:24px;padding-top:16px;border-top:2px solid #e5e7eb;">
+                    <div style="display:flex;gap:10px;margin-bottom:12px;">
+                        <button onclick="window.runartApprove('${id}', 'approved')" 
+                                style="flex:1;padding:10px;background:#059669;color:#fff;border:none;border-radius:4px;cursor:pointer;font-weight:600;"
+                                onmouseover="this.style.background='#047857';" onmouseout="this.style.background='#059669';">
+                            ✅ Aprobar
+                        </button>
+                        <button onclick="window.runartApprove('${id}', 'rejected')" 
+                                style="flex:1;padding:10px;background:#dc2626;color:#fff;border:none;border-radius:4px;cursor:pointer;font-weight:600;"
+                                onmouseover="this.style.background='#b91c1c';" onmouseout="this.style.background='#dc2626';">
+                            ❌ Rechazar
+                        </button>
+                        <button onclick="window.runartApprove('${id}', 'needs_review')" 
+                                style="flex:1;padding:10px;background:#f59e0b;color:#fff;border:none;border-radius:4px;cursor:pointer;font-weight:600;"
+                                onmouseover="this.style.background='#d97706';" onmouseout="this.style.background='#f59e0b';">
+                            📋 Marcar revisión
+                        </button>
+                    </div>
+                    <div id="rep-approval-result" style="padding:8px;border-radius:4px;display:none;"></div>
+                </div>
+            `;
+            
+            if (approval) {
+                html += `
+                    <div style="margin-top:12px;padding:10px;background:#f0f9ff;border:1px solid #3b82f6;border-radius:4px;font-size:13px;">
+                        <strong>Estado actual:</strong> ${approval.status}<br>
+                        <strong>Actualizado:</strong> ${approval.updated_at}<br>
+                        <strong>Por:</strong> ${approval.updated_by}
+                    </div>
+                `;
+            }
+            
+            html += '</div>';
+            
+            detailContainer.innerHTML = html;
+        }
+        
+        // Función global para aprobar
+        window.runartApprove = function(id, status) {
+            const resultDiv = document.getElementById('rep-approval-result');
+            resultDiv.style.display = 'block';
+            resultDiv.innerHTML = 'Procesando...';
+            resultDiv.style.background = '#fef3c7';
+            resultDiv.style.border = '1px solid #f59e0b';
+            
+            fetch(base + 'runart/content/enriched-approve', {
+                method: 'POST',
+                headers: Object.assign({ 'Content-Type': 'application/json' }, authHeaders),
+                credentials: 'include',
+                body: JSON.stringify({ id: id, status: status })
+            })
+            .then(r => r.json())
+            .then(data => {
+                if (data.ok === true) {
+                    resultDiv.innerHTML = '✅ ' + (data.message || 'Aprobación registrada correctamente');
+                    resultDiv.style.background = '#d1fae5';
+                    resultDiv.style.border = '1px solid #059669';
+                } else if (data.status === 'queued') {
+                    resultDiv.innerHTML = '🟡 ' + (data.message || 'Solicitud registrada (staging readonly)');
+                    resultDiv.style.background = '#fef3c7';
+                    resultDiv.style.border = '1px solid #f59e0b';
+                } else {
+                    resultDiv.innerHTML = '❌ Error: ' + (data.message || 'No se pudo procesar');
+                    resultDiv.style.background = '#fee2e2';
+                    resultDiv.style.border = '1px solid #dc2626';
+                }
+                
+                // Recargar listado para actualizar estados
+                setTimeout(() => {
+                    loadList();
+                }, 1500);
+            })
+            .catch(err => {
+                resultDiv.innerHTML = '❌ Error de red al aprobar';
+                resultDiv.style.background = '#fee2e2';
+                resultDiv.style.border = '1px solid #dc2626';
+                console.error('Error approving:', err);
+            });
+        };
+        
+        // Inicializar
+        loadList();
+    })();
+    </script>
+    <?php
+    return ob_get_clean();
+}
+
+/**
+ * Shortcode: [runart_ai_visual_monitor mode="technical|editor"]
+ * 
+ * Renderiza el monitor IA-Visual en dos modos:
+ * - mode="technical" (default): Monitor técnico con endpoints F8/F9/F10
+ * - mode="editor": Panel editorial con listado de contenidos y aprobación
  * 
  * Visibilidad: usuarios autenticados con manage_options o edit_pages.
  * 
+ * @param array $atts Atributos del shortcode
  * @return string HTML renderizado
  */
-function runart_ai_visual_monitor_shortcode() {
+function runart_ai_visual_monitor_shortcode($atts = []) {
+    // Parsear atributos
+    $atts = shortcode_atts([
+        'mode' => 'technical', // technical | editor
+    ], $atts, 'runart_ai_visual_monitor');
     if (!is_user_logged_in() || !(current_user_can('manage_options') || current_user_can('edit_pages'))) {
         return '<div>Acceso restringido</div>';
     }
 
+    $mode = isset($atts['mode']) ? $atts['mode'] : 'technical';
+
     ob_start();
     $rest_url = esc_url_raw( get_rest_url() );
     $rest_nonce = wp_create_nonce('wp_rest');
+    
+    // Modo editor: panel editorial con listado y aprobación
+    if ($mode === 'editor') {
+        return runart_ai_visual_monitor_editor_mode($rest_url, $rest_nonce);
+    }
+    
+    // Modo technical (default): monitor técnico
     ?>
     <div id="runart-ai-visual-monitor" style="padding:12px;border:1px solid #ddd;border-radius:6px;background:#fff;">
         <h2 style="margin-top:0;">Monitor IA-Visual (F7/F8/F9)</h2>

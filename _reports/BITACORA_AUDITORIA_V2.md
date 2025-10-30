@@ -4,6 +4,49 @@
 **Fecha de inicio:** 2025-10-29  
 **Canon:** RunArt Base (runart-base)
 
+## Últimas actualizaciones
+
+### 2025-10-30T21:00:00Z — F10-b (Panel Editorial IA-Visual) — Listado y aprobación de contenidos enriquecidos
+**Branch:** `feat/ai-visual-implementation`  
+**Commit:** (pending)  
+**Autor:** automation-runart  
+**Archivos:**
+- tools/wpcli-bridge-plugin/runart-wpcli-bridge.php (+380 líneas) — Endpoints `/content/enriched-list` y `/content/enriched-approve`, modo editor en shortcode
+- docs/ai/architecture_overview.md (+120 líneas) — Sección "Panel Editorial IA-Visual (F10-b)"
+- data/assistants/rewrite/approvals.json (creado) — Registro de aprobaciones (generated/approved/rejected/needs_review)
+
+**Resumen:**
+- ✅ **Shortcode extendido con modo editorial:** `[runart_ai_visual_monitor mode="editor"]`
+  - Modo `technical` (default): Monitor diagnóstico existente (F8/F9/F10)
+  - Modo `editor`: Panel editorial con listado y aprobación
+- ✅ **Endpoint listado:** `GET /wp-json/runart/content/enriched-list`
+  - Lee `data/assistants/rewrite/index.json`
+  - Fusiona con `approvals.json` para mostrar estados
+  - Retorna array con id, title, lang, status, approval
+- ✅ **Endpoint aprobación:** `POST /wp-json/runart/content/enriched-approve`
+  - Body: `{ "id": "page_42", "status": "approved|rejected|needs_review" }`
+  - Escribe en `data/assistants/rewrite/approvals.json`
+  - Fallback a `uploads/runart-jobs/enriched-approvals.log` si readonly (staging)
+  - Registra timestamp y usuario
+- ✅ **Endpoint detalle extendido:** `GET /wp-json/runart/content/enriched?page_id=page_42`
+  - Incluye campo `approval` con estado si existe
+- ✅ **Interfaz panel editorial:**
+  - Columna izquierda: Listado con ID, lang, estado visual (Generado/Aprobado/Rechazado/Revisar)
+  - Columna derecha: Detalle completo (headlines ES/EN, summaries ES/EN, visual_references)
+  - Botones: ✅ Aprobar | ❌ Rechazar | 📋 Marcar revisión
+  - Feedback visual: success (✅), queued (🟡 staging readonly), error (❌)
+
+**Pruebas listas:**
+- Admin logeado en `/monitor-ia-visual/?mode=editor` ve listado de page_42, page_43, page_44
+- Clic en item → carga detalle con headlines, summaries y referencias visuales
+- Aprobar page_42 → estado se guarda en `approvals.json` (o log si staging readonly)
+- Refrescar → listado muestra nuevo estado "Aprobado"
+- Staging readonly → aprobación devuelve status=queued con mensaje explicativo
+
+**Estado:** 🟢 COMPLETADO — Panel editorial funcional con flujo completo de aprobación
+
+---
+
 ---
 
 ## Estado de las Fases

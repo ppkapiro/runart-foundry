@@ -657,3 +657,123 @@ Esta vista mínima permite a usuarios autenticados (admin/editor) verificar desd
 
 - Los endpoints REST existentes permanecen sin cambios. La vista no re-genera embeddings; solo consume los datos actuales y registra solicitudes.
 - La seguridad de endpoints sigue gobernada por el plugin; el shortcode solo es visible para admin/editor.
+
+---
+
+## Panel Editorial IA-Visual (F10-b)
+
+Extensión del monitor que agrega modo editorial para revisión y aprobación de contenidos enriquecidos.
+
+### Uso
+
+```
+[runart_ai_visual_monitor mode="editor"]
+```
+
+### Endpoints Nuevos
+
+#### 1. Listado de contenidos enriquecidos
+
+```
+GET /wp-json/runart/content/enriched-list
+```
+
+- **Permisos:** Usuario autenticado (`is_user_logged_in()`)
+- **Comportamiento:**
+  - Lee `data/assistants/rewrite/index.json`
+  - Fusiona con `data/assistants/rewrite/approvals.json` si existe
+  - Devuelve array de contenidos con estado de aprobación
+
+**Respuesta:**
+```json
+{
+  "ok": true,
+  "items": [
+    {
+      "id": "page_42",
+      "title": "page_42",
+      "lang": "es",
+      "status": "approved",
+      "approval": {
+        "status": "approved",
+        "updated_at": "2025-10-30T20:00:00Z",
+        "updated_by": "runart-admin"
+      }
+    }
+  ],
+  "total": 3
+}
+```
+
+#### 2. Aprobar/Rechazar contenido
+
+```
+POST /wp-json/runart/content/enriched-approve
+Body: { "id": "page_42", "status": "approved" | "rejected" | "needs_review" }
+```
+
+- **Permisos:** Usuario autenticado
+- **Comportamiento:**
+  - Intenta escribir en `data/assistants/rewrite/approvals.json`
+  - Si readonly (staging): fallback a `wp-content/uploads/runart-jobs/enriched-approvals.log`
+  - Registra usuario y timestamp
+
+**Respuestas:**
+```json
+// Éxito (data/ escribible)
+{
+  "ok": true,
+  "id": "page_42",
+  "status": "approved",
+  "message": "Aprobación registrada correctamente",
+  "storage": "data/assistants/rewrite"
+}
+
+// Fallback (staging readonly)
+{
+  "ok": false,
+  "status": "queued",
+  "id": "page_42",
+  "message": "Staging en modo solo lectura. Solicitud registrada en uploads/.",
+  "storage": "uploads/runart-jobs (readonly fallback)"
+}
+```
+
+#### 3. Detalle con aprobación (extendido)
+
+```
+GET /wp-json/runart/content/enriched?page_id=page_42
+```
+
+- Endpoint existente **extendido** para incluir estado de aprobación
+- Agrega campo `approval` en la respuesta cuando existe
+
+### Interfaz del Panel Editorial
+
+- **Listado (columna izquierda):**
+  - Muestra todos los contenidos enriquecidos disponibles
+  - Indica ID, idioma y estado visual (Generado/Aprobado/Rechazado/Revisar)
+  - Clic en item → carga detalle
+
+- **Detalle (columna derecha):**
+  - Headline ES/EN
+  - Summary ES/EN
+  - Referencias visuales con image_id, filename, score y contexto
+  - Botones: ✅ Aprobar | ❌ Rechazar | 📋 Marcar revisión
+  - Estado actual de aprobación con timestamp y usuario
+
+### Flujo de trabajo
+
+1. Editor abre panel editorial
+2. Ve listado de contenidos enriquecidos generados por F9
+3. Selecciona uno para ver detalle completo
+4. Revisa headlines, summaries y referencias visuales
+5. Aprueba, rechaza o marca para revisión
+6. Estado se guarda en `approvals.json` (o en log si staging readonly)
+7. Listado se actualiza mostrando nuevo estado
+
+### Persistencia
+
+- **Producción/desarrollo:** Escritura directa en `data/assistants/rewrite/approvals.json`
+- **Staging readonly:** Fallback a `wp-content/uploads/runart-jobs/enriched-approvals.log`
+- CI puede procesar el log y actualizar el repo posteriormente
