@@ -112,6 +112,20 @@ add_action('rest_api_init', function () {
             ],
         ],
     ]);
+    
+    // F9 Content Enrichment - Get enriched content (GET)
+    register_rest_route('runart', '/content/enriched', [
+        'methods'  => 'GET',
+        'callback' => 'runart_content_enriched',
+        'permission_callback' => 'runart_wpcli_bridge_permission_admin',
+        'args' => [
+            'page_id' => [
+                'required' => true,
+                'type' => 'string',
+                'description' => 'ID de la página enriquecida (ej: page_42)',
+            ],
+        ],
+    ]);
 });
 
 function runart_wpcli_bridge_permission_admin() {
@@ -544,6 +558,84 @@ function runart_embeddings_update(WP_REST_Request $req) {
             'log_path' => $log_path,
             'phase' => 'F7',
             'description' => 'IA-Visual Embeddings Update Request',
+        ],
+    ], 200);
+}
+
+/**
+ * F9 - Endpoint para servir contenido enriquecido.
+ * 
+ * Lee archivos JSON generados por content_enricher.py (F9) y los devuelve vía REST.
+ * NO genera el contenido; solo lo sirve desde el filesystem.
+ * 
+ * GET /wp-json/runart/content/enriched?page_id=page_42
+ * 
+ * @param WP_REST_Request $request
+ * @return WP_REST_Response
+ */
+function runart_content_enriched($request) {
+    $page_id = $request->get_param('page_id');
+    
+    if (empty($page_id)) {
+        return runart_wpcli_bridge_error(
+            'page_id parameter is required',
+            'missing_page_id',
+            400
+        );
+    }
+    
+    // Sanitizar page_id (solo alfanuméricos y guión bajo)
+    $page_id = preg_replace('/[^a-z0-9_]/', '', strtolower($page_id));
+    
+    // Ruta al archivo de contenido enriquecido
+    $enriched_dir = ABSPATH . '../data/enriched/f9_rewrites/';
+    $enriched_file = $enriched_dir . $page_id . '.json';
+    
+    // Verificar si existe el archivo
+    if (!file_exists($enriched_file)) {
+        return new WP_REST_Response([
+            'ok' => false,
+            'status' => 'not_enriched',
+            'page_id' => $page_id,
+            'message' => 'No enriched content found for this page_id',
+            'meta' => [
+                'timestamp' => gmdate('c'),
+                'phase' => 'F9',
+                'expected_path' => $enriched_file,
+            ],
+        ], 404);
+    }
+    
+    // Leer archivo JSON
+    $enriched_content = file_get_contents($enriched_file);
+    if ($enriched_content === false) {
+        return runart_wpcli_bridge_error(
+            'Error reading enriched content file',
+            'read_error',
+            500
+        );
+    }
+    
+    // Decodificar JSON
+    $enriched_data = json_decode($enriched_content, true);
+    if (json_last_error() !== JSON_ERROR_NONE) {
+        return runart_wpcli_bridge_error(
+            'Invalid JSON in enriched content file: ' . json_last_error_msg(),
+            'json_decode_error',
+            500
+        );
+    }
+    
+    // Devolver contenido enriquecido
+    return new WP_REST_Response([
+        'ok' => true,
+        'page_id' => $page_id,
+        'enriched_data' => $enriched_data,
+        'meta' => [
+            'timestamp' => gmdate('c'),
+            'source_file' => basename($enriched_file),
+            'phase' => 'F9',
+            'description' => 'Content Enrichment - Rewritten content with AI suggestions',
         ],
     ], 200);
 }

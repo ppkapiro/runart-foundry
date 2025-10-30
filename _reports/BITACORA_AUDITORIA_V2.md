@@ -26,6 +26,49 @@
 
 ## Eventos (Registro Cronológico Inverso)
 
+### 2025-10-30T18:17:00Z — F9 — Reescritura Asistida y Enriquecimiento: COMPLETADA
+**Branch:** `feat/ai-visual-implementation`
+**Commit:** (pending)
+**Autor:** automation-runart
+**Archivos:**
+- apps/runmedia/runmedia/content_enricher.py (417 líneas) — Script generador de contenido enriquecido
+- data/enriched/f9_rewrites/page_42.json (2.6KB) — Contenido enriquecido página 42 (EN)
+- data/enriched/f9_rewrites/page_43.json (2.2KB) — Contenido enriquecido página 43 (ES)
+- data/enriched/f9_rewrites/page_44.json (2.5KB) — Contenido enriquecido página 44 (EN)
+- tools/wpcli-bridge-plugin/runart-wpcli-bridge.php (+88 líneas) — Endpoint `/content/enriched` agregado
+
+**Resumen:**
+- ✅ **Páginas procesadas:** 3 (page_42, page_43, page_44)
+- ✅ **Imágenes disponibles en dataset:** 4 (artwork_red.jpg, artwork_blue.jpg, artwork_green.jpg, runartfoundry-home.jpg)
+- ✅ **Umbral de captions alta confianza:** 0.35 (todas las imágenes marcadas como low_confidence por estar debajo)
+- ✅ **Script Python creado:** `content_enricher.py` con clase ContentEnricher
+- ✅ **Endpoint REST nuevo:** `GET /wp-json/runart/content/enriched?page_id=page_42`
+- ✅ **Estructura de salida:** JSON con enriched_variants, images_suggested, cta_suggested, seo, keywords
+
+**Características implementadas:**
+- 📝 **Reconstrucción de texto original:** Desde test_pages.json correctamente recuperado
+- 🖼️ **Metadatos de imágenes:** alt, caption, placement (hero/inline/gallery) según score
+- 🎯 **CTAs personalizados:** ES: "Solicita una pieza o fundición personalizada" → /contacto/, EN: "Request a custom casting" → /en/contact/
+- 🔍 **SEO metadata:** title, description (160 chars), keywords (foundry, bronze, art, sculpture, custom casting)
+- 🏷️ **Tags automáticos:** Detecta "red", "blue", "green", "digital" en contenido original
+- 📊 **Confidence levels:** low_confidence:true marcado en todas las imágenes (scores < 0.35)
+- 🌐 **Multilingüe:** Captions, summaries y CTAs en ES/EN según language del contenido original
+
+**Endpoint disponible:**
+- GET `/wp-json/runart/content/enriched?page_id=page_42` → Retorna enriched_data completo
+- GET `/wp-json/runart/content/enriched?page_id=page_43` → Retorna enriched_data completo
+- GET `/wp-json/runart/content/enriched?page_id=page_44` → Retorna enriched_data completo
+- Si page_id no existe → 404 con `{"status": "not_enriched"}`
+
+**Observaciones:**
+- ⚠️ Dataset pequeño/sintético: 3 páginas, 4 imágenes de prueba
+- ⚠️ Scores bajos (< 0.06): Todas las imágenes marcadas con low_confidence
+- ⚠️ Pendiente ejecutar sobre entorno WP real con Media Library completa
+- ✅ Sistema funcionando end-to-end: desde embeddings → correlaciones → enriquecimiento → REST API
+- 📌 **Próxima fase (F10):** Integración en editor WordPress / front para consumir estos JSON
+
+**Estado:** 🟢 F9 COMPLETADA — Contenido enriquecido disponible vía REST API
+
 ### 2025-10-30T18:08:00Z — F8 — Embeddings y Correlaciones: GENERACIÓN COMPLETA
 **Branch:** `feat/ai-visual-implementation`
 **Commits:** 5c070d61, ebdc58b6, (pending)

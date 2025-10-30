@@ -1,0 +1,67 @@
+{
+  "page_id": "page_42",
+  "source_embedding": "data/embeddings/text/multilingual_mpnet/embeddings/page_42.json",
+  "original_text": "Welcome to RunArt Foundation, a contemporary art gallery dedicated to showcasing emerging and established artists. Our collection features paintings, sculptures, and digital art from around the world. We believe in the power of art to inspire, challenge, and transform. Visit our gallery to explore red abstract paintings, blue contemporary artworks, and green modern sculptures.",
+  "language": "en",
+  "enriched_variants": [
+    {
+      "variant_id": "page_42_v1",
+      "summary": "Content about runart foundation - contemporary art gallery with 2 suggested images",
+      "proposed_title": "RunArt Foundation - Contemporary Art Gallery",
+      "proposed_slug": "runart-foundation-contemporary-art-gallery",
+      "images_suggested": [
+        {
+          "image_id": "a3231b4ff3eb5dda",
+          "filename": "artwork_blue.jpg",
+          "score": 0.0215,
+          "alt": "Decorative image related to RunArt Foundation - Contemporary Art Gallery",
+          "caption": "Automatically suggested image (low confidence)",
+          "placement": "gallery",
+          "low_confidence": true
+        },
+        {
+          "image_id": "b4152b9483f89d5f",
+          "filename": "artwork_red.jpg",
+          "score": 0.0117,
+          "alt": "Decorative image related to RunArt Foundation - Contemporary Art Gallery",
+          "caption": "Automatically suggested image (low confidence)",
+          "placement": "gallery",
+          "low_confidence": true
+        }
+      ],
+      "cta_suggested": [
+        {
+          "text": "Request a custom casting",
+          "url": "/en/contact/"
+        }
+      ],
+      "keywords": [
+        "art",
+        "gallery",
+        "sculpture",
+        "contemporary",
+        "red artwork",
+        "blue artwork",
+        "digital art"
+      ],
+      "seo": {
+        "title": "RunArt Foundation - Contemporary Art Gallery",
+        "description": "Welcome to RunArt Foundation, a contemporary art gallery dedicated to showcasing emerging and established artists. Our collection features paintings,...",
+        "keywords": [
+          "foundry",
+          "bronze",
+          "art",
+          "sculpture",
+          "custom casting",
+          "gallery",
+          "contemporary art",
+          "digital art",
+          "exhibition"
+        ]
+      },
+      "notes": "Generado automáticamente en F9 a partir de correlaciones F8"
+    }
+  ],
+  "generated_at": "2025-10-30T18:16:15.459464+00:00",
+  "phase": "F9"
+}

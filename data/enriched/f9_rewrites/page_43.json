@@ -1,0 +1,57 @@
+{
+  "page_id": "page_43",
+  "source_embedding": "data/embeddings/text/multilingual_mpnet/embeddings/page_43.json",
+  "original_text": "Bienvenido a nuestra galería de arte contemporáneo. Presentamos una colección única de obras de artistas emergentes y consagrados. Nuestra exposición incluye pinturas abstractas rojas, arte moderno azul y esculturas verdes innovadoras. El arte tiene el poder de transformar nuestra percepción del mundo. Visite nuestra galería para descubrir nuevas perspectivas artísticas.",
+  "language": "es",
+  "enriched_variants": [
+    {
+      "variant_id": "page_43_v1",
+      "summary": "Contenido sobre exposición de arte contemporáneo con 1 imágenes sugeridas",
+      "proposed_title": "Exposición de Arte Contemporáneo",
+      "proposed_slug": "exposicion-de-arte-contemporaneo",
+      "images_suggested": [
+        {
+          "image_id": "b4152b9483f89d5f",
+          "filename": "artwork_red.jpg",
+          "score": 0.0525,
+          "alt": "Imagen decorativa relacionada con Exposición de Arte Contemporáneo",
+          "caption": "Imagen sugerida automáticamente (baja confianza)",
+          "placement": "hero",
+          "low_confidence": true
+        }
+      ],
+      "cta_suggested": [
+        {
+          "text": "Solicita una pieza o fundición personalizada",
+          "url": "/contacto/"
+        }
+      ],
+      "keywords": [
+        "art",
+        "gallery",
+        "sculpture",
+        "contemporary",
+        "blue artwork"
+      ],
+      "seo": {
+        "title": "Exposición de Arte Contemporáneo",
+        "description": "Bienvenido a nuestra galería de arte contemporáneo. Presentamos una colección única de obras de artistas emergentes y consagrados. Nuestra exposición incluye...",
+        "keywords": [
+          "foundry",
+          "bronze",
+          "art",
+          "sculpture",
+          "custom casting",
+          "fundición",
+          "escultura",
+          "arte",
+          "bronce",
+          "taller"
+        ]
+      },
+      "notes": "Generado automáticamente en F9 a partir de correlaciones F8"
+    }
+  ],
+  "generated_at": "2025-10-30T18:16:15.458978+00:00",
+  "phase": "F9"
+}
