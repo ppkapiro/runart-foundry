@@ -586,3 +586,38 @@ python -c "from sentence_transformers import SentenceTransformer; SentenceTransf
 ---
 
 **Última actualización:** 2025-10-30 (F7 — Arquitectura IA-Visual)
+
+## Fase 10 — Orquestación y Endurecimiento
+
+**Fecha:** 2025-10-30  
+**Objetivo:** Exponer capacidades IA-Visual mediante endpoint maestro, validar esquemas JSON, y crear canal seguro de solicitudes de regeneración.
+
+### Endpoint Maestro: `/wp-json/runart/ai-visual/pipeline`
+
+El orquestador unificado proporciona acceso centralizado a todas las capacidades del pipeline IA-Visual.
+
+#### Action: `status`
+Obtiene el estado actual del sistema completo (F7/F8/F9/F10).
+
+#### Action: `preview`
+Previsualiza contenido del pipeline sin modificaciones.
+
+#### Action: `regenerate`
+Solicita regeneración de componentes (write-safe).
+
+### Sistema de Jobs
+**Archivo:** `data/ai_visual_jobs/pending_requests.json`
+
+Las solicitudes de regeneración se registran en este archivo JSON para procesamiento asíncrono por CI/runner.
+
+### Validación de Esquemas
+**Módulo:** `apps/runmedia/runmedia/schema_validator.py`
+
+Valida la estructura de todos los artefactos del pipeline (similarity_matrix.json, recommendations_cache.json, rewrite/*.json).
+
+### Integración CI/CD
+El workflow `.github/workflows/ai-visual-analysis.yml` incluye job de validación que falla el build si hay JSONs inválidos.
+
+---
+
+**Última actualización:** 2025-10-30 (F10 — Orquestación y Endurecimiento)

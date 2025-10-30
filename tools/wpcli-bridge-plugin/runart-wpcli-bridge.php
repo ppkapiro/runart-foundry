@@ -126,6 +126,32 @@ add_action('rest_api_init', function () {
             ],
         ],
     ]);
+    
+    // F10 AI-Visual Pipeline Orchestrator - Master endpoint (GET/POST)
+    register_rest_route('runart', '/ai-visual/pipeline', [
+        'methods'  => ['GET', 'POST'],
+        'callback' => 'runart_ai_visual_pipeline',
+        'permission_callback' => 'runart_wpcli_bridge_permission_admin',
+        'args' => [
+            'action' => [
+                'required' => true,
+                'type' => 'string',
+                'enum' => ['status', 'preview', 'regenerate'],
+                'description' => 'Acción a ejecutar: status (estado del pipeline), preview (previsualizar contenido), regenerate (solicitar regeneración)',
+            ],
+            'target' => [
+                'required' => false,
+                'type' => 'string',
+                'enum' => ['embeddings', 'correlations', 'rewrite', 'all'],
+                'description' => 'Objetivo de la acción (requerido para preview y regenerate)',
+            ],
+            'page_id' => [
+                'required' => false,
+                'type' => 'string',
+                'description' => 'ID de página específica (opcional, para preview)',
+            ],
+        ],
+    ]);
 });
 
 function runart_wpcli_bridge_permission_admin() {
@@ -636,6 +662,334 @@ function runart_content_enriched($request) {
             'source_file' => basename($enriched_file),
             'phase' => 'F9',
             'description' => 'Content Enrichment - Rewritten content with AI suggestions',
+        ],
+    ], 200);
+}
+
+/**
+ * F10 - Endpoint orquestador maestro del pipeline IA-Visual.
+ * 
+ * Proporciona acceso unificado a las capacidades del sistema IA-Visual:
+ * - action=status: Estado del pipeline (F7/F8/F9), commits, conteos
+ * - action=preview: Previsualizar contenido enriquecido
+ * - action=regenerate: Solicitar regeneración (write-safe)
+ * 
+ * GET/POST /wp-json/runart/ai-visual/pipeline?action=status
+ * 
+ * @param WP_REST_Request $request
+ * @return WP_REST_Response
+ */
+function runart_ai_visual_pipeline($request) {
+    $action = $request->get_param('action');
+    $target = $request->get_param('target');
+    $page_id = $request->get_param('page_id');
+    
+    $base_path = ABSPATH . '../';
+    
+    switch ($action) {
+        case 'status':
+            return runart_ai_visual_pipeline_status($base_path);
+            
+        case 'preview':
+            if (empty($target)) {
+                return runart_wpcli_bridge_error(
+                    'target parameter is required for preview action',
+                    'missing_target',
+                    400
+                );
+            }
+            return runart_ai_visual_pipeline_preview($base_path, $target, $page_id);
+            
+        case 'regenerate':
+            if (empty($target)) {
+                return runart_wpcli_bridge_error(
+                    'target parameter is required for regenerate action',
+                    'missing_target',
+                    400
+                );
+            }
+            return runart_ai_visual_pipeline_regenerate($base_path, $target, $page_id);
+            
+        default:
+            return runart_wpcli_bridge_error(
+                'Invalid action. Must be: status, preview, or regenerate',
+                'invalid_action',
+                400
+            );
+    }
+}
+
+/**
+ * Obtiene el estado actual del pipeline IA-Visual.
+ * 
+ * @param string $base_path Ruta base del proyecto
+ * @return WP_REST_Response
+ */
+function runart_ai_visual_pipeline_status($base_path) {
+    $status = [
+        'phases' => [
+            'F7' => [
+                'name' => 'Arquitectura IA-Visual',
+                'status' => 'implemented',
+                'description' => 'Módulos Python + endpoints + estructura data/embeddings/',
+            ],
+            'F8' => [
+                'name' => 'Embeddings y Correlaciones',
+                'status' => 'completed',
+                'commit' => '692ab370',
+                'description' => 'Generación de embeddings visuales/texto + matriz de similitud',
+            ],
+            'F9' => [
+                'name' => 'Reescritura Asistida y Enriquecimiento',
+                'status' => 'completed',
+                'commit' => '276030f3',
+                'description' => 'Contenido enriquecido con referencias visuales y metadatos',
+            ],
+            'F10' => [
+                'name' => 'Orquestación y Endurecimiento',
+                'status' => 'active',
+                'description' => 'Endpoint maestro + validaciones + sistema de jobs',
+            ],
+        ],
+    ];
+    
+    // Obtener estadísticas de embeddings visuales
+    $visual_embeddings_dir = $base_path . 'data/embeddings/visual/clip_512d/embeddings/';
+    $visual_count = 0;
+    $visual_last_modified = null;
+    if (is_dir($visual_embeddings_dir)) {
+        $visual_files = glob($visual_embeddings_dir . '*.json');
+        $visual_count = count($visual_files);
+        if (!empty($visual_files)) {
+            $visual_last_modified = gmdate('c', max(array_map('filemtime', $visual_files)));
+        }
+    }
+    
+    // Obtener estadísticas de embeddings textuales
+    $text_embeddings_dir = $base_path . 'data/embeddings/text/multilingual_mpnet/embeddings/';
+    $text_count = 0;
+    $text_last_modified = null;
+    if (is_dir($text_embeddings_dir)) {
+        $text_files = glob($text_embeddings_dir . '*.json');
+        $text_count = count($text_files);
+        if (!empty($text_files)) {
+            $text_last_modified = gmdate('c', max(array_map('filemtime', $text_files)));
+        }
+    }
+    
+    // Obtener estadísticas de correlaciones
+    $correlations_file = $base_path . 'data/embeddings/correlations/similarity_matrix.json';
+    $correlations_data = null;
+    if (file_exists($correlations_file)) {
+        $correlations_content = file_get_contents($correlations_file);
+        $correlations_data = json_decode($correlations_content, true);
+    }
+    
+    // Obtener estadísticas de contenido enriquecido
+    $rewrite_dir = $base_path . 'data/assistants/rewrite/';
+    $rewrite_count = 0;
+    $rewrite_last_modified = null;
+    if (is_dir($rewrite_dir)) {
+        $rewrite_files = glob($rewrite_dir . 'page_*.json');
+        $rewrite_count = count($rewrite_files);
+        if (!empty($rewrite_files)) {
+            $rewrite_last_modified = gmdate('c', max(array_map('filemtime', $rewrite_files)));
+        }
+    }
+    
+    $status['statistics'] = [
+        'embeddings' => [
+            'visual' => [
+                'count' => $visual_count,
+                'last_modified' => $visual_last_modified,
+                'path' => 'data/embeddings/visual/clip_512d/embeddings/',
+            ],
+            'text' => [
+                'count' => $text_count,
+                'last_modified' => $text_last_modified,
+                'path' => 'data/embeddings/text/multilingual_mpnet/embeddings/',
+            ],
+        ],
+        'correlations' => [
+            'total_comparisons' => $correlations_data['total_comparisons'] ?? 0,
+            'above_threshold' => $correlations_data['above_threshold'] ?? 0,
+            'threshold' => $correlations_data['threshold'] ?? 0,
+            'generated_at' => $correlations_data['generated_at'] ?? null,
+            'path' => 'data/embeddings/correlations/',
+        ],
+        'enriched_content' => [
+            'pages_count' => $rewrite_count,
+            'last_modified' => $rewrite_last_modified,
+            'path' => 'data/assistants/rewrite/',
+        ],
+    ];
+    
+    return new WP_REST_Response([
+        'ok' => true,
+        'pipeline_status' => $status,
+        'meta' => [
+            'timestamp' => gmdate('c'),
+            'phase' => 'F10',
+            'description' => 'AI-Visual Pipeline Orchestrator',
+        ],
+    ], 200);
+}
+
+/**
+ * Previsualiza contenido del pipeline.
+ * 
+ * @param string $base_path Ruta base del proyecto
+ * @param string $target Target: embeddings, correlations, rewrite, all
+ * @param string|null $page_id ID de página opcional
+ * @return WP_REST_Response
+ */
+function runart_ai_visual_pipeline_preview($base_path, $target, $page_id = null) {
+    $result = ['previews' => []];
+    
+    if ($target === 'rewrite' || $target === 'all') {
+        if (!empty($page_id)) {
+            // Previsualizar página específica
+            $page_id = preg_replace('/[^a-z0-9_]/', '', strtolower($page_id));
+            $rewrite_file = $base_path . 'data/assistants/rewrite/' . $page_id . '.json';
+            
+            if (file_exists($rewrite_file)) {
+                $content = json_decode(file_get_contents($rewrite_file), true);
+                $result['previews']['rewrite'][$page_id] = $content;
+            } else {
+                $result['previews']['rewrite'][$page_id] = ['error' => 'Not found'];
+            }
+        } else {
+            // Listar todas las páginas enriquecidas
+            $index_file = $base_path . 'data/assistants/rewrite/index.json';
+            if (file_exists($index_file)) {
+                $index = json_decode(file_get_contents($index_file), true);
+                $result['previews']['rewrite'] = $index;
+            }
+        }
+    }
+    
+    if ($target === 'correlations' || $target === 'all') {
+        $correlations_file = $base_path . 'data/embeddings/correlations/similarity_matrix.json';
+        if (file_exists($correlations_file)) {
+            $correlations = json_decode(file_get_contents($correlations_file), true);
+            $result['previews']['correlations'] = [
+                'total_comparisons' => $correlations['total_comparisons'] ?? 0,
+                'above_threshold' => $correlations['above_threshold'] ?? 0,
+                'sample_matrix' => array_slice($correlations['matrix'] ?? [], 0, 5),
+            ];
+        }
+    }
+    
+    if ($target === 'embeddings' || $target === 'all') {
+        $visual_index = $base_path . 'data/embeddings/visual/clip_512d/index.json';
+        $text_index = $base_path . 'data/embeddings/text/multilingual_mpnet/index.json';
+        
+        $result['previews']['embeddings'] = [
+            'visual' => file_exists($visual_index) ? json_decode(file_get_contents($visual_index), true) : null,
+            'text' => file_exists($text_index) ? json_decode(file_get_contents($text_index), true) : null,
+        ];
+    }
+    
+    return new WP_REST_Response([
+        'ok' => true,
+        'target' => $target,
+        'page_id' => $page_id,
+        'data' => $result,
+        'meta' => [
+            'timestamp' => gmdate('c'),
+            'phase' => 'F10',
+            'action' => 'preview',
+        ],
+    ], 200);
+}
+
+/**
+ * Solicita regeneración de componentes del pipeline (write-safe).
+ * 
+ * @param string $base_path Ruta base del proyecto
+ * @param string $target Target a regenerar
+ * @param string|null $page_id ID de página opcional
+ * @return WP_REST_Response
+ */
+function runart_ai_visual_pipeline_regenerate($base_path, $target, $page_id = null) {
+    $job_id = 'job-' . gmdate('Y-m-d\TH:i:s\Z');
+    $job = [
+        'id' => $job_id,
+        'requested_at' => gmdate('c'),
+        'requested_by' => 'wp-bridge',
+        'target' => $target,
+        'page_id' => $page_id,
+        'status' => 'pending',
+    ];
+    
+    // Intentar determinar si el entorno permite escritura
+    $jobs_dir = $base_path . 'data/ai_visual_jobs/';
+    $pending_requests_file = $jobs_dir . 'pending_requests.json';
+    $fallback_dir = ABSPATH . 'wp-content/uploads/runart-jobs/';
+    $fallback_file = $fallback_dir . 'pending_requests.json';
+    
+    $write_path = null;
+    $write_location = null;
+    
+    // Intentar escribir en la ubicación del repo primero
+    if (is_dir($jobs_dir) || @mkdir($jobs_dir, 0755, true)) {
+        if (is_writable($jobs_dir)) {
+            $write_path = $pending_requests_file;
+            $write_location = 'repository';
+        }
+    }
+    
+    // Si no es posible, usar fallback en wp-content/uploads
+    if ($write_path === null) {
+        if (is_dir($fallback_dir) || @mkdir($fallback_dir, 0755, true)) {
+            $write_path = $fallback_file;
+            $write_location = 'fallback';
+        }
+    }
+    
+    if ($write_path === null) {
+        return runart_wpcli_bridge_error(
+            'Cannot write regeneration request: no writable location found',
+            'write_error',
+            500
+        );
+    }
+    
+    // Cargar solicitudes existentes
+    $existing_jobs = [];
+    if (file_exists($write_path)) {
+        $content = file_get_contents($write_path);
+        $existing_jobs = json_decode($content, true);
+        if (!is_array($existing_jobs)) {
+            $existing_jobs = [];
+        }
+    }
+    
+    // Agregar nueva solicitud
+    $existing_jobs[] = $job;
+    
+    // Guardar
+    $success = file_put_contents($write_path, json_encode($existing_jobs, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE));
+    
+    if ($success === false) {
+        return runart_wpcli_bridge_error(
+            'Failed to write regeneration request',
+            'write_error',
+            500
+        );
+    }
+    
+    return new WP_REST_Response([
+        'ok' => true,
+        'job' => $job,
+        'write_location' => $write_location,
+        'file_path' => $write_path,
+        'message' => 'Regeneration request queued successfully',
+        'meta' => [
+            'timestamp' => gmdate('c'),
+            'phase' => 'F10',
+            'action' => 'regenerate',
+            'note' => 'Job queued for processing by CI/runner. Check pending_requests.json for status.',
         ],
     ], 200);
 }

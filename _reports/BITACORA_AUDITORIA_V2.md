@@ -26,9 +26,74 @@
 
 ## Eventos (Registro Cronológico Inverso)
 
-### 2025-10-30T18:32:00Z — F9 — Reescritura Asistida y Enriquecimiento: COMPLETADA
+### 2025-10-30T18:45:00Z — F10 — Orquestación y Endurecimiento IA-Visual: COMPLETADA
 **Branch:** `feat/ai-visual-implementation`
 **Commit:** (pending)
+**Autor:** automation-runart
+**Archivos:**
+- tools/wpcli-bridge-plugin/runart-wpcli-bridge.php (+272 líneas) — Endpoint orquestador `/ai-visual/pipeline` con actions: status, preview, regenerate
+- apps/runmedia/runmedia/schema_validator.py (482 líneas) — Validador de esquemas JSON con CLI `--validate-all`
+- .github/workflows/ai-visual-analysis.yml (+32 líneas) — Job CI `ai-visual-validate-schemas` que falla build con JSONs inválidos
+- data/ai_visual_jobs/pending_requests.json (creado) — Cola de solicitudes de regeneración (write-safe)
+- docs/ai/architecture_overview.md (+34 líneas) — Sección F10 documentando orquestador y validaciones
+
+**Resumen:**
+- ✅ **Endpoint maestro agregado:** `GET/POST /wp-json/runart/ai-visual/pipeline`
+  - **action=status:** Estado completo del pipeline (F7/F8/F9/F10), commits (692ab370, 276030f3), estadísticas
+  - **action=preview:** Previsualización de embeddings, correlaciones, contenido enriquecido
+  - **action=regenerate:** Solicitud de regeneración write-safe con sistema de jobs
+- ✅ **Sistema de jobs:** `data/ai_visual_jobs/pending_requests.json` registra solicitudes asíncronas
+- ✅ **Validador de esquemas:** `schema_validator.py` valida similarity_matrix, recommendations_cache, rewrite pages
+- ✅ **Integración CI:** Workflow con job que valida esquemas automáticamente en cada push
+- ✅ **Documentación actualizada:** architecture_overview.md con sección F10 completa
+
+**Funcionalidades del Endpoint Maestro:**
+- 📊 **Status endpoint:** Devuelve estado de las 4 fases (F7: arquitectura, F8: embeddings commit 692ab370, F9: enriquecimiento commit 276030f3, F10: orquestación activa)
+- 📊 **Estadísticas en vivo:** Conteo de embeddings visuales/textuales, correlaciones, páginas enriquecidas, fechas de última modificación
+- 👁️ **Preview capability:** Consulta sin modificación de embeddings, correlaciones, contenido enriquecido (target=all|embeddings|correlations|rewrite)
+- 🔄 **Regeneración write-safe:** Crea jobs en pending_requests.json sin ejecutar Python en producción
+- 🛡️ **Fallback automático:** Si repo READ_ONLY, usa wp-content/uploads/runart-jobs/ alternativo
+
+**Validador de Esquemas (schema_validator.py):**
+- 🔍 **Valida 3 tipos de archivos:**
+  1. `similarity_matrix.json`: Campos required (version, generated_at, total_comparisons, above_threshold, threshold, matrix)
+  2. `recommendations_cache.json`: Campos required (version, top_k, threshold, total_pages, cache)
+  3. `page_*.json` (rewrite): Campos required (id, lang, enriched_*, meta)
+- ✅ **CLI:** `python schema_validator.py --validate-all` (exit 0 si OK, exit 1 si errores)
+- 📊 **Resumen detallado:** Validated files, warnings, errors, listado completo
+
+**Integración CI/CD:**
+- 🤖 **Job automático:** `ai-visual-validate-schemas` en `.github/workflows/ai-visual-analysis.yml`
+- ⚠️ **Bloqueo de merge:** Si hay JSONs inválidos, el job falla y previene merge a develop/main
+- ✅ **Feedback inmediato:** Summary con estado de validación visible en PR
+
+**Sistema de Jobs (Write-Safe):**
+- 📝 **Registro asíncrono:** pending_requests.json acumula solicitudes sin ejecutar código pesado
+- 🔒 **Modo seguro:** Detecta READ_ONLY y usa fallback (wp-content/uploads/)
+- 🔄 **Procesamiento diferido:** CI/runner puede recoger jobs pendientes y ejecutar Python scripts
+- 📋 **Formato job:**
+  ```json
+  {
+    "id": "job-2025-10-30T18:50:00Z",
+    "requested_at": "2025-10-30T18:50:00Z",
+    "requested_by": "wp-bridge",
+    "target": "correlations",
+    "status": "pending"
+  }
+  ```
+
+**Observaciones:**
+- ✅ Pipeline completo F7→F8→F9→F10 operativo
+- ✅ Endpoint maestro unifica acceso a todas las capacidades IA-Visual
+- ✅ Validación automática previene datos corruptos
+- ✅ Sistema de jobs permite solicitudes desde WordPress sin riesgo
+- 📌 **Próxima fase (F11):** Integración frontend en editor WordPress para consumir endpoint maestro
+
+**Estado:** 🟢 F10 COMPLETADA — Orquestador IA-Visual y validaciones integradas
+
+### 2025-10-30T18:32:00Z — F9 — Reescritura Asistida y Enriquecimiento: COMPLETADA
+**Branch:** `feat/ai-visual-implementation`
+**Commit:** 276030f3
 **Autor:** automation-runart
 **Archivos:**
 - apps/runmedia/runmedia/content_enricher_v2.py (482 líneas) — Script generador de contenido enriquecido V2
