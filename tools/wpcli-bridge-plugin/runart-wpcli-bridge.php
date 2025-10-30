@@ -1386,7 +1386,8 @@ function runart_content_enriched_list(WP_REST_Request $request) {
     $items = [];
     if (isset($index_data['pages']) && is_array($index_data['pages'])) {
         foreach ($index_data['pages'] as $page) {
-            $page_id = isset($page['id']) ? $page['id'] : '';
+            // El JSON tiene 'page_id', no 'id'
+            $page_id = isset($page['page_id']) ? $page['page_id'] : (isset($page['id']) ? $page['id'] : '');
             $item = [
                 'id' => $page_id,
                 'title' => isset($page['title']) ? $page['title'] : $page_id,
