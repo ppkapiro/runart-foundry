@@ -1,0 +1,236 @@
+{
+  "phase": "F1",
+  "timestamp": "2025-10-30T15:59:42Z",
+  "source": "REST API /runart/audit/pages",
+  "total": 25,
+  "total_es": 15,
+  "total_en": 10,
+  "total_unknown": 0,
+  "items": [
+    {
+      "id": 3500,
+      "url": "https://staging.runartfoundry.com/es/runart-es/",
+      "lang": "-",
+      "type": "page",
+      "status": "publish",
+      "title": "R.U.N. Art Foundry - Español",
+      "slug": "runart-es"
+    },
+    {
+      "id": 3501,
+      "url": "https://staging.runartfoundry.com/en/runart-en/",
+      "lang": "-",
+      "type": "page",
+      "status": "publish",
+      "title": "R.U.N. Art Foundry - English",
+      "slug": "runart-en"
+    },
+    {
+      "id": 3512,
+      "url": "https://staging.runartfoundry.com/en/home/",
+      "lang": "-",
+      "type": "page",
+      "status": "publish",
+      "title": "Home",
+      "slug": "home"
+    },
+    {
+      "id": 3513,
+      "url": "https://staging.runartfoundry.com/en/about/",
+      "lang": "-",
+      "type": "page",
+      "status": "publish",
+      "title": "About",
+      "slug": "about"
+    },
+    {
+      "id": 3514,
+      "url": "https://staging.runartfoundry.com/en/services/",
+      "lang": "-",
+      "type": "page",
+      "status": "publish",
+      "title": "Services",
+      "slug": "services"
+    },
+    {
+      "id": 3515,
+      "url": "https://staging.runartfoundry.com/en/contact/",
+      "lang": "-",
+      "type": "page",
+      "status": "publish",
+      "title": "Contact",
+      "slug": "contact"
+    },
+    {
+      "id": 3516,
+      "url": "https://staging.runartfoundry.com/en/blog/",
+      "lang": "-",
+      "type": "page",
+      "status": "publish",
+      "title": "Blog",
+      "slug": "blog"
+    },
+    {
+      "id": 3517,
+      "url": "https://staging.runartfoundry.com/es/inicio/",
+      "lang": "-",
+      "type": "page",
+      "status": "publish",
+      "title": "Inicio",
+      "slug": "inicio"
+    },
+    {
+      "id": 3518,
+      "url": "https://staging.runartfoundry.com/es/sobre-nosotros/",
+      "lang": "-",
+      "type": "page",
+      "status": "publish",
+      "title": "Sobre nosotros",
+      "slug": "sobre-nosotros"
+    },
+    {
+      "id": 3519,
+      "url": "https://staging.runartfoundry.com/es/servicios/",
+      "lang": "-",
+      "type": "page",
+      "status": "publish",
+      "title": "Servicios",
+      "slug": "servicios"
+    },
+    {
+      "id": 3520,
+      "url": "https://staging.runartfoundry.com/es/contacto/",
+      "lang": "-",
+      "type": "page",
+      "status": "publish",
+      "title": "Contacto",
+      "slug": "contacto"
+    },
+    {
+      "id": 3521,
+      "url": "https://staging.runartfoundry.com/es/blog-2/",
+      "lang": "-",
+      "type": "page",
+      "status": "publish",
+      "title": "Blog",
+      "slug": "blog-2"
+    },
+    {
+      "id": 3557,
+      "url": "https://staging.runartfoundry.com/es/guia-completa-de-aleaciones-de-bronce-para-fundicion-artistica/",
+      "lang": "-",
+      "type": "post",
+      "status": "publish",
+      "title": "Guía Completa de Aleaciones de Bronce para Fundición Artística",
+      "slug": "guia-completa-de-aleaciones-de-bronce-para-fundicion-artistica"
+    },
+    {
+      "id": 3558,
+      "url": "https://staging.runartfoundry.com/es/proceso-de-fundicion-a-la-cera-perdida-tecnica-ancestral-para-arte-contemporaneo/",
+      "lang": "-",
+      "type": "post",
+      "status": "publish",
+      "title": "Proceso de Fundición a la Cera Perdida: Técnica Ancestral para Arte Contemporáneo",
+      "slug": "proceso-de-fundicion-a-la-cera-perdida-tecnica-ancestral-para-arte-contemporaneo"
+    },
+    {
+      "id": 3559,
+      "url": "https://staging.runartfoundry.com/es/patinas-en-bronce-ciencia-y-arte-del-color-en-metal/",
+      "lang": "-",
+      "type": "post",
+      "status": "publish",
+      "title": "Pátinas en Bronce: Ciencia y Arte del Color en Metal",
+      "slug": "patinas-en-bronce-ciencia-y-arte-del-color-en-metal"
+    },
+    {
+      "id": 3576,
+      "url": "https://staging.runartfoundry.com/es/patinas-en-bronce-ciencia-y-arte-del-color-en-metal-2/",
+      "lang": "-",
+      "type": "post",
+      "status": "publish",
+      "title": "Pátinas en Bronce: Ciencia y Arte del Color en Metal",
+      "slug": "patinas-en-bronce-ciencia-y-arte-del-color-en-metal-2"
+    },
+    {
+      "id": 3577,
+      "url": "https://staging.runartfoundry.com/es/proceso-de-fundicion-a-la-cera-perdida-tecnica-ancestral-para-arte-contemporaneo-2/",
+      "lang": "-",
+      "type": "post",
+      "status": "publish",
+      "title": "Proceso de Fundición a la Cera Perdida: Técnica Ancestral para Arte Contemporáneo",
+      "slug": "proceso-de-fundicion-a-la-cera-perdida-tecnica-ancestral-para-arte-contemporaneo-2"
+    },
+    {
+      "id": 3578,
+      "url": "https://staging.runartfoundry.com/es/guia-completa-de-aleaciones-de-bronce-para-fundicion-artistica-2/",
+      "lang": "-",
+      "type": "post",
+      "status": "publish",
+      "title": "Guía Completa de Aleaciones de Bronce para Fundición Artística",
+      "slug": "guia-completa-de-aleaciones-de-bronce-para-fundicion-artistica-2"
+    },
+    {
+      "id": 3613,
+      "url": "https://staging.runartfoundry.com/es/contacto-2/",
+      "lang": "-",
+      "type": "page",
+      "status": "publish",
+      "title": "Contacto",
+      "slug": "contacto-2"
+    },
+    {
+      "id": 3614,
+      "url": "https://staging.runartfoundry.com/es/contacto-3/",
+      "lang": "-",
+      "type": "page",
+      "status": "publish",
+      "title": "Contacto",
+      "slug": "contacto-3"
+    },
+    {
+      "id": 3670,
+      "url": "https://staging.runartfoundry.com/es/cotizacion/",
+      "lang": "-",
+      "type": "page",
+      "status": "publish",
+      "title": "Cotización",
+      "slug": "cotizacion"
+    },
+    {
+      "id": 3671,
+      "url": "https://staging.runartfoundry.com/en/quote/",
+      "lang": "-",
+      "type": "page",
+      "status": "publish",
+      "title": "Quote",
+      "slug": "quote"
+    },
+    {
+      "id": 3677,
+      "url": "https://staging.runartfoundry.com/en/lost-wax-casting-process/",
+      "lang": "-",
+      "type": "post",
+      "status": "publish",
+      "title": "Lost Wax Casting Process: From Model to Bronze",
+      "slug": "lost-wax-casting-process"
+    },
+    {
+      "id": 3678,
+      "url": "https://staging.runartfoundry.com/en/bronze-patinas-chemistry-color/",
+      "lang": "-",
+      "type": "post",
+      "status": "publish",
+      "title": "Bronze Patinas: Chemistry, Color, and Durability",
+      "slug": "bronze-patinas-chemistry-color"
+    },
+    {
+      "id": 3679,
+      "url": "https://staging.runartfoundry.com/en/ceramic-shell-molds-precision/",
+      "lang": "-",
+      "type": "post",
+      "status": "publish",
+      "title": "Ceramic Shell Molds: Precision for Complex Forms",
+      "slug": "ceramic-shell-molds-precision"
+    }
+  ]
+}

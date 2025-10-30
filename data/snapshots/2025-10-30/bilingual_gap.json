@@ -1,0 +1,32 @@
+{
+  "phase": "F4",
+  "timestamp": "2025-10-30T15:59:42Z",
+  "source": "research/content_audit_v2/04_bilingual_gap_report.md",
+  "total_pages_es": 15,
+  "total_pages_en": 10,
+  "pages_without_translation": 21,
+  "pages_duplicated": 0,
+  "pages_undefined_language": 0,
+  "valid_pairs": 2,
+  "coverage_percentage": 8.0,
+  "gaps": {
+    "es_without_en": 13,
+    "en_without_es": 8
+  },
+  "paired_pages": [
+    {
+      "id_es": 3520,
+      "url_es": "https://staging.runartfoundry.com/es/contacto/",
+      "id_en": 3515,
+      "url_en": "https://staging.runartfoundry.com/en/contact/",
+      "status": "OK (paired)"
+    },
+    {
+      "id_es": 3521,
+      "url_es": "https://staging.runartfoundry.com/es/blog-2/",
+      "id_en": 3516,
+      "url_en": "https://staging.runartfoundry.com/en/blog/",
+      "status": "OK (paired)"
+    }
+  ]
+}

@@ -1,8 +1,8 @@
 <?php
 /**
  * Plugin Name:       RunArt WP-CLI Bridge (REST)
- * Description:       Endpoints REST seguros para tareas comunes de WP-CLI y auditoría de contenido (páginas e imágenes).
- * Version:           1.1.0
+ * Description:       Endpoints REST seguros para tareas comunes de WP-CLI (flush cache, flush rewrite, listar usuarios y plugins, health).
+ * Version:           1.0.0
  * Author:            RunArt Foundry
  * Requires at least: 5.8
  * Requires PHP:      7.4
@@ -172,7 +172,7 @@ function runart_wpcli_bridge_plugins_list(WP_REST_Request $req) {
 
 /**
  * Content Audit: Pages endpoint
- * Retorna todas las páginas y posts con información de idioma
+ * Retorna todas las páginas y posts con información de idioma y emparejamientos
  */
 function runart_audit_pages(WP_REST_Request $req) {
     $posts = get_posts([
@@ -189,16 +189,30 @@ function runart_audit_pages(WP_REST_Request $req) {
     $count_unknown = 0;
     
     foreach ($posts as $post) {
-        // Detectar idioma via Polylang
+        // Detectar idioma usando Polylang
         $lang = '-';
+        $translations = [];
+        
         if (function_exists('pll_get_post_language')) {
             $lang_obj = pll_get_post_language($post->ID, 'object');
             if ($lang_obj) {
                 $lang = $lang_obj->slug;
             }
+            
+            // Obtener traducciones (emparejamientos)
+            if (function_exists('pll_get_post_translations')) {
+                $trans = pll_get_post_translations($post->ID);
+                if (is_array($trans)) {
+                    foreach ($trans as $lang_code => $trans_id) {
+                        if ($trans_id !== $post->ID) {
+                            $translations[$lang_code] = (int) $trans_id;
+                        }
+                    }
+                }
+            }
         }
         
-        // Fallback: taxonomía
+        // Fallback: detectar por taxonomía language
         if ($lang === '-') {
             $terms = get_the_terms($post->ID, 'language');
             if ($terms && !is_wp_error($terms)) {
@@ -207,22 +221,23 @@ function runart_audit_pages(WP_REST_Request $req) {
         }
         
         // Contar por idioma
-        if ($lang === 'es' || $lang === 'es_ES') {
+        if ($lang === 'es') {
             $count_es++;
-        } elseif ($lang === 'en' || $lang === 'en_US' || $lang === 'en_GB') {
+        } elseif ($lang === 'en') {
             $count_en++;
         } elseif ($lang === '-') {
             $count_unknown++;
         }
         
         $items[] = [
-            'ID' => $post->ID,
+            'id' => $post->ID,
             'url' => get_permalink($post->ID),
             'lang' => $lang,
             'type' => $post->post_type,
             'status' => $post->post_status,
             'title' => $post->post_title,
             'slug' => $post->post_name,
+            'translations' => $translations,
         ];
     }
     
@@ -236,6 +251,8 @@ function runart_audit_pages(WP_REST_Request $req) {
         'meta' => [
             'timestamp' => gmdate('c'),
             'site' => get_site_url(),
+            'phase' => 'F1',
+            'description' => 'Inventario de Páginas y Posts (ES/EN)',
         ],
     ], 200);
 }
@@ -277,33 +294,27 @@ function runart_audit_images(WP_REST_Request $req) {
         }
         
         // Contar por idioma
-        if ($lang === 'es' || $lang === 'es_ES') {
+        if ($lang === 'es') {
             $count_es++;
-        } elseif ($lang === 'en' || $lang === 'en_US' || $lang === 'en_GB') {
+        } elseif ($lang === 'en') {
             $count_en++;
         } elseif ($lang === '-') {
             $count_unknown++;
         }
         
-        // Metadata
-        $metadata = wp_get_attachment_metadata($image->ID);
-        $file_path = get_attached_file($image->ID);
-        $file_size_kb = 0;
-        if ($file_path && file_exists($file_path)) {
-            $file_size_kb = round(filesize($file_path) / 1024, 2);
-        }
+        $meta = wp_get_attachment_metadata($image->ID);
+        $file_size = filesize(get_attached_file($image->ID));
         
         $items[] = [
-            'ID' => $image->ID,
+            'id' => $image->ID,
             'url' => wp_get_attachment_url($image->ID),
             'lang' => $lang,
-            'mime_type' => $image->post_mime_type,
-            'width' => isset($metadata['width']) ? $metadata['width'] : null,
-            'height' => isset($metadata['height']) ? $metadata['height'] : null,
-            'size_kb' => $file_size_kb,
             'title' => $image->post_title,
             'alt' => get_post_meta($image->ID, '_wp_attachment_image_alt', true),
-            'file' => basename(get_attached_file($image->ID)),
+            'mime_type' => $image->post_mime_type,
+            'file_size' => $file_size,
+            'width' => isset($meta['width']) ? $meta['width'] : null,
+            'height' => isset($meta['height']) ? $meta['height'] : null,
         ];
     }
     
@@ -317,6 +328,8 @@ function runart_audit_images(WP_REST_Request $req) {
         'meta' => [
             'timestamp' => gmdate('c'),
             'site' => get_site_url(),
+            'phase' => 'F2',
+            'description' => 'Inventario de Imágenes (Media Library)',
         ],
     ], 200);
 }
