@@ -13,7 +13,7 @@
 | **F1** | `phase1` | Inventario de Páginas (ES/EN) | `feat/content-audit-v2-phase1` (PR #77) | **EN PROCESO REAL** | 2025-10-29 | — |
 | **F2** | `phase2` | Inventario de Imágenes (Media Library) | `feat/content-audit-v2-phase1` (PR #77) | **EN PROCESO REAL** | 2025-10-30 | — |
 | **F3** | `phase3` | Matriz Texto ↔ Imagen | `feat/content-audit-v2-phase1` (PR #77) | **EN PROCESO** | 2025-10-30 | — |
-| **F4** | `phase4` | Reporte de Brechas Bilingües | — | **PENDIENTE** | — | — |
+| **F4** | `phase4` | Reporte de Brechas Bilingües | `feat/content-audit-v2-phase1` (PR #77) | **EN PROCESO** | 2025-10-30 | — |
 | **F5** | `phase5` | Plan de Acción y Cierre | — | **PENDIENTE** | — | — |
 
 **Estados posibles:**
@@ -24,6 +24,20 @@
 ---
 
 ## Eventos (Registro Cronológico Inverso)
+
+### 2025-10-30T15:39:45Z — F4 — Brechas bilingües detectadas: 21 sin traducción (13 ES sin EN, 8 EN sin ES), 0 duplicadas, 0 sin idioma
+**Branch:** `feat/content-audit-v2-phase1`
+**PR:** #77
+**Autor:** automation-runart
+**Archivos:**
+- research/content_audit_v2/04_bilingual_gap_report.md
+- tools/wpcli-bridge-plugin/runart-wpcli-bridge.php (endpoints actualizados)
+- _reports/BITACORA_AUDITORIA_V2.md
+
+**Resumen:**
+Análisis de emparejamiento ES↔EN mediante detección heurística por URL. Se identificaron 15 páginas ES y 10 EN, con 2 pares válidos (contacto/blog). La mayoría de contenido carece de traducción completa; se recomienda configurar Polylang con metadatos de idioma para mejorar precisión futura.
+
+**Resultado:** ✅ Éxito
 
 ### 2025-10-30T15:24:46Z — F3 — Matriz texto↔imagen generada automáticamente: 25 páginas analizadas, 25 sin imágenes, 84.0% desbalance
 **Branch:** `feat/content-audit-v2-phase1`
@@ -209,7 +223,7 @@ Descripción concisa del evento en 3-6 líneas máximo. Contexto relevante, deci
 | F1 | 25/50+ | — | — | — | 50% |
 | F2 | — | 0/200+ | — | — | 0% |
 | F3 | — | — | 25/50+ pares | — | 50% |
-| F4 | — | — | — | 0 detectados | 0% |
+| F4 | — | — | — | 21 brechas detectadas | 50% |
 | F5 | — | — | — | — | 0% |
 
 **Nota:** Estas métricas se actualizan al completar cada fase.
@@ -343,8 +357,8 @@ gh pr checks <PR> && gh pr view <PR> --json reviewDecision
 
 ---
 
-**Última actualización:** 2025-10-30T15:24:46Z  
-**Próxima actualización esperada:** Ajustes posteriores a la revisión de F3 (hoy)
+**Última actualización:** 2025-10-30T15:39:45Z  
+**Próxima actualización esperada:** Inicio de F5 (plan de acción consolidado)
 
 ---
 
