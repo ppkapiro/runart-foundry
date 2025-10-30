@@ -81,7 +81,8 @@ add_action('rest_api_init', function () {
     register_rest_route('runart', '/correlations/suggest-images', [
         'methods'  => 'GET',
         'callback' => 'runart_correlations_suggest_images',
-        'permission_callback' => 'runart_wpcli_bridge_permission_admin',
+        // Permitir a cualquier usuario autenticado (se valida via nonce en el front)
+        'permission_callback' => function () { return is_user_logged_in(); },
         'args' => [
             'page_id' => [
                 'required' => true,
@@ -128,7 +129,8 @@ add_action('rest_api_init', function () {
     register_rest_route('runart', '/content/enriched', [
         'methods'  => 'GET',
         'callback' => 'runart_content_enriched',
-        'permission_callback' => 'runart_wpcli_bridge_permission_admin',
+        // Permitir a cualquier usuario autenticado (nonce requerido)
+        'permission_callback' => function () { return is_user_logged_in(); },
         'args' => [
             'page_id' => [
                 'required' => true,
@@ -142,7 +144,14 @@ add_action('rest_api_init', function () {
     register_rest_route('runart', '/ai-visual/pipeline', [
         'methods'  => ['GET', 'POST'],
         'callback' => 'runart_ai_visual_pipeline',
-        'permission_callback' => 'runart_wpcli_bridge_permission_admin',
+        // GET visible para usuarios autenticados (monitor), POST restringido a admins
+        'permission_callback' => function( $request ) {
+            $method = is_object($request) && method_exists($request, 'get_method') ? strtoupper($request->get_method()) : '';
+            if ($method === 'GET') {
+                return is_user_logged_in();
+            }
+            return current_user_can('manage_options');
+        },
         'args' => [
             'action' => [
                 'required' => true,
@@ -168,10 +177,8 @@ add_action('rest_api_init', function () {
     register_rest_route('runart', '/ai-visual/request-regeneration', [
         'methods'  => 'POST',
         'callback' => 'runart_ai_visual_request_regeneration',
-        // Permitir admins y editores desde la vista de monitor
-        'permission_callback' => function () {
-            return is_user_logged_in() && (current_user_can('manage_options') || current_user_can('edit_pages'));
-        },
+        // Permitir a cualquier usuario autenticado (nonce requerido)
+        'permission_callback' => function () { return is_user_logged_in(); },
     ]);
     
     // F10 (Deployment) - Endpoint para crear página de monitor remotamente (POST)
@@ -1110,6 +1117,8 @@ function runart_ai_visual_monitor_shortcode() {
     }
 
     ob_start();
+    $rest_url = esc_url_raw( get_rest_url() );
+    $rest_nonce = wp_create_nonce('wp_rest');
     ?>
     <div id="runart-ai-visual-monitor" style="padding:12px;border:1px solid #ddd;border-radius:6px;background:#fff;">
         <h2 style="margin-top:0;">Monitor IA-Visual (F7/F8/F9)</h2>
@@ -1133,6 +1142,13 @@ function runart_ai_visual_monitor_shortcode() {
         </div>
     </div>
     <script>
+    // Config global expuesta por WP: base REST URL y nonce para autenticar llamadas desde el navegador
+    window.RUNART_MONITOR = {
+        restUrl: '<?php echo $rest_url; ?>',
+        nonce: '<?php echo esc_js($rest_nonce); ?>'
+    };
+    </script>
+    <script>
     (function(){
         const elStatus = document.getElementById('raiv-status-content');
         const elCor = document.getElementById('raiv-correlations');
@@ -1140,10 +1156,13 @@ function runart_ai_visual_monitor_shortcode() {
         const btnReq = document.getElementById('raiv-request-btn');
         const elReq = document.getElementById('raiv-request-result');
 
-        const endpointCor = '/wp-json/runart/correlations/suggest-images?page_id=42';
-        const endpointEnr = '/wp-json/runart/content/enriched?page_id=page_42';
-        const endpointStatus = '/wp-json/runart/ai-visual/pipeline?action=status';
-        const endpointReq = '/wp-json/runart/ai-visual/request-regeneration';
+        const base = (window.RUNART_MONITOR && window.RUNART_MONITOR.restUrl) || (window.location.origin + '/wp-json/');
+        const endpointCor = base + 'runart/correlations/suggest-images?page_id=42';
+        const endpointEnr = base + 'runart/content/enriched?page_id=page_42';
+        const endpointStatus = base + 'runart/ai-visual/pipeline?action=status';
+        const endpointReq = base + 'runart/ai-visual/request-regeneration';
+
+        const authHeaders = { 'X-WP-Nonce': (window.RUNART_MONITOR && window.RUNART_MONITOR.nonce) ? window.RUNART_MONITOR.nonce : '' };
 
         // Utilidad para formatear JSON seguro
         function fmt(obj){
@@ -1151,7 +1170,7 @@ function runart_ai_visual_monitor_shortcode() {
         }
 
         // Render estado del pipeline (F10)
-        fetch(endpointStatus, { credentials: 'same-origin' })
+    fetch(endpointStatus, { credentials: 'include', headers: authHeaders })
          .then(r => r.ok ? r.json() : Promise.reject(r))
          .then(data => {
             elStatus.textContent = fmt({
@@ -1164,7 +1183,7 @@ function runart_ai_visual_monitor_shortcode() {
          });
 
         // Render correlaciones (F8)
-        fetch(endpointCor, { credentials: 'same-origin' })
+    fetch(endpointCor, { credentials: 'include', headers: authHeaders })
          .then(r => r.json().then(j => ({ ok: r.ok, status: r.status, json: j })))
          .then(({ok,status,json}) => {
             if(!ok){
@@ -1184,7 +1203,7 @@ function runart_ai_visual_monitor_shortcode() {
          .catch(err => { elCor.textContent = 'Error al cargar correlaciones.'; });
 
         // Render contenido enriquecido (F9)
-        fetch(endpointEnr, { credentials: 'same-origin' })
+    fetch(endpointEnr, { credentials: 'include', headers: authHeaders })
          .then(r => r.json().then(j => ({ ok: r.ok, status: r.status, json: j })))
          .then(({ok,status,json}) => {
             if(status === 404){
@@ -1214,8 +1233,8 @@ function runart_ai_visual_monitor_shortcode() {
             elReq.textContent = 'Enviando...';
             fetch(endpointReq, {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                credentials: 'same-origin',
+                headers: Object.assign({ 'Content-Type': 'application/json' }, authHeaders),
+                credentials: 'include',
                 body: JSON.stringify({ target: 'correlations' })
             })
             .then(r => r.json().then(j => ({ ok: r.ok, status: r.status, json: j })))
