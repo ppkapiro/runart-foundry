@@ -6,6 +6,55 @@
 
 ## Últimas actualizaciones
 
+### 2025-10-30T22:30:00Z — F10-d (Validación de Permisos STAGING) — Scripts de diagnóstico y corrección
+**Branch:** `feat/ai-visual-implementation`  
+**Commit:** (pending)  
+**Autor:** automation-runart  
+**Archivos:**
+- tools/diagnose_staging_permissions.sh (nuevo) — Diagnóstico completo de permisos y variables de entorno
+- tools/fix_staging_permissions.sh (nuevo) — Ajuste seguro de permisos (owner, chmod, directorios)
+- tools/test_staging_write.sh (nuevo) — Prueba controlada de escritura con restauración de READ_ONLY/DRY_RUN
+- tools/validate_staging_endpoints.sh (nuevo) — Validación de endpoints REST del plugin
+- tools/staging_full_validation.sh (nuevo) — Script maestro que ejecuta todo el flujo
+- tools/STAGING_VALIDATION_README.md (nuevo) — Documentación completa del proceso
+
+**Resumen:**
+- ✅ **Problema identificado:** Plugin instalado correctamente pero no muestra datos por:
+  - Entorno protegido (READ_ONLY=1, DRY_RUN=1)
+  - Permisos de lectura en `data/assistants/rewrite/*.json`
+  - Permisos de escritura en `wp-content/uploads/runart-jobs/`
+  - Usuario web server (www-data/nginx) sin acceso
+- ✅ **Suite de scripts creada:**
+  1. `diagnose_staging_permissions.sh` — Diagnóstico completo (env vars, rutas, permisos)
+  2. `fix_staging_permissions.sh` — Corrección con chown/chmod (dry-run disponible)
+  3. `test_staging_write.sh` — Prueba controlada con restauración automática
+  4. `validate_staging_endpoints.sh` — Validación de REST API (con/sin auth)
+  5. `staging_full_validation.sh` — Orquestación completa del flujo
+- ✅ **Funcionalidades de los scripts:**
+  - Auto-detección de usuario web server (Apache/nginx/PHP-FPM)
+  - Verificación de rutas críticas (data/, uploads/, plugin/)
+  - Modo dry-run para simular sin aplicar cambios
+  - Logs detallados con timestamp en `logs/staging_*_TIMESTAMP.log`
+  - Documentación automática en bitácora
+  - Restauración de modo protegido después de pruebas
+- ✅ **Documentación README completa:**
+  - Descripción de cada script con ejemplos de uso
+  - Checklist de validación
+  - Solución a problemas comunes
+  - Interpretación de logs
+  - Referencias y soporte
+
+**Pruebas listas:**
+- Ejecutar `staging_full_validation.sh` con credenciales staging
+- Verificar que endpoints responden con HTTP 200 y datos
+- Confirmar que página Panel Editorial muestra contenidos
+- Probar botones de aprobar/rechazar
+- Validar que aprobaciones se registran en runart-jobs/
+
+**Estado:** 🟢 COMPLETADO — Suite completa de validación de permisos staging lista para uso
+
+---
+
 ### 2025-10-30T21:00:00Z — F10-b (Panel Editorial IA-Visual) — Listado y aprobación de contenidos enriquecidos
 **Branch:** `feat/ai-visual-implementation`  
 **Commit:** (pending)  
