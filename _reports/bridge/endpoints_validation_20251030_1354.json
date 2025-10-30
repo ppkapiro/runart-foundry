@@ -1,0 +1,6 @@
+{
+  "timestamp": "2025-10-30T13:54:13+00:00",
+  "health": {"code":"rest_no_route","message":"No se ha encontrado ninguna ruta que coincida con la URL y el m\u00e9todo de la solicitud.","data":{"status":404}},
+  "pages": {"code":"rest_no_route","message":"No se ha encontrado ninguna ruta que coincida con la URL y el m\u00e9todo de la solicitud.","data":{"status":404}},
+  "images": {"code":"rest_no_route","message":"No se ha encontrado ninguna ruta que coincida con la URL y el m\u00e9todo de la solicitud.","data":{"status":404}}
+}
