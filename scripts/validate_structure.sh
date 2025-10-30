@@ -241,7 +241,7 @@ for file in "${FILES[@]}"; do
     fi
     
     # Permitir archivos .md en carpetas de artefactos/estructura
-    if [[ "$file" =~ (_structure/|_artifacts/|_reports/) ]]; then
+    if [[ "$file" =~ (_structure/|_artifacts/|_reports/|^research/content_audit_v2/) ]]; then
         continue
     fi
     
