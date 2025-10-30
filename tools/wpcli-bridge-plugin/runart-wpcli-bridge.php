@@ -886,6 +886,30 @@ function runart_content_enriched($request) {
         );
     }
     
+    // Normalizar formato del JSON (F10-g)
+    // El JSON de F9 tiene enriched_es / enriched_en directamente
+    // Aseguramos que siempre existan estas claves
+    $normalized = [
+        'id' => isset($enriched_data['id']) ? $enriched_data['id'] : $page_id,
+        'lang' => isset($enriched_data['lang']) ? $enriched_data['lang'] : 'unknown',
+        'source_text' => isset($enriched_data['source_text']) ? $enriched_data['source_text'] : '',
+        'enriched_es' => isset($enriched_data['enriched_es']) ? $enriched_data['enriched_es'] : [
+            'headline' => '',
+            'summary' => '',
+            'body' => '',
+            'visual_references' => [],
+            'tags' => []
+        ],
+        'enriched_en' => isset($enriched_data['enriched_en']) ? $enriched_data['enriched_en'] : [
+            'headline' => '',
+            'summary' => '',
+            'body' => '',
+            'visual_references' => [],
+            'tags' => []
+        ],
+        'meta' => isset($enriched_data['meta']) ? $enriched_data['meta'] : []
+    ];
+    
     // Buscar estado de aprobación si existe (F10-b)
     $approval_data = null;
     $approvals_info = runart_bridge_locate('assistants/rewrite/approvals.json');
@@ -899,11 +923,11 @@ function runart_content_enriched($request) {
         }
     }
     
-    // Devolver contenido enriquecido con aprobación si existe
+    // Devolver contenido normalizado con aprobación si existe
     $response_data = [
         'ok' => true,
         'page_id' => $page_id,
-        'enriched_data' => $enriched_data,
+        'enriched_data' => $normalized,
         'meta' => [
             'timestamp' => gmdate('c'),
             'source_file' => basename($enriched_file),
@@ -911,6 +935,7 @@ function runart_content_enriched($request) {
             'description' => 'Content Enrichment - Rewritten content with AI suggestions',
             'source' => $enriched_info['source'],
             'paths_tried' => $enriched_info['paths_tried'],
+            'normalized' => true,
         ],
     ];
     
@@ -1715,54 +1740,117 @@ function runart_ai_visual_monitor_editor_mode($rest_url, $rest_nonce) {
             const enriched = data.enriched_data || {};
             const approval = data.approval || null;
             
-            const headlineEs = enriched.headline_es || enriched.enriched_headline || enriched.headline || '(sin headline ES)';
-            const headlineEn = enriched.headline_en || '(sin headline EN)';
-            const summaryEs = enriched.summary_es || enriched.enriched_summary || enriched.summary || '(sin summary ES)';
-            const summaryEn = enriched.summary_en || '(sin summary EN)';
-            const visualRefs = enriched.visual_references || [];
+            // Extraer datos normalizados
+            const enrichedEs = enriched.enriched_es || {};
+            const enrichedEn = enriched.enriched_en || {};
+            const lang = enriched.lang || 'unknown';
+            
+            const headlineEs = enrichedEs.headline || '';
+            const summaryEs = enrichedEs.summary || '';
+            const bodyEs = enrichedEs.body || '';
+            const visualRefsEs = enrichedEs.visual_references || [];
+            
+            const headlineEn = enrichedEn.headline || '';
+            const summaryEn = enrichedEn.summary || '';
+            const bodyEn = enrichedEn.body || '';
+            const visualRefsEn = enrichedEn.visual_references || [];
             
             let html = `
                 <div style="padding:8px;">
-                    <h3 style="margin-top:0;border-bottom:2px solid #e5e7eb;padding-bottom:8px;">${id}</h3>
+                    <h3 style="margin-top:0;border-bottom:2px solid #e5e7eb;padding-bottom:8px;">${id} <span style="font-size:14px;color:#666;font-weight:normal;">(${lang.toUpperCase()})</span></h3>
                     
-                    <div style="margin-bottom:16px;">
-                        <strong style="color:#3b82f6;">Headline ES:</strong>
-                        <div style="padding:8px;background:#f9fafb;border-radius:4px;margin-top:4px;font-size:14px;">${headlineEs}</div>
+                    <!-- Contenido en ESPAÑOL -->
+                    <div style="margin-bottom:24px;padding:12px;border:1px solid #e5e7eb;border-radius:6px;background:#fffbf0;">
+                        <h4 style="margin:0 0 12px 0;color:#059669;font-size:15px;">🇪🇸 Contenido en Español</h4>
+                        
+                        <div style="margin-bottom:12px;">
+                            <strong style="color:#666;font-size:12px;">Headline:</strong>
+                            <div style="padding:8px;background:#fff;border-radius:4px;margin-top:4px;font-size:14px;font-weight:600;">
+                                ${headlineEs || '<span style="color:#999;font-style:italic;font-weight:normal;">(sin datos)</span>'}
+                            </div>
+                        </div>
+                        
+                        <div style="margin-bottom:12px;">
+                            <strong style="color:#666;font-size:12px;">Summary:</strong>
+                            <div style="padding:8px;background:#fff;border-radius:4px;margin-top:4px;font-size:13px;">
+                                ${summaryEs || '<span style="color:#999;font-style:italic;">(sin datos)</span>'}
+                            </div>
+                        </div>
+                        
+                        <div style="margin-bottom:12px;">
+                            <strong style="color:#666;font-size:12px;">Body:</strong>
+                            <div style="padding:8px;background:#fff;border-radius:4px;margin-top:4px;font-size:12px;max-height:180px;overflow-y:auto;white-space:pre-wrap;line-height:1.5;">
+                                ${bodyEs || '<span style="color:#999;font-style:italic;">(sin datos)</span>'}
+                            </div>
+                        </div>
+                        
+                        ${visualRefsEs.length > 0 ? `
+                        <div>
+                            <strong style="color:#666;font-size:12px;">Referencias visuales (${visualRefsEs.length}):</strong>
+                            <ul style="margin:8px 0 0 20px;padding:0;font-size:12px;">
+                                ${visualRefsEs.map(ref => `
+                                    <li style="margin-bottom:6px;">
+                                        <strong>${ref.filename || ref.image_id}</strong>
+                                        ${ref.similarity_score ? ` (score: ${(ref.similarity_score * 100).toFixed(2)}%)` : ''}
+                                        ${ref.reason ? `<br><span style="color:#666;font-style:italic;">${ref.reason}</span>` : ''}
+                                    </li>
+                                `).join('')}
+                            </ul>
+                        </div>
+                        ` : '<div style="color:#999;font-size:12px;font-style:italic;">Sin referencias visuales</div>'}
                     </div>
                     
-                    <div style="margin-bottom:16px;">
-                        <strong style="color:#3b82f6;">Headline EN:</strong>
-                        <div style="padding:8px;background:#f9fafb;border-radius:4px;margin-top:4px;font-size:14px;">${headlineEn}</div>
+                    <!-- Content in ENGLISH -->
+                    <div style="margin-bottom:24px;padding:12px;border:1px solid #e5e7eb;border-radius:6px;background:#f0f9ff;">
+                        <h4 style="margin:0 0 12px 0;color:#3b82f6;font-size:15px;">🇬🇧 Content in English</h4>
+                        
+                        <div style="margin-bottom:12px;">
+                            <strong style="color:#666;font-size:12px;">Headline:</strong>
+                            <div style="padding:8px;background:#fff;border-radius:4px;margin-top:4px;font-size:14px;font-weight:600;">
+                                ${headlineEn || '<span style="color:#999;font-style:italic;font-weight:normal;">(no data)</span>'}
+                            </div>
+                        </div>
+                        
+                        <div style="margin-bottom:12px;">
+                            <strong style="color:#666;font-size:12px;">Summary:</strong>
+                            <div style="padding:8px;background:#fff;border-radius:4px;margin-top:4px;font-size:13px;">
+                                ${summaryEn || '<span style="color:#999;font-style:italic;">(no data)</span>'}
+                            </div>
+                        </div>
+                        
+                        <div style="margin-bottom:12px;">
+                            <strong style="color:#666;font-size:12px;">Body:</strong>
+                            <div style="padding:8px;background:#fff;border-radius:4px;margin-top:4px;font-size:12px;max-height:180px;overflow-y:auto;white-space:pre-wrap;line-height:1.5;">
+                                ${bodyEn || '<span style="color:#999;font-style:italic;">(no data)</span>'}
+                            </div>
+                        </div>
+                        
+                        ${visualRefsEn.length > 0 ? `
+                        <div>
+                            <strong style="color:#666;font-size:12px;">Visual references (${visualRefsEn.length}):</strong>
+                            <ul style="margin:8px 0 0 20px;padding:0;font-size:12px;">
+                                ${visualRefsEn.map(ref => `
+                                    <li style="margin-bottom:6px;">
+                                        <strong>${ref.filename || ref.image_id}</strong>
+                                        ${ref.similarity_score ? ` (score: ${(ref.similarity_score * 100).toFixed(2)}%)` : ''}
+                                        ${ref.reason ? `<br><span style="color:#666;font-style:italic;">${ref.reason}</span>` : ''}
+                                    </li>
+                                `).join('')}
+                            </ul>
+                        </div>
+                        ` : '<div style="color:#999;font-size:12px;font-style:italic;">No visual references</div>'}
                     </div>
-                    
-                    <div style="margin-bottom:16px;">
-                        <strong style="color:#3b82f6;">Summary ES:</strong>
-                        <div style="padding:8px;background:#f9fafb;border-radius:4px;margin-top:4px;font-size:13px;">${summaryEs}</div>
-                    </div>
-                    
-                    <div style="margin-bottom:16px;">
-                        <strong style="color:#3b82f6;">Summary EN:</strong>
-                        <div style="padding:8px;background:#f9fafb;border-radius:4px;margin-top:4px;font-size:13px;">${summaryEn}</div>
-                    </div>
-            `;
-            
-            if (visualRefs.length > 0) {
-                html += '<div style="margin-bottom:16px;"><strong style="color:#3b82f6;">Referencias visuales:</strong><ul style="margin-top:8px;padding-left:20px;font-size:13px;">';
-                visualRefs.forEach(ref => {
-                    const imgId = ref.image_id || '-';
-                    const filename = ref.filename || (ref.media_hint && ref.media_hint.original_name) || '-';
-                    const score = ref.similarity_score ? ref.similarity_score.toFixed(4) : '-';
-                    const context = ref.context || '';
-                    html += `<li style="margin-bottom:6px;"><strong>ID ${imgId}:</strong> ${filename} (score: ${score})${context ? '<br><em style="color:#666;">' + context + '</em>' : ''}</li>`;
-                });
-                html += '</ul></div>';
-            } else {
-                html += '<div style="margin-bottom:16px;color:#666;font-style:italic;">Sin referencias visuales</div>';
-            }
+            `
             
             // Botones de aprobación
             html += `
                 <div style="margin-top:24px;padding-top:16px;border-top:2px solid #e5e7eb;">
+                    ${approval ? `
+                        <div style="margin-bottom:12px;padding:8px;background:#f0f9ff;border-left:4px solid #3b82f6;font-size:12px;">
+                            <strong>Última acción:</strong> ${approval.status} · ${approval.updated_at} · ${approval.updated_by}
+                        </div>
+                    ` : '<div style="margin-bottom:12px;font-size:12px;color:#999;font-style:italic;">Sin acciones registradas</div>'}
+                    
                     <div style="display:flex;gap:10px;margin-bottom:12px;">
                         <button onclick="window.runartApprove('${id}', 'approved')" 
                                 style="flex:1;padding:10px;background:#059669;color:#fff;border:none;border-radius:4px;cursor:pointer;font-weight:600;"
@@ -1783,16 +1871,6 @@ function runart_ai_visual_monitor_editor_mode($rest_url, $rest_nonce) {
                     <div id="rep-approval-result" style="padding:8px;border-radius:4px;display:none;"></div>
                 </div>
             `;
-            
-            if (approval) {
-                html += `
-                    <div style="margin-top:12px;padding:10px;background:#f0f9ff;border:1px solid #3b82f6;border-radius:4px;font-size:13px;">
-                        <strong>Estado actual:</strong> ${approval.status}<br>
-                        <strong>Actualizado:</strong> ${approval.updated_at}<br>
-                        <strong>Por:</strong> ${approval.updated_by}
-                    </div>
-                `;
-            }
             
             html += '</div>';
             

@@ -712,6 +712,63 @@ Extensión del monitor que agrega modo editorial para revisión y aprobación de
 [runart_ai_visual_monitor mode="editor"]
 ```
 
+### Formato Normalizado de Contenido Enriquecido (F9 → F10)
+
+El endpoint `/wp-json/runart/content/enriched` normaliza el JSON de F9 a un formato consistente:
+
+```json
+{
+  "ok": true,
+  "page_id": "page_43",
+  "enriched_data": {
+    "id": "page_43",
+    "lang": "es",
+    "source_text": "Texto original...",
+    "enriched_es": {
+      "headline": "Exposición de Arte Contemporáneo - Versión Enriquecida",
+      "summary": "Contenido mejorado con 1 referencias visuales...",
+      "body": "## Contenido Enriquecido\n\n...",
+      "visual_references": [
+        {
+          "image_id": "b4152b9483f89d5f",
+          "filename": "artwork_red.jpg",
+          "similarity_score": 0.0525,
+          "reason": "Alta similitud visual (5.2%) con el tema de la página",
+          "suggested_alt": "Escultura de bronce con acabado en red",
+          "media_hint": {
+            "original_name": "artwork_red.jpg",
+            "confidence": 0.0525
+          }
+        }
+      ],
+      "tags": ["arte", "contemporáneo", "escultura"]
+    },
+    "enriched_en": {
+      "headline": "Exposición de Arte Contemporáneo - Enhanced Version",
+      "summary": "Enhanced content with 1 visual references...",
+      "body": "## Enhanced Content\n\n...",
+      "visual_references": [...],
+      "tags": ["art", "contemporary", "sculpture"]
+    },
+    "meta": {
+      "generated_from": "F8-similarity",
+      "generated_at": "2025-10-30T18:32:38Z"
+    }
+  },
+  "approval": {
+    "status": "approved",
+    "updated_at": "2025-10-30T20:00:00Z",
+    "updated_by": "runart-admin"
+  }
+}
+```
+
+**Características de la normalización:**
+- Estructura garantizada: `enriched_es` y `enriched_en` siempre presentes
+- Campos opcionales rellenados con strings vacíos o arrays vacíos si faltan
+- Referencias visuales separadas por idioma (permiten traducciones de `reason` y `suggested_alt`)
+- Meta información preservada del JSON original
+
 ### Endpoints Nuevos
 
 #### 1. Listado de contenidos enriquecidos

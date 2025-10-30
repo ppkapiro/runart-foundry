@@ -6,6 +6,60 @@
 
 ## Últimas actualizaciones
 
+### 🟢 2025-10-30T23:15:00Z — F10-g (Normalización Contenido Enriquecido) — Alineación JSON F9 con Panel WP
+**Branch:** `feat/ai-visual-implementation`  
+**Commit:** (pending)  
+**Autor:** automation-runart  
+**Archivos:**
+- tools/wpcli-bridge-plugin/runart-wpcli-bridge.php (modificado) — Normalización en endpoint + renderizado completo en JS
+- docs/ai/architecture_overview.md (modificado) — Documentado formato normalizado
+
+**Problema reportado:**
+- Panel editorial mostraba "(sin headline ES)", "(sin summary ES)", "(sin headline EN)", "Sin referencias visuales"
+- No era problema de permisos sino de MAPEO de claves JSON
+- El JSON de F9 tiene `enriched_es` y `enriched_en` con `headline`, `summary`, `body`, `visual_references`
+- El JS del front estaba buscando claves incorrectas (`headline_es`, `enriched_headline`, etc.)
+
+**Solución implementada:**
+
+1. ✅ **Normalización en endpoint PHP** (`runart_content_enriched`):
+   - Capa de normalización antes de devolver respuesta
+   - Garantiza estructura consistente: `enriched_es` / `enriched_en` siempre presentes
+   - Rellena campos faltantes con strings vacíos o arrays vacíos
+   - Preserva `meta` y `approval` del JSON original
+   - Campo `meta.normalized: true` para tracking
+
+2. ✅ **Renderizado completo en JS**:
+   - Bloques separados: 🇪🇸 Contenido en Español / 🇬🇧 Content in English
+   - Cada bloque muestra: Headline, Summary, Body (scrollable con max-height:180px)
+   - Body en `<div>` con `white-space:pre-wrap` y scroll vertical
+   - Referencias visuales con filename, score (en %), reason
+   - "(sin datos)" / "(no data)" en gris claro e itálica si falta información
+   - Última acción registrada ANTES de botones: "approved · 2025-10-30 14:20 · runart-admin"
+   - Si no hay acciones: "Sin acciones registradas" en gris
+
+3. ✅ **Formato JSON normalizado documentado**:
+   - En `architecture_overview.md`: sección "Formato Normalizado de Contenido Enriquecido (F9 → F10)"
+   - Ejemplo completo de respuesta del endpoint
+   - Explicación de características de normalización
+
+**Resultado esperado:**
+- Panel editorial muestra TODOS los textos generados en F9
+- "Exposición de Arte Contemporáneo" → headline, summary, body ES completos + 1 referencia visual
+- "RunArt Foundation" → headline, summary, body EN completos + 2 referencias visuales
+- "Digital Art and Technology" → headline, summary, body EN completos + 2 referencias visuales
+- Scroll funcional en body cuando el texto es largo
+- Score de similitud mostrado como porcentaje (ej: 5.25%)
+
+**Plugin actualizado:**
+- Versión: 1.1.4
+- ZIP: `_dist/runart-wpcli-bridge-v1.1.4_20251030T231525Z.zip`
+- SHA256: `ddd72f9d3980198b5df271ede67fe577c8aef5bc3494995f5fae4e11afcc4cd3`
+
+**Estado:** 🟢 COMPLETADO — Panel editorial alineado con formato real de F9
+
+---
+
 ### 🟢 2025-10-30T23:59:00Z — F10-f (Panel Editorial IA-Visual) — Corrección detalle y acciones
 **Branch:** `feat/ai-visual-implementation`  
 **Commit:** (pending)  
