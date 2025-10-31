@@ -1,0 +1,99 @@
+{
+  "id": "page_42",
+  "source_text": "Welcome to RunArt Foundation, a contemporary art gallery dedicated to showcasing emerging and established artists. Our collection features paintings, sculptures, and digital art from around the world. We believe in the power of art to inspire, challenge, and transform. Visit our gallery to explore red abstract paintings, blue contemporary artworks, and green modern sculptures.",
+  "lang": "en",
+  "enriched_en": {
+    "headline": "RunArt Foundation - Contemporary Art Gallery - Enhanced Version",
+    "summary": "Enhanced content with 2 visual references based on AI semantic correlation.",
+    "body": "## Enhanced Content\n\nThis version incorporates visual references automatically suggested through semantic similarity analysis between text and image embeddings.\n\n### Original Content\n\nWelcome to RunArt Foundation, a contemporary art gallery dedicated to showcasing emerging and established artists. Our collection features paintings, sculptures, and digital art from around the world. We believe in the power of art to inspire, challenge, and transform. Visit our gallery to explore red abstract paintings, blue contemporary artworks, and green modern sculptures.",
+    "visual_references": [
+      {
+        "image_id": "a3231b4ff3eb5dda",
+        "filename": "artwork_blue.jpg",
+        "similarity_score": 0.0215,
+        "reason": "High visual similarity (2.1%) with page topic",
+        "suggested_alt": "Bronze sculpture with blue finish",
+        "suggested_caption": "Casting process at RunArt Foundry - RunArt Foundation - Contemporary Art Gallery",
+        "media_hint": {
+          "original_name": "artwork_blue.jpg",
+          "possible_wp_slug": "artwork-blue",
+          "confidence": 0.0215
+        }
+      },
+      {
+        "image_id": "b4152b9483f89d5f",
+        "filename": "artwork_red.jpg",
+        "similarity_score": 0.0117,
+        "reason": "High visual similarity (1.2%) with page topic",
+        "suggested_alt": "Bronze sculpture with red finish",
+        "suggested_caption": "Casting process at RunArt Foundry - RunArt Foundation - Contemporary Art Gallery",
+        "media_hint": {
+          "original_name": "artwork_red.jpg",
+          "possible_wp_slug": "artwork-red",
+          "confidence": 0.0117
+        }
+      }
+    ],
+    "tags": [
+      "blue",
+      "gallery",
+      "art",
+      "green",
+      "runart",
+      "contemporary",
+      "sculpture",
+      "digital",
+      "red",
+      "abstract"
+    ]
+  },
+  "enriched_es": {
+    "headline": "RunArt Foundation - Contemporary Art Gallery - Versión Enriquecida",
+    "summary": "Contenido mejorado con 2 referencias visuales basadas en correlación semántica IA.",
+    "body": "## Contenido Enriquecido\n\nEsta versión incorpora referencias visuales sugeridas automáticamente mediante análisis de similitud semántica entre embeddings de texto e imagen.\n\n### Contenido Original\n\nWelcome to RunArt Foundation, a contemporary art gallery dedicated to showcasing emerging and established artists. Our collection features paintings, sculptures, and digital art from around the world. We believe in the power of art to inspire, challenge, and transform. Visit our gallery to explore red abstract paintings, blue contemporary artworks, and green modern sculptures.",
+    "visual_references": [
+      {
+        "image_id": "a3231b4ff3eb5dda",
+        "filename": "artwork_blue.jpg",
+        "similarity_score": 0.0215,
+        "reason": "Alta similitud visual (2.1%) con el tema de la página",
+        "suggested_alt": "Escultura de bronce con acabado en blue",
+        "suggested_caption": "Proceso de fundición en RunArt Foundry - RunArt Foundation - Contemporary Art Gallery",
+        "media_hint": {
+          "original_name": "artwork_blue.jpg",
+          "possible_wp_slug": "artwork-blue",
+          "confidence": 0.0215
+        }
+      },
+      {
+        "image_id": "b4152b9483f89d5f",
+        "filename": "artwork_red.jpg",
+        "similarity_score": 0.0117,
+        "reason": "Alta similitud visual (1.2%) con el tema de la página",
+        "suggested_alt": "Escultura de bronce con acabado en red",
+        "suggested_caption": "Proceso de fundición en RunArt Foundry - RunArt Foundation - Contemporary Art Gallery",
+        "media_hint": {
+          "original_name": "artwork_red.jpg",
+          "possible_wp_slug": "artwork-red",
+          "confidence": 0.0117
+        }
+      }
+    ],
+    "tags": [
+      "azul",
+      "rojo",
+      "verde",
+      "runart",
+      "digital"
+    ]
+  },
+  "meta": {
+    "generated_from": "F8-similarity",
+    "similarity_threshold": 0.0,
+    "top_k": 2,
+    "generated_at": "2025-10-30T18:32:38.644992+00:00",
+    "needs_translation": true,
+    "dataset_notes": "Dataset mixto: visual sintético (512D RGB), texto real (768D mpnet)",
+    "production_threshold_recommended": 0.7
+  }
+}

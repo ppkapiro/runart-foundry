@@ -1,0 +1,67 @@
+{
+  "page_id": "page_44",
+  "source_embedding": "data/embeddings/text/multilingual_mpnet/embeddings/page_44.json",
+  "original_text": "Explore the intersection of digital art and modern technology. Our collection features innovative digital artworks that push the boundaries of creative expression. From generative art to interactive installations, we showcase the future of artistic creation. The blue digital landscapes and red abstract compositions represent the cutting edge of contemporary digital art.",
+  "language": "en",
+  "enriched_variants": [
+    {
+      "variant_id": "page_44_v1",
+      "summary": "Content about digital art and technology with 2 suggested images",
+      "proposed_title": "Digital Art and Technology",
+      "proposed_slug": "digital-art-and-technology",
+      "images_suggested": [
+        {
+          "image_id": "b4152b9483f89d5f",
+          "filename": "artwork_red.jpg",
+          "score": 0.0413,
+          "alt": "Decorative image related to Digital Art and Technology",
+          "caption": "Automatically suggested image (low confidence)",
+          "placement": "inline",
+          "low_confidence": true
+        },
+        {
+          "image_id": "a3231b4ff3eb5dda",
+          "filename": "artwork_blue.jpg",
+          "score": 0.0289,
+          "alt": "Decorative image related to Digital Art and Technology",
+          "caption": "Automatically suggested image (low confidence)",
+          "placement": "gallery",
+          "low_confidence": true
+        }
+      ],
+      "cta_suggested": [
+        {
+          "text": "Request a custom casting",
+          "url": "/en/contact/"
+        }
+      ],
+      "keywords": [
+        "art",
+        "gallery",
+        "sculpture",
+        "contemporary",
+        "red artwork",
+        "blue artwork",
+        "digital art"
+      ],
+      "seo": {
+        "title": "Digital Art and Technology",
+        "description": "Explore the intersection of digital art and modern technology. Our collection features innovative digital artworks that push the boundaries of creative...",
+        "keywords": [
+          "foundry",
+          "bronze",
+          "art",
+          "sculpture",
+          "custom casting",
+          "gallery",
+          "contemporary art",
+          "digital art",
+          "exhibition"
+        ]
+      },
+      "notes": "Generado automáticamente en F9 a partir de correlaciones F8"
+    }
+  ],
+  "generated_at": "2025-10-30T18:16:15.459961+00:00",
+  "phase": "F9"
+}

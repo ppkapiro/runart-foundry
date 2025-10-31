@@ -1,0 +1,66 @@
+version: '3.8'
+
+services:
+  db:
+    image: mysql:8.0
+    container_name: runart_mysql
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: rootpass
+      MYSQL_DATABASE: runart_wp
+      MYSQL_USER: runart_user
+      MYSQL_PASSWORD: runart_pass
+    volumes:
+      - db_data:/var/lib/mysql
+    networks:
+      - runart_network
+
+  wordpress:
+    image: wordpress:latest
+    container_name: runart_wordpress
+    restart: always
+    ports:
+      - "8080:80"
+    environment:
+      WORDPRESS_DB_HOST: db:3306
+      WORDPRESS_DB_USER: runart_user
+      WORDPRESS_DB_PASSWORD: runart_pass
+      WORDPRESS_DB_NAME: runart_wp
+      WORDPRESS_DEBUG: 1
+    volumes:
+      # Montar wp-content desde el repositorio
+      - ./wp-content:/var/www/html/wp-content
+      # Volumen persistente para WordPress core
+      - wordpress_data:/var/www/html
+    depends_on:
+      - db
+    networks:
+      - runart_network
+
+  wpcli:
+    image: wordpress:cli
+    container_name: runart_wpcli
+    user: "33:33"  # www-data
+    environment:
+      WORDPRESS_DB_HOST: db:3306
+      WORDPRESS_DB_USER: runart_user
+      WORDPRESS_DB_PASSWORD: runart_pass
+      WORDPRESS_DB_NAME: runart_wp
+    volumes:
+      # Mismo volumen que WordPress
+      - wordpress_data:/var/www/html
+      - ./wp-content:/var/www/html/wp-content
+    depends_on:
+      - wordpress
+      - db
+    networks:
+      - runart_network
+    command: tail -f /dev/null  # Mantener contenedor vivo
+
+volumes:
+  db_data:
+  wordpress_data:
+
+networks:
+  runart_network:
+    driver: bridge

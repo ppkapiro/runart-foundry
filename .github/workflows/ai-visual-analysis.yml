@@ -1,0 +1,213 @@
+name: IA-Visual Analysis
+
+on:
+  workflow_dispatch:
+    inputs:
+      mode:
+        description: 'Modo de ejecución'
+        required: true
+        default: 'list'
+        type: choice
+        options:
+          - list
+          - generate-visual
+          - generate-text
+          - correlate-all
+      image_dir:
+        description: 'Directorio de imágenes (para generate-visual)'
+        required: false
+        default: 'content/media'
+      wp_json_url:
+        description: 'URL WordPress REST API (para generate-text)'
+        required: false
+        default: 'https://runartfoundry.com/wp-json/runart/audit/pages'
+      threshold:
+        description: 'Umbral de similitud (para correlate-all)'
+        required: false
+        default: '0.70'
+      top_k:
+        description: 'Top K recomendaciones (para correlate-all)'
+        required: false
+        default: '5'
+
+jobs:
+  ia-visual-analysis:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: 📥 Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+      
+      - name: 🐍 Setup Python 3.11
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          cache: 'pip'
+      
+      - name: 📦 Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          # Instalar dependencias base
+          pip install sentence-transformers==2.7.0
+          pip install torch==2.3.1 --index-url https://download.pytorch.org/whl/cpu
+          pip install pillow==10.3.0
+          pip install scikit-learn==1.4.2
+          pip install requests
+      
+      - name: 📋 List embeddings (mode: list)
+        if: ${{ inputs.mode == 'list' }}
+        run: |
+          echo "=== Embeddings Visuales ==="
+          if [ -d "data/embeddings/visual/clip_512d/embeddings" ]; then
+            ls -lh data/embeddings/visual/clip_512d/embeddings/ | wc -l
+            echo "archivos encontrados"
+          else
+            echo "⚠️ Directorio no existe"
+          fi
+          
+          echo ""
+          echo "=== Embeddings Textuales ==="
+          if [ -d "data/embeddings/text/multilingual_mpnet/embeddings" ]; then
+            ls -lh data/embeddings/text/multilingual_mpnet/embeddings/ | wc -l
+            echo "archivos encontrados"
+          else
+            echo "⚠️ Directorio no existe"
+          fi
+          
+          echo ""
+          echo "=== Correlaciones ==="
+          if [ -f "data/embeddings/correlations/similarity_matrix.json" ]; then
+            echo "✅ similarity_matrix.json existe"
+          else
+            echo "⚠️ similarity_matrix.json no existe"
+          fi
+          
+          if [ -f "data/embeddings/correlations/recommendations_cache.json" ]; then
+            echo "✅ recommendations_cache.json existe"
+          else
+            echo "⚠️ recommendations_cache.json no existe"
+          fi
+      
+      - name: 🖼️ Generate visual embeddings (mode: generate-visual)
+        if: ${{ inputs.mode == 'generate-visual' }}
+        run: |
+          echo "🚀 Generando embeddings visuales desde: ${{ inputs.image_dir }}"
+          if [ -d "${{ inputs.image_dir }}" ]; then
+            python apps/runmedia/runmedia/vision_analyzer.py \
+              --image-dir "${{ inputs.image_dir }}"
+          else
+            echo "⚠️ Directorio ${{ inputs.image_dir }} no existe"
+            echo "ℹ️ Ejecutando en modo stub (sin imágenes reales)"
+            python apps/runmedia/runmedia/vision_analyzer.py --help
+          fi
+      
+      - name: 📝 Generate text embeddings (mode: generate-text)
+        if: ${{ inputs.mode == 'generate-text' }}
+        run: |
+          echo "🚀 Generando embeddings textuales desde: ${{ inputs.wp_json_url }}"
+          python apps/runmedia/runmedia/text_encoder.py \
+            --wp-json-url "${{ inputs.wp_json_url }}" || true
+      
+      - name: 🧮 Calculate correlations (mode: correlate-all)
+        if: ${{ inputs.mode == 'correlate-all' }}
+        run: |
+          echo "🚀 Calculando correlaciones (threshold=${{ inputs.threshold }}, top_k=${{ inputs.top_k }})"
+          python apps/runmedia/runmedia/correlator.py \
+            --threshold ${{ inputs.threshold }} \
+            --top-k ${{ inputs.top_k }}
+      
+      - name: 📊 Generate summary report
+        run: |
+          echo "=== 📋 REPORTE DE ANÁLISIS IA-VISUAL ==="
+          echo ""
+          echo "Modo de ejecución: ${{ inputs.mode }}"
+          echo "Fecha/Hora: $(date -u +"%Y-%m-%dT%H:%M:%SZ")"
+          echo ""
+          
+          # Contar embeddings
+          VISUAL_COUNT=0
+          TEXT_COUNT=0
+          
+          if [ -d "data/embeddings/visual/clip_512d/embeddings" ]; then
+            VISUAL_COUNT=$(find data/embeddings/visual/clip_512d/embeddings -name "*.json" 2>/dev/null | wc -l)
+          fi
+          
+          if [ -d "data/embeddings/text/multilingual_mpnet/embeddings" ]; then
+            TEXT_COUNT=$(find data/embeddings/text/multilingual_mpnet/embeddings -name "*.json" 2>/dev/null | wc -l)
+          fi
+          
+          echo "Embeddings visuales: $VISUAL_COUNT"
+          echo "Embeddings textuales: $TEXT_COUNT"
+          echo ""
+          
+          # Estado de correlaciones
+          if [ -f "data/embeddings/correlations/recommendations_cache.json" ]; then
+            echo "✅ Cache de recomendaciones disponible"
+            PAGES_WITH_RECS=$(python -c "import json; d=json.load(open('data/embeddings/correlations/recommendations_cache.json')); print(sum(1 for v in d['cache'].values() if v))" 2>/dev/null || echo "N/A")
+            echo "   Páginas con recomendaciones: $PAGES_WITH_RECS"
+          else
+            echo "⚠️ Cache de recomendaciones no disponible"
+            echo "   Ejecutar: python apps/runmedia/runmedia/correlator.py"
+          fi
+          
+          echo ""
+          echo "=== FIN DEL REPORTE ==="
+      
+      - name: 💾 Upload embeddings as artifacts (if generated)
+        if: ${{ inputs.mode != 'list' }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: embeddings-${{ inputs.mode }}-${{ github.run_number }}
+          path: |
+            data/embeddings/
+          retention-days: 7
+      
+      - name: ✅ Summary
+        run: |
+          echo "### IA-Visual Analysis Complete 🚀" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**Mode:** ${{ inputs.mode }}" >> $GITHUB_STEP_SUMMARY
+          echo "**Timestamp:** $(date -u +"%Y-%m-%dT%H:%M:%SZ")" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**Phase:** F7 — Arquitectura IA-Visual" >> $GITHUB_STEP_SUMMARY
+  
+  ai-visual-validate-schemas:
+    name: 🛡️ Validate AI-Visual Schemas (F10)
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: 📥 Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+      
+      - name: 🐍 Setup Python 3.11
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      
+      - name: 🔍 Validate schemas
+        run: |
+          echo "🛡️ F10 - Validando esquemas de artefactos IA-Visual..."
+          python apps/runmedia/runmedia/schema_validator.py --validate-all
+      
+      - name: ✅ Validation Summary
+        if: success()
+        run: |
+          echo "### 🛡️ Schema Validation Passed ✅" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**Phase:** F10 — Orquestación y Endurecimiento" >> $GITHUB_STEP_SUMMARY
+          echo "**Status:** All schemas valid" >> $GITHUB_STEP_SUMMARY
+          echo "**Timestamp:** $(date -u +"%Y-%m-%dT%H:%M:%SZ")" >> $GITHUB_STEP_SUMMARY
+      
+      - name: ❌ Validation Failed
+        if: failure()
+        run: |
+          echo "### ❌ Schema Validation Failed" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**Phase:** F10 — Orquestación y Endurecimiento" >> $GITHUB_STEP_SUMMARY
+          echo "**Status:** Invalid schemas detected" >> $GITHUB_STEP_SUMMARY
+          echo "**Action:** Fix JSON structure issues before merging" >> $GITHUB_STEP_SUMMARY
+          exit 1

@@ -40,6 +40,7 @@ Ver documentación y meta en docs/_meta/plan_pr02_root_alignment.md
 | `tools/*` | 🟡 | Guardias Docs Lint/Env Report validadas en local; migración de scripts y smoke Access programados para Fase 6. |
 
 ## Últimos hitos
+- 2025-10-31 — Fase 3.E (verificación REST datasets): estado UNKNOWN (pendiente por auth). Staging respondió 404 rest_no_route a `/wp-json/runart/v1/ping-staging` y `/wp-json/runart/v1/data-scan`. Se documenta en `_reports/informe_verificacion_rest_staging_error.md` y se reintentará con credenciales.
 - 2025-10-20 — Release automático registrado en CHANGELOG (ops).
 - 2025-10-15 — Release automático registrado en CHANGELOG (ops).
 - 2025-10-13 — Release automático registrado en CHANGELOG (ops).

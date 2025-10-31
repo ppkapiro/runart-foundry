@@ -1,0 +1,34 @@
+{
+  "version": "1.0",
+  "model": "clip-vit-base-patch32",
+  "dimensions": 512,
+  "generated_at": "2025-10-30T17:17:22Z",
+  "total_embeddings": 4,
+  "items": [
+    {
+      "id": "b4152b9483f89d5f",
+      "filename": "artwork_red.jpg",
+      "checksum": "b4152b9483f89d5fb8bcf3256cdd384c32db5b5e5d11ded846960557a9b11298",
+      "generated_at": "2025-10-30T18:03:04.543307+00:00"
+    },
+    {
+      "id": "97d07bd5a561c9c5",
+      "filename": "runartfoundry-home.jpg",
+      "checksum": "97d07bd5a561c9c5b4b7ff2fd2d1d388a32b12ba2ff9d47fd76a92d35dc3df64",
+      "generated_at": "2025-10-30T18:03:04.624955+00:00"
+    },
+    {
+      "id": "5aa5b143638dd501",
+      "filename": "artwork_green.jpg",
+      "checksum": "5aa5b143638dd501812937e6142b1ceee40c22132672d66b5e9dfe70d16d67b7",
+      "generated_at": "2025-10-30T18:03:04.631567+00:00"
+    },
+    {
+      "id": "a3231b4ff3eb5dda",
+      "filename": "artwork_blue.jpg",
+      "checksum": "a3231b4ff3eb5dda233f8990854e86bd32284b84237bad97e829bfdb8a603326",
+      "generated_at": "2025-10-30T18:03:04.634728+00:00"
+    }
+  ],
+  "last_updated": "2025-10-30T18:03:04.635884+00:00"
+}

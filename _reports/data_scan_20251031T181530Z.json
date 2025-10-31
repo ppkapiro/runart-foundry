@@ -1,0 +1,59 @@
+{
+  "ok": true,
+  "scan": [
+    {
+      "label": "wp-content",
+      "path": "/homepages/7/d958591985/htdocs/staging/wp-content/runart-data/assistants/rewrite/index.json",
+      "exists": false,
+      "size_bytes": null,
+      "json_ok": false,
+      "item_count": null,
+      "error": null
+    },
+    {
+      "label": "uploads-runart-data",
+      "path": "/homepages/7/d958591985/htdocs/staging/wp-content/uploads/runart-data/assistants/rewrite/index.json",
+      "exists": false,
+      "size_bytes": null,
+      "json_ok": false,
+      "item_count": null,
+      "error": null
+    },
+    {
+      "label": "plugin",
+      "path": "/homepages/7/d958591985/htdocs/staging/wp-content/plugins/runart-ia-visual-unified/data/assistants/rewrite/index.json",
+      "exists": true,
+      "size_bytes": 739,
+      "json_ok": true,
+      "item_count": 3,
+      "error": null
+    },
+    {
+      "label": "uploads-enriched",
+      "path": "/homepages/7/d958591985/htdocs/staging/wp-content/uploads/runart-jobs/enriched/index.json",
+      "exists": false,
+      "size_bytes": null,
+      "json_ok": false,
+      "item_count": null,
+      "error": null
+    },
+    {
+      "label": "content-enriched",
+      "path": "/homepages/7/d958591985/htdocs/staging/content/enriched/index.json",
+      "exists": false,
+      "size_bytes": null,
+      "json_ok": false,
+      "item_count": null,
+      "error": null
+    }
+  ],
+  "summary": {
+    "dataset_real_status": "NOT_FOUND_IN_STAGING",
+    "small_sources_found": 1,
+    "small_total_items": 3,
+    "uploads_enriched_found": false,
+    "uploads_enriched_items": null,
+    "auth_note": "Si el entorno requiere autenticación, usar X-WP-Nonce (usuarios WP) o Authorization: Bearer <token>.",
+    "timestamp": "2025-10-31T18:15:31+00:00"
+  }
+}

@@ -1,0 +1,31 @@
+{
+  "version": "1.0",
+  "model": "paraphrase-multilingual-mpnet-base-v2",
+  "dimensions": 768,
+  "generated_at": "2025-10-30T17:17:22Z",
+  "total_embeddings": 3,
+  "items": [
+    {
+      "id": "page_42",
+      "title": "RunArt Foundation - Contemporary Art Gallery",
+      "language": "en",
+      "page_id": "42",
+      "generated_at": "2025-10-30T18:06:17.324642+00:00"
+    },
+    {
+      "id": "page_43",
+      "title": "Exposición de Arte Contemporáneo",
+      "language": "es",
+      "page_id": "43",
+      "generated_at": "2025-10-30T18:06:17.478912+00:00"
+    },
+    {
+      "id": "page_44",
+      "title": "Digital Art and Technology",
+      "language": "en",
+      "page_id": "44",
+      "generated_at": "2025-10-30T18:06:17.639869+00:00"
+    }
+  ],
+  "last_updated": "2025-10-30T18:06:17.641097+00:00"
+}

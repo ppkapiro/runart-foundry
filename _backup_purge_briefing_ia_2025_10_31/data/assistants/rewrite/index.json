@@ -1,0 +1,28 @@
+{
+  "version": "1.0",
+  "generated_at": "2025-10-30T18:32:38.646387+00:00",
+  "total_pages": 3,
+  "threshold_used": 0.0,
+  "pages": [
+    {
+      "page_id": "page_43",
+      "lang": "es",
+      "title": "Exposición de Arte Contemporáneo",
+      "visual_references_count": 1
+    },
+    {
+      "page_id": "page_42",
+      "lang": "en",
+      "title": "RunArt Foundation - Contemporary Art Gallery",
+      "visual_references_count": 2
+    },
+    {
+      "page_id": "page_44",
+      "lang": "en",
+      "title": "Digital Art and Technology",
+      "visual_references_count": 2
+    }
+  ],
+  "output_directory": "data/assistants/rewrite/",
+  "notes": "F9 - Reescritura Asistida y Enriquecimiento basado en correlaciones F8 (dataset mixto)"
+}

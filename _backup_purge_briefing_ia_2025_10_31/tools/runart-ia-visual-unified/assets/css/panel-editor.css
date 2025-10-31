@@ -1,0 +1,31 @@
+/**
+ * Archivo: panel-editor.css
+ * Descripción: Estilos para el Panel IA-Visual (Monitor/Editor)
+ * Fuente: Informe de Consolidación, sección 5.1
+ * 
+ * Nota: Este archivo es placeholder inicial.
+ * Se agregará CSS cuando se migre el HTML del shortcode desde el plugin maestro.
+ */
+
+/* Reset y contenedor principal */
+#runart-ai-visual-panel {
+    max-width: 1200px;
+    margin: 20px auto;
+    padding: 20px;
+    background: #fff;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+}
+
+#runart-ai-visual-panel h2 {
+    margin-top: 0;
+    color: #23282d;
+}
+
+/* Placeholder: estilos para lista de contenido */
+#runart-panel-content {
+    margin-top: 20px;
+}
+
+/* TODO: Migrar estilos completos del panel desde plugin maestro */
