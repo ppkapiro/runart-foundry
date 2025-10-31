@@ -2,7 +2,7 @@
 /**
  * Plugin Name:       RunArt WP-CLI Bridge (REST)
  * Description:       Endpoints REST seguros para tareas comunes de WP-CLI (flush cache, flush rewrite, listar usuarios y plugins, health).
- * Version:           1.1.0
+ * Version:           1.1.5
  * Author:            RunArt Foundry
  * Requires at least: 5.8
  * Requires PHP:      7.4
@@ -356,6 +356,32 @@ add_action('rest_api_init', function () {
                 'type' => 'string',
                 'enum' => ['approved', 'rejected', 'needs_review'],
                 'description' => 'Estado de aprobación',
+            ],
+        ],
+    ]);
+    
+    // F10-h: Listado híbrido WP+IA
+    register_rest_route('runart', '/content/enriched-hybrid', [
+        'methods'  => 'GET',
+        'callback' => 'runart_content_enriched_hybrid',
+        'permission_callback' => function () { return is_user_logged_in(); },
+    ]);
+    
+    // F10-h: Solicitar generación de contenido IA para una página
+    register_rest_route('runart', '/content/enriched-request', [
+        'methods'  => 'POST',
+        'callback' => 'runart_content_enriched_request',
+        'permission_callback' => function () { return is_user_logged_in(); },
+        'args' => [
+            'wp_id' => [
+                'required' => true,
+                'type' => 'integer',
+                'description' => 'ID de la página de WordPress',
+            ],
+            'lang' => [
+                'required' => false,
+                'type' => 'string',
+                'description' => 'Idioma (es/en)',
             ],
         ],
     ]);
@@ -1568,6 +1594,339 @@ function runart_content_enriched_approve(WP_REST_Request $request) {
 }
 
 /**
+ * F10-i — Endpoint rápido para obtener páginas de WordPress con paginación.
+ * No fusiona nada; sólo devuelve id/título para que el front haga el merge.
+ * - GET /wp-json/runart/content/wp-pages?per_page=25&page=1
+ */
+function runart_content_wp_pages(WP_REST_Request $request) {
+    $page = intval($request->get_param('page')) ?: 1;
+    if ($page < 1) $page = 1;
+    $per_page = intval($request->get_param('per_page')) ?: 25;
+    if ($per_page < 1) $per_page = 1;
+    if ($per_page > 50) $per_page = 50;
+
+    $query = [
+        'per_page' => $per_page,
+        'page' => $page,
+        '_fields' => 'id,title'
+    ];
+
+    $req = new WP_REST_Request('GET', '/wp/v2/pages');
+    $req->set_query_params($query);
+
+    $start = microtime(true);
+    $resp = rest_do_request($req);
+    $duration_ms = intval(round((microtime(true) - $start) * 1000));
+    $status = $resp ? $resp->get_status() : 500;
+
+    // Logging diagnóstico
+    $log_msg = sprintf(
+        "%s\t%s\tpage=%d&per_page=%d\tstatus=%d\tduration_ms=%d",
+        gmdate('c'),
+        '/wp/v2/pages',
+        $page,
+        $per_page,
+        $status,
+        $duration_ms
+    );
+    $log_info = runart_bridge_prepare_storage('runart-jobs/wp_pages_fetch.log');
+    if (!empty($log_info['path'])) {
+        @file_put_contents($log_info['path'], $log_msg . "\n", FILE_APPEND);
+    }
+
+    if (!$resp || $status >= 400) {
+        return new WP_REST_Response([
+            'ok' => false,
+            'message' => 'Error fetching WP pages',
+            'status' => $status,
+            'duration_ms' => $duration_ms,
+        ], $status ?: 500);
+    }
+
+    $data = $resp->get_data();
+    $headers = $resp->get_headers();
+    $total = isset($headers['X-WP-Total']) ? intval($headers['X-WP-Total']) : null;
+    $total_pages = isset($headers['X-WP-TotalPages']) ? intval($headers['X-WP-TotalPages']) : null;
+
+    $items = [];
+    if (is_array($data)) {
+        foreach ($data as $p) {
+            if (!is_array($p) || !isset($p['id'])) continue;
+            $pid = intval($p['id']);
+            $title = '';
+            if (isset($p['title'])) {
+                if (is_array($p['title']) && isset($p['title']['rendered'])) {
+                    $title = wp_strip_all_tags($p['title']['rendered']);
+                } elseif (is_string($p['title'])) {
+                    $title = $p['title'];
+                }
+            }
+            $items[] = [
+                'id' => 'page_' . $pid,
+                'wp_id' => $pid,
+                'title' => $title ?: ('Página ' . $pid),
+                'lang' => 'es',
+            ];
+        }
+    }
+
+    $has_more = $total_pages ? ($page < $total_pages) : false;
+    $next = $has_more ? (rest_url('runart/content/wp-pages') . '?page=' . ($page + 1) . '&per_page=' . $per_page) : null;
+
+    return new WP_REST_Response([
+        'ok' => true,
+        'items' => $items,
+        'page' => $page,
+        'per_page' => $per_page,
+        'total' => $total,
+        'total_pages' => $total_pages,
+        'has_more' => $has_more,
+        'next' => $next,
+        'duration_ms' => $duration_ms,
+    ], 200);
+}
+
+/**
+ * F10-h - Listado híbrido WP+IA.
+ * 
+ * Lista todas las páginas de WordPress y las cruza con contenidos IA generados.
+ * 
+ * GET /wp-json/runart/content/enriched-hybrid
+ * 
+ * @param WP_REST_Request $request
+ * @return WP_REST_Response
+ */
+function runart_content_enriched_hybrid(WP_REST_Request $request) {
+    $result = [];
+    $wp_sync = false;
+    
+    // 1. Intentar obtener páginas de WordPress via REST interno
+    $wp_pages = [];
+    $wp_request = new WP_REST_Request('GET', '/wp/v2/pages');
+    $wp_request->set_param('per_page', 100);
+    $wp_request->set_param('status', 'publish');
+    $wp_response = rest_do_request($wp_request);
+    
+    if ($wp_response->is_error()) {
+        // Si falla, continuar solo con datos IA
+        $wp_sync = false;
+    } else {
+        $wp_pages = $wp_response->get_data();
+        $wp_sync = true;
+    }
+    
+    // 2. Leer índice de contenidos IA
+    $ia_pages = [];
+    $index_info = runart_bridge_locate('assistants/rewrite/index.json');
+    if ($index_info['found']) {
+        $index_content = file_get_contents($index_info['path']);
+        if ($index_content !== false) {
+            $index_data = json_decode($index_content, true);
+            if (json_last_error() === JSON_ERROR_NONE && isset($index_data['pages'])) {
+                foreach ($index_data['pages'] as $page) {
+                    $page_id = isset($page['page_id']) ? $page['page_id'] : '';
+                    if (!empty($page_id)) {
+                        $ia_pages[$page_id] = $page;
+                    }
+                }
+            }
+        }
+    }
+    
+    // 3. Leer aprobaciones si existen
+    $approvals = [];
+    $approvals_info = runart_bridge_locate('assistants/rewrite/approvals.json');
+    if ($approvals_info['found']) {
+        $approvals_content = file_get_contents($approvals_info['path']);
+        if ($approvals_content !== false) {
+            $approvals_data = json_decode($approvals_content, true);
+            if (json_last_error() === JSON_ERROR_NONE) {
+                $approvals = $approvals_data;
+            }
+        }
+    }
+    
+    // 4. Cruzar páginas WP con contenidos IA
+    $wp_ids_processed = [];
+    if ($wp_sync && !empty($wp_pages)) {
+        foreach ($wp_pages as $wp_page) {
+            $wp_id = $wp_page['id'];
+            $wp_ids_processed[] = $wp_id;
+            $ia_id = 'page_' . $wp_id;
+            
+            // Verificar si existe JSON de IA para este ID
+            $ia_exists = isset($ia_pages[$ia_id]);
+            $ia_file = runart_bridge_locate('assistants/rewrite/' . $ia_id . '.json');
+            
+            $status = 'pending';
+            if ($ia_exists || $ia_file['found']) {
+                $status = 'generated';
+                // Verificar si tiene aprobación
+                if (isset($approvals[$ia_id])) {
+                    $status = $approvals[$ia_id]['status'];
+                }
+            }
+            
+            $item = [
+                'wp_id' => $wp_id,
+                'ia_id' => $ia_exists ? $ia_id : null,
+                'title' => isset($wp_page['title']['rendered']) ? $wp_page['title']['rendered'] : 'Sin título',
+                'slug' => isset($wp_page['slug']) ? $wp_page['slug'] : '',
+                'lang' => isset($wp_page['lang']) ? $wp_page['lang'] : (isset($ia_pages[$ia_id]['lang']) ? $ia_pages[$ia_id]['lang'] : 'unknown'),
+                'status' => $status,
+                'source' => $ia_exists || $ia_file['found'] ? 'hybrid' : 'wp',
+            ];
+            
+            if ($ia_exists || $ia_file['found']) {
+                $item['ia_data'] = $ia_pages[$ia_id] ?? ['page_id' => $ia_id];
+            }
+            
+            $result[] = $item;
+        }
+    }
+    
+    // 5. Añadir páginas IA que no están en WP (puede pasar si se borró página de WP)
+    foreach ($ia_pages as $ia_id => $ia_page) {
+        // Extraer wp_id del ia_id (page_42 → 42)
+        if (preg_match('/page_(\d+)/', $ia_id, $matches)) {
+            $wp_id = (int)$matches[1];
+            if (in_array($wp_id, $wp_ids_processed)) {
+                continue; // Ya procesada
+            }
+        } else {
+            $wp_id = null;
+        }
+        
+        $status = isset($approvals[$ia_id]) ? $approvals[$ia_id]['status'] : 'generated';
+        
+        $result[] = [
+            'wp_id' => $wp_id,
+            'ia_id' => $ia_id,
+            'title' => isset($ia_page['title']) ? $ia_page['title'] : $ia_id,
+            'slug' => '',
+            'lang' => isset($ia_page['lang']) ? $ia_page['lang'] : 'unknown',
+            'status' => $status,
+            'source' => 'ia',
+            'ia_data' => $ia_page,
+        ];
+    }
+    
+    // 6. Estadísticas
+    $total_pages = count($result);
+    $generated = count(array_filter($result, function($item) {
+        return in_array($item['status'], ['generated', 'approved', 'rejected', 'needs_review']);
+    }));
+    $pending = count(array_filter($result, function($item) {
+        return $item['status'] === 'pending';
+    }));
+    
+    return new WP_REST_Response([
+        'ok' => true,
+        'items' => $result,
+        'stats' => [
+            'total' => $total_pages,
+            'generated' => $generated,
+            'pending' => $pending,
+            'wp_sync' => $wp_sync,
+        ],
+        'meta' => [
+            'timestamp' => gmdate('c'),
+            'phase' => 'F10-h',
+            'source' => 'hybrid',
+            'wp_sync' => $wp_sync,
+            'ia_index_source' => $index_info['found'] ? $index_info['source'] : 'not-found',
+        ],
+    ], 200);
+}
+
+/**
+ * F10-h - Solicitar generación de contenido IA para una página.
+ * 
+ * Registra solicitud de generación en uploads/runart-jobs/
+ * 
+ * POST /wp-json/runart/content/enriched-request
+ * Body: { "wp_id": 57, "lang": "es" }
+ * 
+ * @param WP_REST_Request $request
+ * @return WP_REST_Response
+ */
+function runart_content_enriched_request(WP_REST_Request $request) {
+    $wp_id = $request->get_param('wp_id');
+    $lang = $request->get_param('lang') ?: 'es';
+    
+    if (empty($wp_id)) {
+        return runart_wpcli_bridge_error(
+            'wp_id parameter is required',
+            'missing_wp_id',
+            400
+        );
+    }
+    
+    $current_user = wp_get_current_user();
+    $user_login = $current_user && $current_user->user_login ? $current_user->user_login : 'unknown';
+    
+    // Registrar en uploads/runart-jobs/
+    $uploads = wp_upload_dir();
+    $base_uploads = isset($uploads['basedir']) ? $uploads['basedir'] : (ABSPATH . 'wp-content/uploads');
+    $jobs_dir = trailingslashit($base_uploads) . 'runart-jobs/';
+    $requests_file = $jobs_dir . 'enriched-requests.json';
+    
+    if (!is_dir($jobs_dir)) {
+        @mkdir($jobs_dir, 0755, true);
+    }
+    
+    // Leer requests existentes
+    $requests = [];
+    if (file_exists($requests_file)) {
+        $requests_content = file_get_contents($requests_file);
+        if ($requests_content !== false) {
+            $requests_data = json_decode($requests_content, true);
+            if (json_last_error() === JSON_ERROR_NONE) {
+                $requests = $requests_data;
+            }
+        }
+    }
+    
+    // Añadir nueva solicitud
+    $request_id = 'wp_' . $wp_id . '_' . time();
+    $requests[$request_id] = [
+        'wp_id' => $wp_id,
+        'lang' => $lang,
+        'requested_at' => gmdate('c'),
+        'requested_by' => $user_login,
+        'status' => 'queued',
+    ];
+    
+    // Guardar
+    $ok = @file_put_contents(
+        $requests_file,
+        json_encode($requests, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE)
+    );
+    
+    if ($ok !== false) {
+        return new WP_REST_Response([
+            'ok' => true,
+            'status' => 'queued',
+            'request_id' => $request_id,
+            'wp_id' => $wp_id,
+            'lang' => $lang,
+            'message' => 'Solicitud de generación registrada. Se procesará en el próximo ciclo de IA.',
+            'meta' => [
+                'timestamp' => gmdate('c'),
+                'phase' => 'F10-h',
+                'storage' => 'uploads/runart-jobs',
+            ],
+        ], 200);
+    }
+    
+    return runart_wpcli_bridge_error(
+        'No se pudo registrar la solicitud (permisos de escritura)',
+        'write_error',
+        500
+    );
+}
+
+/**
  * Modo editor del monitor: Panel editorial IA-Visual.
  * 
  * Renderiza interfaz de listado y aprobación de contenidos enriquecidos.
@@ -1620,58 +1979,157 @@ function runart_ai_visual_monitor_editor_mode($rest_url, $rest_nonce) {
         
         let currentItems = [];
         
-        // Cargar listado
+        // Estado/banners
+        let statusHtml = '';
+        let currentStats = { total: 0, generated: 0, pending: 0 };
+
+        function setStatus(message, tone) {
+            const colors = {
+                info: { bg: '#eef2ff', fg: '#3730a3' },
+                warn: { bg: '#fff7ed', fg: '#9a3412' },
+                ok:   { bg: '#ecfdf5', fg: '#065f46' }
+            };
+            const c = colors[tone || 'info'];
+            statusHtml = `<div style="margin-bottom:8px;padding:8px 10px;background:${c.bg};color:${c.fg};border-radius:4px;font-size:12px;">${message}</div>`;
+        }
+
+        // fetch con timeout (solo para WP)
+        function fetchWithTimeout(url, options, timeoutMs) {
+            const ctrl = new AbortController();
+            const id = setTimeout(() => ctrl.abort(), timeoutMs);
+            const opts = Object.assign({}, options || {}, { signal: ctrl.signal });
+            return fetch(url, opts).finally(() => clearTimeout(id));
+        }
+
+        // Fusionar resultados de WP en la lista actual (sin borrar los IA ya pintados)
+        function mergeWpPages(wpItems) {
+            const map = new Map();
+            currentItems.forEach(it => map.set(it.id || it.ia_id, it));
+
+            wpItems.forEach(p => {
+                const idStr = p.id || ('page_' + (p.wp_id || ''));
+                if (!idStr) return;
+                if (map.has(idStr)) {
+                    const ref = map.get(idStr);
+                    if (!ref.wp_id && p.wp_id) ref.wp_id = p.wp_id;
+                    if (!ref.lang && p.lang) ref.lang = p.lang;
+                    // Mantener status existente (generated/approved). No tocar si ya existe.
+                } else {
+                    map.set(idStr, {
+                        id: idStr,
+                        wp_id: p.wp_id,
+                        title: p.title || idStr,
+                        lang: p.lang || 'es',
+                        status: 'pending'
+                    });
+                }
+            });
+
+            currentItems = Array.from(map.values());
+            const generated = currentItems.filter(i => i.status && i.status !== 'pending').length;
+            currentStats = {
+                total: currentItems.length,
+                generated: generated,
+                pending: Math.max(0, currentItems.length - generated)
+            };
+            renderList(currentItems, currentStats);
+        }
+
+        // Cargar listado (IA primero, WP en paralelo con timeout)
         function loadList() {
-            listContainer.innerHTML = '<div style="text-align:center;padding:20px;color:#999;">Cargando...</div>';
-            
+            setStatus('Cargando contenidos IA…', 'info');
+            listContainer.innerHTML = '<div style="text-align:center;padding:16px;color:#666;">Cargando contenidos IA…</div>';
+
+            // Lanzar fetch de WP en paralelo (con timeout 5s)
+            const wpPromise = fetchWithTimeout(base + 'runart/content/wp-pages?per_page=25&page=1', {
+                credentials: 'include',
+                headers: authHeaders
+            }, 5000)
+            .then(r => r.json())
+            .then(wpData => {
+                if (wpData && wpData.ok && Array.isArray(wpData.items)) {
+                    mergeWpPages(wpData.items);
+                    setStatus('Páginas WP cargadas.', 'ok');
+                } else {
+                    setStatus('WP no respondió correctamente, mostrando solo IA.', 'warn');
+                }
+            })
+            .catch(err => {
+                console.warn('WP pages fetch failed/timeout:', err);
+                setStatus('WP lento o sin respuesta. Modo IA solamente.', 'warn');
+            });
+
+            // Cargar IA (rápido - local)
             fetch(base + 'runart/content/enriched-list', {
                 credentials: 'include',
                 headers: authHeaders
             })
             .then(r => r.json())
             .then(data => {
-                if (!data.ok || !data.items || data.items.length === 0) {
-                    listContainer.innerHTML = '<div style="padding:20px;color:#999;">No hay contenidos enriquecidos.</div>';
-                    return;
-                }
-                
-                currentItems = data.items;
-                renderList(data.items);
+                if (!data.ok) throw new Error('IA list not ok');
+                const items = Array.isArray(data.items) ? data.items : [];
+                currentItems = items.map(i => Object.assign({}, i, { status: i.status || 'generated' }));
+                currentStats = { total: currentItems.length, generated: currentItems.length, pending: 0 };
+                setStatus(`Mostrando contenidos IA (${currentItems.length}). Cargando páginas WP…`, 'info');
+                renderList(currentItems, currentStats);
             })
             .catch(err => {
-                listContainer.innerHTML = '<div style="padding:20px;color:#c00;">Error al cargar listado</div>';
-                console.error('Error loading enriched list:', err);
+                console.error('Error loading IA enriched-list:', err);
+                setStatus('No hay contenidos IA. Cargando páginas WP…', 'warn');
+                // Seguir esperando WP para al menos mostrar pendientes
             });
         }
         
         // Renderizar listado
-        function renderList(items) {
+        function renderList(items, stats) {
             const statusColors = {
-                'generated': '#999',
+                'pending': '#999',
+                'generated': '#3b82f6',
                 'approved': '#059669',
                 'rejected': '#dc2626',
                 'needs_review': '#f59e0b'
             };
             
             const statusLabels = {
+                'pending': 'Pendiente',
                 'generated': 'Generado',
                 'approved': 'Aprobado',
                 'rejected': 'Rechazado',
                 'needs_review': 'Revisar'
             };
             
-            let html = '<div style="display:flex;flex-direction:column;gap:8px;">';
+            let html = '';
+            // Banner de estado si existe
+            if (statusHtml) {
+                html += statusHtml;
+            }
+            
+            // Estadísticas (si existen)
+            if (stats) {
+                html += `
+                    <div style="margin-bottom:12px;padding:10px;background:#f0f9ff;border-radius:4px;font-size:12px;">
+                        <div><strong>Total páginas:</strong> ${stats.total}</div>
+                        <div><strong>Contenidos generados:</strong> ${stats.generated}</div>
+                        <div><strong>Pendientes de IA:</strong> ${stats.pending}</div>
+                    </div>
+                `;
+            }
+            
+            html += '<div style="display:flex;flex-direction:column;gap:8px;">';
             items.forEach(item => {
                 const statusColor = statusColors[item.status] || '#999';
                 const statusLabel = statusLabels[item.status] || item.status;
+                const itemId = item.ia_id || item.id || ('wp_' + item.wp_id);
+                const isPending = item.status === 'pending';
                 
                 html += `
-                    <div class="rep-item" data-id="${item.id}" style="padding:10px;border:1px solid #e5e7eb;border-radius:4px;background:#fff;cursor:pointer;transition:all 0.2s;" 
+                    <div class="rep-item" data-id="${itemId}" data-wp-id="${item.wp_id || ''}" data-status="${item.status}" 
+                         style="padding:10px;border:1px solid #e5e7eb;border-radius:4px;background:#fff;cursor:pointer;transition:all 0.2s;${isPending ? 'opacity:0.7;' : ''}" 
                          onmouseover="this.style.borderColor='#3b82f6';this.style.boxShadow='0 2px 4px rgba(0,0,0,0.1)';" 
                          onmouseout="this.style.borderColor='#e5e7eb';this.style.boxShadow='none';">
                         <div style="font-weight:600;font-size:14px;margin-bottom:4px;">${item.title}</div>
                         <div style="display:flex;justify-content:space-between;font-size:12px;">
-                            <span style="color:#666;">${item.lang.toUpperCase()}</span>
+                            <span style="color:#666;">${item.lang.toUpperCase()}${item.wp_id ? ' · ID:' + item.wp_id : ''}</span>
                             <span style="color:${statusColor};font-weight:600;">${statusLabel}</span>
                         </div>
                     </div>
@@ -1685,10 +2143,14 @@ function runart_ai_visual_monitor_editor_mode($rest_url, $rest_nonce) {
             document.querySelectorAll('.rep-item').forEach(el => {
                 el.addEventListener('click', () => {
                     const id = el.getAttribute('data-id');
-                    console.log('Click en item, data-id =', id);
+                    const status = el.getAttribute('data-status');
+                    const wpId = el.getAttribute('data-wp-id');
+                    console.log('Click en item, data-id =', id, 'status =', status);
                     
                     // Guardar ID actual globalmente para botones de acción
                     window.RUNART_CURRENT_PAGE_ID = id;
+                    window.RUNART_CURRENT_WP_ID = wpId;
+                    window.RUNART_CURRENT_STATUS = status;
                     
                     // Resaltar item seleccionado
                     document.querySelectorAll('.rep-item').forEach(item => {
@@ -1696,9 +2158,80 @@ function runart_ai_visual_monitor_editor_mode($rest_url, $rest_nonce) {
                     });
                     el.style.background = '#eff6ff';
                     
-                    loadDetail(id);
+                    // Si está pendiente, mostrar opción de generar
+                    if (status === 'pending') {
+                        showPendingDetail(id, wpId);
+                    } else {
+                        loadDetail(id);
+                    }
                 });
             });
+        }
+        
+        // Mostrar detalle para página pendiente
+        function showPendingDetail(id, wpId) {
+            const item = currentItems.find(i => (i.ia_id || i.id || ('wp_' + i.wp_id)) === id);
+            const title = item ? item.title : id;
+            const lang = item ? item.lang : 'es';
+            
+            detailContainer.innerHTML = `
+                <div style="padding:20px;text-align:center;">
+                    <h3 style="margin-top:0;color:#666;">${title}</h3>
+                    <p style="color:#999;margin:20px 0;">Este contenido no tiene aún versión enriquecida con IA.</p>
+                    <button onclick="window.requestEnrichedGeneration(${wpId}, '${lang}')" 
+                            style="padding:12px 24px;background:#3b82f6;color:#fff;border:none;border-radius:6px;cursor:pointer;font-weight:600;font-size:14px;"
+                            onmouseover="this.style.background='#2563eb';" onmouseout="this.style.background='#3b82f6';">
+                        ✨ Generar contenido IA
+                    </button>
+                    <p style="font-size:12px;color:#999;margin-top:16px;">La generación puede tardar unos minutos.</p>
+                </div>
+            `;
+        }
+        
+        // Solicitar generación de contenido IA
+        window.requestEnrichedGeneration = function(wpId, lang) {
+            const btn = event.target;
+            btn.disabled = true;
+            btn.innerHTML = 'Procesando...';
+            
+            fetch(base + 'runart/content/enriched-request', {
+                method: 'POST',
+                headers: Object.assign({ 'Content-Type': 'application/json' }, authHeaders),
+                credentials: 'include',
+                body: JSON.stringify({ wp_id: parseInt(wpId), lang: lang })
+            })
+            .then(r => r.json())
+            .then(data => {
+                if (data.ok) {
+                    detailContainer.innerHTML = `
+                        <div style="padding:20px;text-align:center;">
+                            <div style="font-size:48px;margin-bottom:16px;">✅</div>
+                            <h3 style="color:#059669;">Solicitud registrada</h3>
+                            <p style="color:#666;">${data.message || 'La generación se procesará en el próximo ciclo de IA.'}</p>
+                            <p style="font-size:12px;color:#999;margin-top:16px;">ID de solicitud: ${data.request_id}</p>
+                        </div>
+                    `;
+                } else {
+                    detailContainer.innerHTML = `
+                        <div style="padding:20px;text-align:center;">
+                            <div style="font-size:48px;margin-bottom:16px;">❌</div>
+                            <h3 style="color:#dc2626;">Error</h3>
+                            <p style="color:#666;">${data.message || 'No se pudo registrar la solicitud.'}</p>
+                        </div>
+                    `;
+                }
+            })
+            .catch(err => {
+                console.error('Error requesting generation:', err);
+                detailContainer.innerHTML = `
+                    <div style="padding:20px;text-align:center;">
+                        <div style="font-size:48px;margin-bottom:16px;">❌</div>
+                        <h3 style="color:#dc2626;">Error de red</h3>
+                        <p style="color:#666;">No se pudo conectar con el servidor.</p>
+                    </div>
+                `;
+            });
+        };
         }
         
         // Cargar detalle

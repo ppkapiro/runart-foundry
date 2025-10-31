@@ -6,6 +6,33 @@
 
 ## Últimas actualizaciones
 
+### ⚡ 2025-10-30T23:58:00Z — F10-i (Optimización de carga Panel IA-Visual)
+**Branch:** `feat/ai-visual-implementation`
+
+**Objetivo:** Responder en < 1s mostrando contenidos IA existentes y cargar páginas WP en segundo plano con timeout y fallback.
+
+**Cambios principales:**
+- Backend
+  - Nuevo endpoint rápido: `GET /wp-json/runart/content/wp-pages?per_page=25&page=1`
+    - Paginado (máx 50), sólo id y título (sin fusión)
+    - Logging de diagnóstico en `wp-content/uploads/runart-jobs/wp_pages_fetch.log` con timestamp, URL, status y duración
+  - Mantiene endpoints existentes: `enriched-list` (IA) y `enriched-request`
+- Frontend (shortcode JS en `runart-wpcli-bridge.php`)
+  - Carga paralela: primero `enriched-list` (rápido, disco), en paralelo `wp-pages` con timeout de 5s
+  - Banners de estado: "Cargando contenidos IA…" → "Mostrando contenidos IA (N). Cargando páginas WP…" → "WP lento o sin respuesta. Modo IA solamente." (si timeout)
+  - Fusión en memoria sin bloquear la UI; mantiene los enriquecidos ya pintados y añade pendientes desde WP
+
+**Resultado esperado:**
+- El panel deja de quedarse en "Cargando…" por llamadas lentas a WP
+- Render inicial en ~<1s con los contenidos IA ya existentes
+- Si WP responde, la lista se completa sin parpadeos; si no, queda en modo IA-only con aviso
+
+**Archivos tocados:**
+- `tools/wpcli-bridge-plugin/runart-wpcli-bridge.php` (nueva ruta + JS del panel)
+
+**Estado:** 🟢 COMPLETADO — Carga no bloqueante con timeout y fallback
+
+
 ### 🟢 2025-10-30T23:15:00Z — F10-g (Normalización Contenido Enriquecido) — Alineación JSON F9 con Panel WP
 **Branch:** `feat/ai-visual-implementation`  
 **Commit:** (pending)  
