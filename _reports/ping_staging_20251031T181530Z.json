@@ -1,0 +1,18 @@
+{
+  "ok": true,
+  "status": "ok",
+  "site_url": "https://staging.runartfoundry.com",
+  "theme": {
+    "name": "RunArt Base",
+    "version": "0.1.1"
+  },
+  "runart_plugin": {
+    "name": "RunArt IA-Visual Unified",
+    "version": "2.0.1"
+  },
+  "auth": {
+    "is_logged_in": false,
+    "hint": "Si este endpoint estuviera detrás de autenticación, use X-WP-Nonce (usuarios WP) o Authorization: Bearer <token> según configuración."
+  },
+  "timestamp": "2025-10-31T18:15:30+00:00"
+}

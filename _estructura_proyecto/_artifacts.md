@@ -1,0 +1,221 @@
+# Estructura: _artifacts/
+
+**Carpeta principal:** `_artifacts/`
+**Líneas:** 211
+**Generado:** 2025-10-31 16:59:57
+
+---
+
+```
+📁 _artifacts/
+    📁 lighthouse/
+        📁 20251028/
+            📁 raw/
+                📄 en___run1.json — 649.7 KB
+                📄 en___run2.json — 649.6 KB
+                📄 en___run3.json — 650.8 KB
+                📄 en_about___run1.json — 509.3 KB
+                📄 en_about___run2.json — 509.8 KB
+                📄 en_about___run3.json — 500.0 KB
+                📄 en_blog___run1.json — 577.3 KB
+                📄 en_blog___run2.json — 595.9 KB
+                📄 en_blog___run3.json — 577.9 KB
+                📄 en_contact___run1.json — 541.4 KB
+                📄 en_contact___run2.json — 533.1 KB
+                📄 en_contact___run3.json — 533.2 KB
+                📄 en_projects___run1.json — 662.4 KB
+                📄 en_projects___run2.json — 660.6 KB
+                📄 en_projects___run3.json — 661.5 KB
+                📄 en_services___run1.json — 648.5 KB
+                📄 en_services___run2.json — 648.8 KB
+                📄 en_services___run3.json — 623.6 KB
+                📄 es___run1.json — 632.7 KB
+                📄 es___run2.json — 632.5 KB
+                📄 es___run3.json — 632.5 KB
+                📄 es_about___run1.json — 502.9 KB
+                📄 es_about___run2.json — 514.0 KB
+                📄 es_about___run3.json — 503.9 KB
+                📄 es_blog_2___run1.json — 682.8 KB
+                📄 es_blog_2___run2.json — 682.8 KB
+                📄 es_blog_2___run3.json — 664.7 KB
+                📄 es_contacto___run1.json — 550.9 KB
+                📄 es_contacto___run2.json — 539.3 KB
+                📄 es_contacto___run3.json — 541.3 KB
+                📄 es_projects___run1.json — 687.3 KB
+                📄 es_projects___run2.json — 714.4 KB
+                📄 es_projects___run3.json — 687.3 KB
+                📄 es_services___run1.json — 651.1 KB
+                📄 es_services___run2.json — 648.7 KB
+                📄 es_services___run3.json — 649.2 KB
+                📄 root__run1.json — 645.0 KB
+                📄 root__run2.json — 669.4 KB
+                📄 root__run3.json — 668.4 KB
+            📄 summary.json — 9.0 KB
+    📁 plugins/
+        📄 runart-wpcli-bridge-v1.0.1.zip — 1.6 KB
+    📁 screenshots_staging/
+    📁 screenshots_uiux_20251028/
+        📄 README.md — 2.9 KB
+        📄 about.png — 5.7 KB
+        📄 blog-single-lost-wax-casting-process.png — 5.7 KB
+        📄 blog.png — 5.7 KB
+        📄 contact.png — 5.7 KB
+        📄 en_-1024.png — 565.4 KB
+        📄 en_-1280.png — 566.9 KB
+        📄 en_-1440.png — 570.7 KB
+        📄 en_-320.png — 609.1 KB
+        📄 en_-360.png — 620.2 KB
+        📄 en_-390.png — 612.4 KB
+        📄 en_-414.png — 607.0 KB
+        📄 en_-430.png — 603.3 KB
+        📄 en_-768.png — 591.5 KB
+        📄 en_about_-1024.png — 183.4 KB
+        📄 en_about_-1280.png — 180.1 KB
+        📄 en_about_-1440.png — 182.0 KB
+        📄 en_about_-320.png — 187.1 KB
+        📄 en_about_-360.png — 198.7 KB
+        📄 en_about_-390.png — 192.8 KB
+        📄 en_about_-414.png — 190.9 KB
+        📄 en_about_-430.png — 191.8 KB
+        📄 en_about_-768.png — 187.0 KB
+        📄 en_blog_-1024.png — 153.6 KB
+        📄 en_blog_-1280.png — 154.0 KB
+        📄 en_blog_-1440.png — 157.1 KB
+        📄 en_blog_-320.png — 159.2 KB
+        📄 en_blog_-360.png — 166.8 KB
+        📄 en_blog_-390.png — 163.0 KB
+        📄 en_blog_-414.png — 163.7 KB
+        📄 en_blog_-430.png — 163.4 KB
+        📄 en_blog_-768.png — 157.5 KB
+        📄 en_contact_-1024.png — 275.6 KB
+        📄 en_contact_-1280.png — 320.1 KB
+        📄 en_contact_-1440.png — 327.5 KB
+        📄 en_contact_-320.png — 120.5 KB
+        📄 en_contact_-360.png — 121.8 KB
+        📄 en_contact_-390.png — 118.0 KB
+        📄 en_contact_-414.png — 119.3 KB
+        📄 en_contact_-430.png — 119.7 KB
+        📄 en_contact_-768.png — 442.3 KB
+        📄 en_projects_-1024.png — 236.0 KB
+        📄 en_projects_-1280.png — 235.5 KB
+        📄 en_projects_-1440.png — 239.4 KB
+        📄 en_projects_-320.png — 237.7 KB
+        📄 en_projects_-360.png — 258.2 KB
+        📄 en_projects_-390.png — 250.6 KB
+        📄 en_projects_-414.png — 249.0 KB
+        📄 en_projects_-430.png — 249.0 KB
+        📄 en_projects_-768.png — 237.4 KB
+        📄 en_services_-1024.png — 206.1 KB
+        📄 en_services_-1280.png — 196.8 KB
+        📄 en_services_-1440.png — 200.0 KB
+        📄 en_services_-320.png — 201.5 KB
+        📄 en_services_-360.png — 224.9 KB
+        📄 en_services_-390.png — 222.4 KB
+        📄 en_services_-414.png — 218.5 KB
+        📄 en_services_-430.png — 219.2 KB
+        📄 en_services_-768.png — 207.3 KB
+        📄 es_-1024.png — 599.0 KB
+        📄 es_-1280.png — 615.2 KB
+        📄 es_-1440.png — 618.1 KB
+        📄 es_-320.png — 643.2 KB
+        📄 es_-360.png — 663.6 KB
+        📄 es_-390.png — 657.4 KB
+        📄 es_-414.png — 650.8 KB
+        📄 es_-430.png — 644.8 KB
+        📄 es_-768.png — 625.2 KB
+        📄 es_about_-1024.png — 183.4 KB
+        📄 es_about_-1280.png — 180.1 KB
+        📄 es_about_-1440.png — 182.0 KB
+        📄 es_about_-320.png — 187.1 KB
+        📄 es_about_-360.png — 198.7 KB
+        📄 es_about_-390.png — 192.8 KB
+        📄 es_about_-414.png — 190.9 KB
+        📄 es_about_-430.png — 191.8 KB
+        📄 es_about_-768.png — 187.0 KB
+        📄 es_blog_2_-1024.png — 349.7 KB
+        📄 es_blog_2_-1280.png — 321.8 KB
+        📄 es_blog_2_-1440.png — 325.4 KB
+        📄 es_blog_2_-320.png — 353.8 KB
+        📄 es_blog_2_-360.png — 383.0 KB
+        📄 es_blog_2_-390.png — 374.8 KB
+        📄 es_blog_2_-414.png — 374.6 KB
+        📄 es_blog_2_-430.png — 369.3 KB
+        📄 es_blog_2_-768.png — 342.8 KB
+        📄 es_contacto_-1024.png — 283.8 KB
+        📄 es_contacto_-1280.png — 326.3 KB
+        📄 es_contacto_-1440.png — 333.5 KB
+        📄 es_contacto_-320.png — 127.7 KB
+        📄 es_contacto_-360.png — 128.7 KB
+        📄 es_contacto_-390.png — 125.3 KB
+        📄 es_contacto_-414.png — 126.4 KB
+        📄 es_contacto_-430.png — 127.0 KB
+        📄 es_contacto_-768.png — 447.2 KB
+        📄 es_projects_-1024.png — 242.2 KB
+        📄 es_projects_-1280.png — 238.2 KB
+        📄 es_projects_-1440.png — 242.5 KB
+        📄 es_projects_-320.png — 239.0 KB
+        📄 es_projects_-360.png — 263.1 KB
+        📄 es_projects_-390.png — 258.0 KB
+        📄 es_projects_-414.png — 257.9 KB
+        📄 es_projects_-430.png — 257.6 KB
+        📄 es_projects_-768.png — 240.6 KB
+        📄 es_services_-1024.png — 207.8 KB
+        📄 es_services_-1280.png — 207.4 KB
+        📄 es_services_-1440.png — 211.0 KB
+        📄 es_services_-320.png — 213.7 KB
+        📄 es_services_-360.png — 235.6 KB
+        📄 es_services_-390.png — 231.3 KB
+        📄 es_services_-414.png — 230.3 KB
+        📄 es_services_-430.png — 230.8 KB
+        📄 es_services_-768.png — 216.5 KB
+        📄 home.png — 5.7 KB
+        📄 projects.png — 5.7 KB
+        📄 root-1024.png — 565.4 KB
+        📄 root-1280.png — 566.0 KB
+        📄 root-1440.png — 571.1 KB
+        📄 root-320.png — 609.2 KB
+        📄 root-360.png — 620.3 KB
+        📄 root-390.png — 612.3 KB
+        📄 root-414.png — 606.9 KB
+        📄 root-430.png — 603.3 KB
+        📄 root-768.png — 588.3 KB
+        📄 services.png — 5.7 KB
+    📁 screenshots_uiux_20251029/
+        📁 chrome-audit-pre-fix/
+            📄 1280px_0_home.png — 41.7 KB
+            📄 1280px_1_inicio.png — 43.5 KB
+            📄 1280px_2_services.png — 35.5 KB
+            📄 1280px_3_servicios.png — 39.8 KB
+            📄 360px_0_home.png — 23.0 KB
+            📄 360px_1_inicio.png — 23.8 KB
+            📄 360px_2_services.png — 20.9 KB
+            📄 360px_3_servicios.png — 18.4 KB
+            📄 390px_0_home.png — 22.6 KB
+            📄 390px_1_inicio.png — 22.8 KB
+            📄 390px_2_services.png — 17.8 KB
+            📄 390px_3_servicios.png — 18.6 KB
+            📄 414px_0_home.png — 26.5 KB
+            📄 414px_1_inicio.png — 23.2 KB
+            📄 414px_2_services.png — 23.1 KB
+            📄 414px_3_servicios.png — 22.8 KB
+        📁 chrome-mobile-nav-fix/
+            📄 1280_en.png — 23.5 KB
+            📄 1280_es.png — 23.1 KB
+            📄 360_en.png — 9.1 KB
+            📄 360_es.png — 9.1 KB
+            📄 390_en.png — 8.1 KB
+            📄 390_es.png — 8.1 KB
+            📄 414_en.png — 12.9 KB
+            📄 414_es.png — 12.3 KB
+    📁 wslnet_diag/
+        📄 briefing_namespace.json — 628.0 B
+        📄 dns_staging.txt — 201.0 B
+        📄 http_head_staging.txt — 385.0 B
+        📄 status_response.json — 390.0 B
+        📄 tls_staging.txt — 5.6 KB
+        📄 trigger_headers.txt — 591.0 B
+        📄 trigger_response.json — 149.0 B
+    📄 chrome_audit_post_fix.log — 9.0 KB
+    📄 chrome_overflow_audit_results.json — 46.9 KB
+    📄 runart-wpcli-bridge-latest.zip — 3.8 KB
+```

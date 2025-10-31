@@ -1,0 +1,237 @@
+name: Audit Content REST
+
+on:
+  workflow_dispatch:
+    inputs:
+      branch:
+        description: "Branch que recibirá los resultados (PR F1/F2)"
+        required: true
+        default: feat/content-audit-v2-phase1
+
+jobs:
+  audit:
+    name: Ejecutar auditoría REST
+    runs-on: ubuntu-latest
+    env:
+      WP_BASE_URL: https://staging.runartfoundry.com
+      READ_ONLY: "1"
+      DRY_RUN: "1"
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.inputs.branch }}
+          fetch-depth: 0
+
+      - name: Configurar Python 3.11
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Instalar dependencias
+        run: |
+          python -m pip install --upgrade pip
+          pip install requests
+
+      - name: Obtener datos REST (staging)
+        env:
+          WP_USER: ${{ secrets.WP_USER }}
+          WP_APP_PASSWORD: ${{ secrets.WP_APP_PASSWORD }}
+        run: |
+          python <<'PY'
+          import json
+          import os
+          from pathlib import Path
+          import requests
+
+          base_url = os.environ["WP_BASE_URL"].rstrip("/")
+          auth = (os.environ["WP_USER"], os.environ["WP_APP_PASSWORD"])
+          out_dir = Path("_tmp/rest_audit")
+          out_dir.mkdir(parents=True, exist_ok=True)
+
+          endpoints = {
+              "pages": f"{base_url}/wp-json/runart/audit/pages",
+              "images": f"{base_url}/wp-json/runart/audit/images",
+          }
+
+          totals = {}
+
+          for key, url in endpoints.items():
+              resp = requests.get(url, auth=auth, timeout=30)
+              if resp.status_code != 200:
+                  raise SystemExit(f"Request to {url} failed with {resp.status_code}: {resp.text}")
+              payload = resp.json()
+              (out_dir / f"{key}.json").write_text(json.dumps(payload, indent=2, ensure_ascii=False))
+              totals[key] = payload.get("total", len(payload.get("items", [])))
+
+          with open(os.environ["GITHUB_OUTPUT"], "a", encoding="utf-8") as fh:
+              fh.write(f"pages_total={totals['pages']}\n")
+              fh.write(f"images_total={totals['images']}\n")
+          PY
+        id: fetch_rest
+
+      - name: Generar reportes Markdown
+        run: |
+          python <<'PY'
+          import json
+          from pathlib import Path
+          from datetime import datetime, timezone
+
+          base_dir = Path("research/content_audit_v2")
+          base_dir.mkdir(parents=True, exist_ok=True)
+
+          tmp_dir = Path("_tmp/rest_audit")
+          pages = json.loads((tmp_dir / "pages.json").read_text(encoding="utf-8"))
+          images = json.loads((tmp_dir / "images.json").read_text(encoding="utf-8"))
+
+          timestamp = pages.get("meta", {}).get("timestamp") or datetime.now(timezone.utc).isoformat()
+          timestamp = timestamp.replace("+00:00", "Z")
+
+          def sanitize(value):
+              if value is None:
+                  return "—"
+              if isinstance(value, str) and not value.strip():
+                  return "—"
+              return str(value).strip()
+
+          # Pages report
+          pages_items = pages.get("items", [])
+          pages_total = pages.get("total", len(pages_items))
+          lines = []
+          lines.append("# F1 — Inventario de Páginas (REST)")
+          lines.append("")
+          lines.append(f"**Fecha de recolección:** {timestamp}")
+          lines.append(f"**Total de páginas/posts:** {pages_total}")
+          lines.append("")
+          if pages_items:
+              header = "| ID | URL | Idioma | Tipo | Estado | Título | Slug |"
+              separator = "|---|---|---|---|---|---|---|"
+              lines.append(header)
+              lines.append(separator)
+              for item in pages_items:
+                  row = "| {id} | {url} | {lang} | {type} | {status} | {title} | {slug} |".format(
+                      id=sanitize(item.get("id")),
+                      url=sanitize(item.get("url")),
+                      lang=sanitize(item.get("lang")),
+                      type=sanitize(item.get("type")),
+                      status=sanitize(item.get("status")),
+                      title=sanitize(item.get("title")),
+                      slug=sanitize(item.get("slug")),
+                  )
+                  lines.append(row)
+          else:
+              lines.append("> No se encontraron páginas en el inventario.")
+
+          (base_dir / "01_pages_inventory.md").write_text("\n".join(lines) + "\n", encoding="utf-8")
+
+          # Images report
+          images_items = images.get("items", [])
+          images_total = images.get("total", len(images_items))
+          lines = []
+          lines.append("# F2 — Inventario de Imágenes (REST)")
+          lines.append("")
+          lines.append(f"**Fecha de recolección:** {timestamp}")
+          lines.append(f"**Total de imágenes:** {images_total}")
+          lines.append("")
+          if images_items:
+              header = "| ID | URL | Archivo | ALT | Dimensiones | Tamaño (KB) | Idioma |"
+              separator = "|---|---|---|---|---|---|---|"
+              lines.append(header)
+              lines.append(separator)
+              for item in images_items:
+                  row = "| {id} | {url} | {file} | {alt} | {dimensions} | {size} | {lang} |".format(
+                      id=sanitize(item.get("id")),
+                      url=sanitize(item.get("url")),
+                      file=sanitize(item.get("file")),
+                      alt=sanitize(item.get("alt")),
+                      dimensions=sanitize(item.get("dimensions")),
+                      size=sanitize(item.get("size_kb")),
+                      lang=sanitize(item.get("lang")),
+                  )
+                  lines.append(row)
+          else:
+              lines.append("> No se encontraron imágenes en la biblioteca multimedia durante esta ejecución.")
+
+          (base_dir / "02_images_inventory.md").write_text("\n".join(lines) + "\n", encoding="utf-8")
+          PY
+
+      - name: Actualizar bitácora y métricas
+        run: |
+          python <<'PY'
+          import json
+          import re
+          from datetime import datetime, timezone
+          from pathlib import Path
+
+          bitacora = Path("_reports/BITACORA_AUDITORIA_V2.md")
+          text = bitacora.read_text(encoding="utf-8")
+
+          pages = json.loads(Path("_tmp/rest_audit/pages.json").read_text(encoding="utf-8"))
+          images = json.loads(Path("_tmp/rest_audit/images.json").read_text(encoding="utf-8"))
+
+          total_pages = pages.get("total", len(pages.get("items", [])))
+          total_images = images.get("total", len(images.get("items", [])))
+          timestamp = datetime.now(timezone.utc).replace(microsecond=0).isoformat().replace("+00:00", "Z")
+
+          # 1) Actualizar tabla de estado de fases
+          today = timestamp.split('T')[0]
+          f1_line = "| **F1** | `phase1` | Inventario de Páginas (ES/EN) | `feat/content-audit-v2-phase1` (PR #77) | **EN PROCESO REAL** | 2025-10-29 | — |"
+          f2_line = f"| **F2** | `phase2` | Inventario de Imágenes (Media Library) | `feat/content-audit-v2-phase1` (PR #77) | **EN PROCESO** | {today} | — |"
+
+          text = re.sub(r"\| \*\*F1\*\* \|.*\n", f1_line + "\n", text)
+          text = re.sub(r"\| \*\*F2\*\* \|.*\n", f2_line + "\n", text)
+
+          # 2) Agregar evento al inicio del registro cronológico inverso
+          event_heading = f"### {timestamp} — F1/F2 — Ejecución vía REST: pages={total_pages}, images={total_images}"
+          event_body = "**Branch:** `feat/content-audit-v2-phase1`\n**PR:** #77\n**Autor:** automation-runart\n**Archivos:**\n- research/content_audit_v2/01_pages_inventory.md\n- research/content_audit_v2/02_images_inventory.md\n- _reports/BITACORA_AUDITORIA_V2.md\n\n**Resumen:**\nDatos reales obtenidos desde staging vía endpoints REST (`runart/audit/pages`, `runart/audit/images`). Se actualizaron inventarios F1/F2 y métricas globales.\n\n**Resultado:** ✅ Éxito"
+
+          text = text.replace("## Eventos (Registro Cronológico Inverso)\n\n", f"## Eventos (Registro Cronológico Inverso)\n\n{event_heading}\n{event_body}\n\n")
+
+          # 3) Actualizar métricas
+          text = re.sub(r"Páginas inventariadas:.*\n", f"- **Páginas inventariadas:** {total_pages}\n", text)
+          text = re.sub(r"Imágenes inventariadas:.*\n", f"- **Imágenes inventariadas:** {total_images}\n", text)
+
+          text = re.sub(r"\| F1 \|.*\n", f"| F1 | {total_pages}/50+ | — | — | — | 50% |\n", text)
+          text = re.sub(r"\| F2 \|.*\n", f"| F2 | — | {total_images}/200+ | — | — | 0% |\n", text)
+
+          # 4) Eliminar marcadores 'TBD'
+          text = text.replace("TBD", "—")
+
+          bitacora.write_text(text, encoding="utf-8")
+
+          with open(Path("_tmp/rest_audit/metrics.json"), "w", encoding="utf-8") as fh:
+              json.dump({"pages": total_pages, "images": total_images}, fh)
+          PY
+
+      - name: Verificar cambios
+        run: |
+          git status --short
+          git diff
+
+      - name: Commit y push
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          if git diff --quiet; then
+            echo "No hay cambios que commitear."
+            exit 0
+          fi
+          git config user.name "automation-runart"
+          git config user.email "automation@runartfoundry.com"
+          git add research/content_audit_v2/01_pages_inventory.md research/content_audit_v2/02_images_inventory.md _reports/BITACORA_AUDITORIA_V2.md
+          git add -f _tmp/rest_audit/*.json
+          git commit -m "docs(audit): actualización automática F1/F2 vía REST (total_pages=${{ steps.fetch_rest.outputs.pages_total }}, total_images=${{ steps.fetch_rest.outputs.images_total }})"
+          git push origin HEAD:${{ github.event.inputs.branch }}
+
+      - name: Comentar en PR #77
+        if: always()
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          metrics=$(cat _tmp/rest_audit/metrics.json)
+          pages=$(python -c "import json,sys; print(json.loads(sys.argv[1])['pages'])" "$metrics")
+          images=$(python -c "import json,sys; print(json.loads(sys.argv[1])['images'])" "$metrics")
+          body=$'⚙️ **Auditoría REST ejecutada automáticamente**\n- F1 (Páginas): PAGES_TOTAL registros actualizados\n- F2 (Imágenes): IMAGES_TOTAL registros actualizados\n\nArchivos:\n- `research/content_audit_v2/01_pages_inventory.md`\n- `research/content_audit_v2/02_images_inventory.md`\n- `_reports/BITACORA_AUDITORIA_V2.md`\n\n_Este comentario se genera vía `audit-rest.yml`._'
+          body="${body//PAGES_TOTAL/$pages}"
+          body="${body//IMAGES_TOTAL/$images}"
+          gh pr comment 77 --body "$body"
