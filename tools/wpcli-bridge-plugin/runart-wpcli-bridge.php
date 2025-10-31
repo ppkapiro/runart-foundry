@@ -1,8 +1,8 @@
 <?php
 /**
  * Plugin Name:       RunArt WP-CLI Bridge (REST)
- * Description:       Endpoints REST seguros para tareas comunes de WP-CLI (flush cache, flush rewrite, listar usuarios y plugins, health).
- * Version:           1.1.6
+ * Description:       Endpoints REST seguros para WP-CLI, contenidos enriquecidos con carga rápida (F10-i) y job queue generación IA (F11).
+ * Version:           1.2.0
  * Author:            RunArt Foundry
  * Requires at least: 5.8
  * Requires PHP:      7.4
