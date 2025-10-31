@@ -2,7 +2,7 @@
 /**
  * Plugin Name:       RunArt WP-CLI Bridge (REST)
  * Description:       Endpoints REST seguros para tareas comunes de WP-CLI (flush cache, flush rewrite, listar usuarios y plugins, health).
- * Version:           1.1.5
+ * Version:           1.1.6
  * Author:            RunArt Foundry
  * Requires at least: 5.8
  * Requires PHP:      7.4
@@ -2035,7 +2035,7 @@ function runart_ai_visual_monitor_editor_mode($rest_url, $rest_nonce) {
             renderList(currentItems, currentStats);
         }
 
-        // Cargar listado (IA primero, WP en paralelo con timeout)
+        // Cargar listado (IA primero, WP en paralelo con timeout y fallback visual)
         function loadList() {
             setStatus('Cargando contenidos IA…', 'info');
             listContainer.innerHTML = '<div style="text-align:center;padding:16px;color:#666;">Cargando contenidos IA…</div>';
@@ -2056,27 +2056,54 @@ function runart_ai_visual_monitor_editor_mode($rest_url, $rest_nonce) {
             })
             .catch(err => {
                 console.warn('WP pages fetch failed/timeout:', err);
+                if (!currentItems || currentItems.length === 0) {
+                    // Si no hay IA y WP falla, mostrar mensaje claro
+                    listContainer.innerHTML = '<div style="padding:20px;color:#999;">WP lento o sin respuesta. No hay contenidos IA disponibles.</div>';
+                }
                 setStatus('WP lento o sin respuesta. Modo IA solamente.', 'warn');
             });
 
-            // Cargar IA (rápido - local)
+            // Cargar IA (rápido - local). Si tarda >800ms, mostrar fallback visual para que no quede "Cargando..."
+            let iaResolved = false;
+            const iaTimer = setTimeout(() => {
+                if (!iaResolved) {
+                    // Mostrar un estado intermedio para evitar spinner infinito
+                    setStatus('Cargando contenidos IA… (tardando)', 'info');
+                    listContainer.innerHTML = statusHtml + '<div style="text-align:center;padding:16px;color:#666;">Cargando contenidos IA…</div>';
+                }
+            }, 800);
+
             fetch(base + 'runart/content/enriched-list', {
                 credentials: 'include',
                 headers: authHeaders
             })
             .then(r => r.json())
             .then(data => {
-                if (!data.ok) throw new Error('IA list not ok');
-                const items = Array.isArray(data.items) ? data.items : [];
+                iaResolved = true;
+                clearTimeout(iaTimer);
+                if (!data.ok || !Array.isArray(data.items)) {
+                    // No hay IA, mostrar mensaje pero seguir esperando WP
+                    setStatus('No hay contenidos IA. Cargando páginas WP…', 'warn');
+                    if (!currentItems || currentItems.length === 0) {
+                        listContainer.innerHTML = '<div style="padding:20px;color:#999;">No hay contenidos enriquecidos. Cargando páginas WP…</div>';
+                    }
+                    return;
+                }
+
+                const items = data.items;
                 currentItems = items.map(i => Object.assign({}, i, { status: i.status || 'generated' }));
                 currentStats = { total: currentItems.length, generated: currentItems.length, pending: 0 };
                 setStatus(`Mostrando contenidos IA (${currentItems.length}). Cargando páginas WP…`, 'info');
                 renderList(currentItems, currentStats);
             })
             .catch(err => {
+                iaResolved = true;
+                clearTimeout(iaTimer);
                 console.error('Error loading IA enriched-list:', err);
                 setStatus('No hay contenidos IA. Cargando páginas WP…', 'warn');
-                // Seguir esperando WP para al menos mostrar pendientes
+                if (!currentItems || currentItems.length === 0) {
+                    listContainer.innerHTML = '<div style="padding:20px;color:#999;">No hay contenidos enriquecidos. Cargando páginas WP…</div>';
+                }
             });
         }
         
