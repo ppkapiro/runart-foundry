@@ -897,3 +897,250 @@ El panel incluye logging detallado en consola del navegador para diagnóstico:
 - **Producción/desarrollo:** Escritura directa en `data/assistants/rewrite/approvals.json`
 - **Staging readonly:** Fallback a `wp-content/uploads/runart-jobs/enriched-approvals.log`
 - CI puede procesar el log y actualizar el repo posteriormente
+
+---
+
+## F11 — Generador IA de Contenido Enriquecido (Runner)
+
+**Objetivo:** Procesar solicitudes de generación de contenido IA enriquecido mediante asistente OpenAI.
+
+### Arquitectura
+
+El sistema F11 actúa como **runner** que consume trabajos en cola y genera contenido enriquecido usando el asistente OpenAI configurado en F9.
+
+```
+┌─────────────────────────────────────────────────────────┐
+│                  F11 — IA GENERATION RUNNER              │
+└─────────────────────────────────────────────────────────┘
+
+ ┌───────────────┐       ┌───────────────┐       ┌───────────────┐
+ │   Panel WP    │       │  CI/Cron Job  │       │   Runner      │
+ │  (frontend)   │       │  (scheduler)  │       │  (Python)     │
+ └───────┬───────┘       └───────┬───────┘       └───────┬───────┘
+         │                       │                       │
+         │ POST /enriched-request │                       │
+         ├───────────────────────►│                       │
+         │                       │                       │
+         │                       │ git pull              │
+         │                       ├──────────────────────►│
+         │                       │                       │
+         │                       │                       │ 1. Lee jobs
+         │                       │                       ├──────┐
+         │                       │                       │      │
+         │                       │                       │◄─────┘
+         │                       │                       │
+         │                       │                       │ 2. Itera jobs
+         │                       │                       │    status=queued
+         │                       │                       ├──────┐
+         │                       │                       │      │
+         │                       │                       │◄─────┘
+         │                       │                       │
+         │                       │                       │ 3. OpenAI API
+         │                       │                       │    (assistant)
+         │                       │                       ├──────┐
+         │                       │                       │      │
+         │                       │                       │◄─────┘
+         │                       │                       │
+         │                       │                       │ 4. Escribe JSON
+         │                       │                       │    page_{wp_id}.json
+         │                       │                       ├──────┐
+         │                       │                       │      │
+         │                       │                       │◄─────┘
+         │                       │                       │
+         │                       │                       │ 5. Actualiza
+         │                       │                       │    index.json
+         │                       │                       ├──────┐
+         │                       │                       │      │
+         │                       │                       │◄─────┘
+         │                       │                       │
+         │                       │                       │ 6. Marca job
+         │                       │                       │    status=done
+         │                       │                       ├──────┐
+         │                       │                       │      │
+         │                       │                       │◄─────┘
+         │                       │                       │
+         │                       │ git commit & push     │
+         │                       │◄──────────────────────┤
+         │                       │                       │
+         └───────────────────────┴───────────────────────┴───────────────
+```
+
+### Archivo de Jobs
+
+**Ubicación:** `wp-content/uploads/runart-jobs/enriched-requests.json`
+
+**Formato:**
+```json
+{
+  "jobs": [
+    {
+      "id": "req_1730345678_123",
+      "wp_id": 123,
+      "slug": "mi-pagina",
+      "lang": "es",
+      "assistant": "ia-visual",
+      "status": "queued",
+      "created_at": "2025-10-31T10:30:00Z",
+      "requested_by": "editor"
+    },
+    {
+      "id": "req_1730345890_456",
+      "wp_id": 456,
+      "slug": "another-page",
+      "lang": "en",
+      "assistant": "ia-visual",
+      "status": "done",
+      "created_at": "2025-10-31T11:00:00Z",
+      "completed_at": "2025-10-31T11:05:00Z"
+    }
+  ]
+}
+```
+
+**Estados:**
+- `queued`: Job pendiente de procesar
+- `processing`: Job en ejecución (opcional para evitar duplicados)
+- `done`: Job completado exitosamente
+- `failed`: Job falló después de reintentos
+
+### Script del Runner
+
+**Ubicación:** `tools/f11_ia_content_runner.py` (propuesto)
+
+**Funcionalidad:**
+1. Lee `wp-content/uploads/runart-jobs/enriched-requests.json`
+2. Filtra jobs con `status=queued`
+3. Para cada job:
+   - Obtiene contenido de la página WP (vía REST API o base de datos)
+   - Llama al asistente OpenAI con el prompt configurado en F9
+   - Genera contenido enriquecido con referencias visuales
+   - Escribe resultado en `data/assistants/rewrite/page_{wp_id}.json`
+   - Actualiza `data/assistants/rewrite/index.json` con nueva entrada
+   - Marca job como `status=done` con timestamp `completed_at`
+4. Escribe jobs actualizados de vuelta al archivo
+5. Hace commit y push al repo (si es CI)
+
+**Ejemplo de invocación:**
+```bash
+python tools/f11_ia_content_runner.py \
+  --jobs-file wp-content/uploads/runart-jobs/enriched-requests.json \
+  --output-dir data/assistants/rewrite \
+  --assistant-id asst_abc123 \
+  --api-key $OPENAI_API_KEY
+```
+
+### Integración CI/CD
+
+**GitHub Actions Workflow:** `.github/workflows/ai-content-generation.yml` (propuesto)
+
+```yaml
+name: F11 IA Content Generation
+
+on:
+  schedule:
+    - cron: '0 */6 * * *'  # Cada 6 horas
+  workflow_dispatch:
+
+jobs:
+  generate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      
+      - name: Setup Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.10'
+      
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+      
+      - name: Run F11 Runner
+        env:
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+        run: |
+          python tools/f11_ia_content_runner.py \
+            --jobs-file wp-content/uploads/runart-jobs/enriched-requests.json \
+            --output-dir data/assistants/rewrite \
+            --assistant-id ${{ secrets.OPENAI_ASSISTANT_ID }}
+      
+      - name: Commit generated content
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add data/assistants/rewrite/
+          git add wp-content/uploads/runart-jobs/enriched-requests.json
+          git diff --staged --quiet || git commit -m "feat(f11): generated IA content for queued jobs"
+          git push
+```
+
+### Endpoint REST de Solicitud
+
+**Ya implementado:** `POST /wp-json/runart/content/enriched-request`
+
+**Permisos:** Usuario autenticado con `edit_pages` o `manage_options`
+
+**Payload:**
+```json
+{
+  "wp_id": 123,
+  "slug": "mi-pagina",
+  "lang": "es",
+  "assistant": "ia-visual"
+}
+```
+
+**Respuesta exitosa:**
+```json
+{
+  "ok": true,
+  "message": "Solicitud de generación registrada correctamente",
+  "job_id": "req_1730345678_123"
+}
+```
+
+**Respuesta readonly (staging):**
+```json
+{
+  "ok": false,
+  "status": "readonly",
+  "message": "Staging en modo solo lectura. Solicitud registrada para procesamiento en CI."
+}
+```
+
+### Seguridad
+
+- **API Key:** Solo disponible en CI, no en WordPress
+- **Permisos:** Solo editores pueden crear solicitudes
+- **Validación:** Runner valida que `wp_id` corresponda a página existente antes de llamar API
+- **Rate limiting:** Runner procesa máximo N jobs por ejecución para evitar abusos
+- **Logs:** Todos los eventos se registran en `logs/f11_runner.log`
+
+### Troubleshooting
+
+**Problema:** Jobs se quedan en `status=queued` indefinidamente
+
+**Solución:**
+1. Verificar que CI workflow esté habilitado
+2. Revisar logs de GitHub Actions para errores
+3. Confirmar que secrets `OPENAI_API_KEY` y `OPENAI_ASSISTANT_ID` estén configurados
+4. Ejecutar runner manualmente: `python tools/f11_ia_content_runner.py --dry-run`
+
+**Problema:** Runner falla con error de permisos
+
+**Solución:**
+1. Verificar que `data/assistants/rewrite/` tenga permisos de escritura
+2. Confirmar que `wp-content/uploads/runart-jobs/enriched-requests.json` sea legible
+
+**Problema:** Contenido generado no aparece en panel
+
+**Solución:**
+1. Verificar que `data/assistants/rewrite/index.json` fue actualizado
+2. Confirmar que `data/assistants/rewrite/page_{wp_id}.json` existe
+3. Limpiar caché de WordPress si es necesario
+4. Revisar permisos de lectura en directorio `data/`
+
+---
+
+**Última actualización:** 2025-10-31 (F11 — Runner de Generación IA)
+

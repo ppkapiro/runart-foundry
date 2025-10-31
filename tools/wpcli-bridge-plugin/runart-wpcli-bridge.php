@@ -331,12 +331,40 @@ add_action('rest_api_init', function () {
         ],
     ]);
     
-    // F10-b (Panel Editorial) - Listado de contenidos enriquecidos (GET)
+    // F10-i (Panel Editorial) - Listado rápido de contenidos IA (GET)
     register_rest_route('runart', '/content/enriched-list', [
         'methods'  => 'GET',
         'callback' => 'runart_content_enriched_list',
-        // Permitir a cualquier usuario autenticado
-        'permission_callback' => function () { return is_user_logged_in(); },
+        'permission_callback' => 'runart_wpcli_bridge_permission_editor',
+    ]);
+
+    // F10-i (Panel Editorial) - Listado paginado de páginas WP (GET)
+    register_rest_route('runart', '/content/wp-pages', [
+        'methods'  => 'GET',
+        'callback' => 'runart_content_wp_pages',
+        'permission_callback' => 'runart_wpcli_bridge_permission_editor',
+        'args' => [
+            'page' => [
+                'required' => false,
+                'type' => 'integer',
+                'minimum' => 1,
+                'description' => 'Número de página (default: 1)'
+            ],
+            'per_page' => [
+                'required' => false,
+                'type' => 'integer',
+                'minimum' => 1,
+                'maximum' => 50,
+                'description' => 'Elementos por página (default: 25, máximo: 50)'
+            ],
+        ],
+    ]);
+
+    // F10-i (Panel Editorial) - Fusión opcional IA + WP (POST)
+    register_rest_route('runart', '/content/enriched-merge', [
+        'methods'  => 'POST',
+        'callback' => 'runart_content_enriched_merge',
+        'permission_callback' => 'runart_wpcli_bridge_permission_editor',
     ]);
     
     // F10-b (Panel Editorial) - Aprobar/Rechazar contenido (POST)
@@ -371,24 +399,16 @@ add_action('rest_api_init', function () {
     register_rest_route('runart', '/content/enriched-request', [
         'methods'  => 'POST',
         'callback' => 'runart_content_enriched_request',
-        'permission_callback' => function () { return is_user_logged_in(); },
-        'args' => [
-            'wp_id' => [
-                'required' => true,
-                'type' => 'integer',
-                'description' => 'ID de la página de WordPress',
-            ],
-            'lang' => [
-                'required' => false,
-                'type' => 'string',
-                'description' => 'Idioma (es/en)',
-            ],
-        ],
+        'permission_callback' => 'runart_wpcli_bridge_permission_editor',
     ]);
 });
 
 function runart_wpcli_bridge_permission_admin() {
     return current_user_can('manage_options');
+}
+
+function runart_wpcli_bridge_permission_editor() {
+    return current_user_can('edit_pages') || current_user_can('manage_options');
 }
 
 function runart_wpcli_bridge_ok($data = [], $extra_meta = []) {
@@ -1383,89 +1403,104 @@ function runart_ai_visual_request_regeneration(WP_REST_Request $request) {
  * @return WP_REST_Response
  */
 function runart_content_enriched_list(WP_REST_Request $request) {
-    $index_info = runart_bridge_locate('assistants/rewrite/index.json');
-    
-    // Si no existe el índice, devolver lista vacía con diagnóstico
-    if (!$index_info['found']) {
+    $start = microtime(true);
+    $paths_tried = [];
+    $found_path = null;
+    $found_label = 'none';
+
+    $candidates = [];
+    if (defined('WP_CONTENT_DIR')) {
+        $candidates[] = [
+            'label' => 'wp-content',
+            'path' => trailingslashit(WP_CONTENT_DIR) . 'runart-data/assistants/rewrite/index.json',
+        ];
+        $candidates[] = [
+            'label' => 'uploads',
+            'path' => trailingslashit(WP_CONTENT_DIR) . 'uploads/runart-data/assistants/rewrite/index.json',
+        ];
+    }
+    $candidates[] = [
+        'label' => 'plugin',
+        'path' => trailingslashit(plugin_dir_path(__FILE__)) . 'data/assistants/rewrite/index.json',
+    ];
+
+    foreach ($candidates as $candidate) {
+        $paths_tried[] = $candidate['path'];
+        if (file_exists($candidate['path'])) {
+            $found_path = $candidate['path'];
+            $found_label = $candidate['label'];
+            break;
+        }
+    }
+
+    if (!$found_path) {
+        $duration = (int) round((microtime(true) - $start) * 1000);
         return new WP_REST_Response([
             'ok' => true,
+            'source' => 'none',
             'items' => [],
-            'message' => 'No hay contenidos enriquecidos.',
             'meta' => [
                 'timestamp' => gmdate('c'),
-                'phase' => 'F10-b',
-                'source' => 'enriched-list',
-                'index_source' => 'not-found',
-                'index_paths_tried' => $index_info['paths_tried'],
+                'duration_ms' => $duration,
+                'paths_tried' => $paths_tried,
             ],
         ], 200);
     }
-    
-    // Leer índice
-    $index_content = file_get_contents($index_info['path']);
+
+    $index_content = @file_get_contents($found_path);
     if ($index_content === false) {
-        return runart_wpcli_bridge_error(
-            'Error reading index file',
-            'read_error',
-            500
-        );
+        return runart_wpcli_bridge_error('Unable to read IA index file', 'read_error', 500);
     }
-    
+
     $index_data = json_decode($index_content, true);
     if (json_last_error() !== JSON_ERROR_NONE) {
         return runart_wpcli_bridge_error(
-            'Invalid JSON in index file: ' . json_last_error_msg(),
+            'Invalid IA index JSON: ' . json_last_error_msg(),
             'json_decode_error',
             500
         );
     }
-    
-    // Leer aprobaciones si existe
-    $approvals = [];
-    $approvals_info = runart_bridge_locate('assistants/rewrite/approvals.json');
-    if ($approvals_info['found']) {
-        $approvals_content = file_get_contents($approvals_info['path']);
-        if ($approvals_content !== false) {
-            $approvals_data = json_decode($approvals_content, true);
-            if (json_last_error() === JSON_ERROR_NONE) {
-                $approvals = $approvals_data;
-            }
-        }
-    }
-    
-    // Construir lista de items fusionando con aprobaciones
+
     $items = [];
     if (isset($index_data['pages']) && is_array($index_data['pages'])) {
         foreach ($index_data['pages'] as $page) {
-            // El JSON tiene 'page_id', no 'id'
             $page_id = isset($page['page_id']) ? $page['page_id'] : (isset($page['id']) ? $page['id'] : '');
+            if (empty($page_id)) {
+                continue;
+            }
+
+            $title = isset($page['title']) ? (string) $page['title'] : $page_id;
+            $lang = isset($page['lang']) ? (string) $page['lang'] : 'es';
+
             $item = [
                 'id' => $page_id,
-                'title' => isset($page['title']) ? $page['title'] : $page_id,
-                'lang' => isset($page['lang']) ? $page['lang'] : 'unknown',
-                'status' => isset($approvals[$page_id]['status']) ? $approvals[$page_id]['status'] : 'generated',
+                'title' => $title,
+                'lang' => $lang,
+                'status' => isset($page['status']) ? (string) $page['status'] : 'generated',
+                'source' => 'ia',
+                'payload' => $page,
             ];
-            
-            if (isset($approvals[$page_id])) {
-                $item['approval'] = $approvals[$page_id];
+
+            if (isset($page['wp_id'])) {
+                $item['wp_id'] = (int) $page['wp_id'];
             }
-            
+
             $items[] = $item;
         }
     }
-    
+
+    $duration = (int) round((microtime(true) - $start) * 1000);
+
     return new WP_REST_Response([
         'ok' => true,
+        'source' => $found_path,
+        'source_label' => $found_label,
         'items' => $items,
-        'total' => count($items),
+        'count' => count($items),
         'meta' => [
             'timestamp' => gmdate('c'),
-            'phase' => 'F10-b',
-            'source' => 'enriched-list',
-            'index_source' => $index_info['source'],
-            'index_paths_tried' => $index_info['paths_tried'],
-            'approvals_source' => $approvals_info['found'] ? $approvals_info['source'] : 'not-found',
-            'approvals_paths_tried' => $approvals_info['found'] ? $approvals_info['paths_tried'] : [],
+            'duration_ms' => $duration,
+            'paths_tried' => $paths_tried,
         ],
     ], 200);
 }
@@ -1604,11 +1639,10 @@ function runart_content_wp_pages(WP_REST_Request $request) {
     $per_page = intval($request->get_param('per_page')) ?: 25;
     if ($per_page < 1) $per_page = 1;
     if ($per_page > 50) $per_page = 50;
-
     $query = [
         'per_page' => $per_page,
         'page' => $page,
-        '_fields' => 'id,title'
+        '_fields' => 'id,title,slug,lang'
     ];
 
     $req = new WP_REST_Request('GET', '/wp/v2/pages');
@@ -1616,43 +1650,36 @@ function runart_content_wp_pages(WP_REST_Request $request) {
 
     $start = microtime(true);
     $resp = rest_do_request($req);
-    $duration_ms = intval(round((microtime(true) - $start) * 1000));
-    $status = $resp ? $resp->get_status() : 500;
+    $duration_ms = (int) round((microtime(true) - $start) * 1000);
 
-    // Logging diagnóstico
-    $log_msg = sprintf(
-        "%s\t%s\tpage=%d&per_page=%d\tstatus=%d\tduration_ms=%d",
-        gmdate('c'),
-        '/wp/v2/pages',
-        $page,
-        $per_page,
-        $status,
-        $duration_ms
-    );
-    $log_info = runart_bridge_prepare_storage('runart-jobs/wp_pages_fetch.log');
-    if (!empty($log_info['path'])) {
-        @file_put_contents($log_info['path'], $log_msg . "\n", FILE_APPEND);
+    $status = 500;
+    if ($resp instanceof WP_REST_Response) {
+        $status = $resp->get_status();
+    } elseif (is_wp_error($resp)) {
+        $status = $resp->get_error_code() ? 500 : 500;
     }
 
-    if (!$resp || $status >= 400) {
+    if (!$resp || is_wp_error($resp) || $status >= 400) {
         return new WP_REST_Response([
             'ok' => false,
-            'message' => 'Error fetching WP pages',
+            'message' => 'wp timeout',
             'status' => $status,
             'duration_ms' => $duration_ms,
-        ], $status ?: 500);
+        ], 200);
     }
 
     $data = $resp->get_data();
     $headers = $resp->get_headers();
-    $total = isset($headers['X-WP-Total']) ? intval($headers['X-WP-Total']) : null;
-    $total_pages = isset($headers['X-WP-TotalPages']) ? intval($headers['X-WP-TotalPages']) : null;
+    $total = isset($headers['X-WP-Total']) ? (int) $headers['X-WP-Total'] : null;
+    $total_pages = isset($headers['X-WP-TotalPages']) ? (int) $headers['X-WP-TotalPages'] : null;
 
-    $items = [];
+    $pages = [];
     if (is_array($data)) {
         foreach ($data as $p) {
-            if (!is_array($p) || !isset($p['id'])) continue;
-            $pid = intval($p['id']);
+            if (!is_array($p) || !isset($p['id'])) {
+                continue;
+            }
+            $pid = (int) $p['id'];
             $title = '';
             if (isset($p['title'])) {
                 if (is_array($p['title']) && isset($p['title']['rendered'])) {
@@ -1661,11 +1688,13 @@ function runart_content_wp_pages(WP_REST_Request $request) {
                     $title = $p['title'];
                 }
             }
-            $items[] = [
+
+            $pages[] = [
                 'id' => 'page_' . $pid,
                 'wp_id' => $pid,
                 'title' => $title ?: ('Página ' . $pid),
-                'lang' => 'es',
+                'slug' => isset($p['slug']) ? (string) $p['slug'] : '',
+                'lang' => isset($p['lang']) ? (string) $p['lang'] : 'es',
             ];
         }
     }
@@ -1675,7 +1704,7 @@ function runart_content_wp_pages(WP_REST_Request $request) {
 
     return new WP_REST_Response([
         'ok' => true,
-        'items' => $items,
+        'pages' => $pages,
         'page' => $page,
         'per_page' => $per_page,
         'total' => $total,
@@ -1684,6 +1713,115 @@ function runart_content_wp_pages(WP_REST_Request $request) {
         'next' => $next,
         'duration_ms' => $duration_ms,
     ], 200);
+}
+
+function runart_content_enriched_merge(WP_REST_Request $request) {
+    $payload = $request->get_json_params();
+    $ia_items = isset($payload['ia']) && is_array($payload['ia']) ? $payload['ia'] : [];
+    $wp_items = isset($payload['wp']) && is_array($payload['wp']) ? $payload['wp'] : [];
+
+    $order = [];
+    $map = [];
+
+    $normalize_id = function ($item) {
+        if (is_array($item)) {
+            if (!empty($item['id'])) {
+                return (string) $item['id'];
+            }
+            if (!empty($item['page_id'])) {
+                return (string) $item['page_id'];
+            }
+            if (!empty($item['wp_id'])) {
+                return 'page_' . (int) $item['wp_id'];
+            }
+        }
+        return null;
+    };
+
+    foreach ($ia_items as $entry) {
+        if (!is_array($entry)) {
+            continue;
+        }
+        $id = $normalize_id($entry);
+        if (!$id) {
+            continue;
+        }
+
+        $item = [
+            'id' => $id,
+            'title' => isset($entry['title']) ? (string) $entry['title'] : $id,
+            'lang' => isset($entry['lang']) ? (string) $entry['lang'] : 'es',
+            'status' => isset($entry['status']) ? (string) $entry['status'] : 'generated',
+            'source' => 'ia',
+        ];
+
+        if (isset($entry['wp_id'])) {
+            $item['wp_id'] = (int) $entry['wp_id'];
+        }
+        if (isset($entry['slug'])) {
+            $item['slug'] = (string) $entry['slug'];
+        }
+
+        $map[$id] = $item;
+        $order[] = $id;
+    }
+
+    foreach ($wp_items as $entry) {
+        if (!is_array($entry)) {
+            continue;
+        }
+        $id = $normalize_id($entry);
+        if (!$id) {
+            continue;
+        }
+
+        $title = isset($entry['title']) ? (string) $entry['title'] : $id;
+        $lang = isset($entry['lang']) ? (string) $entry['lang'] : 'es';
+        $wp_id = isset($entry['wp_id']) ? (int) $entry['wp_id'] : null;
+        $slug = isset($entry['slug']) ? (string) $entry['slug'] : '';
+        $status = isset($entry['status']) ? (string) $entry['status'] : 'pending';
+
+        if (isset($map[$id])) {
+            $map[$id]['source'] = 'hybrid';
+            $map[$id]['title'] = $map[$id]['title'] ?: $title;
+            $map[$id]['lang'] = $map[$id]['lang'] ?: $lang;
+            if (!isset($map[$id]['wp_id']) && $wp_id) {
+                $map[$id]['wp_id'] = $wp_id;
+            }
+            if (!empty($slug)) {
+                $map[$id]['slug'] = $slug;
+            }
+            if (!empty($status) && $map[$id]['status'] === 'pending') {
+                $map[$id]['status'] = $status;
+            }
+        } else {
+            $map[$id] = [
+                'id' => $id,
+                'wp_id' => $wp_id,
+                'title' => $title,
+                'slug' => $slug,
+                'lang' => $lang,
+                'status' => $status,
+                'source' => 'wp',
+            ];
+            $order[] = $id;
+        }
+    }
+
+    $result = [];
+    $seen = [];
+    foreach ($order as $id) {
+        if (isset($map[$id]) && !isset($seen[$id])) {
+            $item = $map[$id];
+            if (empty($item['status'])) {
+                $item['status'] = 'pending';
+            }
+            $result[] = $item;
+            $seen[$id] = true;
+        }
+    }
+
+    return new WP_REST_Response($result, 200);
 }
 
 /**
@@ -1851,79 +1989,81 @@ function runart_content_enriched_hybrid(WP_REST_Request $request) {
  * @return WP_REST_Response
  */
 function runart_content_enriched_request(WP_REST_Request $request) {
-    $wp_id = $request->get_param('wp_id');
-    $lang = $request->get_param('lang') ?: 'es';
-    
+    $params = $request->get_json_params();
+
+    $wp_id = isset($params['wp_id']) ? (int) $params['wp_id'] : (int) $request->get_param('wp_id');
+    $slug = isset($params['slug']) ? (string) $params['slug'] : (string) $request->get_param('slug');
+    $lang = isset($params['lang']) ? (string) $params['lang'] : ($request->get_param('lang') ?: 'es');
+    $assistant = isset($params['assistant']) ? (string) $params['assistant'] : ($request->get_param('assistant') ?: 'ia-visual');
+
     if (empty($wp_id)) {
-        return runart_wpcli_bridge_error(
-            'wp_id parameter is required',
-            'missing_wp_id',
-            400
-        );
+        return runart_wpcli_bridge_error('wp_id parameter is required', 'missing_wp_id', 400);
     }
-    
+
     $current_user = wp_get_current_user();
     $user_login = $current_user && $current_user->user_login ? $current_user->user_login : 'unknown';
-    
-    // Registrar en uploads/runart-jobs/
+
     $uploads = wp_upload_dir();
     $base_uploads = isset($uploads['basedir']) ? $uploads['basedir'] : (ABSPATH . 'wp-content/uploads');
     $jobs_dir = trailingslashit($base_uploads) . 'runart-jobs/';
     $requests_file = $jobs_dir . 'enriched-requests.json';
-    
+
     if (!is_dir($jobs_dir)) {
-        @mkdir($jobs_dir, 0755, true);
+        if (function_exists('wp_mkdir_p')) {
+            wp_mkdir_p($jobs_dir);
+        } else {
+            @mkdir($jobs_dir, 0755, true);
+        }
     }
-    
-    // Leer requests existentes
-    $requests = [];
+
+    if (!is_dir($jobs_dir) || !is_writable($jobs_dir)) {
+        return new WP_REST_Response([
+            'ok' => false,
+            'status' => 'readonly',
+            'message' => 'staging no permite escritura, ejecute runner en CI',
+        ], 200);
+    }
+
+    $queue = [];
     if (file_exists($requests_file)) {
-        $requests_content = file_get_contents($requests_file);
-        if ($requests_content !== false) {
-            $requests_data = json_decode($requests_content, true);
-            if (json_last_error() === JSON_ERROR_NONE) {
-                $requests = $requests_data;
+        $raw = file_get_contents($requests_file);
+        if ($raw !== false) {
+            $decoded = json_decode($raw, true);
+            if (json_last_error() === JSON_ERROR_NONE && is_array($decoded)) {
+                $queue = $decoded;
             }
         }
     }
-    
-    // Añadir nueva solicitud
-    $request_id = 'wp_' . $wp_id . '_' . time();
-    $requests[$request_id] = [
+
+    $job = [
         'wp_id' => $wp_id,
-        'lang' => $lang,
+        'slug' => $slug,
+        'lang' => $lang ?: 'es',
+        'assistant' => $assistant ?: 'ia-visual',
+        'status' => 'queued',
         'requested_at' => gmdate('c'),
         'requested_by' => $user_login,
-        'status' => 'queued',
     ];
-    
-    // Guardar
-    $ok = @file_put_contents(
-        $requests_file,
-        json_encode($requests, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE)
-    );
-    
-    if ($ok !== false) {
+
+    $queue[] = $job;
+
+    $encoded = wp_json_encode($queue, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE);
+    $written = @file_put_contents($requests_file, $encoded);
+
+    if ($written === false) {
         return new WP_REST_Response([
-            'ok' => true,
-            'status' => 'queued',
-            'request_id' => $request_id,
-            'wp_id' => $wp_id,
-            'lang' => $lang,
-            'message' => 'Solicitud de generación registrada. Se procesará en el próximo ciclo de IA.',
-            'meta' => [
-                'timestamp' => gmdate('c'),
-                'phase' => 'F10-h',
-                'storage' => 'uploads/runart-jobs',
-            ],
+            'ok' => false,
+            'status' => 'readonly',
+            'message' => 'staging no permite escritura, ejecute runner en CI',
         ], 200);
     }
-    
-    return runart_wpcli_bridge_error(
-        'No se pudo registrar la solicitud (permisos de escritura)',
-        'write_error',
-        500
-    );
+
+    return new WP_REST_Response([
+        'ok' => true,
+        'status' => 'queued',
+        'job' => $job,
+        'queue_file' => str_replace(ABSPATH, '', $requests_file),
+    ], 200);
 }
 
 /**
@@ -2035,7 +2175,7 @@ function runart_ai_visual_monitor_editor_mode($rest_url, $rest_nonce) {
             renderList(currentItems, currentStats);
         }
 
-        // Cargar listado (IA primero, WP en paralelo con timeout y fallback visual)
+        // Cargar listado (IA primero, WP en paralelo con timeout)
         function loadList() {
             setStatus('Cargando contenidos IA…', 'info');
             listContainer.innerHTML = '<div style="text-align:center;padding:16px;color:#666;">Cargando contenidos IA…</div>';
@@ -2056,54 +2196,27 @@ function runart_ai_visual_monitor_editor_mode($rest_url, $rest_nonce) {
             })
             .catch(err => {
                 console.warn('WP pages fetch failed/timeout:', err);
-                if (!currentItems || currentItems.length === 0) {
-                    // Si no hay IA y WP falla, mostrar mensaje claro
-                    listContainer.innerHTML = '<div style="padding:20px;color:#999;">WP lento o sin respuesta. No hay contenidos IA disponibles.</div>';
-                }
                 setStatus('WP lento o sin respuesta. Modo IA solamente.', 'warn');
             });
 
-            // Cargar IA (rápido - local). Si tarda >800ms, mostrar fallback visual para que no quede "Cargando..."
-            let iaResolved = false;
-            const iaTimer = setTimeout(() => {
-                if (!iaResolved) {
-                    // Mostrar un estado intermedio para evitar spinner infinito
-                    setStatus('Cargando contenidos IA… (tardando)', 'info');
-                    listContainer.innerHTML = statusHtml + '<div style="text-align:center;padding:16px;color:#666;">Cargando contenidos IA…</div>';
-                }
-            }, 800);
-
+            // Cargar IA (rápido - local)
             fetch(base + 'runart/content/enriched-list', {
                 credentials: 'include',
                 headers: authHeaders
             })
             .then(r => r.json())
             .then(data => {
-                iaResolved = true;
-                clearTimeout(iaTimer);
-                if (!data.ok || !Array.isArray(data.items)) {
-                    // No hay IA, mostrar mensaje pero seguir esperando WP
-                    setStatus('No hay contenidos IA. Cargando páginas WP…', 'warn');
-                    if (!currentItems || currentItems.length === 0) {
-                        listContainer.innerHTML = '<div style="padding:20px;color:#999;">No hay contenidos enriquecidos. Cargando páginas WP…</div>';
-                    }
-                    return;
-                }
-
-                const items = data.items;
+                if (!data.ok) throw new Error('IA list not ok');
+                const items = Array.isArray(data.items) ? data.items : [];
                 currentItems = items.map(i => Object.assign({}, i, { status: i.status || 'generated' }));
                 currentStats = { total: currentItems.length, generated: currentItems.length, pending: 0 };
                 setStatus(`Mostrando contenidos IA (${currentItems.length}). Cargando páginas WP…`, 'info');
                 renderList(currentItems, currentStats);
             })
             .catch(err => {
-                iaResolved = true;
-                clearTimeout(iaTimer);
                 console.error('Error loading IA enriched-list:', err);
                 setStatus('No hay contenidos IA. Cargando páginas WP…', 'warn');
-                if (!currentItems || currentItems.length === 0) {
-                    listContainer.innerHTML = '<div style="padding:20px;color:#999;">No hay contenidos enriquecidos. Cargando páginas WP…</div>';
-                }
+                // Seguir esperando WP para al menos mostrar pendientes
             });
         }
         

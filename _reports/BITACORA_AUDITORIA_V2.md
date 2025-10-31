@@ -6,6 +6,181 @@
 
 ## Últimas actualizaciones
 
+### 🚀 2025-10-31T02:30:00Z — F11 (Base IA Generation Runner) — Arquitectura Job Queue + Documentación
+**Branch:** `feat/ai-visual-implementation`  
+**Commit:** (pending)  
+**Autor:** automation-runart  
+**Archivos:**
+- docs/ai/architecture_overview.md (modificado) — Nueva sección F11 completa
+
+**Objetivo:** Sentar las bases del runner que procesará solicitudes de generación IA desde el panel editorial.
+
+**Implementación:**
+
+1. ✅ **Documentación completa en architecture_overview.md:**
+   - Diagrama de flujo Panel → CI → Runner
+   - Especificación de archivo de jobs: `wp-content/uploads/runart-jobs/enriched-requests.json`
+   - Formato JSON con estados: `queued`, `processing`, `done`, `failed`
+   - Script propuesto: `tools/f11_ia_content_runner.py`
+   - Workflow CI propuesto: `.github/workflows/ai-content-generation.yml`
+   - Sección de troubleshooting para debugging
+
+2. ✅ **Arquitectura del runner:**
+   - Lee jobs con `status=queued` desde archivo JSON
+   - Para cada job:
+     - Obtiene contenido de página WP
+     - Llama asistente OpenAI (configurado en F9)
+     - Genera contenido enriquecido con referencias visuales
+     - Escribe `data/assistants/rewrite/page_{wp_id}.json`
+     - Actualiza `data/assistants/rewrite/index.json`
+     - Marca job como `status=done` con `completed_at` timestamp
+   - Hace commit y push al repo (si es CI)
+
+3. ✅ **Integración con endpoint existente:**
+   - `POST /wp-json/runart/content/enriched-request` (ya implementado en F10-i)
+   - Permisos: usuarios con `edit_pages` o `manage_options`
+   - Crea jobs en formato estándar con `job_id` único
+   - Graceful handling de staging readonly
+
+4. ✅ **Seguridad:**
+   - API Key de OpenAI solo en CI, no en WordPress
+   - Validación de `wp_id` antes de llamar API
+   - Rate limiting propuesto (máx N jobs por ejecución)
+   - Logging en `logs/f11_runner.log`
+
+**Estado de implementación:**
+- ✅ Documentación completa
+- ✅ Especificación de formato de jobs
+- ✅ Endpoint REST listo (F10-i)
+- ⏳ Script Python runner (propuesto, no implementado aún)
+- ⏳ GitHub Actions workflow (propuesto, no implementado aún)
+
+**Próximos pasos (F11 implementación):**
+1. Crear `tools/f11_ia_content_runner.py` según spec
+2. Implementar `.github/workflows/ai-content-generation.yml`
+3. Configurar secrets en GitHub (OPENAI_API_KEY, OPENAI_ASSISTANT_ID)
+4. Pruebas end-to-end: Panel → Job Queue → Runner → Content Generated
+
+**Estado:** 🟡 BASE LISTA — Documentación y arquitectura completas, implementación pendiente
+
+---
+
+### ⚡ 2025-10-31T02:00:00Z — F10-i (Optimización Carga Panel IA-Visual) — Carga rápida + timeout WP + endpoint solicitud IA
+**Branch:** `feat/ai-visual-implementation`  
+**Commit:** (pending)  
+**Autor:** automation-runart  
+**Archivos:**
+- tools/wpcli-bridge-plugin/runart-wpcli-bridge.php (modificado) — 4 endpoints nuevos/reescritos + helper de permisos
+- tools/runart-ai-visual-panel/assets/js/panel-editor.js (reescrito) — Carga dos pasos + timeout + botón solicitud
+
+**Objetivo:** Panel IA-Visual carga en <1s mostrando contenidos IA existentes, carga páginas WP asíncronamente con timeout 5s, y permite solicitar generación IA desde el frontend.
+
+**Cambios implementados:**
+
+1. ✅ **Backend — Endpoints REST optimizados:**
+
+   a) **`GET /runart/content/enriched-list` (reescrito):**
+      - Lectura rápida con cascada ordenada de paths:
+        1. `wp-content/runart-data/assistants/rewrite/index.json` (prioridad staging)
+        2. `wp-content/uploads/runart-data/assistants/rewrite/index.json` (fallback upload)
+        3. `wp-content/plugins/runart-wpcli-bridge/data/assistants/rewrite/index.json` (último recurso)
+      - Retorna: `{ ok, items[], source, duration_ms }`
+      - Target: <200ms
+      - Permisos: usuario autenticado
+   
+   b) **`GET /runart/content/wp-pages?per_page=25&page=1` (reescrito):**
+      - Respuesta simplificada: `{ ok, pages: [{ id, title, slug, lang }], total, page, per_page }`
+      - Paginación: 1-50 páginas por request
+      - Timeout tolerante: retorna `ok:false` si falla sin bloquear
+      - Permisos: usuario autenticado
+   
+   c) **`GET /runart/content/enriched-merge` (nuevo):**
+      - Fusión server-side opcional de IA + WP
+      - Helper con `normalize_id()` para consistencia de IDs
+      - Útil para debugging
+      - Permisos: usuario autenticado
+   
+   d) **`POST /runart/content/enriched-request` (reescrito):**
+      - Payload: `{ wp_id, slug, lang, assistant }`
+      - Escribe jobs en `wp-content/uploads/runart-jobs/enriched-requests.json`
+      - Job ID único: `req_{timestamp}_{wp_id}`
+      - Estados: `queued` (inicial) → `done` (procesado por runner F11)
+      - Graceful readonly: retorna `ok:false, status:readonly` si staging no permite escritura
+      - Permisos: `edit_pages` o `manage_options` (vía helper)
+   
+   e) **`runart_wpcli_bridge_permission_editor()` (nuevo helper):**
+      - Valida permisos de editor/admin
+      - Usado por endpoints de solicitud y aprobación
+
+2. ✅ **Frontend — Panel reescrito (ES5):**
+
+   a) **`fetchWithTimeout(url, options, timeoutMs):`**
+      - Wrapper con `AbortController` (navegadores modernos)
+      - Fallback con `Promise.race` para navegadores legacy
+      - Timeout configurable (5000ms para WP)
+   
+   b) **`initPanel()` — Carga en dos pasos:**
+      - **PASO A (IA rápida):**
+        - Fetch inmediato: `GET /enriched-list`
+        - Banner: "Cargando contenidos IA…" → "✓ IA (N) Cargando páginas WP…"
+        - Render items inmediato
+      - **PASO B (WP async con timeout):**
+        - `fetchWithTimeout()` con 5000ms
+        - Banner:
+          - OK: "✓ IA (N) ✓ WP (M)"
+          - Timeout: "✓ IA (N) ⚠ WP lento o sin respuesta."
+          - Error: "✓ IA (N) ⚠ WP no disponible."
+        - Merge en memoria, re-render sin parpadeo
+   
+   c) **`render()` — Fusión inteligente:**
+      - Normaliza items de ambas fuentes con `normalizeItem()`
+      - Merge por ID: prioridad a datos IA, enriquece con `wp_id` si falta
+      - Source tag: `ia`, `wp`, `hybrid`
+      - Status badge: color según estado (pending=#999, generated=#3b82f6, approved=#10b981)
+      - Botón "Generar IA" visible solo si `status=pending && wp_id` presente
+   
+   d) **`runartRequestGeneration(id, slug, lang)` — Handler botón:**
+      - Extrae `wp_id` del ID (formato `page_123`)
+      - POST a `/enriched-request` con payload JSON
+      - Alert feedback:
+        - Éxito: "✓ Solicitud enviada. Se procesará en el próximo ciclo de IA."
+        - Readonly: "⚠ Solicitud registrada (staging readonly). Se procesará en CI."
+        - Error: "Error: ..." con mensaje del servidor
+      - Global `window.runartRequestGeneration()` para onclick inline
+
+3. ✅ **Optimizaciones de rendimiento:**
+   - Cascada de paths con early-exit (primer match gana)
+   - Respuesta JSON mínima en `wp-pages` (sin fusion ni metadatos pesados)
+   - Sin re-consultas: una vez cargado IA, no se recarga
+   - Logging opcional de duración en respuestas (`duration_ms`)
+
+4. ✅ **UX mejorada:**
+   - Status badges informativos: 🔵 IA cargada, 🟢 WP cargada, 🟡 WP timeout, 🔴 WP error
+   - No bloqueo de UI: contenidos IA visibles inmediatamente
+   - Botón "Generar IA" solo en items relevantes (evita clutter)
+   - Feedback claro en alerts después de solicitar generación
+
+**Resultado esperado:**
+- Panel responde en ~<1s con contenidos IA existentes
+- Páginas WP cargan en 2-5s si disponible, timeout graceful si lento
+- Editores pueden solicitar generación IA con un click
+- Jobs se encolan para procesamiento por F11 runner (CI)
+- Staging readonly no rompe la funcionalidad, solo posterga procesamiento
+
+**Testing requerido:**
+1. ✅ Verificar carga IA inmediata (<1s)
+2. ⏳ Verificar carga WP async con timeout 5s (simular lentitud con `sleep()` en endpoint)
+3. ⏳ Click en "Generar IA" → verificar job en `enriched-requests.json`
+4. ⏳ Staging readonly → verificar mensaje "staging readonly" en alert
+
+**Archivos tocados:**
+- `tools/wpcli-bridge-plugin/runart-wpcli-bridge.php` (5 patches aplicados)
+- `tools/runart-ai-visual-panel/assets/js/panel-editor.js` (reescritura completa ~220 líneas)
+
+**Estado:** 🟢 CÓDIGO COMPLETO — Pendiente testing en staging
+
+---
+
 ### ⚡ 2025-10-30T23:58:00Z — F10-i (Optimización de carga Panel IA-Visual)
 **Branch:** `feat/ai-visual-implementation`
 
